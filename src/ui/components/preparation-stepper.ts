@@ -30,6 +30,7 @@ export function renderPreparationStepper(
           const isCurrentTimer = activePhaseTimer && activePhaseTimer.phase === step.phase;
           const isUnlocked = idx === 0 || prepSteps[idx - 1].isCompleted;
           const isCompleted = step.isCompleted;
+          const presc = step.loadPrescription;
 
           let statusBg = 'bg-zinc-900/30 border-zinc-800/60 opacity-60';
           let badgeText = 'BLOQUEADO';
@@ -69,6 +70,11 @@ export function renderPreparationStepper(
                     <span class="text-xs font-mono-num font-bold text-amber-400 bg-black/70 px-2.5 py-0.5 rounded-md border border-zinc-700 shadow-sm">
                       ${step.repsText}
                     </span>
+                    ${presc && presc.targetWeightKg > 0 && presc.rawWeightKg !== presc.targetWeightKg ? `
+                      <span class="text-[10px] font-mono-num text-zinc-400 opacity-80" title="Cálculo matemático exacto antes de redondear">
+                        (calc: ${presc.rawWeightKg} kg)
+                      </span>
+                    ` : ''}
                   </div>
                   <p class="text-[11px] text-zinc-400 mt-1 leading-relaxed">
                     ${step.description}
@@ -80,7 +86,7 @@ export function renderPreparationStepper(
                 ${isCurrentTimer ? `
                   <button
                     data-skip-prep-timer="${step.phase}"
-                    class="text-[10px] font-mono-num px-2.5 py-1.5 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 rounded-lg border border-zinc-600 transition-all active:scale-95"
+                    class="text-[10px] font-mono-num px-2.5 py-1.5 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 rounded-lg border border-zinc-600 transition-all active:scale-95 cursor-pointer"
                     title="Avanzar 15s"
                   >
                     ⏩ +15s

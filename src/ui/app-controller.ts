@@ -1,13 +1,22 @@
-import { AppState, DayId, SetExecutionLog } from '../domain/types';
+import { AppState, DayId, ExerciseDefinition, ExerciseProgress, SetExecutionLog, StrengthRecord } from '../domain/types';
 import { ELITE_SCHEDULE } from '../domain/schedule-data';
 import { PreparationGuide } from '../domain/preparation-guide';
 import { StorageRepository } from '../storage/storage-repository';
+import {
+  DEFAULT_ROUNDING_KG,
+  DEFAULT_TRAINING_MAX_PERCENT,
+  estimate1RM,
+  generateAllPhasePrescriptions,
+  calculateTrainingMax,
+  roundLoad
+} from '../domain/strength-engine';
 
 import { renderHeader } from './components/header';
 import { renderScheduleSelector } from './components/schedule-selector';
 import { renderPreparationStepper } from './components/preparation-stepper';
 import { renderExerciseExecutionCard } from './components/exercise-execution-card';
 import { renderAtpTimerModal, playAtpCompletionChime } from './components/atp-timer-modal';
+import { renderStrengthProgressModal } from './components/strength-progress-modal';
 
 export class AppController {
   private state: AppState;
@@ -19,6 +28,10 @@ export class AppController {
   
   // ATP timer
   private atpTimerInterval: number | null = null;
+
+  // Strength / Progress Modal
+  private isStrengthModalOpen: boolean = false;
+  private modalSelectedExerciseId: string = 'sentadilla-trasera';
 
   constructor(rootElement: HTMLElement) {
     this.rootElement = rootElement;
@@ -35,6 +48,10 @@ export class AppController {
       }
     } else {
       this.state.activeExerciseId = null;
+    }
+
+    if (this.state.activeExerciseId) {
+      this.modalSelectedExerciseId = this.state.activeExerciseId;
     }
   }
 
@@ -54,6 +71,21 @@ export class AppController {
 
   public init(): void {
     this.render();
+  }
+
+  /**
+   * Returns a deduplicated list of all exercises across all training days
+   */
+  private getAllExercises(): ExerciseDefinition[] {
+    const map = new Map<string, ExerciseDefinition>();
+    for (const day of ELITE_SCHEDULE) {
+      for (const ex of day.exercises) {
+        if (!map.has(ex.id)) {
+          map.set(ex.id, ex);
+        }
+      }
+    }
+    return Array.from(map.values());
   }
 
   private render(): void {
@@ -95,21 +127,40 @@ export class AppController {
         lastUpdated: Date.now()
       };
 
+      const exProgress: ExerciseProgress = this.state.progress[currentExercise.id] || {
+        exerciseId: currentExercise.id,
+        trainingMaxPercent: DEFAULT_TRAINING_MAX_PERCENT,
+        roundingKg: DEFAULT_ROUNDING_KG,
+        records: [],
+        updatedAt: Date.now()
+      };
+
+      const isBodyweight = currentExercise.id.includes('fondos') || currentExercise.id.includes('dominadas');
+      const prescriptions = generateAllPhasePrescriptions(
+        exProgress.currentOneRepMaxKg,
+        exProgress.trainingMaxPercent,
+        exProgress.roundingKg,
+        exProgress.customPhasePercentages,
+        isBodyweight,
+        this.state.userBodyweightKg
+      );
+
       const completedPhases = this.state.completedPrepPhases[currentExercise.id] || [];
-      const prepSteps = PreparationGuide.generatePhases(completedPhases);
+      const prepSteps = PreparationGuide.generatePhases(completedPhases, prescriptions);
 
       contentHtml = `
         <!-- Exercise Tabs for the Active Day -->
         <div class="flex items-center gap-2 overflow-x-auto pb-2 mb-4 scrollbar-none">
           ${activeDay.exercises.map(ex => {
             const isSelected = ex.id === currentExercise.id;
-            const exProgress = this.state.exerciseStates[ex.id];
-            const isCompleted = exProgress && exProgress.completedSetsCount >= ex.targetSets;
+            const exProgressState = this.state.exerciseStates[ex.id];
+            const isCompleted = exProgressState && exProgressState.completedSetsCount >= ex.targetSets;
+            const has1RM = (this.state.progress[ex.id]?.currentOneRepMaxKg || 0) > 0;
 
             return `
               <button
                 data-exercise-id="${ex.id}"
-                class="exercise-tab-btn flex-shrink-0 px-3.5 py-2.5 rounded-xl border text-xs font-mono-num font-semibold transition-all flex items-center gap-2 ${
+                class="exercise-tab-btn flex-shrink-0 px-3.5 py-2.5 rounded-xl border text-xs font-mono-num font-semibold transition-all flex items-center gap-2 cursor-pointer ${
                   isSelected 
                     ? 'bg-amber-500 border-amber-400 text-black shadow-[0_0_15px_rgba(245,158,11,0.3)]' 
                     : isCompleted 
@@ -118,6 +169,7 @@ export class AppController {
                 }"
               >
                 <span>${ex.name}</span>
+                ${has1RM ? '<span class="text-[9px] font-bold text-amber-300 bg-black/40 px-1 rounded">1RM</span>' : ''}
                 ${isCompleted ? '<span class="text-[10px] font-bold">✓</span>' : `<span class="text-[10px] opacity-70">(${ex.targetSets}x)</span>`}
               </button>
             `;
@@ -128,17 +180,29 @@ export class AppController {
         ${renderPreparationStepper(prepSteps, this.activePrepTimer)}
 
         <!-- Section 2: Exercise Execution Card (Fase 5: Series de Fuerza Real) -->
-        ${renderExerciseExecutionCard(currentExercise, progress)}
+        ${renderExerciseExecutionCard(currentExercise, progress, exProgress, prescriptions[5])}
       `;
     }
 
     // Modal overlay if ATP timer is active
-    let modalHtml = '';
+    let atpModalHtml = '';
     if (this.state.activeAtpTimer && this.state.activeAtpTimer.isRunning) {
-      modalHtml = renderAtpTimerModal(
+      atpModalHtml = renderAtpTimerModal(
         this.state.activeAtpTimer.exerciseName,
         this.state.activeAtpTimer.durationSeconds,
         this.state.activeAtpTimer.remainingSeconds
+      );
+    }
+
+    // Modal overlay if Strength Progress Modal is active
+    let strengthModalHtml = '';
+    if (this.isStrengthModalOpen) {
+      const allExercises = this.getAllExercises();
+      strengthModalHtml = renderStrengthProgressModal(
+        allExercises,
+        this.modalSelectedExerciseId,
+        this.state.progress,
+        this.state.userBodyweightKg
       );
     }
 
@@ -146,7 +210,8 @@ export class AppController {
       ${renderHeader(activeDay.title, isRest)}
       ${renderScheduleSelector(this.state.activeDayId)}
       ${contentHtml}
-      ${modalHtml}
+      ${atpModalHtml}
+      ${strengthModalHtml}
     `;
 
     this.attachEventListeners();
@@ -203,7 +268,35 @@ export class AppController {
       });
     }
 
-    // 5. ATP Timer Modal Controls
+    // 5. Open Strength Modal Triggers
+    const openStrengthBtn = this.rootElement.querySelector('#btn-open-strength-modal');
+    if (openStrengthBtn) {
+      openStrengthBtn.addEventListener('click', () => {
+        if (this.state.activeExerciseId) {
+          this.modalSelectedExerciseId = this.state.activeExerciseId;
+        }
+        this.isStrengthModalOpen = true;
+        this.render();
+      });
+    }
+
+    this.rootElement.querySelectorAll('[data-action="open-strength-modal"]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const exId = (e.currentTarget as HTMLElement).getAttribute('data-exercise-id');
+        if (exId) {
+          this.modalSelectedExerciseId = exId;
+        }
+        this.isStrengthModalOpen = true;
+        this.render();
+      });
+    });
+
+    // 6. Strength Progress Modal Internal Event Listeners
+    if (this.isStrengthModalOpen) {
+      this.attachStrengthModalListeners();
+    }
+
+    // 7. ATP Timer Modal Controls
     const atpSkipBtn = this.rootElement.querySelector('#btn-atp-skip-30s');
     const atpFinishBtn = this.rootElement.querySelector('#btn-atp-force-finish');
 
@@ -226,13 +319,13 @@ export class AppController {
       });
     }
 
-    // 6. Header Actions (Reset & Export)
+    // 8. Header Actions (Reset & Export)
     const exportBtn = this.rootElement.querySelector('#btn-export-data');
     if (exportBtn) {
       exportBtn.addEventListener('click', () => {
         const json = StorageRepository.exportJSON(this.state);
         navigator.clipboard.writeText(json).then(() => {
-          alert('¡Sesión exportada al portapapeles en formato JSON!');
+          alert('¡Sesión exportada al portapapeles en formato JSON con marcas y cargas objetivo!');
         }).catch(() => {
           prompt('Copia tu sesión JSON:', json);
         });
@@ -242,13 +335,213 @@ export class AppController {
     const resetBtn = this.rootElement.querySelector('#btn-reset-data');
     if (resetBtn) {
       resetBtn.addEventListener('click', () => {
-        if (confirm('¿Confirmas el reinicio de la sesión de entrenamiento?')) {
-          this.state = StorageRepository.resetState();
+        if (confirm('¿Confirmas el reinicio de la sesión de entrenamiento actual? (Tus marcas de 1RM se conservarán).')) {
+          const fresh = StorageRepository.resetState();
+          // Retain existing progress records across simple reset
+          fresh.progress = this.state.progress;
+          this.state = fresh;
+          StorageRepository.saveState(this.state);
           this.initializeDefaultSelections();
           this.render();
         }
       });
     }
+  }
+
+  private attachStrengthModalListeners(): void {
+    // Close Modal Button
+    const closeBtn = this.rootElement.querySelector('#btn-close-strength-modal');
+    if (closeBtn) {
+      closeBtn.addEventListener('click', () => {
+        this.isStrengthModalOpen = false;
+        this.render();
+      });
+    }
+
+    // Backdrop Click to close
+    const backdrop = this.rootElement.querySelector('#strength-modal-backdrop');
+    if (backdrop) {
+      backdrop.addEventListener('click', (e) => {
+        if (e.target === backdrop) {
+          this.isStrengthModalOpen = false;
+          this.render();
+        }
+      });
+    }
+
+    // Switch Exercise inside Modal
+    this.rootElement.querySelectorAll('[data-modal-select-exercise]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const exId = (e.currentTarget as HTMLElement).getAttribute('data-modal-select-exercise');
+        if (exId) {
+          this.modalSelectedExerciseId = exId;
+          this.render();
+        }
+      });
+    });
+
+    // Dynamic Live Preview in Form
+    const weightInput = this.rootElement.querySelector('#input-mark-weight') as HTMLInputElement | null;
+    const repsInput = this.rootElement.querySelector('#input-mark-reps') as HTMLInputElement | null;
+    const calcSourceRadios = this.rootElement.querySelectorAll('input[name="calcSource"]');
+    const preview1RM = this.rootElement.querySelector('#preview-1rm');
+    const previewTM = this.rootElement.querySelector('#preview-tm');
+    const previewF5 = this.rootElement.querySelector('#preview-f5');
+
+    const updateLivePreview = () => {
+      if (!weightInput || !repsInput || !preview1RM || !previewTM || !previewF5) return;
+      const weightKg = parseFloat(weightInput.value);
+      const reps = parseInt(repsInput.value, 10);
+      let selectedSource: 'direct' | 'epley' | 'brzycki' = 'epley';
+
+      calcSourceRadios.forEach(radio => {
+        if ((radio as HTMLInputElement).checked) {
+          selectedSource = (radio as HTMLInputElement).value as any;
+        }
+      });
+
+      const currentProgress = this.state.progress[this.modalSelectedExerciseId] || {
+        exerciseId: this.modalSelectedExerciseId,
+        trainingMaxPercent: DEFAULT_TRAINING_MAX_PERCENT,
+        roundingKg: DEFAULT_ROUNDING_KG,
+        records: [],
+        updatedAt: Date.now()
+      };
+
+      if (!isNaN(weightKg) && weightKg > 0 && !isNaN(reps) && reps >= 1 && reps <= 15) {
+        try {
+          const rm = estimate1RM(weightKg, reps, selectedSource);
+          const tm = calculateTrainingMax(rm, currentProgress.trainingMaxPercent);
+          const f5 = roundLoad(tm * 0.85, currentProgress.roundingKg);
+
+          preview1RM.textContent = `${rm.toFixed(1)} kg`;
+          previewTM.textContent = `${tm.toFixed(1)} kg`;
+          previewF5.textContent = `${f5.toFixed(1)} kg`;
+        } catch {
+          preview1RM.textContent = '—';
+          previewTM.textContent = '—';
+          previewF5.textContent = '—';
+        }
+      } else {
+        preview1RM.textContent = '0.0 kg';
+        previewTM.textContent = '0.0 kg';
+        previewF5.textContent = '0.0 kg';
+      }
+    };
+
+    if (weightInput) weightInput.addEventListener('input', updateLivePreview);
+    if (repsInput) repsInput.addEventListener('input', updateLivePreview);
+    calcSourceRadios.forEach(r => r.addEventListener('change', updateLivePreview));
+    updateLivePreview();
+
+    // Form Submit: Register Strength Mark
+    const form = this.rootElement.querySelector('#form-register-strength-mark') as HTMLFormElement | null;
+    if (form) {
+      form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const formData = new FormData(form);
+        const exerciseId = formData.get('exerciseId') as string;
+        const weightKg = parseFloat(formData.get('weightKg') as string);
+        const reps = parseInt(formData.get('reps') as string, 10);
+        const calcSource = (formData.get('calcSource') as 'direct' | 'epley' | 'brzycki') || 'epley';
+        const date = (formData.get('date') as string) || new Date().toISOString().split('T')[0];
+        const notes = (formData.get('notes') as string) || undefined;
+
+        if (isNaN(weightKg) || weightKg <= 0 || isNaN(reps) || reps < 1 || reps > 15) {
+          alert('Por favor introduce un peso válido mayor a 0 y repeticiones entre 1 y 15.');
+          return;
+        }
+
+        const oneRepMax = estimate1RM(weightKg, reps, calcSource);
+
+        if (!this.state.progress[exerciseId]) {
+          this.state.progress[exerciseId] = {
+            exerciseId,
+            trainingMaxPercent: DEFAULT_TRAINING_MAX_PERCENT,
+            roundingKg: DEFAULT_ROUNDING_KG,
+            records: [],
+            updatedAt: Date.now()
+          };
+        }
+
+        const newRecord: StrengthRecord = {
+          id: `mark-${Date.now()}`,
+          exerciseId,
+          date,
+          timestamp: Date.now(),
+          weightKg,
+          reps,
+          estimatedOneRepMaxKg: oneRepMax,
+          source: calcSource,
+          notes
+        };
+
+        this.state.progress[exerciseId].records.push(newRecord);
+        this.state.progress[exerciseId].currentOneRepMaxKg = oneRepMax;
+        this.state.progress[exerciseId].updatedAt = Date.now();
+
+        StorageRepository.saveState(this.state);
+        this.render();
+      });
+    }
+
+    // TM % Slider & Rounding Settings
+    const tmSlider = this.rootElement.querySelector('#slider-tm-percent') as HTMLInputElement | null;
+    const tmLabel = this.rootElement.querySelector('#label-tm-percent');
+    if (tmSlider && tmLabel) {
+      tmSlider.addEventListener('input', () => {
+        tmLabel.textContent = `${tmSlider.value}%`;
+      });
+    }
+
+    const saveSettingsBtn = this.rootElement.querySelector('#btn-save-exercise-settings');
+    if (saveSettingsBtn) {
+      saveSettingsBtn.addEventListener('click', () => {
+        const roundingSelect = this.rootElement.querySelector('#select-rounding-kg') as HTMLSelectElement | null;
+        const tmPct = tmSlider ? parseInt(tmSlider.value, 10) / 100 : DEFAULT_TRAINING_MAX_PERCENT;
+        const roundKg = roundingSelect ? parseFloat(roundingSelect.value) : DEFAULT_ROUNDING_KG;
+
+        if (!this.state.progress[this.modalSelectedExerciseId]) {
+          this.state.progress[this.modalSelectedExerciseId] = {
+            exerciseId: this.modalSelectedExerciseId,
+            trainingMaxPercent: tmPct,
+            roundingKg: roundKg,
+            records: [],
+            updatedAt: Date.now()
+          };
+        } else {
+          this.state.progress[this.modalSelectedExerciseId].trainingMaxPercent = tmPct;
+          this.state.progress[this.modalSelectedExerciseId].roundingKg = roundKg;
+          this.state.progress[this.modalSelectedExerciseId].updatedAt = Date.now();
+        }
+
+        StorageRepository.saveState(this.state);
+        this.render();
+      });
+    }
+
+    // Delete Mark
+    this.rootElement.querySelectorAll('[data-delete-mark-id]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const markId = (e.currentTarget as HTMLElement).getAttribute('data-delete-mark-id');
+        if (!markId) return;
+
+        if (confirm('¿Deseas eliminar este registro de marca?')) {
+          const exProg = this.state.progress[this.modalSelectedExerciseId];
+          if (exProg) {
+            exProg.records = exProg.records.filter(r => r.id !== markId);
+            if (exProg.records.length > 0) {
+              exProg.currentOneRepMaxKg = exProg.records[exProg.records.length - 1].estimatedOneRepMaxKg;
+            } else {
+              exProg.currentOneRepMaxKg = undefined;
+            }
+            exProg.updatedAt = Date.now();
+            StorageRepository.saveState(this.state);
+            this.render();
+          }
+        }
+      });
+    });
   }
 
   private switchDay(dayId: DayId): void {
@@ -260,6 +553,7 @@ export class AppController {
 
   private switchExercise(exerciseId: string): void {
     this.state.activeExerciseId = exerciseId;
+    this.modalSelectedExerciseId = exerciseId;
     StorageRepository.saveState(this.state);
     this.render();
   }
@@ -342,12 +636,38 @@ export class AppController {
     if (!currentExercise) return;
 
     const progress = this.state.exerciseStates[currentExercise.id];
+    const exProgress = this.state.progress[currentExercise.id];
+    const isBodyweight = currentExercise.id.includes('fondos') || currentExercise.id.includes('dominadas');
+    const prescriptions = generateAllPhasePrescriptions(
+      exProgress?.currentOneRepMaxKg,
+      exProgress?.trainingMaxPercent,
+      exProgress?.roundingKg,
+      exProgress?.customPhasePercentages,
+      isBodyweight,
+      this.state.userBodyweightKg
+    );
+    const targetF5 = prescriptions[5];
+
+    // Read actual execution inputs from DOM
+    const actualWeightInput = this.rootElement.querySelector('#input-set-actual-weight') as HTMLInputElement | null;
+    const actualRepsInput = this.rootElement.querySelector('#input-set-actual-reps') as HTMLInputElement | null;
+    const actualRpeSelect = this.rootElement.querySelector('#select-set-actual-rpe') as HTMLSelectElement | null;
+
+    const actualWeightKg = actualWeightInput && actualWeightInput.value !== '' ? parseFloat(actualWeightInput.value) : (targetF5.targetWeightKg > 0 ? targetF5.targetWeightKg : undefined);
+    const defaultReps = parseInt(currentExercise.targetRepsText.match(/\d+/)?.[0] || '3', 10);
+    const actualReps = actualRepsInput && actualRepsInput.value !== '' ? parseInt(actualRepsInput.value, 10) : defaultReps;
+    const rpe = actualRpeSelect && actualRpeSelect.value !== '' ? parseFloat(actualRpeSelect.value) : undefined;
+
     const newLog: SetExecutionLog = {
       id: `${currentExercise.id}-${Date.now()}`,
       exerciseId: currentExercise.id,
       dayId: this.state.activeDayId,
       setIndex: progress.completedSetsCount + 1,
       targetRepsText: currentExercise.targetRepsText,
+      targetWeightKg: targetF5.targetWeightKg > 0 ? targetF5.targetWeightKg : undefined,
+      actualWeightKg,
+      actualReps,
+      rpe,
       timestamp: Date.now()
     };
 
