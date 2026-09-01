@@ -17,14 +17,23 @@ import { renderPreparationStepper } from './components/preparation-stepper';
 import { renderExerciseExecutionCard } from './components/exercise-execution-card';
 import { renderAtpTimerModal, playAtpCompletionChime } from './components/atp-timer-modal';
 import { renderStrengthProgressModal } from './components/strength-progress-modal';
+import { renderPreparationTimerModal } from './components/preparation-timer-modal';
 
 export class AppController {
   private state: AppState;
   private rootElement: HTMLElement;
   
-  // Preparation timer
+  // Preparation & Mobility timer
   private prepTimerInterval: number | null = null;
-  private activePrepTimer: { phase: number; remainingSeconds: number } | null = null;
+  private activePrepTimer: {
+    phase: number;
+    phaseName: string;
+    description: string;
+    totalSeconds: number;
+    remainingSeconds: number;
+    isPaused: boolean;
+    isMinimized: boolean;
+  } | null = null;
   
   // ATP timer
   private atpTimerInterval: number | null = null;
@@ -194,6 +203,22 @@ export class AppController {
       );
     }
 
+    // Modal overlay if Preparation / Mobility timer is active and not minimized
+    let prepTimerModalHtml = '';
+    if (this.activePrepTimer && !this.activePrepTimer.isMinimized) {
+      const activeDay = ELITE_SCHEDULE.find(d => d.id === this.state.activeDayId);
+      const currentExercise = activeDay?.exercises.find(e => e.id === this.state.activeExerciseId) || activeDay?.exercises[0];
+      prepTimerModalHtml = renderPreparationTimerModal(
+        this.activePrepTimer.phase,
+        this.activePrepTimer.phaseName,
+        currentExercise?.name || 'EJERCICIO ACTIVO',
+        this.activePrepTimer.description,
+        this.activePrepTimer.totalSeconds,
+        this.activePrepTimer.remainingSeconds,
+        this.activePrepTimer.isPaused
+      );
+    }
+
     // Modal overlay if Strength Progress Modal is active
     let strengthModalHtml = '';
     if (this.isStrengthModalOpen) {
@@ -211,6 +236,7 @@ export class AppController {
       ${renderScheduleSelector(this.state.activeDayId)}
       ${contentHtml}
       ${atpModalHtml}
+      ${prepTimerModalHtml}
       ${strengthModalHtml}
     `;
 
@@ -259,6 +285,45 @@ export class AppController {
         this.fastForwardPrepTimer(phase, 15);
       });
     });
+
+    // Preparation Timer Modal Controls
+    const prepSkipBtn = this.rootElement.querySelector('#btn-prep-modal-skip-15s');
+    if (prepSkipBtn && this.activePrepTimer) {
+      prepSkipBtn.addEventListener('click', () => {
+        if (this.activePrepTimer) {
+          this.fastForwardPrepTimer(this.activePrepTimer.phase, 15);
+        }
+      });
+    }
+
+    const prepPauseBtn = this.rootElement.querySelector('#btn-prep-modal-toggle-pause');
+    if (prepPauseBtn && this.activePrepTimer) {
+      prepPauseBtn.addEventListener('click', () => {
+        if (this.activePrepTimer) {
+          this.activePrepTimer.isPaused = !this.activePrepTimer.isPaused;
+          this.render();
+        }
+      });
+    }
+
+    const prepCompleteBtn = this.rootElement.querySelector('#btn-prep-modal-complete');
+    if (prepCompleteBtn && this.activePrepTimer) {
+      prepCompleteBtn.addEventListener('click', () => {
+        if (this.activePrepTimer) {
+          this.completePreparationPhase(this.activePrepTimer.phase);
+        }
+      });
+    }
+
+    const prepMinimizeBtn = this.rootElement.querySelector('#btn-prep-modal-minimize');
+    if (prepMinimizeBtn && this.activePrepTimer) {
+      prepMinimizeBtn.addEventListener('click', () => {
+        if (this.activePrepTimer) {
+          this.activePrepTimer.isMinimized = true;
+          this.render();
+        }
+      });
+    }
 
     // 4. Complete Set Button
     const completeSetBtn = this.rootElement.querySelector('#btn-complete-set');
@@ -574,7 +639,12 @@ export class AppController {
 
     this.activePrepTimer = {
       phase,
-      remainingSeconds: step.restSeconds
+      phaseName: step.name,
+      description: step.description,
+      totalSeconds: step.restSeconds,
+      remainingSeconds: step.restSeconds,
+      isPaused: false,
+      isMinimized: false
     };
 
     if (this.prepTimerInterval) {
@@ -582,13 +652,35 @@ export class AppController {
     }
 
     this.prepTimerInterval = window.setInterval(() => {
-      if (this.activePrepTimer) {
+      if (this.activePrepTimer && !this.activePrepTimer.isPaused) {
         this.activePrepTimer.remainingSeconds -= 1;
         if (this.activePrepTimer.remainingSeconds <= 0) {
           if (this.prepTimerInterval) clearInterval(this.prepTimerInterval);
+          playAtpCompletionChime();
           this.completePreparationPhase(phase);
         } else {
-          this.render();
+          // Update digital clock and SVG ring in DOM if modal is open
+          const digitsEl = this.rootElement.querySelector('#prep-clock-digits');
+          if (digitsEl) {
+            const min = Math.floor(this.activePrepTimer.remainingSeconds / 60);
+            const sec = this.activePrepTimer.remainingSeconds % 60;
+            digitsEl.textContent = `${min.toString().padStart(2, '0')}:${sec.toString().padStart(2, '0')}`;
+          }
+
+          const ringEl = this.rootElement.querySelector('#prep-svg-progress-ring') as SVGCircleElement | null;
+          if (ringEl && this.activePrepTimer) {
+            const total = this.activePrepTimer.totalSeconds;
+            const rem = this.activePrepTimer.remainingSeconds;
+            const circumference = 282.74;
+            const progress = total > 0 ? (total - rem) / total : 0;
+            const offset = circumference - (circumference * progress);
+            ringEl.style.strokeDashoffset = `${offset}`;
+          }
+
+          // If minimized, re-render to update the row's seconds text
+          if (this.activePrepTimer.isMinimized) {
+            this.render();
+          }
         }
       }
     }, 1000);
@@ -601,6 +693,7 @@ export class AppController {
       this.activePrepTimer.remainingSeconds = Math.max(0, this.activePrepTimer.remainingSeconds - seconds);
       if (this.activePrepTimer.remainingSeconds <= 0) {
         if (this.prepTimerInterval) clearInterval(this.prepTimerInterval);
+        playAtpCompletionChime();
         this.completePreparationPhase(phase);
       } else {
         this.render();
