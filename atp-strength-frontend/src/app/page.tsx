@@ -960,6 +960,17 @@ export default function ZenDashboard() {
             <span className="tracking-wide">FUERZA / PROGRESO</span>
           </button>
 
+          {/* Botón REINICIAR / RESET en Cabecera */}
+          <button
+            type="button"
+            onClick={() => setShowResetModal(true)}
+            className="flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl border border-zinc-800 bg-zinc-950 hover:bg-zinc-900 hover:border-amber-500/50 text-xs font-mono text-zinc-300 hover:text-amber-400 transition-all active:scale-95 cursor-pointer"
+            title="Reiniciar progreso de entrenamiento"
+          >
+            <RotateCcw className="w-4 h-4 text-amber-400 flex-shrink-0" />
+            <span className="font-bold">RESET</span>
+          </button>
+
           {/* Botón Aislamiento Zen Desktop */}
           <button
             onClick={() => setZenFocusMode(true)}
