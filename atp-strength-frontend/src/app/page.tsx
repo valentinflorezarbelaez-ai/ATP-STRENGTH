@@ -220,6 +220,93 @@ const ALL_TRACKABLE_EXERCISES = [
   "Curl Bíceps Barra Z",
 ];
 
+// --- Clasificación Biomecánica para Aclimatación Neuromuscular ---
+function getExerciseCategory(exerciseName: string): "olympic_bar" | "ez_bar" | "bodyweight_weighted" | "dumbbells" {
+  if (
+    exerciseName.includes("Dominadas") ||
+    exerciseName.includes("Fondos") ||
+    exerciseName.includes("Planchas") ||
+    exerciseName.includes("Elevaciones")
+  ) {
+    return "bodyweight_weighted";
+  }
+  if (exerciseName.includes("Barra Z") || exerciseName.includes("Curl")) {
+    return "ez_bar";
+  }
+  if (exerciseName.includes("Paseo del Granjero")) {
+    return "dumbbells";
+  }
+  return "olympic_bar";
+}
+
+// --- Cálculo Fisiológico de la Rampa Neuromuscular (F1 a F5) Adaptada al Nivel de Fuerza ---
+function computeNeuromuscularRamp(exerciseName: string, trainingMax: number): {
+  f1: number;
+  f2: number;
+  f3: number;
+  f4: number;
+  f5: number;
+} {
+  const cat = getExerciseCategory(exerciseName);
+  const round25 = (val: number) => Math.max(0, Math.round(val / 2.5) * 2.5);
+
+  if (cat === "bodyweight_weighted") {
+    // Para calistenia con lastre:
+    // F1 = 0 kg (peso corporal propio para activar patrón motor sin fatiga)
+    // F2 = 25% del lastre TM
+    // F3 = 50% del lastre TM
+    // F4 = 75% del lastre TM (PAP)
+    // F5 = 85% del lastre TM (series efectivas de trabajo)
+    const f5 = round25(trainingMax * 0.85);
+    const f4 = round25(trainingMax * 0.75);
+    const f3 = round25(trainingMax * 0.50);
+    const f2 = round25(trainingMax * 0.25);
+    const f1 = 0;
+    return { f1, f2, f3, f4, f5 };
+  }
+
+  if (cat === "ez_bar") {
+    const minBar = 10; // Barra Z base = 10 kg
+    const f5 = Math.max(minBar, round25(trainingMax * 0.85));
+    const f4 = Math.max(minBar, round25(trainingMax * 0.75));
+    const f3 = Math.max(minBar, round25(trainingMax * 0.55));
+    const f2 = Math.max(minBar, round25(trainingMax * 0.35));
+    const f1 = minBar;
+    return {
+      f1,
+      f2: Math.max(f1, f2),
+      f3: Math.max(Math.max(f1, f2) + 2.5, f3),
+      f4: Math.max(Math.max(f2, f3) + 2.5, f4),
+      f5,
+    };
+  }
+
+  if (cat === "dumbbells") {
+    const f5 = round25(trainingMax * 0.85);
+    const f4 = round25(trainingMax * 0.75);
+    const f3 = round25(trainingMax * 0.55);
+    const f2 = round25(trainingMax * 0.40);
+    const f1 = round25(trainingMax * 0.25);
+    return { f1, f2, f3, f4, f5 };
+  }
+
+  // Barra Olímpica Estándar (20 kg base):
+  // Rampa monótona creciente adaptada a niveles de fuerza altos y bajos
+  const barWeight = 20;
+  const f5 = Math.max(barWeight, round25(trainingMax * 0.85));
+  const f1 = barWeight; // Barra vacía siempre
+  let f2 = Math.max(f1, round25(trainingMax * 0.40));
+  let f3 = Math.max(f2 + 2.5, round25(trainingMax * 0.60));
+  let f4 = Math.max(f3 + 2.5, round25(trainingMax * 0.80));
+
+  // Corrección si el TM es moderado para no superar las series efectivas
+  if (f5 <= f4) f4 = Math.max(f3, f5 - 2.5);
+  if (f4 <= f3) f3 = Math.max(f2, f4 - 2.5);
+  if (f3 <= f2) f2 = Math.max(f1, f3 - 2.5);
+
+  return { f1, f2, f3, f4, f5 };
+}
+
 // --- Motor de Cálculo Fisiológico Puro (1RM, TM y Prescripciones por Fase) ---
 function computeMetrics(
   exerciseName: string,
@@ -240,7 +327,7 @@ function computeMetrics(
   }
   oneRm = Math.round(oneRm * 10) / 10;
   const trainingMax = Math.round(oneRm * 0.9 * 10) / 10; // 90% TM
-  const round25 = (val: number) => Math.max(0, Math.round(val / 2.5) * 2.5);
+  const ramp = computeNeuromuscularRamp(exerciseName, trainingMax);
 
   return {
     id: Date.now(),
@@ -252,11 +339,11 @@ function computeMetrics(
     reps_performed: r,
     notes,
     prescriptions: {
-      phase_1_activation: Math.max(20, round25(trainingMax * 0.2)),
-      phase_2_light: round25(trainingMax * 0.4),
-      phase_3_medium: round25(trainingMax * 0.6),
-      phase_4_pap: round25(trainingMax * 0.8),
-      phase_5_work: round25(trainingMax * 0.85),
+      phase_1_activation: ramp.f1,
+      phase_2_light: ramp.f2,
+      phase_3_medium: ramp.f3,
+      phase_4_pap: ramp.f4,
+      phase_5_work: ramp.f5,
     },
   };
 }
@@ -288,7 +375,9 @@ export default function ZenDashboard() {
   const [selectedDayKey, setSelectedDayKey] = useState<string>("DAY_A");
   const [activeExerciseIndex, setActiveExerciseIndex] = useState<number>(0);
   const [currentSet, setCurrentSet] = useState<number>(1);
+  const [activePhaseStep, setActivePhaseStep] = useState<string>("F1");
   const [completedSetsMap, setCompletedSetsMap] = useState<{ [exerciseName: string]: number[] }>({});
+  const [completedWarmupMap, setCompletedWarmupMap] = useState<{ [exerciseName: string]: string[] }>({});
   const [backendOnline, setBackendOnline] = useState<boolean | null>(null);
 
   // Modal y Paneles
@@ -533,6 +622,33 @@ export default function ZenDashboard() {
     setRemainingSeconds(timerDuration);
   };
 
+  // Completar Fase Neuromuscular de Aclimatación y pasar a la siguiente
+  const handleCompleteWarmupPhase = (phaseKey: "F1" | "F2" | "F3" | "F4") => {
+    if (typeof navigator !== "undefined" && navigator.vibrate) {
+      navigator.vibrate([30, 50, 30]);
+    }
+
+    setCompletedWarmupMap((prev) => {
+      const list = prev[activeExercise.name] || [];
+      if (!list.includes(phaseKey)) {
+        return { ...prev, [activeExercise.name]: [...list, phaseKey] };
+      }
+      return prev;
+    });
+
+    const restMap: { [key: string]: { time: number; next: string; title: string } } = {
+      F1: { time: 60, next: "F2", title: `Aclimatación F1 Completada (${activeExercise.name})` },
+      F2: { time: 90, next: "F3", title: `Aclimatación F2 Completada (${activeExercise.name})` },
+      F3: { time: 120, next: "F4", title: `Aclimatación F3 Completada (${activeExercise.name})` },
+      F4: { time: 180, next: "1", title: `PAP F4 Potenciada (${activeExercise.name})` },
+    };
+
+    const phaseConfig = restMap[phaseKey];
+    handleStartTimer(phaseConfig.time, phaseConfig.title);
+    setZenFocusMode(true);
+    setActivePhaseStep(phaseConfig.next);
+  };
+
   // Botón Bio-Ergonómico 3D: Completar Serie con Carga Real y Lanzar Resíntesis Zen
   const handleCompleteSet = async (targetSet?: number) => {
     const setToFinish = targetSet !== undefined ? targetSet : currentSet;
@@ -561,10 +677,12 @@ export default function ZenDashboard() {
 
     if (setToFinish < activeExercise.sets) {
       setCurrentSet(setToFinish + 1);
+      setActivePhaseStep((setToFinish + 1).toString());
     } else {
       if (activeExerciseIndex < activeDay.exercises.length - 1) {
         setActiveExerciseIndex(activeExerciseIndex + 1);
         setCurrentSet(1);
+        setActivePhaseStep("F1");
       }
     }
 
@@ -942,29 +1060,112 @@ export default function ZenDashboard() {
                   </div>
                 )}
 
-                {/* 🎯 HERO DE INSTRUCCIÓN EXACTA (LO QUE TIENES QUE HACER AHORA MISMO) */}
+                {/* 🎯 HERO DE INSTRUCCIÓN EXACTA (ADAPTADO A FASES Y SERIES) */}
                 {(() => {
-                  const targetWeight = parseFloat(inputWeight) || (activeExMax?.prescriptions.phase_5_work ?? 0);
-                  const targetReps = parseInt(inputReps) || (parseInt(activeExercise.reps) || 3);
-                  const platePerSide = Math.max(0, Math.round(((targetWeight - 20) / 2) * 10) / 10);
+                  const isWarmup = activePhaseStep.startsWith("F");
+                  const cat = getExerciseCategory(activeExercise.name);
+
+                  let stepTitle = "";
+                  let stepSubtitle = "";
+                  let stepWeight = 0;
+                  let stepReps = "";
+                  let stepRestSeconds = 180;
+                  let buttonAction = () => {};
+                  let buttonLabel = "";
+
+                  if (activePhaseStep === "F1") {
+                    stepTitle = "FASE 1 // ACTIVACIÓN DINÁMICA (20% TM)";
+                    stepSubtitle = "Barra vacía / Activación de motoneuronas alfa y unidades motoras rápidas.";
+                    stepWeight = activeExMax?.prescriptions.phase_1_activation ?? 20;
+                    stepReps = "10 reps";
+                    stepRestSeconds = 60;
+                    buttonAction = () => handleCompleteWarmupPhase("F1");
+                    buttonLabel = "¡FASE 1 REALIZADA! → PASAR A FASE 2";
+                  } else if (activePhaseStep === "F2") {
+                    stepTitle = "FASE 2 // APROXIMACIÓN LIGERA (40% TM)";
+                    stepSubtitle = "Fijación técnica del patrón motor sin fatiga metabólica acumulada.";
+                    stepWeight = activeExMax?.prescriptions.phase_2_light ?? 0;
+                    stepReps = "5 reps";
+                    stepRestSeconds = 90;
+                    buttonAction = () => handleCompleteWarmupPhase("F2");
+                    buttonLabel = "¡FASE 2 REALIZADA! → PASAR A FASE 3";
+                  } else if (activePhaseStep === "F3") {
+                    stepTitle = "FASE 3 // APROXIMACIÓN MEDIA (60% TM)";
+                    stepSubtitle = "Sensibilización barométrica y aclimatación de la tensión tendinosa.";
+                    stepWeight = activeExMax?.prescriptions.phase_3_medium ?? 0;
+                    stepReps = "3 reps";
+                    stepRestSeconds = 120;
+                    buttonAction = () => handleCompleteWarmupPhase("F3");
+                    buttonLabel = "¡FASE 3 REALIZADA! → PASAR A FASE 4 (PAP)";
+                  } else if (activePhaseStep === "F4") {
+                    stepTitle = "FASE 4 // POTENCIACIÓN PESADA PAP (80% TM)";
+                    stepSubtitle = "Potenciación Post-Activación (PAP) máxima previa a las series efectivas.";
+                    stepWeight = activeExMax?.prescriptions.phase_4_pap ?? 0;
+                    stepReps = "1 rep pesada";
+                    stepRestSeconds = 180;
+                    buttonAction = () => handleCompleteWarmupPhase("F4");
+                    buttonLabel = "¡FASE 4 PAP REALIZADA! → ENTRAR A SERIES EFECTIVAS";
+                  } else {
+                    stepTitle = `SERIE ${currentSet} DE ${activeExercise.sets} // TRABAJO EFECTIVO (85% TM)`;
+                    stepSubtitle = "Máxima expresión de fuerza neural con recuperación bioquímica completa.";
+                    stepWeight = parseFloat(inputWeight) || (activeExMax?.prescriptions.phase_5_work ?? 0);
+                    stepReps = `${parseInt(inputReps) || (parseInt(activeExercise.reps) || 3)} reps`;
+                    stepRestSeconds = activeExercise.restSeconds || 180;
+                    buttonAction = () => handleCompleteSet();
+                    buttonLabel = `¡SERIE ${currentSet} REALIZADA! → ENTRAR EN DESCANSO ATP`;
+                  }
+
+                  // Montaje exacto de implemento
+                  let assemblyCue = "";
+                  if (cat === "bodyweight_weighted") {
+                    assemblyCue = stepWeight === 0 ? "Peso corporal propio (sin lastre adicional)" : `Cinturón de lastre + ${stepWeight} kg`;
+                  } else if (cat === "ez_bar") {
+                    const perSide = Math.max(0, Math.round(((stepWeight - 10) / 2) * 10) / 10);
+                    assemblyCue = `Barra Z (10 kg) + ${perSide} kg por lado`;
+                  } else if (cat === "dumbbells") {
+                    assemblyCue = `${stepWeight} kg por mano`;
+                  } else {
+                    const perSide = Math.max(0, Math.round(((stepWeight - 20) / 2) * 10) / 10);
+                    assemblyCue = stepWeight <= 20 ? "Barra olímpica vacía (20 kg)" : `Barra olímpica (20 kg) + ${perSide} kg por lado`;
+                  }
 
                   return (
-                    <div className="p-5 sm:p-6 rounded-3xl bg-gradient-to-b from-zinc-900 via-zinc-950 to-black border-2 border-amber-500/60 shadow-[0_0_40px_rgba(245,158,11,0.2)] relative overflow-hidden">
-                      {/* Estado del Paso */}
-                      <div className="flex items-center justify-between mb-4">
+                    <div className={`p-5 sm:p-6 rounded-3xl bg-gradient-to-b from-zinc-900 via-zinc-950 to-black border-2 transition-all relative overflow-hidden ${
+                      isWarmup
+                        ? "border-amber-500/40 shadow-[0_0_30px_rgba(245,158,11,0.1)]"
+                        : "border-amber-500/70 shadow-[0_0_45px_rgba(245,158,11,0.22)]"
+                    }`}>
+                      {/* Estado y Barra de Paso */}
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
                         <div className="flex items-center gap-2">
                           <span className="flex h-3 w-3 relative">
                             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75" />
                             <span className="relative inline-flex rounded-full h-3 w-3 bg-amber-500" />
                           </span>
                           <span className="font-mono text-xs font-black uppercase tracking-wider text-amber-400">
-                            PASO ACTUAL: SERIE {currentSet} DE {activeExercise.sets}
+                            {stepTitle}
                           </span>
                         </div>
-                        <span className="text-[11px] font-mono text-zinc-400 bg-zinc-900/90 px-3 py-1 rounded-full border border-zinc-800">
-                          ⏱️ Descanso: {Math.floor(activeExercise.restSeconds / 60)} min
-                        </span>
+                        <div className="flex items-center gap-2">
+                          {isWarmup && (
+                            <button
+                              type="button"
+                              onClick={() => setActivePhaseStep("1")}
+                              className="text-[11px] font-mono text-amber-400/80 hover:text-amber-300 underline cursor-pointer"
+                            >
+                              Saltar a Series Efectivas →
+                            </button>
+                          )}
+                          <span className="text-[11px] font-mono text-zinc-400 bg-zinc-900/90 px-3 py-1 rounded-full border border-zinc-800">
+                            ⏱️ Descanso: {Math.floor(stepRestSeconds / 60)}:{stepRestSeconds % 60 === 0 ? "00" : (stepRestSeconds % 60).toString().padStart(2, "0")} min
+                          </span>
+                        </div>
                       </div>
+
+                      {/* Subtítulo Fisiológico */}
+                      <p className="text-xs text-zinc-400 font-mono mb-3 leading-relaxed">
+                        {stepSubtitle}
+                      </p>
 
                       {/* INSTRUCCIÓN EXACTA: PESO Y REPETICIONES */}
                       <div className="grid grid-cols-2 gap-3 sm:gap-4 my-2 p-4 sm:p-5 rounded-2xl bg-black/90 border border-zinc-800 text-center">
@@ -973,36 +1174,38 @@ export default function ZenDashboard() {
                             TIENES QUE LEVANTAR:
                           </div>
                           <div className="text-3xl sm:text-5xl font-black font-mono text-amber-400 tracking-tight mt-1 flex items-baseline justify-center gap-1">
-                            <span>{targetWeight}</span>
+                            <span>{stepWeight}</span>
                             <span className="text-sm sm:text-base text-amber-400/70 font-bold">kg</span>
                           </div>
 
                           {/* Ajuste Rápido de Kilos */}
-                          <div className="flex items-center justify-center gap-2 mt-2">
-                            <button
-                              type="button"
-                              onClick={() => {
-                                const newVal = Math.max(0, targetWeight - 2.5);
-                                setInputWeight(newVal.toString());
-                              }}
-                              className="p-1.5 rounded-lg bg-zinc-900 hover:bg-zinc-800 border border-zinc-700 text-zinc-300 hover:text-white transition-colors cursor-pointer"
-                              title="Bajar 2.5 kg"
-                            >
-                              <Minus className="w-3.5 h-3.5" />
-                            </button>
-                            <span className="text-[10px] font-mono text-zinc-400">2.5 kg</span>
-                            <button
-                              type="button"
-                              onClick={() => {
-                                const newVal = targetWeight + 2.5;
-                                setInputWeight(newVal.toString());
-                              }}
-                              className="p-1.5 rounded-lg bg-zinc-900 hover:bg-zinc-800 border border-zinc-700 text-zinc-300 hover:text-white transition-colors cursor-pointer"
-                              title="Subir 2.5 kg"
-                            >
-                              <Plus className="w-3.5 h-3.5" />
-                            </button>
-                          </div>
+                          {!isWarmup && (
+                            <div className="flex items-center justify-center gap-2 mt-2">
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  const newVal = Math.max(0, stepWeight - 2.5);
+                                  setInputWeight(newVal.toString());
+                                }}
+                                className="p-1.5 rounded-lg bg-zinc-900 hover:bg-zinc-800 border border-zinc-700 text-zinc-300 hover:text-white transition-colors cursor-pointer"
+                                title="Bajar 2.5 kg"
+                              >
+                                <Minus className="w-3.5 h-3.5" />
+                              </button>
+                              <span className="text-[10px] font-mono text-zinc-400">2.5 kg</span>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  const newVal = stepWeight + 2.5;
+                                  setInputWeight(newVal.toString());
+                                }}
+                                className="p-1.5 rounded-lg bg-zinc-900 hover:bg-zinc-800 border border-zinc-700 text-zinc-300 hover:text-white transition-colors cursor-pointer"
+                                title="Subir 2.5 kg"
+                              >
+                                <Plus className="w-3.5 h-3.5" />
+                              </button>
+                            </div>
+                          )}
                         </div>
 
                         <div>
@@ -1010,36 +1213,39 @@ export default function ZenDashboard() {
                             REPETICIONES A HACER:
                           </div>
                           <div className="text-3xl sm:text-5xl font-black font-mono text-white tracking-tight mt-1 flex items-baseline justify-center gap-1">
-                            <span>{targetReps}</span>
-                            <span className="text-sm sm:text-base text-zinc-400 font-bold">reps</span>
+                            <span>{stepReps}</span>
                           </div>
 
-                          {/* Ajuste Rápido de Reps */}
-                          <div className="flex items-center justify-center gap-2 mt-2">
-                            <button
-                              type="button"
-                              onClick={() => {
-                                const newVal = Math.max(1, targetReps - 1);
-                                setInputReps(newVal.toString());
-                              }}
-                              className="p-1.5 rounded-lg bg-zinc-900 hover:bg-zinc-800 border border-zinc-700 text-zinc-300 hover:text-white transition-colors cursor-pointer"
-                              title="Menos 1 rep"
-                            >
-                              <Minus className="w-3.5 h-3.5" />
-                            </button>
-                            <span className="text-[10px] font-mono text-zinc-400">1 rep</span>
-                            <button
-                              type="button"
-                              onClick={() => {
-                                const newVal = targetReps + 1;
-                                setInputReps(newVal.toString());
-                              }}
-                              className="p-1.5 rounded-lg bg-zinc-900 hover:bg-zinc-800 border border-zinc-700 text-zinc-300 hover:text-white transition-colors cursor-pointer"
-                              title="Más 1 rep"
-                            >
-                              <Plus className="w-3.5 h-3.5" />
-                            </button>
-                          </div>
+                          {/* Ajuste Rápido de Reps en Series Efectivas */}
+                          {!isWarmup && (
+                            <div className="flex items-center justify-center gap-2 mt-2">
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  const currentVal = parseInt(inputReps) || 3;
+                                  const newVal = Math.max(1, currentVal - 1);
+                                  setInputReps(newVal.toString());
+                                }}
+                                className="p-1.5 rounded-lg bg-zinc-900 hover:bg-zinc-800 border border-zinc-700 text-zinc-300 hover:text-white transition-colors cursor-pointer"
+                                title="Menos 1 rep"
+                              >
+                                <Minus className="w-3.5 h-3.5" />
+                              </button>
+                              <span className="text-[10px] font-mono text-zinc-400">1 rep</span>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  const currentVal = parseInt(inputReps) || 3;
+                                  const newVal = currentVal + 1;
+                                  setInputReps(newVal.toString());
+                                }}
+                                className="p-1.5 rounded-lg bg-zinc-900 hover:bg-zinc-800 border border-zinc-700 text-zinc-300 hover:text-white transition-colors cursor-pointer"
+                                title="Más 1 rep"
+                              >
+                                <Plus className="w-3.5 h-3.5" />
+                              </button>
+                            </div>
+                          )}
                         </div>
                       </div>
 
@@ -1048,83 +1254,85 @@ export default function ZenDashboard() {
                         <span className="flex items-center gap-1.5">
                           <Dumbbell className="w-4 h-4 text-amber-400 flex-shrink-0" />
                           <span>
-                            Montaje: Barra olímpica (20 kg) + <strong className="text-white">{platePerSide} kg</strong> a cada lado
+                            Montaje: <strong className="text-white">{assemblyCue}</strong>
                           </span>
                         </span>
-                        <div className="flex items-center gap-2">
-                          <span className="text-zinc-500">RPE Esfuerzo:</span>
-                          <input
-                            type="text"
-                            value={inputRpe}
-                            onChange={(e) => setInputRpe(e.target.value)}
-                            placeholder="8.5"
-                            className="w-14 px-2 py-0.5 rounded bg-black border border-zinc-700 text-amber-400 text-center font-mono text-xs focus:outline-none focus:border-amber-500"
-                          />
-                        </div>
+                        {!isWarmup && (
+                          <div className="flex items-center gap-2">
+                            <span className="text-zinc-500">RPE Esfuerzo:</span>
+                            <input
+                              type="text"
+                              value={inputRpe}
+                              onChange={(e) => setInputRpe(e.target.value)}
+                              placeholder="8.5"
+                              className="w-14 px-2 py-0.5 rounded bg-black border border-zinc-700 text-amber-400 text-center font-mono text-xs focus:outline-none focus:border-amber-500"
+                            />
+                          </div>
+                        )}
                       </div>
 
                       {/* Botón Principal Bio-Ergonómico: Completar Serie & Abrir Descanso Zen */}
                       <button
-                        onClick={() => handleCompleteSet()}
+                        onClick={buttonAction}
                         className="w-full mt-4 py-4 sm:py-5 px-6 rounded-2xl bg-gradient-to-b from-amber-400 via-amber-500 to-amber-600 hover:from-amber-300 hover:to-amber-500 text-black font-black uppercase tracking-wider text-xs sm:text-sm transition-all transform active:translate-y-0.5 border-b-4 border-amber-700 shadow-[0_12px_28px_rgba(245,158,11,0.3)] flex items-center justify-center gap-3 cursor-pointer select-none glow-zen-gold"
                       >
                         <CheckCircle2 className="w-5 h-5 text-black stroke-[3] flex-shrink-0" />
-                        <span>¡SERIE {currentSet} REALIZADA! → ENTRAR EN DESCANSO ATP</span>
+                        <span>{buttonLabel}</span>
                       </button>
                     </div>
                   );
                 })()}
 
-                {/* 📋 HOJA DE RUTA COMPLETA: GUÍA PASO A PASO DEL EJERCICIO */}
+                {/* 📋 HOJA DE RUTA COMPLETA: GUÍA PASO A PASO INTERACTIVA */}
                 <div className="p-4 sm:p-5 rounded-2xl bg-zinc-900/40 border border-zinc-800 space-y-4">
                   <div className="flex items-center justify-between text-xs font-mono">
                     <span className="font-bold text-white uppercase flex items-center gap-1.5">
-                      <Layers className="w-3.5 h-3.5 text-amber-400" /> HOJA DE RUTA: TODAS LAS SERIES Y PESOS
+                      <Layers className="w-3.5 h-3.5 text-amber-400" /> HOJA DE RUTA: CALENTAMIENTO Y SERIES DE FUERZA
                     </span>
-                    <span className="text-[10px] text-zinc-500">Guía secuencial completa</span>
+                    <span className="text-[10px] text-zinc-500">Toca cualquier fase para ejecutarla</span>
                   </div>
 
                   {/* 1. Fases de Calentamiento / Aclimatación SNC (F1 a F4) */}
                   <div>
                     <div className="text-[10px] font-mono text-zinc-400 uppercase tracking-wider mb-2">
-                      Fases Previas de Aclimatación SNC (Calentamiento neuromuscular):
+                      Fases de Aclimatación SNC (Calentamiento neuromuscular adaptado):
                     </div>
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center font-mono text-xs">
-                      <div className="p-2.5 rounded-xl bg-black border border-zinc-800">
-                        <div className="text-[10px] text-zinc-500">F1 (20% TM)</div>
-                        <div className="text-[11px] text-zinc-300">10 reps</div>
-                        <div className="text-sm font-black text-amber-400 mt-0.5">
-                          {activeExMax?.prescriptions.phase_1_activation ?? 20} kg
-                        </div>
-                        <div className="text-[9px] text-zinc-500 mt-0.5">Barra vacía</div>
-                      </div>
+                      {[
+                        { key: "F1", title: "F1 (20% TM)", reps: "10 reps", kg: activeExMax?.prescriptions.phase_1_activation ?? 20, desc: "Activación" },
+                        { key: "F2", title: "F2 (40% TM)", reps: "5 reps", kg: activeExMax?.prescriptions.phase_2_light ?? 0, desc: "Aproximación" },
+                        { key: "F3", title: "F3 (60% TM)", reps: "3 reps", kg: activeExMax?.prescriptions.phase_3_medium ?? 0, desc: "Media" },
+                        { key: "F4", title: "F4 (80% PAP)", reps: "1 rep pesada", kg: activeExMax?.prescriptions.phase_4_pap ?? 0, desc: "Potenciación" },
+                      ].map((p) => {
+                        const isDone = completedWarmupMap[activeExercise.name]?.includes(p.key);
+                        const isCurrent = activePhaseStep === p.key;
 
-                      <div className="p-2.5 rounded-xl bg-black border border-zinc-800">
-                        <div className="text-[10px] text-zinc-500">F2 (40% TM)</div>
-                        <div className="text-[11px] text-zinc-300">5 reps</div>
-                        <div className="text-sm font-black text-amber-400 mt-0.5">
-                          {activeExMax?.prescriptions.phase_2_light ?? 0} kg
-                        </div>
-                        <div className="text-[9px] text-zinc-500 mt-0.5">Aproximación</div>
-                      </div>
-
-                      <div className="p-2.5 rounded-xl bg-black border border-zinc-800">
-                        <div className="text-[10px] text-zinc-500">F3 (60% TM)</div>
-                        <div className="text-[11px] text-zinc-300">3 reps</div>
-                        <div className="text-sm font-black text-amber-400 mt-0.5">
-                          {activeExMax?.prescriptions.phase_3_medium ?? 0} kg
-                        </div>
-                        <div className="text-[9px] text-zinc-500 mt-0.5">Aproximación</div>
-                      </div>
-
-                      <div className="p-2.5 rounded-xl bg-black border border-zinc-800">
-                        <div className="text-[10px] text-amber-400 font-bold">F4 (80% PAP)</div>
-                        <div className="text-[11px] text-zinc-300">1 rep pesada</div>
-                        <div className="text-sm font-black text-amber-300 mt-0.5">
-                          {activeExMax?.prescriptions.phase_4_pap ?? 0} kg
-                        </div>
-                        <div className="text-[9px] text-amber-400/80 mt-0.5">Potenciación</div>
-                      </div>
+                        return (
+                          <button
+                            key={p.key}
+                            type="button"
+                            onClick={() => setActivePhaseStep(p.key)}
+                            className={`p-2.5 rounded-xl border text-center transition-all cursor-pointer ${
+                              isCurrent
+                                ? "bg-amber-500/20 border-amber-500 text-white shadow-lg shadow-amber-500/10"
+                                : isDone
+                                ? "bg-emerald-950/20 border-emerald-500/40 text-emerald-300"
+                                : "bg-black border-zinc-800 text-zinc-400 hover:border-zinc-700"
+                            }`}
+                          >
+                            <div className="flex items-center justify-between text-[10px]">
+                              <span className={isCurrent ? "text-amber-400 font-bold" : "text-zinc-500"}>{p.title}</span>
+                              {isDone && <span className="text-emerald-400 font-bold">✓</span>}
+                              {isCurrent && <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />}
+                            </div>
+                            <div className="text-[11px] text-zinc-300 mt-1">{p.reps}</div>
+                            <div className="text-sm font-black text-amber-400 mt-0.5">
+                              {p.kg} kg
+                            </div>
+                            <div className="text-[9px] text-zinc-500 mt-0.5">{p.desc}</div>
+                          </button>
+                        );
+                      })}
                     </div>
                   </div>
 
@@ -1140,18 +1348,22 @@ export default function ZenDashboard() {
                     <div className="space-y-2 font-mono text-xs">
                       {Array.from({ length: activeExercise.sets }, (_, i) => i + 1).map((sNum) => {
                         const isDone = completedSetsMap[activeExercise.name]?.includes(sNum);
-                        const isCurrent = currentSet === sNum && !isDone;
+                        const isCurrent = activePhaseStep === sNum.toString();
                         const targetKg = activeExMax?.prescriptions.phase_5_work ?? 0;
 
                         return (
                           <div
                             key={sNum}
-                            className={`p-3 rounded-xl border flex items-center justify-between transition-all ${
+                            onClick={() => {
+                              setCurrentSet(sNum);
+                              setActivePhaseStep(sNum.toString());
+                            }}
+                            className={`p-3 rounded-xl border flex items-center justify-between transition-all cursor-pointer ${
                               isDone
                                 ? "bg-emerald-950/20 border-emerald-500/40 text-emerald-300"
                                 : isCurrent
                                 ? "bg-amber-500/10 border-amber-500 text-white shadow-lg shadow-amber-500/10"
-                                : "bg-black/60 border-zinc-800/80 text-zinc-400"
+                                : "bg-black/60 border-zinc-800/80 text-zinc-400 hover:border-zinc-700"
                             }`}
                           >
                             <div className="flex items-center gap-2.5">
@@ -1189,7 +1401,10 @@ export default function ZenDashboard() {
                               {isCurrent ? (
                                 <button
                                   type="button"
-                                  onClick={() => handleCompleteSet(sNum)}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleCompleteSet(sNum);
+                                  }}
                                   className="px-3 py-1.5 rounded-lg bg-amber-400 hover:bg-amber-300 text-black font-bold text-[11px] tracking-wider uppercase transition-all shadow-md shadow-amber-400/20 active:scale-95 cursor-pointer"
                                 >
                                   Hecho
@@ -1696,7 +1911,15 @@ export default function ZenDashboard() {
             >
               <Play className="w-4 h-4 fill-black" />
               <span>
-                LISTO PARA LEVANTAR → PASAR A SERIE {currentSet} ({activeExMax?.prescriptions.phase_5_work ?? 0} kg × {activeExercise.reps})
+                {activePhaseStep === "F2"
+                  ? `LISTO → PASAR A FASE 2 (${activeExMax?.prescriptions.phase_2_light ?? 0} kg × 5 reps)`
+                  : activePhaseStep === "F3"
+                  ? `LISTO → PASAR A FASE 3 (${activeExMax?.prescriptions.phase_3_medium ?? 0} kg × 3 reps)`
+                  : activePhaseStep === "F4"
+                  ? `LISTO → PASAR A FASE 4 PAP (${activeExMax?.prescriptions.phase_4_pap ?? 0} kg × 1 rep)`
+                  : activePhaseStep === "1"
+                  ? `LISTO → INICIAR SERIE 1 EFECTIVA (${activeExMax?.prescriptions.phase_5_work ?? 0} kg × ${activeExercise.reps})`
+                  : `LISTO PARA LEVANTAR → SERIE ${currentSet} (${activeExMax?.prescriptions.phase_5_work ?? 0} kg × ${activeExercise.reps})`}
               </span>
             </button>
 
