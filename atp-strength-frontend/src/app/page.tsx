@@ -29,7 +29,10 @@ import {
   Plus,
   ChevronDown,
   ChevronUp,
-  Settings2
+  Settings2,
+  ChevronLeft,
+  ChevronRight,
+  AlertTriangle
 } from "lucide-react";
 
 // --- Interfaces de Tipado ---
@@ -384,6 +387,7 @@ export default function ZenDashboard() {
   const [zenFocusMode, setZenFocusMode] = useState<boolean>(false);
   const [showPrepProtocol, setShowPrepProtocol] = useState<boolean>(true);
   const [showProgressModal, setShowProgressModal] = useState<boolean>(false);
+  const [showResetModal, setShowResetModal] = useState<boolean>(false);
 
   // Timer State
   const [timerDuration, setTimerDuration] = useState<number>(180);
@@ -419,7 +423,36 @@ export default function ZenDashboard() {
 
   const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
-  // Cargar caché local en el cliente
+  // Guardar y sincronizar estado de sesión en localStorage
+  const persistSessionProgress = (
+    sets: { [exerciseName: string]: number[] },
+    warmup: { [exerciseName: string]: string[] },
+    dayKey: string,
+    exIdx: number,
+    cSet: number,
+    phaseStep: string
+  ) => {
+    if (typeof window !== "undefined") {
+      try {
+        localStorage.setItem(
+          "neuro_strength_session_progress",
+          JSON.stringify({
+            completedSetsMap: sets,
+            completedWarmupMap: warmup,
+            selectedDayKey: dayKey,
+            activeExerciseIndex: exIdx,
+            currentSet: cSet,
+            activePhaseStep: phaseStep,
+            timestamp: Date.now(),
+          })
+        );
+      } catch (err) {
+        console.warn("Error guardando sesión en localStorage:", err);
+      }
+    }
+  };
+
+  // Cargar caché local en el cliente (1RM y Sesión Activa)
   useEffect(() => {
     if (typeof window !== "undefined") {
       try {
@@ -428,8 +461,19 @@ export default function ZenDashboard() {
           const parsed = JSON.parse(saved);
           setMaxesMap((prev) => ({ ...prev, ...parsed }));
         }
+
+        const savedSession = localStorage.getItem("neuro_strength_session_progress");
+        if (savedSession) {
+          const s = JSON.parse(savedSession);
+          if (s.completedSetsMap) setCompletedSetsMap(s.completedSetsMap);
+          if (s.completedWarmupMap) setCompletedWarmupMap(s.completedWarmupMap);
+          if (s.selectedDayKey) setSelectedDayKey(s.selectedDayKey);
+          if (typeof s.activeExerciseIndex === "number") setActiveExerciseIndex(s.activeExerciseIndex);
+          if (typeof s.currentSet === "number") setCurrentSet(s.currentSet);
+          if (s.activePhaseStep) setActivePhaseStep(s.activePhaseStep);
+        }
       } catch (err) {
-        console.warn("Error leyendo localStorage de maxes:", err);
+        console.warn("Error leyendo localStorage:", err);
       }
     }
   }, []);
@@ -622,19 +666,78 @@ export default function ZenDashboard() {
     setRemainingSeconds(timerDuration);
   };
 
+  // Navegación asistida entre ejercicios
+  const handlePreviousExercise = () => {
+    if (activeExerciseIndex > 0) {
+      const nextIdx = activeExerciseIndex - 1;
+      setActiveExerciseIndex(nextIdx);
+      const ex = activeDay.exercises[nextIdx];
+      const done = completedSetsMap[ex.name]?.length || 0;
+      const nextSet = done < ex.sets ? done + 1 : ex.sets;
+      setCurrentSet(nextSet);
+      setActivePhaseStep(done === 0 ? "F1" : nextSet.toString());
+      persistSessionProgress(completedSetsMap, completedWarmupMap, selectedDayKey, nextIdx, nextSet, done === 0 ? "F1" : nextSet.toString());
+    }
+  };
+
+  const handleNextExercise = () => {
+    if (activeExerciseIndex < activeDay.exercises.length - 1) {
+      const nextIdx = activeExerciseIndex + 1;
+      setActiveExerciseIndex(nextIdx);
+      const ex = activeDay.exercises[nextIdx];
+      const done = completedSetsMap[ex.name]?.length || 0;
+      const nextSet = done < ex.sets ? done + 1 : ex.sets;
+      setCurrentSet(nextSet);
+      setActivePhaseStep(done === 0 ? "F1" : nextSet.toString());
+      persistSessionProgress(completedSetsMap, completedWarmupMap, selectedDayKey, nextIdx, nextSet, done === 0 ? "F1" : nextSet.toString());
+    }
+  };
+
+  // Reset del ejercicio en curso
+  const handleResetExercise = () => {
+    if (!activeExercise) return;
+    const nextSets = { ...completedSetsMap, [activeExercise.name]: [] };
+    const nextWarmup = { ...completedWarmupMap, [activeExercise.name]: [] };
+    setCompletedSetsMap(nextSets);
+    setCompletedWarmupMap(nextWarmup);
+    setCurrentSet(1);
+    setActivePhaseStep("F1");
+    setShowResetModal(false);
+    setIsRunning(false);
+    setRemainingSeconds(activeExercise.restSeconds || 180);
+    persistSessionProgress(nextSets, nextWarmup, selectedDayKey, activeExerciseIndex, 1, "F1");
+  };
+
+  // Reset de la sesión completa de hoy
+  const handleResetDay = () => {
+    const nextSets = { ...completedSetsMap };
+    const nextWarmup = { ...completedWarmupMap };
+    activeDay.exercises.forEach((ex) => {
+      nextSets[ex.name] = [];
+      nextWarmup[ex.name] = [];
+    });
+    setCompletedSetsMap(nextSets);
+    setCompletedWarmupMap(nextWarmup);
+    setActiveExerciseIndex(0);
+    setCurrentSet(1);
+    setActivePhaseStep("F1");
+    setShowResetModal(false);
+    setIsRunning(false);
+    const firstRest = activeDay.exercises[0]?.restSeconds || 180;
+    setRemainingSeconds(firstRest);
+    persistSessionProgress(nextSets, nextWarmup, selectedDayKey, 0, 1, "F1");
+  };
+
   // Completar Fase Neuromuscular de Aclimatación y pasar a la siguiente
   const handleCompleteWarmupPhase = (phaseKey: "F1" | "F2" | "F3" | "F4") => {
     if (typeof navigator !== "undefined" && navigator.vibrate) {
       navigator.vibrate([30, 50, 30]);
     }
 
-    setCompletedWarmupMap((prev) => {
-      const list = prev[activeExercise.name] || [];
-      if (!list.includes(phaseKey)) {
-        return { ...prev, [activeExercise.name]: [...list, phaseKey] };
-      }
-      return prev;
-    });
+    const currentList = completedWarmupMap[activeExercise.name] || [];
+    const nextList = currentList.includes(phaseKey) ? currentList : [...currentList, phaseKey];
+    const nextWarmupMap = { ...completedWarmupMap, [activeExercise.name]: nextList };
+    setCompletedWarmupMap(nextWarmupMap);
 
     const restMap: { [key: string]: { time: number; next: string; title: string } } = {
       F1: { time: 60, next: "F2", title: `Aclimatación F1 Completada (${activeExercise.name})` },
@@ -645,8 +748,8 @@ export default function ZenDashboard() {
 
     const phaseConfig = restMap[phaseKey];
     handleStartTimer(phaseConfig.time, phaseConfig.title);
-    setZenFocusMode(true);
     setActivePhaseStep(phaseConfig.next);
+    persistSessionProgress(completedSetsMap, nextWarmupMap, selectedDayKey, activeExerciseIndex, currentSet, phaseConfig.next);
   };
 
   // Botón Bio-Ergonómico 3D: Completar Serie con Carga Real y Lanzar Resíntesis Zen
@@ -658,33 +761,38 @@ export default function ZenDashboard() {
     }
 
     // Registrar serie completada en mapa de sesión
-    setCompletedSetsMap((prev) => {
-      const list = prev[activeExercise.name] || [];
-      if (!list.includes(setToFinish)) {
-        return { ...prev, [activeExercise.name]: [...list, setToFinish] };
-      }
-      return prev;
-    });
+    const currentList = completedSetsMap[activeExercise.name] || [];
+    const nextList = currentList.includes(setToFinish) ? currentList : [...currentList, setToFinish];
+    const nextSetsMap = { ...completedSetsMap, [activeExercise.name]: nextList };
+    setCompletedSetsMap(nextSetsMap);
 
     const restTime = activeExercise.restSeconds || 180;
     handleStartTimer(restTime, `Descanso ATP: ${activeExercise.name}`);
-    
-    // Abrir automáticamente la pantalla de resíntesis Zen al entrar en el paso
-    setZenFocusMode(true);
 
     const numericWeight = parseFloat(inputWeight) || (activeExMax?.prescriptions.phase_5_work ?? 0);
     const numericReps = parseInt(inputReps) || parseInt(activeExercise.reps) || 3;
 
+    let nextExIdx = activeExerciseIndex;
+    let nextSet = currentSet;
+    let nextStep = activePhaseStep;
+
     if (setToFinish < activeExercise.sets) {
-      setCurrentSet(setToFinish + 1);
-      setActivePhaseStep((setToFinish + 1).toString());
+      nextSet = setToFinish + 1;
+      nextStep = (setToFinish + 1).toString();
+      setCurrentSet(nextSet);
+      setActivePhaseStep(nextStep);
     } else {
       if (activeExerciseIndex < activeDay.exercises.length - 1) {
-        setActiveExerciseIndex(activeExerciseIndex + 1);
-        setCurrentSet(1);
-        setActivePhaseStep("F1");
+        nextExIdx = activeExerciseIndex + 1;
+        nextSet = 1;
+        nextStep = "F1";
+        setActiveExerciseIndex(nextExIdx);
+        setCurrentSet(nextSet);
+        setActivePhaseStep(nextStep);
       }
     }
+
+    persistSessionProgress(nextSetsMap, completedWarmupMap, selectedDayKey, nextExIdx, nextSet, nextStep);
 
     // Persistir ejecución en Backend Python FastAPI -> PostgreSQL si está online
     if (backendOnline) {
@@ -796,6 +904,15 @@ export default function ZenDashboard() {
     Math.round(((timerDuration - remainingSeconds) / timerDuration) * 100)
   );
 
+  // Métricas de progreso global de la sesión del día
+  const totalDaySets = activeDay.exercises.reduce((sum, ex) => sum + ex.sets, 0);
+  const completedDaySets = activeDay.exercises.reduce((sum, ex) => {
+    const done = completedSetsMap[ex.name]?.length || 0;
+    return sum + Math.min(done, ex.sets);
+  }, 0);
+  const dayProgressPercent = totalDaySets > 0 ? Math.round((completedDaySets / totalDaySets) * 100) : 0;
+  const isDayFinished = totalDaySets > 0 && completedDaySets >= totalDaySets;
+
   return (
     <main className="min-h-screen bg-black text-zinc-100 flex flex-col items-center justify-between p-4 md:p-8 pb-24 md:pb-8 font-sans selection:bg-amber-500 selection:text-black">
       {/* Top Header */}
@@ -901,7 +1018,13 @@ export default function ZenDashboard() {
                     onClick={() => {
                       setSelectedDayKey(day.key);
                       setActiveExerciseIndex(0);
-                      setCurrentSet(1);
+                      const dayObj = SCHEDULE_DAYS.find((d) => d.key === day.key);
+                      const firstEx = dayObj?.exercises[0];
+                      const done = firstEx ? (completedSetsMap[firstEx.name]?.length || 0) : 0;
+                      const nextSet = done > 0 && done < (firstEx?.sets || 1) ? done + 1 : 1;
+                      setCurrentSet(nextSet);
+                      setActivePhaseStep(done === 0 ? "F1" : nextSet.toString());
+                      persistSessionProgress(completedSetsMap, completedWarmupMap, day.key, 0, nextSet, done === 0 ? "F1" : nextSet.toString());
                     }}
                     className={`p-3 rounded-xl text-left transition-all border relative overflow-hidden ${
                       isSelected
@@ -923,6 +1046,51 @@ export default function ZenDashboard() {
               })}
             </div>
           </div>
+
+          {/* Barra de Progreso de la Sesión + Botón de Reset */}
+          {!activeDay.isRest && (
+            <div className="p-4 sm:p-5 rounded-2xl bg-zinc-950 border border-zinc-900 shadow-xl space-y-3">
+              <div className="flex items-center justify-between text-xs font-mono">
+                <div className="flex items-center gap-2">
+                  <div className="p-2 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-400">
+                    <Activity className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <div className="font-bold text-white uppercase tracking-wider flex items-center gap-2">
+                      <span>PROGRESO DE HOY</span>
+                      {isDayFinished && (
+                        <span className="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 font-bold text-[10px]">
+                          COMPLETADO ✓
+                        </span>
+                      )}
+                    </div>
+                    <div className="text-zinc-400 text-[11px] font-mono mt-0.5">
+                      {completedDaySets} de {totalDaySets} series efectivas ({dayProgressPercent}%)
+                    </div>
+                  </div>
+                </div>
+
+                {/* Botón de Reset de Sesión */}
+                <button
+                  type="button"
+                  onClick={() => setShowResetModal(true)}
+                  className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-zinc-800 bg-zinc-900/80 hover:bg-zinc-800 hover:border-amber-500/40 text-xs font-mono text-zinc-300 hover:text-amber-400 transition-all active:scale-95 cursor-pointer shadow-sm"
+                  title="Reiniciar progreso de sesión o ejercicio"
+                >
+                  <RotateCcw className="w-3.5 h-3.5 text-amber-400" />
+                  <span>Reset</span>
+                </button>
+              </div>
+
+              {/* Barra de Progreso Visual */}
+              <div className="w-full h-2.5 rounded-full bg-zinc-900 overflow-hidden border border-zinc-800/80">
+                <div
+                  className="h-full bg-gradient-to-r from-amber-500 via-amber-400 to-emerald-400 rounded-full transition-all duration-500 ease-out shadow-[0_0_12px_rgba(245,158,11,0.3)]"
+                  style={{ width: `${dayProgressPercent}%` }}
+                />
+              </div>
+            </div>
+          )}
 
           {/* Si el día actual es de Descanso Absoluto */}
           {activeDay.isRest ? (
@@ -946,34 +1114,59 @@ export default function ZenDashboard() {
             <>
               {/* Tarjeta del Ejercicio con Sistema Guiado Paso a Paso */}
               <div className="p-5 sm:p-6 rounded-3xl bg-zinc-950 border border-zinc-900 shadow-2xl space-y-5">
-                {/* Header del Ejercicio Activo */}
+                {/* Header del Ejercicio Activo con Navegación Guiada */}
                 <div>
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-xs font-mono text-zinc-400 flex items-center gap-1.5">
-                      <Activity className="w-4 h-4 text-amber-400" /> EJERCICIO EN EJECUCIÓN
-                    </span>
-                    <span className="text-xs text-zinc-500 font-mono">
-                      {activeExerciseIndex + 1} de {activeDay.exercises.length}
-                    </span>
-                  </div>
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center gap-2.5">
+                      <button
+                        type="button"
+                        onClick={handlePreviousExercise}
+                        disabled={activeExerciseIndex === 0}
+                        className={`p-2 rounded-xl border transition-all ${
+                          activeExerciseIndex === 0
+                            ? "border-zinc-900/60 bg-zinc-950 text-zinc-700 cursor-not-allowed"
+                            : "border-zinc-800 bg-zinc-900/90 hover:bg-zinc-800 text-zinc-300 hover:text-amber-400 cursor-pointer active:scale-95"
+                        }`}
+                        title="Ejercicio anterior"
+                      >
+                        <ChevronLeft className="w-4 h-4" />
+                      </button>
+                      <div className="leading-tight">
+                        <span className="text-[10px] sm:text-xs font-mono text-zinc-500 uppercase tracking-wider block">
+                          EJERCICIO {activeExerciseIndex + 1} DE {activeDay.exercises.length}
+                        </span>
+                        <h3 className="text-xl sm:text-3xl font-black text-white tracking-tight">
+                          {activeExercise.name}
+                        </h3>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={handleNextExercise}
+                        disabled={activeExerciseIndex === activeDay.exercises.length - 1}
+                        className={`p-2 rounded-xl border transition-all ${
+                          activeExerciseIndex === activeDay.exercises.length - 1
+                            ? "border-zinc-900/60 bg-zinc-950 text-zinc-700 cursor-not-allowed"
+                            : "border-zinc-800 bg-zinc-900/90 hover:bg-zinc-800 text-zinc-300 hover:text-amber-400 cursor-pointer active:scale-95"
+                        }`}
+                        title="Siguiente ejercicio"
+                      >
+                        <ChevronRight className="w-4 h-4" />
+                      </button>
+                    </div>
 
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-1">
-                    <h3 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
-                      {activeExercise.name}
-                    </h3>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 flex-shrink-0">
                       <button
                         type="button"
                         onClick={() => setShowQuickCalibration(!showQuickCalibration)}
-                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-zinc-800 bg-zinc-900/80 hover:bg-zinc-800 text-xs font-mono text-zinc-300 hover:text-white transition-all cursor-pointer"
+                        className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl border border-zinc-800 bg-zinc-900/80 hover:bg-zinc-800 text-xs font-mono text-zinc-300 hover:text-white transition-all cursor-pointer"
                         title="Ajustar peso base o repeticiones de test"
                       >
                         <Settings2 className="w-3.5 h-3.5 text-amber-400" />
-                        <span>Ajustar 1RM</span>
+                        <span className="hidden sm:inline">1RM</span>
                         {showQuickCalibration ? (
-                          <ChevronUp className="w-3.5 h-3.5 text-zinc-400" />
+                          <ChevronUp className="w-3 h-3 text-zinc-400" />
                         ) : (
-                          <ChevronDown className="w-3.5 h-3.5 text-zinc-400" />
+                          <ChevronDown className="w-3 h-3 text-zinc-400" />
                         )}
                       </button>
 
@@ -983,11 +1176,11 @@ export default function ZenDashboard() {
                           setSelectedProgressEx(activeExercise.name);
                           setShowProgressModal(true);
                         }}
-                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-amber-500/40 bg-amber-500/10 hover:bg-amber-500/20 text-xs font-mono font-bold text-amber-300 transition-all active:scale-95 cursor-pointer"
+                        className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl border border-amber-500/40 bg-amber-500/10 hover:bg-amber-500/20 text-xs font-mono font-bold text-amber-300 transition-all active:scale-95 cursor-pointer"
                         title="Ver historial de fuerza y motor completo"
                       >
                         <TrendingUp className="w-3.5 h-3.5 text-amber-400" />
-                        <span>1RM: {activeExMax?.one_rep_max ?? 0} kg</span>
+                        <span>{activeExMax?.one_rep_max ?? 0} kg</span>
                       </button>
                     </div>
                   </div>
@@ -1064,6 +1257,7 @@ export default function ZenDashboard() {
                 {(() => {
                   const isWarmup = activePhaseStep.startsWith("F");
                   const cat = getExerciseCategory(activeExercise.name);
+                  const isResting = isRunning || (remainingSeconds < timerDuration && remainingSeconds > 0);
 
                   let stepTitle = "";
                   let stepSubtitle = "";
@@ -1072,6 +1266,9 @@ export default function ZenDashboard() {
                   let stepRestSeconds = 180;
                   let buttonAction = () => {};
                   let buttonLabel = "";
+
+                  const isLastSetOfExercise = currentSet >= activeExercise.sets;
+                  const isLastExerciseOfDay = activeExerciseIndex >= activeDay.exercises.length - 1;
 
                   if (activePhaseStep === "F1") {
                     stepWeight = activeExMax?.prescriptions.phase_1_activation ?? 20;
@@ -1112,8 +1309,27 @@ export default function ZenDashboard() {
                     stepReps = `${parseInt(inputReps) || (parseInt(activeExercise.reps) || 3)} reps`;
                     stepRestSeconds = activeExercise.restSeconds || 180;
                     buttonAction = () => handleCompleteSet();
-                    buttonLabel = `¡SERIE ${currentSet} REALIZADA! → ENTRAR EN DESCANSO ATP`;
+
+                    if (isLastSetOfExercise && isLastExerciseOfDay) {
+                      buttonLabel = `¡SERIE ${currentSet} REALIZADA! → COMPLETAR SESIÓN DE HOY`;
+                    } else if (isLastSetOfExercise) {
+                      buttonLabel = `¡SERIE ${currentSet} REALIZADA! → SIGUIENTE EJERCICIO`;
+                    } else {
+                      buttonLabel = `¡SERIE ${currentSet} REALIZADA! → ENTRAR EN DESCANSO ATP`;
+                    }
                   }
+
+                  // Si el descanso está activo, el botón principal permite saltarlo y prepararse de inmediato
+                  const finalButtonAction = isResting
+                    ? () => {
+                        setIsRunning(false);
+                        setRemainingSeconds(0);
+                      }
+                    : buttonAction;
+
+                  const finalButtonLabel = isResting
+                    ? `⏱️ DESCANSO ACTIVO (${formatTime(remainingSeconds)}) • SALTAR Y LEVANTAR YA`
+                    : buttonLabel;
 
                   // Montaje exacto de implemento
                   let assemblyCue = "";
@@ -1135,6 +1351,61 @@ export default function ZenDashboard() {
                         ? "border-amber-500/40 shadow-[0_0_30px_rgba(245,158,11,0.1)]"
                         : "border-amber-500/70 shadow-[0_0_45px_rgba(245,158,11,0.22)]"
                     }`}>
+                      {/* Widget Integrado de Descanso de ATP si está en curso */}
+                      {isResting && (
+                        <div className="mb-4 p-4 rounded-2xl bg-gradient-to-r from-amber-500/10 via-zinc-900 to-black border border-amber-500/50 shadow-lg shadow-amber-500/10 animate-in fade-in duration-300 space-y-3">
+                          <div className="flex items-center justify-between text-xs font-mono">
+                            <span className="font-bold text-amber-400 uppercase flex items-center gap-1.5">
+                              <Zap className="w-4 h-4 text-amber-400 animate-pulse" />
+                              <span>{isRunning ? "Descanso de Resíntesis ATP en Curso" : "Descanso en Pausa"}</span>
+                            </span>
+                            <span className="text-amber-300 font-bold">
+                              Saturación ATP: {atpSaturationPercent}%
+                            </span>
+                          </div>
+
+                          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                            <div className="flex items-baseline gap-2">
+                              <span className="text-4xl sm:text-5xl font-black font-mono text-white tracking-tight">
+                                {formatTime(remainingSeconds)}
+                              </span>
+                              <span className="text-[11px] font-mono text-zinc-400">
+                                {remainingSeconds === 0 ? "¡Recuperación completa!" : "min restantes"}
+                              </span>
+                            </div>
+
+                            <div className="flex items-center gap-2">
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setIsRunning(false);
+                                  setRemainingSeconds(0);
+                                }}
+                                className="px-3.5 py-2 rounded-xl bg-amber-400 hover:bg-amber-300 text-black font-mono font-bold text-xs uppercase tracking-wider transition-all active:scale-95 cursor-pointer shadow-md shadow-amber-400/20"
+                              >
+                                Saltar Descanso →
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => setZenFocusMode(true)}
+                                className="p-2 rounded-xl bg-zinc-900 border border-zinc-700 hover:border-amber-400 text-zinc-300 hover:text-white transition-all cursor-pointer"
+                                title="Aislamiento visual en pantalla completa"
+                              >
+                                <Maximize2 className="w-4 h-4 text-amber-400" />
+                              </button>
+                            </div>
+                          </div>
+
+                          {/* Barra de progreso de saturación de ATP */}
+                          <div className="w-full h-1.5 rounded-full bg-zinc-900 overflow-hidden">
+                            <div
+                              className="h-full bg-gradient-to-r from-amber-500 to-emerald-400 transition-all duration-1000 rounded-full"
+                              style={{ width: `${atpSaturationPercent}%` }}
+                            />
+                          </div>
+                        </div>
+                      )}
+
                       {/* Estado y Barra de Paso */}
                       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
                         <div className="flex items-center gap-2">
@@ -1178,7 +1449,7 @@ export default function ZenDashboard() {
                             <span className="text-sm sm:text-base text-amber-400/70 font-bold">kg</span>
                           </div>
 
-                          {/* Ajuste Rápido de Kilos */}
+                          {/* Ajuste Rápido de Kilos Ergonómico */}
                           {!isWarmup && (
                             <div className="flex items-center justify-center gap-2 mt-2">
                               <button
@@ -1187,22 +1458,22 @@ export default function ZenDashboard() {
                                   const newVal = Math.max(0, stepWeight - 2.5);
                                   setInputWeight(newVal.toString());
                                 }}
-                                className="p-1.5 rounded-lg bg-zinc-900 hover:bg-zinc-800 border border-zinc-700 text-zinc-300 hover:text-white transition-colors cursor-pointer"
+                                className="p-2.5 sm:p-3 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-700 text-zinc-300 hover:text-white transition-colors cursor-pointer min-h-[44px] min-w-[44px] flex items-center justify-center active:scale-95"
                                 title="Bajar 2.5 kg"
                               >
-                                <Minus className="w-3.5 h-3.5" />
+                                <Minus className="w-4 h-4" />
                               </button>
-                              <span className="text-[10px] font-mono text-zinc-400">2.5 kg</span>
+                              <span className="text-[11px] font-mono text-zinc-400 font-bold">2.5 kg</span>
                               <button
                                 type="button"
                                 onClick={() => {
                                   const newVal = stepWeight + 2.5;
                                   setInputWeight(newVal.toString());
                                 }}
-                                className="p-1.5 rounded-lg bg-zinc-900 hover:bg-zinc-800 border border-zinc-700 text-zinc-300 hover:text-white transition-colors cursor-pointer"
+                                className="p-2.5 sm:p-3 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-700 text-zinc-300 hover:text-white transition-colors cursor-pointer min-h-[44px] min-w-[44px] flex items-center justify-center active:scale-95"
                                 title="Subir 2.5 kg"
                               >
-                                <Plus className="w-3.5 h-3.5" />
+                                <Plus className="w-4 h-4" />
                               </button>
                             </div>
                           )}
@@ -1226,12 +1497,12 @@ export default function ZenDashboard() {
                                   const newVal = Math.max(1, currentVal - 1);
                                   setInputReps(newVal.toString());
                                 }}
-                                className="p-1.5 rounded-lg bg-zinc-900 hover:bg-zinc-800 border border-zinc-700 text-zinc-300 hover:text-white transition-colors cursor-pointer"
+                                className="p-2.5 sm:p-3 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-700 text-zinc-300 hover:text-white transition-colors cursor-pointer min-h-[44px] min-w-[44px] flex items-center justify-center active:scale-95"
                                 title="Menos 1 rep"
                               >
-                                <Minus className="w-3.5 h-3.5" />
+                                <Minus className="w-4 h-4" />
                               </button>
-                              <span className="text-[10px] font-mono text-zinc-400">1 rep</span>
+                              <span className="text-[11px] font-mono text-zinc-400 font-bold">1 rep</span>
                               <button
                                 type="button"
                                 onClick={() => {
@@ -1239,10 +1510,10 @@ export default function ZenDashboard() {
                                   const newVal = currentVal + 1;
                                   setInputReps(newVal.toString());
                                 }}
-                                className="p-1.5 rounded-lg bg-zinc-900 hover:bg-zinc-800 border border-zinc-700 text-zinc-300 hover:text-white transition-colors cursor-pointer"
+                                className="p-2.5 sm:p-3 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-700 text-zinc-300 hover:text-white transition-colors cursor-pointer min-h-[44px] min-w-[44px] flex items-center justify-center active:scale-95"
                                 title="Más 1 rep"
                               >
-                                <Plus className="w-3.5 h-3.5" />
+                                <Plus className="w-4 h-4" />
                               </button>
                             </div>
                           )}
@@ -1271,13 +1542,21 @@ export default function ZenDashboard() {
                         )}
                       </div>
 
-                      {/* Botón Principal Bio-Ergonómico: Completar Serie & Abrir Descanso Zen */}
+                      {/* Botón Principal Bio-Ergonómico: Completar Serie & Abrir Descanso */}
                       <button
-                        onClick={buttonAction}
-                        className="w-full mt-4 py-4 sm:py-5 px-6 rounded-2xl bg-gradient-to-b from-amber-400 via-amber-500 to-amber-600 hover:from-amber-300 hover:to-amber-500 text-black font-black uppercase tracking-wider text-xs sm:text-sm transition-all transform active:translate-y-0.5 border-b-4 border-amber-700 shadow-[0_12px_28px_rgba(245,158,11,0.3)] flex items-center justify-center gap-3 cursor-pointer select-none glow-zen-gold"
+                        onClick={finalButtonAction}
+                        className={`w-full mt-4 py-4 sm:py-5 px-6 rounded-2xl font-black uppercase tracking-wider text-xs sm:text-sm transition-all transform active:translate-y-0.5 flex items-center justify-center gap-3 cursor-pointer select-none ${
+                          isResting
+                            ? "bg-gradient-to-b from-zinc-900 to-black border-2 border-amber-500 text-amber-300 hover:bg-amber-500/10 shadow-[0_0_25px_rgba(245,158,11,0.25)]"
+                            : "bg-gradient-to-b from-amber-400 via-amber-500 to-amber-600 hover:from-amber-300 hover:to-amber-500 text-black border-b-4 border-amber-700 shadow-[0_12px_28px_rgba(245,158,11,0.3)] glow-zen-gold"
+                        }`}
                       >
-                        <CheckCircle2 className="w-5 h-5 text-black stroke-[3] flex-shrink-0" />
-                        <span>{buttonLabel}</span>
+                        {isResting ? (
+                          <Zap className="w-5 h-5 text-amber-400 flex-shrink-0 animate-pulse" />
+                        ) : (
+                          <CheckCircle2 className="w-5 h-5 text-black stroke-[3] flex-shrink-0" />
+                        )}
+                        <span>{finalButtonLabel}</span>
                       </button>
                     </div>
                   );
@@ -1912,6 +2191,82 @@ export default function ZenDashboard() {
         </div>
       )}
 
+      {/* --- MODAL DE CONFIRMACIÓN DE RESET DE SESIÓN / EJERCICIO --- */}
+      {showResetModal && (
+        <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in duration-200">
+          <div className="w-full max-w-md bg-zinc-950 border border-zinc-800 rounded-3xl p-6 shadow-2xl space-y-5">
+            <div className="flex items-center gap-3">
+              <div className="p-3 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-400">
+                <RotateCcw className="w-6 h-6" />
+              </div>
+              <div>
+                <h3 className="text-lg font-bold text-white uppercase tracking-wider">
+                  Reiniciar Progreso
+                </h3>
+                <p className="text-xs text-zinc-400 font-mono">
+                  Control de reinicio de series de entrenamiento
+                </p>
+              </div>
+            </div>
+
+            <div className="p-3.5 rounded-xl bg-amber-500/5 border border-amber-500/20 text-xs text-zinc-300 space-y-1">
+              <div className="flex items-center gap-1.5 text-amber-400 font-bold">
+                <AlertTriangle className="w-4 h-4 flex-shrink-0" />
+                <span>¿Deseas reiniciar las series registradas?</span>
+              </div>
+              <p className="text-[11px] text-zinc-400 leading-relaxed">
+                Esta acción desmarcará las series completadas para que puedas volver a ejecutarlas desde cero. Tus marcas 1RM no se perderán.
+              </p>
+            </div>
+
+            <div className="space-y-2.5">
+              {/* Opción 1: Reiniciar solo ejercicio actual */}
+              <button
+                type="button"
+                onClick={handleResetExercise}
+                className="w-full p-4 rounded-2xl border border-zinc-800 bg-zinc-900/90 hover:bg-zinc-800 hover:border-amber-500/50 text-left transition-all active:scale-[0.98] cursor-pointer group"
+              >
+                <div className="text-xs font-bold text-white group-hover:text-amber-300 flex items-center justify-between">
+                  <span>Reiniciar solo {activeExercise.name}</span>
+                  <span className="text-[10px] font-mono bg-amber-500/10 text-amber-400 px-2 py-0.5 rounded border border-amber-500/20">
+                    Este ejercicio
+                  </span>
+                </div>
+                <div className="text-[11px] text-zinc-400 font-mono mt-1">
+                  Vuelve a la Fase 1 o Serie 1 y desmarca sus series realizadas.
+                </div>
+              </button>
+
+              {/* Opción 2: Reiniciar sesión de todo el día */}
+              <button
+                type="button"
+                onClick={handleResetDay}
+                className="w-full p-4 rounded-2xl border border-red-500/30 bg-red-950/20 hover:bg-red-950/40 hover:border-red-500/60 text-left transition-all active:scale-[0.98] cursor-pointer group"
+              >
+                <div className="text-xs font-bold text-red-300 group-hover:text-red-200 flex items-center justify-between">
+                  <span>Reiniciar toda la sesión ({activeDay.name})</span>
+                  <span className="text-[10px] font-mono bg-red-500/20 text-red-400 px-2 py-0.5 rounded border border-red-500/30">
+                    Día completo
+                  </span>
+                </div>
+                <div className="text-[11px] text-zinc-400 font-mono mt-1">
+                  Pone a cero las series de los {activeDay.exercises.length} ejercicios de hoy.
+                </div>
+              </button>
+            </div>
+
+            {/* Botón Cancelar */}
+            <button
+              type="button"
+              onClick={() => setShowResetModal(false)}
+              className="w-full py-3.5 rounded-2xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-xs font-mono font-bold text-zinc-300 hover:text-white transition-colors cursor-pointer"
+            >
+              Cancelar y continuar entrenando
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* --- MÓDULO ZEN DE AISLAMIENTO VISUAL TRUE BLACK (#000000) --- */}
       {zenFocusMode && (
         <div className="fixed inset-0 z-50 bg-[#000000] flex flex-col items-center justify-between p-6 md:p-12 animate-in fade-in duration-300">
@@ -2032,7 +2387,7 @@ export default function ZenDashboard() {
         <div>NEURO//STRENGTH // High Performance Framework</div>
       </footer>
 
-      {/* Barra Móvil Inferior Fija: acceso 100% permanente a Progreso de Fuerza */}
+      {/* Barra Móvil Inferior Fija: acceso 100% permanente a Progreso de Fuerza y Reset */}
       <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-zinc-950/95 border-t border-zinc-800/80 backdrop-blur-xl px-3 py-2.5 pb-[max(0.625rem,env(safe-area-inset-bottom))] shadow-2xl flex items-center justify-between gap-2">
         <button
           onClick={() => {
@@ -2051,18 +2406,12 @@ export default function ZenDashboard() {
         </button>
 
         <button
-          onClick={() => {
-            setShowPrepProtocol(true);
-            const el = document.getElementById("guia-fases-atp");
-            if (el) {
-              el.scrollIntoView({ behavior: "smooth" });
-            }
-          }}
-          className="flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl bg-zinc-900/90 hover:bg-zinc-800 border border-zinc-800 text-zinc-300 text-xs font-mono active:scale-95 transition-all cursor-pointer"
-          title="Fases de Preparación Neuromuscular"
+          onClick={() => setShowResetModal(true)}
+          className="flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl bg-zinc-900/90 hover:bg-zinc-800 border border-zinc-800 text-zinc-300 hover:text-amber-400 text-xs font-mono active:scale-95 transition-all cursor-pointer"
+          title="Reiniciar progreso"
         >
-          <Layers className="w-4 h-4 text-amber-400 flex-shrink-0" />
-          <span>F0-F4</span>
+          <RotateCcw className="w-4 h-4 text-amber-400 flex-shrink-0" />
+          <span>RESET</span>
         </button>
 
         <button
