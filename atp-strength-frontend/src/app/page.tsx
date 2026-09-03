@@ -24,7 +24,12 @@ import {
   Save,
   Dumbbell,
   History,
-  Calculator
+  Calculator,
+  Minus,
+  Plus,
+  ChevronDown,
+  ChevronUp,
+  Settings2
 } from "lucide-react";
 
 // --- Interfaces de Tipado ---
@@ -307,6 +312,7 @@ export default function ZenDashboard() {
   // Calibración Rápida en Vivo en la tarjeta del ejercicio
   const [quickWeight, setQuickWeight] = useState<string>("100");
   const [quickReps, setQuickReps] = useState<string>("5");
+  const [showQuickCalibration, setShowQuickCalibration] = useState<boolean>(false);
 
   // Formulario de Nueva Marca 1RM en Modal
   const [formFormula, setFormFormula] = useState<string>("epley");
@@ -820,8 +826,8 @@ export default function ZenDashboard() {
             </div>
           ) : (
             <>
-              {/* Tarjeta de Ejercicio en Curso con Cálculo en Vivo */}
-              <div className="p-6 rounded-2xl bg-zinc-950 border border-zinc-900 shadow-2xl space-y-6">
+              {/* Tarjeta del Ejercicio con Sistema Guiado Paso a Paso */}
+              <div className="p-5 sm:p-6 rounded-3xl bg-zinc-950 border border-zinc-900 shadow-2xl space-y-5">
                 {/* Header del Ejercicio Activo */}
                 <div>
                   <div className="flex items-center justify-between mb-2">
@@ -833,22 +839,39 @@ export default function ZenDashboard() {
                     </span>
                   </div>
 
-                  <div className="flex items-center justify-between mb-1">
-                    <h3 className="text-2xl font-black text-white tracking-tight">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-1">
+                    <h3 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
                       {activeExercise.name}
                     </h3>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setSelectedProgressEx(activeExercise.name);
-                        setShowProgressModal(true);
-                      }}
-                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-amber-500/40 bg-amber-500/10 hover:bg-amber-500/20 text-xs font-mono font-bold text-amber-300 transition-all active:scale-95 cursor-pointer"
-                      title="Ver motor de 1RM completo"
-                    >
-                      <TrendingUp className="w-3.5 h-3.5 text-amber-400" />
-                      <span>1RM: {activeExMax?.one_rep_max ?? 0} kg</span>
-                    </button>
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setShowQuickCalibration(!showQuickCalibration)}
+                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-zinc-800 bg-zinc-900/80 hover:bg-zinc-800 text-xs font-mono text-zinc-300 hover:text-white transition-all cursor-pointer"
+                        title="Ajustar peso base o repeticiones de test"
+                      >
+                        <Settings2 className="w-3.5 h-3.5 text-amber-400" />
+                        <span>Ajustar 1RM</span>
+                        {showQuickCalibration ? (
+                          <ChevronUp className="w-3.5 h-3.5 text-zinc-400" />
+                        ) : (
+                          <ChevronDown className="w-3.5 h-3.5 text-zinc-400" />
+                        )}
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setSelectedProgressEx(activeExercise.name);
+                          setShowProgressModal(true);
+                        }}
+                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-amber-500/40 bg-amber-500/10 hover:bg-amber-500/20 text-xs font-mono font-bold text-amber-300 transition-all active:scale-95 cursor-pointer"
+                        title="Ver historial de fuerza y motor completo"
+                      >
+                        <TrendingUp className="w-3.5 h-3.5 text-amber-400" />
+                        <span>1RM: {activeExMax?.one_rep_max ?? 0} kg</span>
+                      </button>
+                    </div>
                   </div>
                   <p className="text-xs text-amber-400/90 font-mono mb-2">{activeDay.focus}</p>
                   <p className="text-xs text-zinc-400 italic bg-zinc-900/40 p-2.5 rounded-lg border border-zinc-800/60">
@@ -856,125 +879,262 @@ export default function ZenDashboard() {
                   </p>
                 </div>
 
-                {/* 01// CALIBRACIÓN EN VIVO: Se recalcula de inmediato al poner el peso y reps */}
-                <div className="p-4 rounded-xl bg-black border border-zinc-800">
-                  <div className="flex items-center justify-between mb-3 text-xs font-mono">
-                    <span className="font-bold text-amber-400 flex items-center gap-1.5 uppercase">
-                      <Calculator className="w-3.5 h-3.5" /> 01// CALIBRACIÓN EN VIVO (1RM & TM)
-                    </span>
-                    <span className="text-[10px] text-zinc-500">Cálculo instantáneo</span>
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
-                    <div>
-                      <label className="text-[10px] font-mono text-zinc-400 uppercase block mb-1">
-                        Peso Referencia / Test (kg)
-                      </label>
-                      <input
-                        type="number"
-                        step="2.5"
-                        value={quickWeight}
-                        onChange={(e) => {
-                          setQuickWeight(e.target.value);
-                          handleUpdateQuickMax(e.target.value, quickReps);
-                        }}
-                        className="w-full px-3 py-2 rounded-lg bg-zinc-900 border border-zinc-700 text-amber-300 font-mono font-bold text-sm focus:border-amber-400 focus:outline-none"
-                        placeholder="ej: 100"
-                      />
+                {/* Panel Plegable de Calibración Rápida (sólo si el usuario desea calibrar) */}
+                {showQuickCalibration && (
+                  <div className="p-4 rounded-2xl bg-black border border-amber-500/30 animate-in fade-in slide-in-from-top-2 duration-200 space-y-3">
+                    <div className="flex items-center justify-between text-xs font-mono">
+                      <span className="font-bold text-amber-400 flex items-center gap-1.5 uppercase">
+                        <Calculator className="w-3.5 h-3.5" /> CALIBRACIÓN DE FUERZA BASE
+                      </span>
+                      <span className="text-[10px] text-zinc-500">Recalcula todas las cargas</span>
                     </div>
-                    <div>
-                      <label className="text-[10px] font-mono text-zinc-400 uppercase block mb-1">
-                        Repeticiones Logradas
-                      </label>
-                      <input
-                        type="number"
-                        min="1"
-                        max="20"
-                        value={quickReps}
-                        onChange={(e) => {
-                          setQuickReps(e.target.value);
-                          handleUpdateQuickMax(quickWeight, e.target.value);
-                        }}
-                        className="w-full px-3 py-2 rounded-lg bg-zinc-900 border border-zinc-700 text-white font-mono font-bold text-sm focus:border-amber-400 focus:outline-none"
-                        placeholder="ej: 5"
-                      />
-                    </div>
-                  </div>
 
-                  {/* Resumen Fisiológico Inmediato */}
-                  <div className="grid grid-cols-3 gap-2 text-center p-2.5 rounded-lg bg-zinc-900/60 border border-zinc-800/80 font-mono">
-                    <div>
-                      <div className="text-[9px] uppercase text-zinc-500">1RM Estimado</div>
-                      <div className="text-base font-black text-amber-400 mt-0.5">
-                        {activeExMax?.one_rep_max ?? 0} kg
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div>
+                        <label className="text-[10px] font-mono text-zinc-400 uppercase block mb-1">
+                          Peso de Referencia (kg)
+                        </label>
+                        <input
+                          type="number"
+                          step="2.5"
+                          value={quickWeight}
+                          onChange={(e) => {
+                            setQuickWeight(e.target.value);
+                            handleUpdateQuickMax(e.target.value, quickReps);
+                          }}
+                          className="w-full px-3 py-2 rounded-lg bg-zinc-900 border border-zinc-700 text-amber-300 font-mono font-bold text-sm focus:border-amber-400 focus:outline-none"
+                          placeholder="ej: 100"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-[10px] font-mono text-zinc-400 uppercase block mb-1">
+                          Repeticiones Realizadas
+                        </label>
+                        <input
+                          type="number"
+                          min="1"
+                          max="20"
+                          value={quickReps}
+                          onChange={(e) => {
+                            setQuickReps(e.target.value);
+                            handleUpdateQuickMax(quickWeight, e.target.value);
+                          }}
+                          className="w-full px-3 py-2 rounded-lg bg-zinc-900 border border-zinc-700 text-white font-mono font-bold text-sm focus:border-amber-400 focus:outline-none"
+                          placeholder="ej: 5"
+                        />
                       </div>
                     </div>
-                    <div>
-                      <div className="text-[9px] uppercase text-zinc-500">Training Max (90%)</div>
-                      <div className="text-base font-black text-zinc-200 mt-0.5">
-                        {activeExMax?.training_max ?? 0} kg
+
+                    <div className="grid grid-cols-3 gap-2 text-center p-2 rounded-lg bg-zinc-900/60 border border-zinc-800 font-mono text-xs">
+                      <div>
+                        <div className="text-[9px] uppercase text-zinc-500">1RM</div>
+                        <div className="font-bold text-amber-400">{activeExMax?.one_rep_max ?? 0} kg</div>
                       </div>
-                    </div>
-                    <div>
-                      <div className="text-[9px] uppercase text-emerald-400">Carga Efectiva (85%)</div>
-                      <div className="text-base font-black text-emerald-400 mt-0.5">
-                        {activeExMax?.prescriptions.phase_5_work ?? 0} kg
+                      <div>
+                        <div className="text-[9px] uppercase text-zinc-500">TM (90%)</div>
+                        <div className="font-bold text-zinc-200">{activeExMax?.training_max ?? 0} kg</div>
+                      </div>
+                      <div>
+                        <div className="text-[9px] uppercase text-emerald-400">Trabajo (85%)</div>
+                        <div className="font-bold text-emerald-400">{activeExMax?.prescriptions.phase_5_work ?? 0} kg</div>
                       </div>
                     </div>
                   </div>
-                </div>
+                )}
 
-                {/* 02// DESGLOSE EXACTO DE LEVANTAMIENTOS Y SERIES */}
-                <div className="p-4 rounded-xl bg-zinc-900/40 border border-zinc-800 space-y-4">
+                {/* 🎯 HERO DE INSTRUCCIÓN EXACTA (LO QUE TIENES QUE HACER AHORA MISMO) */}
+                {(() => {
+                  const targetWeight = parseFloat(inputWeight) || (activeExMax?.prescriptions.phase_5_work ?? 0);
+                  const targetReps = parseInt(inputReps) || (parseInt(activeExercise.reps) || 3);
+                  const platePerSide = Math.max(0, Math.round(((targetWeight - 20) / 2) * 10) / 10);
+
+                  return (
+                    <div className="p-5 sm:p-6 rounded-3xl bg-gradient-to-b from-zinc-900 via-zinc-950 to-black border-2 border-amber-500/60 shadow-[0_0_40px_rgba(245,158,11,0.2)] relative overflow-hidden">
+                      {/* Estado del Paso */}
+                      <div className="flex items-center justify-between mb-4">
+                        <div className="flex items-center gap-2">
+                          <span className="flex h-3 w-3 relative">
+                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75" />
+                            <span className="relative inline-flex rounded-full h-3 w-3 bg-amber-500" />
+                          </span>
+                          <span className="font-mono text-xs font-black uppercase tracking-wider text-amber-400">
+                            PASO ACTUAL: SERIE {currentSet} DE {activeExercise.sets}
+                          </span>
+                        </div>
+                        <span className="text-[11px] font-mono text-zinc-400 bg-zinc-900/90 px-3 py-1 rounded-full border border-zinc-800">
+                          ⏱️ Descanso: {Math.floor(activeExercise.restSeconds / 60)} min
+                        </span>
+                      </div>
+
+                      {/* INSTRUCCIÓN EXACTA: PESO Y REPETICIONES */}
+                      <div className="grid grid-cols-2 gap-3 sm:gap-4 my-2 p-4 sm:p-5 rounded-2xl bg-black/90 border border-zinc-800 text-center">
+                        <div>
+                          <div className="text-[10px] sm:text-xs font-mono text-zinc-400 uppercase tracking-wider font-bold">
+                            TIENES QUE LEVANTAR:
+                          </div>
+                          <div className="text-3xl sm:text-5xl font-black font-mono text-amber-400 tracking-tight mt-1 flex items-baseline justify-center gap-1">
+                            <span>{targetWeight}</span>
+                            <span className="text-sm sm:text-base text-amber-400/70 font-bold">kg</span>
+                          </div>
+
+                          {/* Ajuste Rápido de Kilos */}
+                          <div className="flex items-center justify-center gap-2 mt-2">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const newVal = Math.max(0, targetWeight - 2.5);
+                                setInputWeight(newVal.toString());
+                              }}
+                              className="p-1.5 rounded-lg bg-zinc-900 hover:bg-zinc-800 border border-zinc-700 text-zinc-300 hover:text-white transition-colors cursor-pointer"
+                              title="Bajar 2.5 kg"
+                            >
+                              <Minus className="w-3.5 h-3.5" />
+                            </button>
+                            <span className="text-[10px] font-mono text-zinc-400">2.5 kg</span>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const newVal = targetWeight + 2.5;
+                                setInputWeight(newVal.toString());
+                              }}
+                              className="p-1.5 rounded-lg bg-zinc-900 hover:bg-zinc-800 border border-zinc-700 text-zinc-300 hover:text-white transition-colors cursor-pointer"
+                              title="Subir 2.5 kg"
+                            >
+                              <Plus className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        </div>
+
+                        <div>
+                          <div className="text-[10px] sm:text-xs font-mono text-zinc-400 uppercase tracking-wider font-bold">
+                            REPETICIONES A HACER:
+                          </div>
+                          <div className="text-3xl sm:text-5xl font-black font-mono text-white tracking-tight mt-1 flex items-baseline justify-center gap-1">
+                            <span>{targetReps}</span>
+                            <span className="text-sm sm:text-base text-zinc-400 font-bold">reps</span>
+                          </div>
+
+                          {/* Ajuste Rápido de Reps */}
+                          <div className="flex items-center justify-center gap-2 mt-2">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const newVal = Math.max(1, targetReps - 1);
+                                setInputReps(newVal.toString());
+                              }}
+                              className="p-1.5 rounded-lg bg-zinc-900 hover:bg-zinc-800 border border-zinc-700 text-zinc-300 hover:text-white transition-colors cursor-pointer"
+                              title="Menos 1 rep"
+                            >
+                              <Minus className="w-3.5 h-3.5" />
+                            </button>
+                            <span className="text-[10px] font-mono text-zinc-400">1 rep</span>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const newVal = targetReps + 1;
+                                setInputReps(newVal.toString());
+                              }}
+                              className="p-1.5 rounded-lg bg-zinc-900 hover:bg-zinc-800 border border-zinc-700 text-zinc-300 hover:text-white transition-colors cursor-pointer"
+                              title="Más 1 rep"
+                            >
+                              <Plus className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Montaje de la Barra y RPE */}
+                      <div className="flex flex-col sm:flex-row items-center justify-between text-xs font-mono px-3 py-2 text-zinc-400 bg-zinc-900/60 rounded-xl border border-zinc-800/80 gap-2 mt-3">
+                        <span className="flex items-center gap-1.5">
+                          <Dumbbell className="w-4 h-4 text-amber-400 flex-shrink-0" />
+                          <span>
+                            Montaje: Barra olímpica (20 kg) + <strong className="text-white">{platePerSide} kg</strong> a cada lado
+                          </span>
+                        </span>
+                        <div className="flex items-center gap-2">
+                          <span className="text-zinc-500">RPE Esfuerzo:</span>
+                          <input
+                            type="text"
+                            value={inputRpe}
+                            onChange={(e) => setInputRpe(e.target.value)}
+                            placeholder="8.5"
+                            className="w-14 px-2 py-0.5 rounded bg-black border border-zinc-700 text-amber-400 text-center font-mono text-xs focus:outline-none focus:border-amber-500"
+                          />
+                        </div>
+                      </div>
+
+                      {/* Botón Principal Bio-Ergonómico: Completar Serie & Abrir Descanso Zen */}
+                      <button
+                        onClick={() => handleCompleteSet()}
+                        className="w-full mt-4 py-4 sm:py-5 px-6 rounded-2xl bg-gradient-to-b from-amber-400 via-amber-500 to-amber-600 hover:from-amber-300 hover:to-amber-500 text-black font-black uppercase tracking-wider text-xs sm:text-sm transition-all transform active:translate-y-0.5 border-b-4 border-amber-700 shadow-[0_12px_28px_rgba(245,158,11,0.3)] flex items-center justify-center gap-3 cursor-pointer select-none glow-zen-gold"
+                      >
+                        <CheckCircle2 className="w-5 h-5 text-black stroke-[3] flex-shrink-0" />
+                        <span>¡SERIE {currentSet} REALIZADA! → ENTRAR EN DESCANSO ATP</span>
+                      </button>
+                    </div>
+                  );
+                })()}
+
+                {/* 📋 HOJA DE RUTA COMPLETA: GUÍA PASO A PASO DEL EJERCICIO */}
+                <div className="p-4 sm:p-5 rounded-2xl bg-zinc-900/40 border border-zinc-800 space-y-4">
                   <div className="flex items-center justify-between text-xs font-mono">
                     <span className="font-bold text-white uppercase flex items-center gap-1.5">
-                      <Dumbbell className="w-3.5 h-3.5 text-amber-400" /> 02// PESOS EXACTOS DE CADA LEVANTAMIENTO
+                      <Layers className="w-3.5 h-3.5 text-amber-400" /> HOJA DE RUTA: TODAS LAS SERIES Y PESOS
                     </span>
-                    <span className="text-[10px] text-zinc-500 font-mono">Redondeo: 2.5 kg</span>
+                    <span className="text-[10px] text-zinc-500">Guía secuencial completa</span>
                   </div>
 
-                  {/* Aproximación Neuromuscular F1 a F4 */}
+                  {/* 1. Fases de Calentamiento / Aclimatación SNC (F1 a F4) */}
                   <div>
                     <div className="text-[10px] font-mono text-zinc-400 uppercase tracking-wider mb-2">
-                      Fases de Aclimatación del SNC (Previo a Series Efectivas):
+                      Fases Previas de Aclimatación SNC (Calentamiento neuromuscular):
                     </div>
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center font-mono text-xs">
-                      <div className="p-2 rounded-lg bg-black border border-zinc-800">
+                      <div className="p-2.5 rounded-xl bg-black border border-zinc-800">
                         <div className="text-[10px] text-zinc-500">F1 (20% TM)</div>
-                        <div className="text-[11px] text-zinc-400">10 reps</div>
-                        <div className="text-sm font-bold text-amber-400 mt-0.5">
+                        <div className="text-[11px] text-zinc-300">10 reps</div>
+                        <div className="text-sm font-black text-amber-400 mt-0.5">
                           {activeExMax?.prescriptions.phase_1_activation ?? 20} kg
                         </div>
+                        <div className="text-[9px] text-zinc-500 mt-0.5">Barra vacía</div>
                       </div>
-                      <div className="p-2 rounded-lg bg-black border border-zinc-800">
+
+                      <div className="p-2.5 rounded-xl bg-black border border-zinc-800">
                         <div className="text-[10px] text-zinc-500">F2 (40% TM)</div>
-                        <div className="text-[11px] text-zinc-400">5 reps</div>
-                        <div className="text-sm font-bold text-amber-400 mt-0.5">
+                        <div className="text-[11px] text-zinc-300">5 reps</div>
+                        <div className="text-sm font-black text-amber-400 mt-0.5">
                           {activeExMax?.prescriptions.phase_2_light ?? 0} kg
                         </div>
+                        <div className="text-[9px] text-zinc-500 mt-0.5">Aproximación</div>
                       </div>
-                      <div className="p-2 rounded-lg bg-black border border-zinc-800">
+
+                      <div className="p-2.5 rounded-xl bg-black border border-zinc-800">
                         <div className="text-[10px] text-zinc-500">F3 (60% TM)</div>
-                        <div className="text-[11px] text-zinc-400">3 reps</div>
-                        <div className="text-sm font-bold text-amber-400 mt-0.5">
+                        <div className="text-[11px] text-zinc-300">3 reps</div>
+                        <div className="text-sm font-black text-amber-400 mt-0.5">
                           {activeExMax?.prescriptions.phase_3_medium ?? 0} kg
                         </div>
+                        <div className="text-[9px] text-zinc-500 mt-0.5">Aproximación</div>
                       </div>
-                      <div className="p-2 rounded-lg bg-black border border-zinc-800">
+
+                      <div className="p-2.5 rounded-xl bg-black border border-zinc-800">
                         <div className="text-[10px] text-amber-400 font-bold">F4 (80% PAP)</div>
-                        <div className="text-[11px] text-zinc-400">1 rep pesada</div>
-                        <div className="text-sm font-bold text-amber-300 mt-0.5">
+                        <div className="text-[11px] text-zinc-300">1 rep pesada</div>
+                        <div className="text-sm font-black text-amber-300 mt-0.5">
                           {activeExMax?.prescriptions.phase_4_pap ?? 0} kg
                         </div>
+                        <div className="text-[9px] text-amber-400/80 mt-0.5">Potenciación</div>
                       </div>
                     </div>
                   </div>
 
-                  {/* Series Efectivas de Trabajo (Fase 5) con Kilos Exactos */}
+                  {/* 2. Series Efectivas de Trabajo (Fase 5) */}
                   <div>
                     <div className="text-[10px] font-mono text-emerald-400 uppercase tracking-wider mb-2 flex items-center justify-between">
-                      <span>Series Efectivas de Trabajo (Fase 5 - Fuerza Real):</span>
-                      <span className="text-zinc-400">{activeExercise.sets} series de {activeExercise.reps}</span>
+                      <span>Series Efectivas de Trabajo (Fase 5 - Fuerza Máxima):</span>
+                      <span className="text-zinc-400">
+                        {activeExercise.sets} series de {activeExercise.reps} con {activeExMax?.prescriptions.phase_5_work ?? 0} kg
+                      </span>
                     </div>
 
                     <div className="space-y-2 font-mono text-xs">
@@ -990,7 +1150,7 @@ export default function ZenDashboard() {
                               isDone
                                 ? "bg-emerald-950/20 border-emerald-500/40 text-emerald-300"
                                 : isCurrent
-                                ? "bg-amber-500/10 border-amber-500/80 text-white shadow-lg shadow-amber-500/10"
+                                ? "bg-amber-500/10 border-amber-500 text-white shadow-lg shadow-amber-500/10"
                                 : "bg-black/60 border-zinc-800/80 text-zinc-400"
                             }`}
                           >
@@ -1000,7 +1160,7 @@ export default function ZenDashboard() {
                                   isDone
                                     ? "bg-emerald-500 text-black"
                                     : isCurrent
-                                    ? "bg-amber-400 text-black animate-pulse"
+                                    ? "bg-amber-400 text-black font-black"
                                     : "bg-zinc-800 text-zinc-400"
                                 }`}
                               >
@@ -1009,6 +1169,11 @@ export default function ZenDashboard() {
                               <span className="font-bold tracking-wide">
                                 Serie {sNum}
                               </span>
+                              {isCurrent && (
+                                <span className="px-2 py-0.5 rounded bg-amber-400 text-black font-mono font-bold text-[10px] uppercase">
+                                  En Curso
+                                </span>
+                              )}
                             </div>
 
                             <div className="flex items-center gap-3">
@@ -1027,11 +1192,11 @@ export default function ZenDashboard() {
                                   onClick={() => handleCompleteSet(sNum)}
                                   className="px-3 py-1.5 rounded-lg bg-amber-400 hover:bg-amber-300 text-black font-bold text-[11px] tracking-wider uppercase transition-all shadow-md shadow-amber-400/20 active:scale-95 cursor-pointer"
                                 >
-                                  Completar
+                                  Hecho
                                 </button>
                               ) : isDone ? (
-                                <span className="text-[11px] font-bold text-emerald-400 bg-emerald-500/10 px-2 py-1 rounded">
-                                  Hecho
+                                <span className="text-[11px] font-bold text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded">
+                                  Completada
                                 </span>
                               ) : (
                                 <span className="text-[11px] text-zinc-500 font-mono">
@@ -1044,67 +1209,6 @@ export default function ZenDashboard() {
                       })}
                     </div>
                   </div>
-                </div>
-
-                {/* 03// CONSOLA DE LA SERIE ACTUAL: Registro de carga y lanzamiento del descanso Zen */}
-                <div className="p-4 rounded-xl bg-black border border-zinc-800">
-                  <div className="flex items-center justify-between mb-3 text-xs font-mono">
-                    <span className="text-zinc-300 font-bold flex items-center gap-1.5 uppercase">
-                      <Zap className="w-3.5 h-3.5 text-amber-400" /> SERIE EN CURSO: {currentSet} DE {activeExercise.sets}
-                    </span>
-                    <span className="text-xs text-amber-400 font-bold">
-                      Levantamiento: {activeExMax?.prescriptions.phase_5_work ?? 0} kg
-                    </span>
-                  </div>
-
-                  <div className="grid grid-cols-3 gap-2 mb-4">
-                    <div>
-                      <label className="text-[10px] text-zinc-400 font-mono uppercase block mb-1">
-                        Carga Real (kg)
-                      </label>
-                      <input
-                        type="number"
-                        step="2.5"
-                        value={inputWeight}
-                        onChange={(e) => setInputWeight(e.target.value)}
-                        className="w-full px-3 py-2 rounded-lg bg-zinc-900 border border-zinc-700 text-amber-300 font-mono font-bold text-sm focus:border-amber-500 focus:outline-none"
-                      />
-                    </div>
-                    <div>
-                      <label className="text-[10px] text-zinc-400 font-mono uppercase block mb-1">
-                        Reps Logradas
-                      </label>
-                      <input
-                        type="number"
-                        value={inputReps}
-                        onChange={(e) => setInputReps(e.target.value)}
-                        className="w-full px-3 py-2 rounded-lg bg-zinc-900 border border-zinc-700 text-white font-mono font-bold text-sm focus:border-amber-500 focus:outline-none"
-                      />
-                    </div>
-                    <div>
-                      <label className="text-[10px] text-zinc-400 font-mono uppercase block mb-1">
-                        RPE Esfuerzo
-                      </label>
-                      <input
-                        type="text"
-                        value={inputRpe}
-                        onChange={(e) => setInputRpe(e.target.value)}
-                        placeholder="8.5"
-                        className="w-full px-3 py-2 rounded-lg bg-zinc-900 border border-zinc-700 text-white font-mono text-sm focus:border-amber-500 focus:outline-none"
-                      />
-                    </div>
-                  </div>
-
-                  {/* Botón Principal: Completa la serie y ABRE la pantalla de Resíntesis Zen */}
-                  <button
-                    onClick={() => handleCompleteSet()}
-                    className="w-full py-4 px-6 rounded-2xl bg-gradient-to-b from-amber-400 via-amber-500 to-amber-600 hover:from-amber-300 hover:to-amber-500 text-black font-black uppercase tracking-wider text-xs sm:text-sm transition-all transform active:translate-y-0.5 border-b-4 border-amber-700 shadow-[0_10px_25px_rgba(245,158,11,0.25)] flex items-center justify-center gap-3 cursor-pointer select-none glow-zen-gold"
-                  >
-                    <CheckCircle2 className="w-5 h-5 text-black stroke-[2.5] flex-shrink-0" />
-                    <span>
-                      COMPLETAR SERIE {currentSet} & ENTRAR EN DESCANSO ATP ({Math.floor(activeExercise.restSeconds / 60)} MIN)
-                    </span>
-                  </button>
                 </div>
               </div>
             </>
@@ -1591,7 +1695,9 @@ export default function ZenDashboard() {
               className="mt-6 px-8 py-3.5 rounded-2xl bg-amber-400 hover:bg-amber-300 text-black font-mono font-black text-xs sm:text-sm tracking-wider uppercase transition-all shadow-xl shadow-amber-400/20 active:scale-95 cursor-pointer flex items-center gap-2"
             >
               <Play className="w-4 h-4 fill-black" />
-              <span>LISTO PARA LEVANTAR // IR A SERIE {currentSet}</span>
+              <span>
+                LISTO PARA LEVANTAR → PASAR A SERIE {currentSet} ({activeExMax?.prescriptions.phase_5_work ?? 0} kg × {activeExercise.reps})
+              </span>
             </button>
 
             {/* Controles Zen Flotantes */}
