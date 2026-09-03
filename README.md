@@ -1,6 +1,6 @@
-# NEURO//STRENGTH — High-Performance Neuromuscular & ATP Resynthesis Engine
+# NEURO//STRENGTH — Motor de Rendimiento Neuromuscular y Resíntesis de ATP
 
-[![Production Status](https://img.shields.io/badge/Production-Live-emerald?style=for-the-badge&logo=vercel)](https://atp-strength.vercel.app)
+[![Estado de Producción](https://img.shields.io/badge/Producción-En_Línea-emerald?style=for-the-badge&logo=vercel)](https://atp-strength.vercel.app)
 [![Next.js 16](https://img.shields.io/badge/Next.js-16.3.4_(Turbopack)-black?style=for-the-badge&logo=next.js)](https://nextjs.org/)
 [![React 19](https://img.shields.io/badge/React-19.2.8-61DAFB?style=for-the-badge&logo=react)](https://react.dev/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.115+-009688?style=for-the-badge&logo=fastapi)](https://fastapi.tiangolo.com/)
@@ -8,36 +8,36 @@
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-4169E1?style=for-the-badge&logo=postgresql)](https://www.postgresql.org/)
 [![PWA](https://img.shields.io/badge/PWA-Offline_First-amber?style=for-the-badge&logo=pwa)](https://atp-strength.vercel.app)
 
-> **Live Application**: [https://atp-strength.vercel.app](https://atp-strength.vercel.app)  
-> **API Documentation**: [FastAPI Interactive Swagger Docs](https://atp-strength-backend.onrender.com/docs)
+> **Aplicación en Producción**: [https://atp-strength.vercel.app](https://atp-strength.vercel.app)  
+> **Documentación de API**: [Swagger Interactivo FastAPI](https://atp-strength-backend.onrender.com/docs)
 
 ---
 
-## 🎯 Executive Overview
+## 🎯 Resumen Ejecutivo
 
-**NEURO//STRENGTH** is an elite strength-training web application engineered to eliminate cognitive friction and biomechanical guesswork during maximal neuromuscular efforts. 
+**NEURO//STRENGTH** es una plataforma web de entrenamiento de fuerza de élite diseñada para eliminar por completo la fricción cognitiva y la incertidumbre de carga durante esfuerzos neuromusculares máximos.
 
-Unlike standard fitness loggers that overwhelm athletes under heavy fatigue, NEURO//STRENGTH combines:
-1. **Zero-Friction Ergonomics**: Prescriptive, step-by-step guidance telling the lifter the exact load, repetitions, and bar assembly for every set.
-2. **Physiological Phosphagen (ATP-PCr) Resynthesis**: Mandatory recovery timer enforcing biochemical replenishment (3–5 min) for motor unit readiness.
-3. **Native Synthetic Audio & Pocket Haptics**: Browser-synthesized Solfeggio 528 Hz harmonics and triple-pulse haptic alerts (`navigator.vibrate`) notifying the lifter without requiring visual contact.
-4. **Offline-First Resilience**: Full standalone PWA functionality capable of uninterrupted operation in shielded gym basements.
+A diferencia de las aplicaciones tradicionales de gimnasio que sobrecargan al atleta con pantallas complejas en pleno estado de fatiga, NEURO//STRENGTH integra:
+1. **Ergonomía de Cero Fricción**: Un flujo asistido paso a paso que le indica al atleta la carga exacta, las repeticiones obligatorias y el montaje de discos por manga para cada serie.
+2. **Resíntesis Fisiológica de Fosfágenos (ATP-PCr)**: Control estricto de descansos de 3 a 5 minutos, garantizando la recuperación bioquímica completa de motoneuronas de alto umbral antes de cada levantamiento.
+3. **Síntesis Acústica y Háptica en el Dispositivo**: Generación sintética nativa mediante Web Audio API (frecuencia armónica de 528 Hz) y alertas hápticas de bolsillo (`navigator.vibrate`), permitiendo entrenar sin mirar la pantalla.
+4. **Resiliencia Offline-First**: Arquitectura Progressive Web App (PWA) con almacenamiento optimista en `localStorage`, garantizando funcionamiento continuo en sótanos o zonas sin cobertura móvil.
 
 ---
 
-## 🏛️ System Architecture
+## 🏛️ Arquitectura del Sistema
 
-The application adopts a **Decoupled, Resilient Client-Server Architecture** designed for high availability and zero operational lag:
+La solución adopta una **Arquitectura Desacoplada y Resiliente** orientada a alta disponibilidad y latencia cero:
 
 ```mermaid
 flowchart TD
-    subgraph Client ["Client Layer (PWA / Next.js 16)"]
-        UI["Zen Dashboard UI (True Black #000000)"]
-        State["Optimistic Session State Engine"]
-        LS[("Local Storage (Offline Cache)")]
-        SW["Service Worker (Cache v4)"]
-        Audio["Web Audio API (528 Hz Synthesizer)"]
-        Vib["Web Vibration API (Triple-Pulse)"]
+    subgraph Cliente ["Capa Cliente (PWA / Next.js 16)"]
+        UI["Dashboard Zen (True Black #000000)"]
+        State["Motor de Estado Optimista"]
+        LS[("Almacenamiento Local (Caché Offline)")]
+        SW["Service Worker (Caché v4)"]
+        Audio["Web Audio API (Sintetizador 528 Hz)"]
+        Vib["Web Vibration API (Pulso Triple)"]
         
         UI --> State
         State <--> LS
@@ -46,164 +46,164 @@ flowchart TD
         SW --> UI
     end
 
-    subgraph Transport ["Edge & Network Layer"]
-        Vercel["Vercel Edge Network (Global CDN)"]
-        HTTP["Async HTTP / Telemetry Sync"]
+    subgraph Transporte ["Capa Edge y Red"]
+        Vercel["Red Global Edge Vercel (CDN)"]
+        HTTP["Sincronización Asíncrona HTTP"]
     end
 
-    subgraph Backend ["Backend Core Layer (Render Cloud)"]
+    subgraph Backend ["Capa Núcleo Backend (Render Cloud)"]
         API["FastAPI REST Engine (Python 3.12)"]
-        ORM["SQLAlchemy Relational Layer"]
-        DB[("PostgreSQL Database")]
+        ORM["Capa Relacional SQLAlchemy"]
+        DB[("Base de Datos PostgreSQL")]
         
         API --> ORM
         ORM --> DB
     end
 
-    Client -->|Auto Deploy / CDN| Vercel
-    State -.->|Background Sync when Online| HTTP
+    Cliente -->|Despliegue Automático / CDN| Vercel
+    State -.->|Telemetría en Segundo Plano| HTTP
     HTTP --> API
 ```
 
 ---
 
-## ⚡ Key Engineering Features
+## ⚡ Características Clave de Ingeniería
 
-### 1. Zero-Friction Guided UX ("No Mental Math Under Load")
-- **Step-by-Step Flow**: Progresses sequentially from **Phase 1 Activation** through **Phase 4 PAP (Post-Activation Potentiation)** to **Phase 5 Work Sets**.
-- **Dynamic Contextual CTA**: Single prominent touch action that adapts automatically:
-  - *Resting*: `⏱️ REST ACTIVE (mm:ss) • SKIP & LIFT NOW`
-  - *Warmup*: `PHASE X COMPLETED → PROCEED TO PHASE X+1`
-  - *Work Set*: `SET X COMPLETED → START ATP REST`
-  - *Session Finish*: `SESSION COMPLETED → VIEW VICTORY SUMMARY`
-- **Ergonomic Touch Targets**: Minimum 44×44px touch boundaries with reactive feedback (`active:scale-95`) optimized for chalk-covered or sweaty hands.
+### 1. Experiencia de Usuario Guiada ("Cero Cálculo Mental Bajo Fatiga")
+- **Flujo Secuencial Asistido**: Guía estructurada desde la **Fase 1 de Activación**, pasando por aproximaciones medias y **Fase 4 PAP (Potenciación Post-Activación)**, hasta las **Series Efectivas de Trabajo**.
+- **Botón de Acción Principal (CTA) Adaptativo**: Control ergonómico único que responde al estado exacto de la sesión:
+  - *En Descanso*: `⏱️ DESCANSO ACTIVO (mm:ss) • SALTAR Y LEVANTAR YA`
+  - *En Calentamiento*: `¡FASE X REALIZADA! → PASAR A FASE X+1`
+  - *En Serie Efectiva*: `¡SERIE X REALIZADA! → ENTRAR EN DESCANSO ATP`
+  - *Al Finalizar Sesión*: `🏆 ¡ENTRENAMIENTO COMPLETADO! → VER RESUMEN`
+- **Ergonomía Táctil de Gimnasio**: Botones con áreas táctiles mínimas de 44×44px y respuesta háptica táctil (`active:scale-95`), diseñados para dedos con magnesio o fatiga motora.
 
-### 2. Scientific 1RM Autoregulation & CNS Acclimatization
-- **5 Validated Biomechanical Equations**: Epley, Brzycki, Lander, Lombardi, and Mayhew models for precise max-strength estimation.
-- **90% Training Max (TM) Ceiling**: Guards against systemic Central Nervous System (CNS) overtraining.
-- **Exact Bar Assembly Telemetry**: Automatically calculates plate weight per sleeve for 20 kg Olympic bars, 10 kg EZ bars, dumbbells, and weighted bodyweight.
+### 2. Autorregulación Científica de 1RM y Aclimatación SNC
+- **5 Modelos Biomecánicos Validados**: Soporte integrado para las fórmulas de Epley, Brzycki, Lander, Lombardi y Mayhew.
+- **Training Max (TM) al 90%**: Tope de seguridad neuromuscular que previene el sobreentrenamiento sistémico del Sistema Nervioso Central.
+- **Telemetría de Montaje de Discos**: Desglose automático de kilos por manga para barras olímpicas de 20 kg, barras Z de 10 kg, mancuernas y peso corporal lastrado.
 
-### 3. Integrated Bio-Acoustic & Haptic Telemetry
-- **Synthetic Web Audio Generation**: Zero external MP3 downloads. Directly synthesizes a 528 Hz fundamental Solfeggio frequency with 880 Hz and 1056 Hz warm harmonics and exponential decay.
-- **Triumphant Fanfare**: Synthesizes an ascending musical chord (*C5 → E5 → G5 → C6*) upon session completion.
-- **Deep Pocket Haptic Signal**: Emits a potent `[300ms, 150ms, 300ms, 150ms, 500ms]` triple pulse so the lifter feels readiness through gym shorts.
+### 3. Bio-Acústica y Señalización Háptica Integradas
+- **Generación Acústica Sintética (Cero Descargas MP3)**: Utiliza Web Audio API para sintetizar en tiempo real la frecuencia Solfeggio de 528 Hz con armónicos a 880 Hz y 1056 Hz, eliminando latencia de red y dependencias de archivos multimedia.
+- **Fanfarria Armónica Triunfal**: Progresión melódica ascendente (*Do5 → Mi5 → Sol5 → Do6*) ejecutada automáticamente al completar la sesión diaria.
+- **Pulso Háptico Triple de Bolsillo**: Secuencia rítmica `[300ms, 150ms, 300ms, 150ms, 500ms]` perceptible en el pantalón para avisar el fin del descanso sin contacto visual.
 
-### 4. Session Victory Modal & Total Tonnage Analytics
-- **Cumulative Tonnage Engine**: Calculates total gravitational mass moved across all working and warm-up sets:
-  $$\text{Tonnage} = \sum (\text{Sets} \times \text{Reps} \times \text{Load}_{\text{kg}})$$
-- **Performance Breakdown**: Full exercise audit with completion badges and physiological supercompensation insights.
+### 4. Analítica de Sesión y Tonelaje Total Acumulado
+- **Motor de Tonelaje Gravitacional**: Cuantificación matemática de la masa bruta desplazada contra la gravedad:
+  $$\text{Tonelaje} = \sum (\text{Series} \times \text{Repeticiones} \times \text{Carga}_{\text{kg}})$$
+- **Auditoría de Rendimiento**: Resumen con insignias de cumplimiento por ejercicio y fundamentos fisiológicos de supercompensación neuromuscular.
 
-### 5. Non-Destructive Reset Architecture
-- **Two-Tier Safe Reset**: Differentiates between resetting only the active exercise (clearing its current sets) versus resetting the entire daily session.
-- Prevents accidental data loss while keeping 1RM historical records intact.
+### 5. Control de Reinicio Seguro y No Destructivo
+- **Confirmación en Dos Niveles**: Modal de seguridad que permite reiniciar únicamente el ejercicio activo o bien la totalidad de la sesión del día.
+- Protege los registros históricos y las marcas 1RM contra eliminaciones accidentales.
 
 ---
 
-## 🛠️ Technology Stack
+## 🛠️ Stack Tecnológico Justificado
 
-| Layer | Technology | Rationale |
+| Capa | Tecnología | Justificación Técnica |
 |---|---|---|
-| **Frontend Framework** | **Next.js 16.3.4 (Turbopack)** | React 19 Server/Client components with sub-second compilation and static prerendering. |
-| **Styling & Design System** | **Tailwind CSS v4 + Vanilla CSS** | Custom HSL tailored dark-mode tokens with True Black (`#000000`) OLED power optimization. |
-| **State & Offline Storage** | **React Hooks + localStorage + SW** | Immediate sub-millisecond local updates with reliable background synchronization. |
-| **Audio & Device Telemetry** | **Web Audio API + Web Vibration API** | Zero-latency, zero-asset client-side synthesized acoustics and physical haptics. |
-| **Backend Framework** | **FastAPI (Python 3.12)** | High-throughput asynchronous ASGI microframework with automatic OpenAPI validation. |
-| **Database & ORM** | **PostgreSQL + SQLAlchemy** | ACID-compliant relational storage for longitudinal athlete performance metrics. |
-| **Deployment & Hosting** | **Vercel + Render** | Edge-accelerated frontend distribution coupled with managed containerized backend services. |
+| **Framework Frontend** | **Next.js 16.3.4 (Turbopack)** | Renderizado híbrido con React 19, compilación en milisegundos y pre-renderizado estático optimizado. |
+| **Diseño y Estilos** | **Tailwind CSS v4 + Vanilla CSS** | Paleta personalizada de alto contraste en True Black (`#000000`), reduciendo el consumo energético en pantallas OLED. |
+| **Estado y Caché Local** | **React Hooks + localStorage + SW** | Actualizaciones locales instantáneas (sub-milisegundo) con persistencia offline garantizada. |
+| **Acústica y Hápticos** | **Web Audio API + Web Vibration API** | Generación de sonido y vibración puramente nativa en el dispositivo, sin carga de red ni dependencias externas. |
+| **Framework Backend** | **FastAPI (Python 3.12)** | Microframework asíncrono ASGI de alto rendimiento con validación tipada estricta vía Pydantic y OpenAPI automático. |
+| **Base de Datos y ORM** | **PostgreSQL + SQLAlchemy** | Persistencia relacional transaccional y robusta para telemetría histórica de levantamientos y marcas de fuerza. |
+| **Infraestructura Cloud** | **Vercel + Render** | Distribución Edge global en CDN para el cliente web combinada con servicios administrados para la API Python. |
 
 ---
 
-## 📁 Repository Structure
+## 📁 Estructura del Repositorio
 
 ```text
 atp-strength/
-├── 📂 atp-strength-frontend/             # Next.js 16 Production Application
+├── 📂 atp-strength-frontend/             # Aplicación de Producción Next.js 16
 │   ├── 📂 public/
-│   │   ├── sw.js                         # Service Worker (Cache v4, Network-First Strategy)
-│   │   ├── manifest.webmanifest          # PWA Standalone Manifest
-│   │   └── icon-*.png                    # High-DPI App & Maskable Icons
+│   │   ├── sw.js                         # Service Worker (Caché v4, Estrategia Network-First)
+│   │   ├── manifest.webmanifest          # Manifiesto PWA Standalone
+│   │   └── icon-*.png                    # Iconos adaptativos de alta resolución
 │   ├── 📂 src/
 │   │   ├── 📂 app/
-│   │   │   ├── layout.tsx                # Viewport metadata, SEO tags, dark-mode root
-│   │   │   ├── page.tsx                  # Zen Engine Dashboard & Full Workout Flow
-│   │   │   └── globals.css               # Kinetic animations & luxury dark tokens
+│   │   │   ├── layout.tsx                # Metadatos globales, optimización SEO y tema oscuro
+│   │   │   ├── page.tsx                  # Dashboard Zen, motor de fuerza y flujo de entrenamiento
+│   │   │   └── globals.css               # Tokens de diseño y animaciones de resíntesis
 │   │   └── 📂 components/
-│   │       └── PwaInstallPrompt.tsx      # Native PWA installation interface
-│   ├── next.config.ts                    # Edge and Turbopack compiler configuration
-│   ├── vercel.json                       # Vercel deployment orchestration
-│   └── package.json                      # Frontend dependencies & scripts
+│   │       └── PwaInstallPrompt.tsx      # Componente de instalación nativa PWA
+│   ├── next.config.ts                    # Configuración del compilador Turbopack
+│   ├── vercel.json                       # Orquestación de despliegue en Vercel
+│   └── package.json                      # Dependencias y scripts del frontend
 │
-├── 📂 atp-strength-backend/              # Python FastAPI Core API
+├── 📂 atp-strength-backend/              # API Núcleo en Python FastAPI
 │   ├── 📂 src/
-│   │   ├── 📂 config/                    # PostgreSQL connection & engine configuration
-│   │   ├── 📂 domain/                    # SQLAlchemy data schemas & domain models
-│   │   ├── 📂 repository/                # Data access abstractions
+│   │   ├── 📂 config/                    # Configuración de conexiones PostgreSQL
+│   │   ├── 📂 domain/                    # Esquemas de datos SQLAlchemy y modelos de dominio
+│   │   ├── 📂 repository/                # Abstracción de acceso a datos
 │   │   └── 📂 routes/
-│   │       ├── state.py                  # Telemetry endpoints (/api/state/log-set)
-│   │       └── strength.py               # 1RM engine endpoints (/api/strength/maxes)
-│   ├── main.py                           # Application bootstrap, CORS middleware
-│   ├── requirements.txt                  # Locked Python dependencies
-│   └── render.yaml                       # Infrastructure-as-Code for Render Cloud
+│   │       ├── state.py                  # Endpoints de series (/api/state/log-set)
+│   │       └── strength.py               # Endpoints de 1RM (/api/strength/maxes)
+│   ├── main.py                           # Punto de entrada de la API y middleware CORS
+│   ├── requirements.txt                  # Dependencias bloqueadas de Python
+│   └── render.yaml                       # Infraestructura como Código (IaC) para Render Cloud
 │
-└── README.md                             # Enterprise architectural documentation
+└── README.md                             # Documentación técnica corporativa
 ```
 
 ---
 
-## 🚀 Getting Started Locally
+## 🚀 Puesta en Marcha Local
 
-### Prerequisites
-- **Node.js**: `v20.x` or higher
+### Prerrequisitos
+- **Node.js**: `v20.x` o superior
 - **Python**: `3.12.x`
-- **PostgreSQL**: `v15` or higher (optional for local mock testing)
+- **PostgreSQL**: `v15` o superior (opcional para pruebas con base local)
 
-### 1. Clone the Repository
+### 1. Clonar el Repositorio
 ```bash
 git clone https://github.com/valentinflorezarbelaez-ai/ATP-STRENGTH.git
 cd ATP-STRENGTH
 ```
 
-### 2. Backend Setup (FastAPI)
+### 2. Configuración del Backend (FastAPI)
 ```bash
 cd atp-strength-backend
 
-# Initialize virtual environment
+# Crear y activar entorno virtual
 python -m venv .venv
-source .venv/bin/activate    # On Windows: .venv\Scripts\activate
+source .venv/bin/activate    # En Windows: .venv\Scripts\activate
 
-# Install dependencies
+# Instalar dependencias
 pip install -r requirements.txt
 
-# Start API server
+# Iniciar servidor de desarrollo
 uvicorn main:app --reload --port 8000
 ```
-> The interactive Swagger UI will be live at `http://localhost:8000/docs`.
+> La interfaz Swagger interactiva estará disponible en: `http://localhost:8000/docs`.
 
-### 3. Frontend Setup (Next.js)
+### 3. Configuración del Frontend (Next.js)
 ```bash
 cd ../atp-strength-frontend
 
-# Install dependencies
+# Instalar paquetes
 npm install
 
-# Run development server
+# Iniciar servidor de desarrollo
 npm run dev
 ```
-> Open `http://localhost:3000` to launch the **NEURO//STRENGTH** Dashboard.
+> Accede a `http://localhost:3000` para interactuar con el Dashboard de **NEURO//STRENGTH**.
 
 ---
 
-## 🔒 Security & Code Standards
+## 🔒 Estándares de Código y Calidad
 
-- **Conventional Commits**: Strict adherence to Conventional Commits specification (`feat`, `fix`, `chore`, `docs`).
-- **Strict TypeScript**: 100% type coverage without loose `any` casts in core business logic.
-- **Zero AI Attribution**: Clean author commits devoid of automated tool watermarks.
-- **Privacy & Sanitization**: Stripped client logs and protected database credential configurations.
+- **Conventional Commits**: Adherencia rigurosa al estándar de commits convencionales (`feat`, `fix`, `chore`, `docs`).
+- **TypeScript Estricto**: Cobertura tipada al 100% sin uso de `any` laxos en la lógica de negocio.
+- **Autoría Limpia**: Sin atribuciones automatizadas ni marcas de agua de herramientas externas en los commits.
+- **Seguridad y Sanitización**: Variables de entorno desacopladas de credenciales maestras y registros de cliente depurados.
 
 ---
 
-## 📄 License & Attribution
+## 📄 Licencia
 
-Developed by **Valentin Florez** as an open, high-performance architecture framework for neuromuscular conditioning and elite strength autoregulation.
+Desarrollado por **Valentin Florez** bajo licencia de código abierto para acondicionamiento neuromuscular y autorregulación de fuerza de alto rendimiento.
 
-Distributed under the **MIT License**.
+Distribuido bajo la **Licencia MIT**.
