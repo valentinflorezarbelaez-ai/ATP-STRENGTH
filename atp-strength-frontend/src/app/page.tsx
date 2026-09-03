@@ -19,7 +19,6 @@ import {
   Minimize2,
   Layers,
   Sparkles,
-  ChevronRight,
   TrendingUp,
   X,
   Save,
@@ -216,10 +215,75 @@ const ALL_TRACKABLE_EXERCISES = [
   "Curl Bíceps Barra Z",
 ];
 
+// --- Motor de Cálculo Fisiológico Puro (1RM, TM y Prescripciones por Fase) ---
+function computeMetrics(
+  exerciseName: string,
+  weight: number,
+  reps: number,
+  formula: string = "epley",
+  notes: string = ""
+): ExerciseMaxData {
+  const w = Math.max(0, weight);
+  const r = Math.max(1, reps);
+  let oneRm = w;
+  if (r > 1) {
+    if (formula === "brzycki") {
+      oneRm = r < 37 ? w * (36 / (37 - r)) : w;
+    } else {
+      oneRm = w * (1 + r / 30);
+    }
+  }
+  oneRm = Math.round(oneRm * 10) / 10;
+  const trainingMax = Math.round(oneRm * 0.9 * 10) / 10; // 90% TM
+  const round25 = (val: number) => Math.max(0, Math.round(val / 2.5) * 2.5);
+
+  return {
+    id: Date.now(),
+    exercise_name: exerciseName,
+    one_rep_max: oneRm,
+    training_max: trainingMax,
+    formula,
+    lifted_weight: w,
+    reps_performed: r,
+    notes,
+    prescriptions: {
+      phase_1_activation: Math.max(20, round25(trainingMax * 0.2)),
+      phase_2_light: round25(trainingMax * 0.4),
+      phase_3_medium: round25(trainingMax * 0.6),
+      phase_4_pap: round25(trainingMax * 0.8),
+      phase_5_work: round25(trainingMax * 0.85),
+    },
+  };
+}
+
+const DEFAULT_BASE_MAXES: { [key: string]: { weight: number; reps: number } } = {
+  "Sentadilla Trasera": { weight: 100, reps: 5 },
+  "Press de Banca": { weight: 80, reps: 5 },
+  "Press Militar": { weight: 50, reps: 5 },
+  "Fondos en Paralelas": { weight: 80, reps: 5 },
+  "Peso Muerto Convencional": { weight: 130, reps: 3 },
+  "Dominadas Lastradas": { weight: 80, reps: 5 },
+  "Remo Pendlay": { weight: 70, reps: 5 },
+  "Peso Muerto Rumano": { weight: 90, reps: 5 },
+  "Paseo del Granjero Pesado": { weight: 60, reps: 5 },
+  "Sentadilla Trasera Técnica": { weight: 90, reps: 3 },
+  "Curl Bíceps Barra Z": { weight: 35, reps: 5 },
+  "Elevaciones Piernas a la Barra": { weight: 0, reps: 8 },
+};
+
+function getBaselineMaxes(): { [key: string]: ExerciseMaxData } {
+  const base: { [key: string]: ExerciseMaxData } = {};
+  Object.entries(DEFAULT_BASE_MAXES).forEach(([name, def]) => {
+    base[name] = computeMetrics(name, def.weight, def.reps);
+  });
+  return base;
+}
+
 export default function ZenDashboard() {
   const [selectedDayKey, setSelectedDayKey] = useState<string>("DAY_A");
   const [activeExerciseIndex, setActiveExerciseIndex] = useState<number>(0);
   const [currentSet, setCurrentSet] = useState<number>(1);
+  const [completedSetsMap, setCompletedSetsMap] = useState<{ [exerciseName: string]: number[] }>({});
   const [backendOnline, setBackendOnline] = useState<boolean | null>(null);
 
   // Modal y Paneles
@@ -233,14 +297,18 @@ export default function ZenDashboard() {
   const [isRunning, setIsRunning] = useState<boolean>(false);
   const [timerTitle, setTimerTitle] = useState<string>("Resíntesis de ATP-PCr");
 
-  // Telemetría de Cargas y 1RM
-  const [maxesMap, setMaxesMap] = useState<{ [key: string]: ExerciseMaxData }>({});
+  // Telemetría de Cargas y 1RM (con inicialización garantizada y offline-first)
+  const [maxesMap, setMaxesMap] = useState<{ [key: string]: ExerciseMaxData }>(getBaselineMaxes);
   const [selectedProgressEx, setSelectedProgressEx] = useState<string>("Sentadilla Trasera");
-  const [inputWeight, setInputWeight] = useState<string>("100");
+  const [inputWeight, setInputWeight] = useState<string>("90");
   const [inputReps, setInputReps] = useState<string>("3");
   const [inputRpe, setInputRpe] = useState<string>("8.5");
 
-  // Formulario de Nueva Marca 1RM
+  // Calibración Rápida en Vivo en la tarjeta del ejercicio
+  const [quickWeight, setQuickWeight] = useState<string>("100");
+  const [quickReps, setQuickReps] = useState<string>("5");
+
+  // Formulario de Nueva Marca 1RM en Modal
   const [formFormula, setFormFormula] = useState<string>("epley");
   const [formWeight, setFormWeight] = useState<string>("100");
   const [formReps, setFormReps] = useState<string>("5");
@@ -252,8 +320,24 @@ export default function ZenDashboard() {
 
   const activeDay = SCHEDULE_DAYS.find((d) => d.key === selectedDayKey) || SCHEDULE_DAYS[0];
   const activeExercise = activeDay.exercises[activeExerciseIndex] || activeDay.exercises[0];
+  const activeExMax = activeExercise ? (maxesMap[activeExercise.name] || computeMetrics(activeExercise.name, 80, 5)) : null;
 
   const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+
+  // Cargar caché local en el cliente
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const saved = localStorage.getItem("neuro_strength_maxes");
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          setMaxesMap((prev) => ({ ...prev, ...parsed }));
+        }
+      } catch (err) {
+        console.warn("Error leyendo localStorage de maxes:", err);
+      }
+    }
+  }, []);
 
   // Cargar Maxes desde el Backend FastAPI
   const fetchMaxes = useCallback(async () => {
@@ -265,10 +349,18 @@ export default function ZenDashboard() {
         data.forEach((item) => {
           map[item.exercise_name] = item;
         });
-        setMaxesMap(map);
+        setMaxesMap((prev) => {
+          const merged = { ...prev, ...map };
+          if (typeof window !== "undefined") {
+            try {
+              localStorage.setItem("neuro_strength_maxes", JSON.stringify(merged));
+            } catch {}
+          }
+          return merged;
+        });
       }
     } catch {
-      // Manejo silencioso en desconexión
+      // Offline silencioso
     }
   }, [apiUrl]);
 
@@ -285,25 +377,61 @@ export default function ZenDashboard() {
     }
   }, [apiUrl]);
 
-  // Sincronizar carga objetivo sugerida al cambiar de ejercicio
+  // Sincronizar calibrador en vivo y carga sugerida al cambiar de ejercicio
   useEffect(() => {
-    if (activeExercise && maxesMap[activeExercise.name]) {
-      const suggestedLoad = maxesMap[activeExercise.name].prescriptions.phase_5_work;
-      if (suggestedLoad > 0) {
-        /* eslint-disable-next-line react-hooks/set-state-in-effect */
-        setInputWeight(suggestedLoad.toString());
+    if (activeExercise) {
+      const exMax = maxesMap[activeExercise.name] || computeMetrics(activeExercise.name, 80, 5);
+      setQuickWeight(exMax.lifted_weight ? exMax.lifted_weight.toString() : "80");
+      setQuickReps(exMax.reps_performed ? exMax.reps_performed.toString() : "5");
+      if (exMax.prescriptions.phase_5_work > 0) {
+        setInputWeight(exMax.prescriptions.phase_5_work.toString());
       }
+      const parsedReps = parseInt(activeExercise.reps) || 3;
+      setInputReps(parsedReps.toString());
     }
-  }, [activeExercise, maxesMap]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeExerciseIndex, selectedDayKey]);
+
+  // Calibración Rápida Inmediata: recalcula al instante y sincroniza
+  const handleUpdateQuickMax = (wStr: string, rStr: string) => {
+    const w = parseFloat(wStr) || 0;
+    const r = parseInt(rStr) || 1;
+    if (w <= 0 || !activeExercise) return;
+
+    const updated = computeMetrics(activeExercise.name, w, r, "epley");
+    setMaxesMap((prev) => {
+      const next = { ...prev, [activeExercise.name]: updated };
+      if (typeof window !== "undefined") {
+        try {
+          localStorage.setItem("neuro_strength_maxes", JSON.stringify(next));
+        } catch {}
+      }
+      return next;
+    });
+
+    setInputWeight(updated.prescriptions.phase_5_work.toString());
+
+    if (backendOnline) {
+      fetch(`${apiUrl}/api/strength/maxes`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          exercise_name: activeExercise.name,
+          lifted_weight: w,
+          reps_performed: r,
+          formula: "epley",
+          notes: "Calibración en vivo",
+        }),
+      }).catch((err) => console.warn("Sync err:", err));
+    }
+  };
 
   useEffect(() => {
-    /* eslint-disable-next-line react-hooks/set-state-in-effect */
     fetchMaxes();
   }, [fetchMaxes]);
 
   useEffect(() => {
     if (showProgressModal) {
-      /* eslint-disable-next-line react-hooks/set-state-in-effect */
       fetchHistory(selectedProgressEx);
     }
   }, [selectedProgressEx, showProgressModal, fetchHistory]);
@@ -399,21 +527,34 @@ export default function ZenDashboard() {
     setRemainingSeconds(timerDuration);
   };
 
-  // Botón Bio-Ergonómico 3D: Completar Serie con Carga Real
-  const handleCompleteSet = async () => {
+  // Botón Bio-Ergonómico 3D: Completar Serie con Carga Real y Lanzar Resíntesis Zen
+  const handleCompleteSet = async (targetSet?: number) => {
+    const setToFinish = targetSet !== undefined ? targetSet : currentSet;
+
     if (typeof navigator !== "undefined" && navigator.vibrate) {
       navigator.vibrate([40, 60, 40]);
     }
 
+    // Registrar serie completada en mapa de sesión
+    setCompletedSetsMap((prev) => {
+      const list = prev[activeExercise.name] || [];
+      if (!list.includes(setToFinish)) {
+        return { ...prev, [activeExercise.name]: [...list, setToFinish] };
+      }
+      return prev;
+    });
+
     const restTime = activeExercise.restSeconds || 180;
     handleStartTimer(restTime, `Descanso ATP: ${activeExercise.name}`);
+    
+    // Abrir automáticamente la pantalla de resíntesis Zen al entrar en el paso
     setZenFocusMode(true);
 
-    const numericWeight = parseFloat(inputWeight) || 0.0;
-    const numericReps = parseInt(inputReps) || 3;
+    const numericWeight = parseFloat(inputWeight) || (activeExMax?.prescriptions.phase_5_work ?? 0);
+    const numericReps = parseInt(inputReps) || parseInt(activeExercise.reps) || 3;
 
-    if (currentSet < activeExercise.sets) {
-      setCurrentSet(currentSet + 1);
+    if (setToFinish < activeExercise.sets) {
+      setCurrentSet(setToFinish + 1);
     } else {
       if (activeExerciseIndex < activeDay.exercises.length - 1) {
         setActiveExerciseIndex(activeExerciseIndex + 1);
@@ -421,7 +562,7 @@ export default function ZenDashboard() {
       }
     }
 
-    // Persistir ejecución en Backend Python FastAPI -> PostgreSQL
+    // Persistir ejecución en Backend Python FastAPI -> PostgreSQL si está online
     if (backendOnline) {
       try {
         await fetch(`${apiUrl}/api/state/log-set`, {
@@ -429,7 +570,7 @@ export default function ZenDashboard() {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             exercise_name: activeExercise.name,
-            set_number: currentSet,
+            set_number: setToFinish,
             prescribed_reps: parseInt(activeExercise.reps) || 3,
             completed_reps: numericReps,
             load_kg: numericWeight,
@@ -443,28 +584,46 @@ export default function ZenDashboard() {
     }
   };
 
-  // Guardar Marca de 1RM en Backend
+  // Guardar Marca de 1RM (instantáneo local + sincro backend)
   const handleSaveMax = async () => {
     const w = parseFloat(formWeight);
     const r = parseInt(formReps);
     if (!w || w <= 0 || !r || r <= 0) return;
 
     setIsSavingMax(true);
+    const updated = computeMetrics(selectedProgressEx, w, r, formFormula, formNotes);
+    setMaxesMap((prev) => {
+      const next = { ...prev, [selectedProgressEx]: updated };
+      if (typeof window !== "undefined") {
+        try {
+          localStorage.setItem("neuro_strength_maxes", JSON.stringify(next));
+        } catch {}
+      }
+      return next;
+    });
+
+    if (activeExercise && activeExercise.name === selectedProgressEx) {
+      setInputWeight(updated.prescriptions.phase_5_work.toString());
+      setQuickWeight(w.toString());
+      setQuickReps(r.toString());
+    }
+
     try {
-      const res = await fetch(`${apiUrl}/api/strength/maxes`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          exercise_name: selectedProgressEx,
-          lifted_weight: w,
-          reps_performed: r,
-          formula: formFormula,
-          notes: formNotes,
-        }),
-      });
-      if (res.ok) {
-        await fetchMaxes();
-        await fetchHistory(selectedProgressEx);
+      if (backendOnline) {
+        const res = await fetch(`${apiUrl}/api/strength/maxes`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            exercise_name: selectedProgressEx,
+            lifted_weight: w,
+            reps_performed: r,
+            formula: formFormula,
+            notes: formNotes,
+          }),
+        });
+        if (res.ok) {
+          await fetchHistory(selectedProgressEx);
+        }
       }
     } catch (err) {
       console.warn("Error guardando 1RM:", err);
@@ -497,7 +656,6 @@ export default function ZenDashboard() {
 
   const liveCalc = calculateLive1RM();
   const currentExMax = maxesMap[selectedProgressEx];
-  const activeExMax = activeExercise ? maxesMap[activeExercise.name] : null;
 
   const formatTime = (secs: number) => {
     const mins = Math.floor(secs / 60);
@@ -662,114 +820,254 @@ export default function ZenDashboard() {
             </div>
           ) : (
             <>
-              {/* Tarjeta de Ejercicio en Curso */}
-              <div className="p-6 rounded-2xl bg-zinc-950 border border-zinc-900 shadow-2xl">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-xs font-mono text-zinc-400 flex items-center gap-1.5">
-                    <Activity className="w-4 h-4 text-amber-400" /> EJERCICIO EN EJECUCIÓN
-                  </span>
-                  <span className="text-xs text-zinc-500 font-mono">
-                    {activeExerciseIndex + 1} de {activeDay.exercises.length}
-                  </span>
-                </div>
-
-                <div className="flex items-center justify-between mb-1">
-                  <h3 className="text-2xl font-black text-white tracking-tight">
-                    {activeExercise.name}
-                  </h3>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setSelectedProgressEx(activeExercise.name);
-                      setShowProgressModal(true);
-                    }}
-                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-mono font-bold transition-all transform active:scale-95 cursor-pointer ${
-                      activeExMax
-                        ? "bg-emerald-500/10 hover:bg-emerald-500/20 border-emerald-500/30 text-emerald-400"
-                        : "bg-amber-500/10 hover:bg-amber-500/20 border-amber-500/40 text-amber-400 shadow-md shadow-amber-500/10"
-                    }`}
-                    title="Ver y configurar progresión de fuerza y 1RM"
-                  >
-                    <TrendingUp className="w-3.5 h-3.5" />
-                    <span>{activeExMax ? `1RM: ${activeExMax.one_rep_max} kg` : "+ Configurar 1RM"}</span>
-                  </button>
-                </div>
-                <p className="text-xs text-amber-400/90 font-mono mb-3">{activeDay.focus}</p>
-                <p className="text-xs text-zinc-400 italic bg-zinc-900/40 p-2.5 rounded-lg border border-zinc-800/60 mb-5">
-                  &ldquo;{activeExercise.cue}&rdquo;
-                </p>
-
-                {/* Métricas de Series y Carga */}
-                <div className="grid grid-cols-3 gap-3 p-3.5 rounded-xl bg-zinc-900/60 border border-zinc-800/80 mb-5 text-center">
-                  <div>
-                    <div className="text-[10px] text-zinc-400 uppercase font-mono tracking-wider">
-                      Serie Actual
-                    </div>
-                    <div className="text-xl font-black text-amber-400 font-mono mt-0.5">
-                      {currentSet} / {activeExercise.sets}
-                    </div>
-                  </div>
-                  <div>
-                    <div className="text-[10px] text-zinc-400 uppercase font-mono tracking-wider">
-                      Prescripción
-                    </div>
-                    <div className="text-xl font-black text-white font-mono mt-0.5">
-                      {activeExercise.reps}
-                    </div>
-                  </div>
-                  <div>
-                    <div className="text-[10px] text-zinc-400 uppercase font-mono tracking-wider">
-                      Descanso ATP
-                    </div>
-                    <div className="text-xl font-black text-white font-mono mt-0.5">
-                      {Math.floor(activeExercise.restSeconds / 60)} min
-                    </div>
-                  </div>
-                </div>
-
-                {/* Panel de Carga Real para la Serie (Peso levantado y Reps) */}
-                <div className="p-4 rounded-xl bg-zinc-900/50 border border-zinc-800 mb-5">
-                  <div className="flex items-center justify-between mb-3 text-xs font-mono">
-                    <span className="text-zinc-300 font-bold flex items-center gap-1.5">
-                      <Dumbbell className="w-3.5 h-3.5 text-amber-400" /> CARGA DE LA SERIE:
+              {/* Tarjeta de Ejercicio en Curso con Cálculo en Vivo */}
+              <div className="p-6 rounded-2xl bg-zinc-950 border border-zinc-900 shadow-2xl space-y-6">
+                {/* Header del Ejercicio Activo */}
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-xs font-mono text-zinc-400 flex items-center gap-1.5">
+                      <Activity className="w-4 h-4 text-amber-400" /> EJERCICIO EN EJECUCIÓN
                     </span>
-                    {activeExMax ? (
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setSelectedProgressEx(activeExercise.name);
-                          setShowProgressModal(true);
-                        }}
-                        className="text-[11px] text-amber-400 hover:text-amber-300 transition-colors cursor-pointer flex items-center gap-1"
-                        title="Ver desglose por fase de este ejercicio"
-                      >
-                        <span>Sugerido (F5): <strong className="text-white">{activeExMax.prescriptions.phase_5_work} kg</strong></span>
-                        <ChevronRight className="w-3 h-3 text-amber-400/80" />
-                      </button>
-                    ) : (
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setSelectedProgressEx(activeExercise.name);
-                          setShowProgressModal(true);
-                        }}
-                        className="text-[11px] text-amber-400/90 hover:text-amber-300 transition-colors cursor-pointer underline underline-offset-2 flex items-center gap-1"
-                      >
-                        <span>Calcular cargas →</span>
-                      </button>
-                    )}
+                    <span className="text-xs text-zinc-500 font-mono">
+                      {activeExerciseIndex + 1} de {activeDay.exercises.length}
+                    </span>
                   </div>
-                  <div className="grid grid-cols-3 gap-2">
+
+                  <div className="flex items-center justify-between mb-1">
+                    <h3 className="text-2xl font-black text-white tracking-tight">
+                      {activeExercise.name}
+                    </h3>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSelectedProgressEx(activeExercise.name);
+                        setShowProgressModal(true);
+                      }}
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-amber-500/40 bg-amber-500/10 hover:bg-amber-500/20 text-xs font-mono font-bold text-amber-300 transition-all active:scale-95 cursor-pointer"
+                      title="Ver motor de 1RM completo"
+                    >
+                      <TrendingUp className="w-3.5 h-3.5 text-amber-400" />
+                      <span>1RM: {activeExMax?.one_rep_max ?? 0} kg</span>
+                    </button>
+                  </div>
+                  <p className="text-xs text-amber-400/90 font-mono mb-2">{activeDay.focus}</p>
+                  <p className="text-xs text-zinc-400 italic bg-zinc-900/40 p-2.5 rounded-lg border border-zinc-800/60">
+                    &ldquo;{activeExercise.cue}&rdquo;
+                  </p>
+                </div>
+
+                {/* 01// CALIBRACIÓN EN VIVO: Se recalcula de inmediato al poner el peso y reps */}
+                <div className="p-4 rounded-xl bg-black border border-zinc-800">
+                  <div className="flex items-center justify-between mb-3 text-xs font-mono">
+                    <span className="font-bold text-amber-400 flex items-center gap-1.5 uppercase">
+                      <Calculator className="w-3.5 h-3.5" /> 01// CALIBRACIÓN EN VIVO (1RM & TM)
+                    </span>
+                    <span className="text-[10px] text-zinc-500">Cálculo instantáneo</span>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
+                    <div>
+                      <label className="text-[10px] font-mono text-zinc-400 uppercase block mb-1">
+                        Peso Referencia / Test (kg)
+                      </label>
+                      <input
+                        type="number"
+                        step="2.5"
+                        value={quickWeight}
+                        onChange={(e) => {
+                          setQuickWeight(e.target.value);
+                          handleUpdateQuickMax(e.target.value, quickReps);
+                        }}
+                        className="w-full px-3 py-2 rounded-lg bg-zinc-900 border border-zinc-700 text-amber-300 font-mono font-bold text-sm focus:border-amber-400 focus:outline-none"
+                        placeholder="ej: 100"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-[10px] font-mono text-zinc-400 uppercase block mb-1">
+                        Repeticiones Logradas
+                      </label>
+                      <input
+                        type="number"
+                        min="1"
+                        max="20"
+                        value={quickReps}
+                        onChange={(e) => {
+                          setQuickReps(e.target.value);
+                          handleUpdateQuickMax(quickWeight, e.target.value);
+                        }}
+                        className="w-full px-3 py-2 rounded-lg bg-zinc-900 border border-zinc-700 text-white font-mono font-bold text-sm focus:border-amber-400 focus:outline-none"
+                        placeholder="ej: 5"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Resumen Fisiológico Inmediato */}
+                  <div className="grid grid-cols-3 gap-2 text-center p-2.5 rounded-lg bg-zinc-900/60 border border-zinc-800/80 font-mono">
+                    <div>
+                      <div className="text-[9px] uppercase text-zinc-500">1RM Estimado</div>
+                      <div className="text-base font-black text-amber-400 mt-0.5">
+                        {activeExMax?.one_rep_max ?? 0} kg
+                      </div>
+                    </div>
+                    <div>
+                      <div className="text-[9px] uppercase text-zinc-500">Training Max (90%)</div>
+                      <div className="text-base font-black text-zinc-200 mt-0.5">
+                        {activeExMax?.training_max ?? 0} kg
+                      </div>
+                    </div>
+                    <div>
+                      <div className="text-[9px] uppercase text-emerald-400">Carga Efectiva (85%)</div>
+                      <div className="text-base font-black text-emerald-400 mt-0.5">
+                        {activeExMax?.prescriptions.phase_5_work ?? 0} kg
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 02// DESGLOSE EXACTO DE LEVANTAMIENTOS Y SERIES */}
+                <div className="p-4 rounded-xl bg-zinc-900/40 border border-zinc-800 space-y-4">
+                  <div className="flex items-center justify-between text-xs font-mono">
+                    <span className="font-bold text-white uppercase flex items-center gap-1.5">
+                      <Dumbbell className="w-3.5 h-3.5 text-amber-400" /> 02// PESOS EXACTOS DE CADA LEVANTAMIENTO
+                    </span>
+                    <span className="text-[10px] text-zinc-500 font-mono">Redondeo: 2.5 kg</span>
+                  </div>
+
+                  {/* Aproximación Neuromuscular F1 a F4 */}
+                  <div>
+                    <div className="text-[10px] font-mono text-zinc-400 uppercase tracking-wider mb-2">
+                      Fases de Aclimatación del SNC (Previo a Series Efectivas):
+                    </div>
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center font-mono text-xs">
+                      <div className="p-2 rounded-lg bg-black border border-zinc-800">
+                        <div className="text-[10px] text-zinc-500">F1 (20% TM)</div>
+                        <div className="text-[11px] text-zinc-400">10 reps</div>
+                        <div className="text-sm font-bold text-amber-400 mt-0.5">
+                          {activeExMax?.prescriptions.phase_1_activation ?? 20} kg
+                        </div>
+                      </div>
+                      <div className="p-2 rounded-lg bg-black border border-zinc-800">
+                        <div className="text-[10px] text-zinc-500">F2 (40% TM)</div>
+                        <div className="text-[11px] text-zinc-400">5 reps</div>
+                        <div className="text-sm font-bold text-amber-400 mt-0.5">
+                          {activeExMax?.prescriptions.phase_2_light ?? 0} kg
+                        </div>
+                      </div>
+                      <div className="p-2 rounded-lg bg-black border border-zinc-800">
+                        <div className="text-[10px] text-zinc-500">F3 (60% TM)</div>
+                        <div className="text-[11px] text-zinc-400">3 reps</div>
+                        <div className="text-sm font-bold text-amber-400 mt-0.5">
+                          {activeExMax?.prescriptions.phase_3_medium ?? 0} kg
+                        </div>
+                      </div>
+                      <div className="p-2 rounded-lg bg-black border border-zinc-800">
+                        <div className="text-[10px] text-amber-400 font-bold">F4 (80% PAP)</div>
+                        <div className="text-[11px] text-zinc-400">1 rep pesada</div>
+                        <div className="text-sm font-bold text-amber-300 mt-0.5">
+                          {activeExMax?.prescriptions.phase_4_pap ?? 0} kg
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Series Efectivas de Trabajo (Fase 5) con Kilos Exactos */}
+                  <div>
+                    <div className="text-[10px] font-mono text-emerald-400 uppercase tracking-wider mb-2 flex items-center justify-between">
+                      <span>Series Efectivas de Trabajo (Fase 5 - Fuerza Real):</span>
+                      <span className="text-zinc-400">{activeExercise.sets} series de {activeExercise.reps}</span>
+                    </div>
+
+                    <div className="space-y-2 font-mono text-xs">
+                      {Array.from({ length: activeExercise.sets }, (_, i) => i + 1).map((sNum) => {
+                        const isDone = completedSetsMap[activeExercise.name]?.includes(sNum);
+                        const isCurrent = currentSet === sNum && !isDone;
+                        const targetKg = activeExMax?.prescriptions.phase_5_work ?? 0;
+
+                        return (
+                          <div
+                            key={sNum}
+                            className={`p-3 rounded-xl border flex items-center justify-between transition-all ${
+                              isDone
+                                ? "bg-emerald-950/20 border-emerald-500/40 text-emerald-300"
+                                : isCurrent
+                                ? "bg-amber-500/10 border-amber-500/80 text-white shadow-lg shadow-amber-500/10"
+                                : "bg-black/60 border-zinc-800/80 text-zinc-400"
+                            }`}
+                          >
+                            <div className="flex items-center gap-2.5">
+                              <span
+                                className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${
+                                  isDone
+                                    ? "bg-emerald-500 text-black"
+                                    : isCurrent
+                                    ? "bg-amber-400 text-black animate-pulse"
+                                    : "bg-zinc-800 text-zinc-400"
+                                }`}
+                              >
+                                {isDone ? "✓" : sNum}
+                              </span>
+                              <span className="font-bold tracking-wide">
+                                Serie {sNum}
+                              </span>
+                            </div>
+
+                            <div className="flex items-center gap-3">
+                              <div className="text-right">
+                                <div className="text-xs text-zinc-400 font-mono">
+                                  {activeExercise.reps}
+                                </div>
+                                <div className="text-sm font-black text-amber-400 font-mono">
+                                  {targetKg} kg
+                                </div>
+                              </div>
+
+                              {isCurrent ? (
+                                <button
+                                  type="button"
+                                  onClick={() => handleCompleteSet(sNum)}
+                                  className="px-3 py-1.5 rounded-lg bg-amber-400 hover:bg-amber-300 text-black font-bold text-[11px] tracking-wider uppercase transition-all shadow-md shadow-amber-400/20 active:scale-95 cursor-pointer"
+                                >
+                                  Completar
+                                </button>
+                              ) : isDone ? (
+                                <span className="text-[11px] font-bold text-emerald-400 bg-emerald-500/10 px-2 py-1 rounded">
+                                  Hecho
+                                </span>
+                              ) : (
+                                <span className="text-[11px] text-zinc-500 font-mono">
+                                  Pendiente
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </div>
+
+                {/* 03// CONSOLA DE LA SERIE ACTUAL: Registro de carga y lanzamiento del descanso Zen */}
+                <div className="p-4 rounded-xl bg-black border border-zinc-800">
+                  <div className="flex items-center justify-between mb-3 text-xs font-mono">
+                    <span className="text-zinc-300 font-bold flex items-center gap-1.5 uppercase">
+                      <Zap className="w-3.5 h-3.5 text-amber-400" /> SERIE EN CURSO: {currentSet} DE {activeExercise.sets}
+                    </span>
+                    <span className="text-xs text-amber-400 font-bold">
+                      Levantamiento: {activeExMax?.prescriptions.phase_5_work ?? 0} kg
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-3 gap-2 mb-4">
                     <div>
                       <label className="text-[10px] text-zinc-400 font-mono uppercase block mb-1">
-                        Peso (kg)
+                        Carga Real (kg)
                       </label>
                       <input
                         type="number"
                         step="2.5"
                         value={inputWeight}
                         onChange={(e) => setInputWeight(e.target.value)}
-                        className="w-full px-3 py-2 rounded-lg bg-black border border-zinc-700 text-amber-300 font-mono font-bold text-sm focus:border-amber-500 focus:outline-none"
+                        className="w-full px-3 py-2 rounded-lg bg-zinc-900 border border-zinc-700 text-amber-300 font-mono font-bold text-sm focus:border-amber-500 focus:outline-none"
                       />
                     </div>
                     <div>
@@ -780,249 +1078,159 @@ export default function ZenDashboard() {
                         type="number"
                         value={inputReps}
                         onChange={(e) => setInputReps(e.target.value)}
-                        className="w-full px-3 py-2 rounded-lg bg-black border border-zinc-700 text-white font-mono font-bold text-sm focus:border-amber-500 focus:outline-none"
+                        className="w-full px-3 py-2 rounded-lg bg-zinc-900 border border-zinc-700 text-white font-mono font-bold text-sm focus:border-amber-500 focus:outline-none"
                       />
                     </div>
                     <div>
                       <label className="text-[10px] text-zinc-400 font-mono uppercase block mb-1">
-                        RPE (Esfuerzo)
+                        RPE Esfuerzo
                       </label>
                       <input
                         type="text"
                         value={inputRpe}
                         onChange={(e) => setInputRpe(e.target.value)}
-                        placeholder="ej: 8.5"
-                        className="w-full px-3 py-2 rounded-lg bg-black border border-zinc-700 text-white font-mono text-sm focus:border-amber-500 focus:outline-none"
+                        placeholder="8.5"
+                        className="w-full px-3 py-2 rounded-lg bg-zinc-900 border border-zinc-700 text-white font-mono text-sm focus:border-amber-500 focus:outline-none"
                       />
                     </div>
                   </div>
-                </div>
 
-                {/* Botón de Fases de Preparación Neuromuscular (PAP) */}
-                <div className="mb-5">
+                  {/* Botón Principal: Completa la serie y ABRE la pantalla de Resíntesis Zen */}
                   <button
-                    onClick={() => setShowPrepProtocol(!showPrepProtocol)}
-                    className="w-full flex items-center justify-between p-3 rounded-xl bg-zinc-900/70 hover:bg-zinc-900 border border-zinc-800 text-xs font-mono text-zinc-300 hover:text-amber-400 transition-all"
+                    onClick={() => handleCompleteSet()}
+                    className="w-full py-4 px-6 rounded-2xl bg-gradient-to-b from-amber-400 via-amber-500 to-amber-600 hover:from-amber-300 hover:to-amber-500 text-black font-black uppercase tracking-wider text-xs sm:text-sm transition-all transform active:translate-y-0.5 border-b-4 border-amber-700 shadow-[0_10px_25px_rgba(245,158,11,0.25)] flex items-center justify-center gap-3 cursor-pointer select-none glow-zen-gold"
                   >
-                    <div className="flex items-center gap-2">
-                      <Layers className="w-4 h-4 text-amber-400" />
-                      <span>Protocolo Neuromuscular (Fases 0 a 4 PAP)</span>
-                    </div>
-                    <ChevronRight
-                      className={`w-4 h-4 transition-transform ${
-                        showPrepProtocol ? "rotate-90" : ""
-                      }`}
-                    />
+                    <CheckCircle2 className="w-5 h-5 text-black stroke-[2.5] flex-shrink-0" />
+                    <span>
+                      COMPLETAR SERIE {currentSet} & ENTRAR EN DESCANSO ATP ({Math.floor(activeExercise.restSeconds / 60)} MIN)
+                    </span>
                   </button>
-
-                  {/* Detalle Desplegable de Fases Neuromusculares con cálculo de peso */}
-                  {showPrepProtocol && (
-                    <div className="mt-3 p-3.5 rounded-xl bg-black border border-zinc-800 space-y-2.5">
-                      <p className="text-[11px] text-zinc-400 leading-relaxed font-mono">
-                        Ejecuta antes de tus series efectivas para reclutar el 100% de tus unidades motoras:
-                      </p>
-                      <div className="space-y-2">
-                        {NEUROMUSCULAR_PHASES.map((phase) => {
-                          const phasePresc =
-                            activeExMax && phase.percentage > 0
-                              ? phase.percentage === 20
-                                ? activeExMax.prescriptions.phase_1_activation
-                                : phase.percentage === 40
-                                ? activeExMax.prescriptions.phase_2_light
-                                : phase.percentage === 60
-                                ? activeExMax.prescriptions.phase_3_medium
-                                : activeExMax.prescriptions.phase_4_pap
-                              : null;
-
-                          return (
-                            <div
-                              key={phase.phase}
-                              className="p-2.5 rounded-lg bg-zinc-900/70 border border-zinc-800/80 flex items-center justify-between gap-3 text-xs"
-                            >
-                              <div>
-                                <div className="font-bold text-zinc-200">{phase.name}</div>
-                                <div className="text-[11px] text-amber-400/90 font-mono">
-                                  {phase.repsCue}{" "}
-                                  {phasePresc !== null && (
-                                    <span className="text-white font-bold ml-1">
-                                      → {phasePresc} kg
-                                    </span>
-                                  )}
-                                </div>
-                                <div className="text-[10px] text-zinc-400 mt-0.5">{phase.objective}</div>
-                              </div>
-                              <button
-                                onClick={() =>
-                                  handleStartTimer(phase.durationSeconds, phase.name)
-                                }
-                                className="px-2.5 py-1 rounded bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 border border-amber-500/30 font-mono text-[10px] whitespace-nowrap transition-colors cursor-pointer"
-                              >
-                                Timer {phase.durationSeconds}s
-                              </button>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  )}
-                </div>
-
-                {/* BOTÓN BIO-ERGONÓMICO TRIDIMENSIONAL CON PULSO DORADO */}
-                <button
-                  onClick={handleCompleteSet}
-                  className="w-full py-5 px-6 rounded-2xl bg-gradient-to-b from-amber-400 via-amber-500 to-amber-600 hover:from-amber-300 hover:to-amber-500 text-black font-black uppercase tracking-widest text-sm transition-all transform active:translate-y-1 active:border-b-0 border-b-4 border-amber-700 shadow-[0_12px_30px_rgba(245,158,11,0.25)] flex items-center justify-center gap-3 cursor-pointer select-none glow-zen-gold"
-                >
-                  <CheckCircle2 className="w-6 h-6 text-black stroke-[2.5]" />
-                  <span>COMPLETAR SERIE Y ENTRAR EN RESÍNTESIS ATP ({activeExercise.restSeconds}s)</span>
-                </button>
-              </div>
-
-              {/* Lista de Ejercicios del Día */}
-              <div className="p-4 rounded-2xl bg-zinc-950 border border-zinc-900">
-                <div className="text-xs font-mono text-zinc-400 uppercase tracking-wider mb-3">
-                  Matriz de Ejercicios del Día
-                </div>
-                <div className="space-y-1.5">
-                  {activeDay.exercises.map((ex, idx) => {
-                    const isCurrent = idx === activeExerciseIndex;
-                    const exMax = maxesMap[ex.name];
-                    return (
-                      <button
-                        key={ex.name}
-                        onClick={() => {
-                          setActiveExerciseIndex(idx);
-                          setCurrentSet(1);
-                        }}
-                        className={`w-full p-2.5 rounded-xl text-left flex items-center justify-between text-xs transition-colors border ${
-                          isCurrent
-                            ? "bg-amber-500/10 border-amber-500/30 text-amber-300 font-bold"
-                            : "bg-zinc-900/30 border-transparent text-zinc-400 hover:bg-zinc-900/60 hover:text-zinc-200"
-                        }`}
-                      >
-                        <div className="flex items-center gap-2.5 truncate">
-                          <span className="font-mono text-zinc-400 text-[11px]">{idx + 1}.</span>
-                          <span className="truncate">{ex.name}</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          {exMax && (
-                            <span className="text-[10px] font-mono text-amber-400/80 bg-amber-500/10 px-1.5 py-0.5 rounded">
-                              TM: {exMax.training_max}k
-                            </span>
-                          )}
-                          <span className="font-mono text-[11px] text-zinc-400 whitespace-nowrap">
-                            {ex.sets} × {ex.reps} ({Math.floor(ex.restSeconds / 60)}m)
-                          </span>
-                        </div>
-                      </button>
-                    );
-                  })}
                 </div>
               </div>
             </>
           )}
         </section>
 
-        {/* Right Column: Zen ATP Resynthesis Module */}
-        <section className="lg:col-span-6 flex flex-col items-center justify-center p-6 md:p-8 rounded-3xl bg-zinc-950 border border-zinc-900 relative overflow-hidden shadow-2xl">
-          <div className="flex items-center justify-between w-full mb-4">
-            <div className="flex items-center gap-2 text-xs font-mono text-amber-400 uppercase tracking-widest">
-              <Zap className="w-4 h-4 text-amber-400" /> {timerTitle}
-            </div>
-            <button
-              onClick={() => setZenFocusMode(true)}
-              className="p-2 rounded-lg bg-zinc-900 hover:bg-zinc-800 text-zinc-400 hover:text-white border border-zinc-800 transition-colors cursor-pointer"
-              title="Pantalla Completa Zen True Black"
-            >
-              <Maximize2 className="w-4 h-4" />
-            </button>
-          </div>
-
-          {/* Reloj SVG Circular de Resíntesis de ATP */}
-          <div className="relative w-64 h-64 md:w-80 md:h-80 flex items-center justify-center my-4">
-            <svg className="w-full h-full transform -rotate-90" viewBox="0 0 200 200">
-              <circle
-                cx="100"
-                cy="100"
-                r="90"
-                stroke="#18181b"
-                strokeWidth="7"
-                fill="transparent"
-              />
-              <circle
-                cx="100"
-                cy="100"
-                r="90"
-                stroke="#f59e0b"
-                strokeWidth="7"
-                strokeDasharray="565.48"
-                strokeDashoffset={strokeDashoffset}
-                strokeLinecap="round"
-                fill="transparent"
-                className="transition-all duration-1000 ease-linear"
-              />
-            </svg>
-
-            {/* Digits Display */}
-            <div className="absolute flex flex-col items-center justify-center text-center px-4">
-              <span className="text-5xl md:text-6xl font-black font-mono text-white tracking-tight">
-                {formatTime(remainingSeconds)}
-              </span>
-              <div className="mt-2 flex flex-col items-center">
-                <span className="text-xs font-mono text-amber-400 font-bold">
-                  ATP Saturado: {atpSaturationPercent}%
+        {/* Right Column: Sesión del Día + Estado del Descanso ATP + Guía Neuromuscular */}
+        <section className="lg:col-span-5 flex flex-col gap-5">
+          {/* Tarjeta de Resíntesis de ATP Activa (Aparece si el temporizador está corriendo) */}
+          {(isRunning || remainingSeconds < timerDuration) && (
+            <div className="p-5 rounded-2xl bg-gradient-to-br from-amber-950/40 via-zinc-950 to-black border border-amber-500/40 shadow-2xl shadow-amber-950/30 animate-pulse">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-xs font-mono font-bold text-amber-400 uppercase flex items-center gap-2">
+                  <Zap className="w-4 h-4 text-amber-400" /> Resíntesis de ATP en Curso
                 </span>
-                <span className="text-[11px] font-mono text-zinc-400 mt-0.5 uppercase tracking-wider">
-                  {isRunning
-                    ? "Resíntesis Bioquímica en Curso"
-                    : remainingSeconds === 0
-                    ? "Saturación Completada (100%)"
-                    : "En Pausa"}
+                <span className="text-xs font-mono text-zinc-400">
+                  {isRunning ? "Recuperando" : "En Pausa"}
                 </span>
               </div>
+
+              <div className="flex items-center justify-between my-3">
+                <div>
+                  <div className="text-4xl font-black font-mono text-white tracking-tight">
+                    {formatTime(remainingSeconds)}
+                  </div>
+                  <div className="text-xs font-mono text-amber-400 mt-1">
+                    Saturación Fosfágeno: {atpSaturationPercent}%
+                  </div>
+                </div>
+
+                <button
+                  onClick={() => setZenFocusMode(true)}
+                  className="px-4 py-2.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-black font-mono font-bold text-xs uppercase tracking-wider transition-all shadow-md shadow-amber-400/20 active:scale-95 cursor-pointer"
+                >
+                  Ver Reloj Zen
+                </button>
+              </div>
+
+              <div className="text-[11px] text-zinc-400 font-mono">
+                El sistema fosfágeno restaura el 98% de ATP intracelular. Respira con calma.
+              </div>
+            </div>
+          )}
+
+          {/* Matriz Completa del Día con Cargas de Todos los Ejercicios */}
+          <div className="p-5 rounded-2xl bg-zinc-950 border border-zinc-900 shadow-2xl">
+            <div className="flex items-center justify-between mb-3 text-xs font-mono">
+              <span className="text-zinc-300 font-bold uppercase flex items-center gap-2">
+                <Calendar className="w-4 h-4 text-amber-400" /> RUTINA COMPLETA DE HOY
+              </span>
+              <span className="text-[11px] text-amber-400/90 font-mono">
+                {activeDay.exercises.length} Ejercicios
+              </span>
+            </div>
+
+            <div className="space-y-2">
+              {activeDay.exercises.map((ex, idx) => {
+                const isCurrent = idx === activeExerciseIndex;
+                const exMax = maxesMap[ex.name] || computeMetrics(ex.name, 80, 5);
+                const doneCount = completedSetsMap[ex.name]?.length || 0;
+
+                return (
+                  <button
+                    key={ex.name}
+                    onClick={() => {
+                      setActiveExerciseIndex(idx);
+                      setCurrentSet(1);
+                    }}
+                    className={`w-full p-3.5 rounded-xl text-left flex items-center justify-between text-xs transition-all border cursor-pointer ${
+                      isCurrent
+                        ? "bg-amber-500/10 border-amber-500/40 text-white shadow-md shadow-amber-500/5"
+                        : "bg-zinc-900/30 border-zinc-800/80 text-zinc-400 hover:border-zinc-700 hover:text-zinc-200"
+                    }`}
+                  >
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="font-mono text-zinc-500 text-[11px]">{idx + 1}.</span>
+                        <span className="font-bold text-zinc-200 text-sm">{ex.name}</span>
+                      </div>
+                      <div className="text-[11px] text-zinc-400 font-mono mt-1">
+                        {ex.sets} series de {ex.reps} • Descanso: {Math.floor(ex.restSeconds / 60)} min
+                      </div>
+                    </div>
+
+                    <div className="text-right">
+                      <div className="text-sm font-black font-mono text-amber-400">
+                        {exMax.prescriptions.phase_5_work} kg
+                      </div>
+                      <div className="text-[10px] font-mono text-zinc-500 mt-0.5">
+                        {doneCount} / {ex.sets} series
+                      </div>
+                    </div>
+                  </button>
+                );
+              })}
             </div>
           </div>
 
-          {/* Presets de Descanso Mandatorio (3 a 6 minutos) */}
-          <div className="flex flex-wrap items-center justify-center gap-2 mb-6">
-            {[180, 240, 300, 360].map((duration) => (
+          {/* Guía Fisiológica de las Fases ATP */}
+          <div className="p-5 rounded-2xl bg-zinc-950 border border-zinc-900 shadow-2xl">
+            <div className="flex items-center justify-between mb-3 text-xs font-mono">
+              <span className="text-zinc-300 font-bold uppercase flex items-center gap-2">
+                <Layers className="w-4 h-4 text-amber-400" /> GUÍA DE ACLIMATACIÓN SNC
+              </span>
               <button
-                key={duration}
-                onClick={() => handleStartTimer(duration, "Resíntesis de ATP-PCr")}
-                className={`px-3 py-1.5 rounded-lg text-xs font-mono border transition-all cursor-pointer ${
-                  timerDuration === duration
-                    ? "bg-amber-500/20 border-amber-500/60 text-amber-300 font-bold"
-                    : "bg-zinc-900 border-zinc-800 text-zinc-400 hover:text-white"
-                }`}
+                onClick={() => setShowPrepProtocol(!showPrepProtocol)}
+                className="text-[11px] text-amber-400 hover:underline cursor-pointer"
               >
-                {duration / 60}m Mandatorio
+                {showPrepProtocol ? "Ocultar" : "Ver Detalle"}
               </button>
-            ))}
-          </div>
+            </div>
 
-          {/* Barra de Controles */}
-          <div className="flex items-center gap-4">
-            <button
-              onClick={togglePlayPause}
-              className="p-4 rounded-full bg-zinc-900 hover:bg-zinc-800 border border-zinc-700 text-white transition-all transform active:scale-95 shadow-lg shadow-black cursor-pointer"
-              aria-label={isRunning ? "Pausar" : "Reanudar"}
-            >
-              {isRunning ? <Pause className="w-6 h-6" /> : <Play className="w-6 h-6 fill-white" />}
-            </button>
-            <button
-              onClick={handleResetTimer}
-              className="p-4 rounded-full bg-zinc-900 hover:bg-zinc-800 border border-zinc-700 text-zinc-400 hover:text-white transition-all transform active:scale-95 shadow-lg shadow-black cursor-pointer"
-              aria-label="Reiniciar"
-            >
-              <RotateCcw className="w-6 h-6" />
-            </button>
-            <button
-              onClick={playChime}
-              className="p-4 rounded-full bg-zinc-900 hover:bg-zinc-800 border border-zinc-700 text-zinc-400 hover:text-amber-400 transition-all transform active:scale-95 shadow-lg shadow-black cursor-pointer"
-              title="Probar Campana Zen (440Hz)"
-              aria-label="Probar sonido"
-            >
-              <Volume2 className="w-6 h-6" />
-            </button>
+            <p className="text-xs text-zinc-400 font-mono leading-relaxed mb-3">
+              Las fases F1 a F4 aclimantan las motoneuronas alfa y la tensión tendinosa sin fatiga metabólica, preparando al SNC para la carga efectiva (F5).
+            </p>
+
+            {showPrepProtocol && (
+              <div className="space-y-2 text-xs font-mono">
+                {NEUROMUSCULAR_PHASES.map((p) => (
+                  <div key={p.phase} className="p-2.5 rounded-lg bg-black border border-zinc-800">
+                    <div className="font-bold text-zinc-300">{p.name}</div>
+                    <div className="text-[11px] text-zinc-400 mt-0.5">{p.objective}</div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </section>
       </div>
@@ -1325,14 +1533,16 @@ export default function ZenDashboard() {
           <div className="w-full max-w-4xl flex items-center justify-between">
             <div className="flex items-center gap-2 text-xs font-mono text-zinc-400">
               <Sparkles className="w-4 h-4 text-amber-400" />
-              <span>AISLAMIENTO VISUAL NEURO//ZEN</span>
+              <span>
+                {timerTitle.toUpperCase()} • {activeExercise.name.toUpperCase()} (SERIE {currentSet > 1 ? currentSet - 1 : 1} COMPLETADA)
+              </span>
             </div>
             <button
               onClick={() => setZenFocusMode(false)}
               className="px-4 py-2 rounded-full bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-xs font-mono text-zinc-300 hover:text-white flex items-center gap-2 transition-colors cursor-pointer"
             >
               <Minimize2 className="w-4 h-4" />
-              <span>Salir del Aislamiento</span>
+              <span>Cerrar</span>
             </button>
           </div>
 
@@ -1370,22 +1580,33 @@ export default function ZenDashboard() {
                   Saturación de ATP: {atpSaturationPercent}%
                 </span>
                 <span className="text-xs font-mono text-zinc-400 mt-1 uppercase tracking-widest">
-                  {isRunning ? "Resíntesis en Silencio" : "Pausa"}
+                  {isRunning ? "Resíntesis en Silencio" : remainingSeconds === 0 ? "¡ATP 100% Recuperado!" : "Pausa"}
                 </span>
               </div>
             </div>
 
+            {/* Botón de Salida Rápida para Levantar */}
+            <button
+              onClick={() => setZenFocusMode(false)}
+              className="mt-6 px-8 py-3.5 rounded-2xl bg-amber-400 hover:bg-amber-300 text-black font-mono font-black text-xs sm:text-sm tracking-wider uppercase transition-all shadow-xl shadow-amber-400/20 active:scale-95 cursor-pointer flex items-center gap-2"
+            >
+              <Play className="w-4 h-4 fill-black" />
+              <span>LISTO PARA LEVANTAR // IR A SERIE {currentSet}</span>
+            </button>
+
             {/* Controles Zen Flotantes */}
-            <div className="flex items-center gap-5 mt-8">
+            <div className="flex items-center gap-5 mt-6">
               <button
                 onClick={togglePlayPause}
                 className="p-4 rounded-full bg-zinc-900/80 hover:bg-zinc-800 border border-zinc-700 text-white transition-all transform active:scale-95 cursor-pointer"
+                title={isRunning ? "Pausar" : "Reanudar"}
               >
                 {isRunning ? <Pause className="w-6 h-6" /> : <Play className="w-6 h-6 fill-white" />}
               </button>
               <button
                 onClick={handleResetTimer}
                 className="p-4 rounded-full bg-zinc-900/80 hover:bg-zinc-800 border border-zinc-700 text-zinc-400 hover:text-white transition-all transform active:scale-95 cursor-pointer"
+                title="Reiniciar descanso"
               >
                 <RotateCcw className="w-6 h-6" />
               </button>
