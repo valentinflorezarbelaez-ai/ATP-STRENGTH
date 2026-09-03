@@ -10,6 +10,10 @@ DATABASE_URL = os.getenv(
     "postgresql://postgres:postgres@localhost:5433/atp_strength"
 )
 
+# Cloud providers (e.g. Render/Heroku) often inject 'postgres://' which SQLAlchemy 1.4+ rejects
+if DATABASE_URL.startswith("postgres://"):
+    DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
+
 # Create SQLAlchemy engine
 engine = create_engine(
     DATABASE_URL,

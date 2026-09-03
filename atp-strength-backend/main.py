@@ -10,7 +10,7 @@ from src.routes.strength import router as strength_router
 load_dotenv()
 
 # Origins allowed for CORS
-cors_origins_raw = os.getenv("CORS_ORIGINS", "http://localhost:3000")
+cors_origins_raw = os.getenv("CORS_ORIGINS", "http://localhost:3000,https://atp-strength.vercel.app")
 allowed_origins = [origin.strip() for origin in cors_origins_raw.split(",") if origin.strip()]
 
 
