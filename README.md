@@ -1,6 +1,30 @@
-# NEURO//STRENGTH (ATP-STRENGHT)
+# NEURO//STRENGTH (ATP-STRENGTH)
 
 > Motor de Autoconfiguración y Guía Zen de Ejecución para Fuerza Máxima, Potencia y Densidad Muscular Magra.
+
+---
+
+## 🏗️ Arquitectura del Sistema
+
+```text
+APP fuerza/                       # Directorio raíz limpio
+│
+├── 📂 atp-strength-frontend/     # ⚛️ FRONTEND: NEXT.JS (React + TS + Tailwind)
+│   ├── .env.local                # Variable para apuntar a la API de Python (http://localhost:8000)
+│   ├── package.json              # Módulo de control de Next.js
+│   ├── tsconfig.json             # Tipados estrictos de TypeScript
+│   └── 📂 src/
+│       └── 📂 app/               # Next.js App Router (Pantallas Zen y lógicas)
+│
+└── 📂 atp-strength-backend/      # 🐍 BACKEND: PYTHON (FastAPI + SQLAlchemy)
+    ├── .env                      # Cadena de conexión a PostgreSQL (Puerto 5433)
+    ├── main.py                   # Orquestador: Enciende FastAPI y habilita CORS
+    └── 📂 src/
+        ├── config/               # database.py (Tubería de datos y sesiones)
+        ├── domain/               # models.py (Definición matemática de las tablas)
+        ├── repository/           # state_repo.py (El único que lee/escribe en la BD)
+        └── routes/               # state.py (Endpoints de red para el cronómetro/estado)
+```
 
 ---
 
@@ -8,52 +32,44 @@
 
 - **Itinerario Fijo de 4 Días (Élite)**:
   - **Lunes (Día A - Empuje/Cuádriceps)**: Sentadilla Trasera (5x3) | Press de Banca (5x3) | Press Militar (4x3) | Fondos en Paralelas (3x5).
-  - **Martes (Día B - Tracción/Cadena Posterior)**: Peso Muerto Convencional (2x3) | Dominadas Lastradas (4x4) | Remo Pendlay (3x5) | Peso Muerto Rumano (3x5) | Paseo del Granjero (4x20m).
+  - **Martes (Día B - Tracción/Cadena Posterior)**: Peso Muerto Convencional (2x3) | Dominadas Lastradas (4x4) | Remo Pendlay (3x5) | Peso Muerto Rumano (3x5).
   - **Jueves (Día C - Empuje Supremo)**: Press de Banca (6x2) | Press Militar (4x3) | Fondos en Paralelas (3x5) | Planchas Pesadas (4x30s).
-  - **Viernes (Día D - Tracción y Brazos)**: Sentadilla Trasera Técnica (3x3) | Dominadas Lastradas (4x4) | Remo Pendlay (3x5) | Curl de Bíceps con Barra Z (4x5) | Abdominales en Barra (3x8).
-  - **Miércoles, Sábado y Domingo**: Bloqueados bajo *Descanso Absoluto Neuromuscular*.
-
-- **Protocolo de Preparación Neuromuscular (Fases 0 a 4)**:
-  - Fase 0: Movilidad Articular Dinámica (120s).
-  - Fase 1: Activación Neuromuscular (10 reps, 60s descanso).
-  - Fase 2: Aproximación Ligera (5 reps, 90s descanso).
-  - Fase 3: Aproximación Media (3 reps, 120s descanso).
-  - Fase 4: Aproximación Pesada PAP (1 rep, 180s descanso).
+  - **Viernes (Día D - Tracción y Brazos)**: Sentadilla Trasera Técnica (3x3) | Dominadas Lastradas (4x4) | Remo Pendlay (3x5) | Curl de Bíceps con Barra Z (4x5).
+  - **Miércoles, Sábado y Domingo**: Descanso Absoluto Neuromuscular.
 
 - **Módulo Zen de Resíntesis de ATP**:
-  - Pantalla de aislamiento visual True Black (`#000000`) con desenfoque de fondo.
-  - Reloj digital masivo con anillo perimetral SVG continuo a 60 fps.
+  - Pantalla de aislamiento visual True Black (`#000000`).
+  - Reloj masivo con anillo perimetral SVG continuo.
   - Pulso armónico de campana (440Hz) vía Web Audio API al finalizar el descanso.
   - Bloqueo mandatorio entre 3 y 6 minutos según el ejercicio.
-
-- **Diseño Bio-Ergonómico Anti-Fatiga**:
-  - Botón gigante con respuesta táctil tridimensional y pulso dorado interactivo.
-  - Marcador de series en vivo con badges que transicionan a oro/neón vibrante.
-
----
-
-## 🛠️ Tecnologías
-
-- **TypeScript** + **Vite**
-- **TailwindCSS**
-- **Vitest** (100% test coverage en suites de dominio)
-- **Web Audio API**
-- **LocalStorage / Export JSON**
 
 ---
 
 ## 🚀 Inicio Rápido
 
+### 1. Backend (Python + FastAPI)
+
 ```bash
-# Instalar dependencias
-npm install
+cd atp-strength-backend
+
+# Crear entorno virtual e instalar dependencias
+python -m venv .venv
+.venv\Scripts\activate
+pip install -r requirements.txt
+
+# Iniciar servidor de desarrollo
+uvicorn main:app --reload --port 8000
+```
+
+Documentación interactiva disponible en: `http://localhost:8000/docs`
+
+### 2. Frontend (Next.js + TypeScript + Tailwind)
+
+```bash
+cd atp-strength-frontend
 
 # Iniciar servidor de desarrollo
 npm run dev
-
-# Ejecutar pruebas unitarias
-npm run test
-
-# Compilar para producción
-npm run build
 ```
+
+Dashboard disponible en: `http://localhost:3000`
