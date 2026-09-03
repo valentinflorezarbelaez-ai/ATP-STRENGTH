@@ -1,5 +1,5 @@
 // Service Worker for NEURO//STRENGTH (PWA Standalone Engine)
-const CACHE_NAME = "neuro-strength-v1";
+const CACHE_NAME = "neuro-strength-v2";
 
 const PRECACHE_ASSETS = [
   "/",

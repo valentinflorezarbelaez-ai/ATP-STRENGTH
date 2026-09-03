@@ -1523,7 +1523,7 @@ export default function ZenDashboard() {
           </div>
 
           {/* Guía Fisiológica de las Fases ATP con Kilos Exactos Adaptados */}
-          <div className="p-5 rounded-2xl bg-zinc-950 border border-zinc-900 shadow-2xl space-y-3">
+          <div id="guia-fases-atp" className="p-5 rounded-2xl bg-zinc-950 border border-zinc-900 shadow-2xl space-y-3 scroll-mt-6">
             <div className="flex items-center justify-between mb-1 text-xs font-mono">
               <span className="text-zinc-300 font-bold uppercase flex items-center gap-2">
                 <Layers className="w-4 h-4 text-amber-400" /> GUÍA DE ACLIMATACIÓN SNC • {activeExercise.name.toUpperCase()}
@@ -2051,7 +2051,13 @@ export default function ZenDashboard() {
         </button>
 
         <button
-          onClick={() => setShowPrepProtocol(true)}
+          onClick={() => {
+            setShowPrepProtocol(true);
+            const el = document.getElementById("guia-fases-atp");
+            if (el) {
+              el.scrollIntoView({ behavior: "smooth" });
+            }
+          }}
           className="flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl bg-zinc-900/90 hover:bg-zinc-800 border border-zinc-800 text-zinc-300 text-xs font-mono active:scale-95 transition-all cursor-pointer"
           title="Fases de Preparación Neuromuscular"
         >
