@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
+import { PwaInstallPrompt } from "@/components/PwaInstallPrompt";
 import {
   Flame,
   Zap,
@@ -255,7 +256,7 @@ export default function ZenDashboard() {
   const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
   // Cargar Maxes desde el Backend FastAPI
-  const fetchMaxes = async () => {
+  const fetchMaxes = useCallback(async () => {
     try {
       const res = await fetch(`${apiUrl}/api/strength/maxes`);
       if (res.ok) {
@@ -269,10 +270,10 @@ export default function ZenDashboard() {
     } catch {
       // Manejo silencioso en desconexión
     }
-  };
+  }, [apiUrl]);
 
   // Cargar Historial para el modal
-  const fetchHistory = async (exName: string) => {
+  const fetchHistory = useCallback(async (exName: string) => {
     try {
       const res = await fetch(`${apiUrl}/api/strength/history?exercise_name=${encodeURIComponent(exName)}&limit=10`);
       if (res.ok) {
@@ -282,27 +283,30 @@ export default function ZenDashboard() {
     } catch {
       setExerciseHistory([]);
     }
-  };
+  }, [apiUrl]);
 
   // Sincronizar carga objetivo sugerida al cambiar de ejercicio
   useEffect(() => {
     if (activeExercise && maxesMap[activeExercise.name]) {
       const suggestedLoad = maxesMap[activeExercise.name].prescriptions.phase_5_work;
       if (suggestedLoad > 0) {
+        /* eslint-disable-next-line react-hooks/set-state-in-effect */
         setInputWeight(suggestedLoad.toString());
       }
     }
-  }, [activeExerciseIndex, selectedDayKey, maxesMap]);
+  }, [activeExercise, maxesMap]);
 
   useEffect(() => {
+    /* eslint-disable-next-line react-hooks/set-state-in-effect */
     fetchMaxes();
-  }, [apiUrl]);
+  }, [fetchMaxes]);
 
   useEffect(() => {
     if (showProgressModal) {
+      /* eslint-disable-next-line react-hooks/set-state-in-effect */
       fetchHistory(selectedProgressEx);
     }
-  }, [selectedProgressEx, showProgressModal]);
+  }, [selectedProgressEx, showProgressModal, fetchHistory]);
 
   // Verificación periódica del Backend Python FastAPI
   useEffect(() => {
@@ -577,6 +581,9 @@ export default function ZenDashboard() {
           </div>
         </div>
       </header>
+
+      {/* PWA In-App Install Prompt Banner */}
+      <PwaInstallPrompt />
 
       {/* Main Grid Layout */}
       <div className="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-12 gap-6 flex-1 items-start">

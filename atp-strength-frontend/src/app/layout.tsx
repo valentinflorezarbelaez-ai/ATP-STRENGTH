@@ -23,14 +23,22 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   title: "NEURO//STRENGTH - ATP Zen Engine",
   description: "Motor Zen de Autoconfiguración Neuromuscular de Élite para Fuerza Máxima y Resíntesis de ATP.",
+  applicationName: "NEURO//STRENGTH",
+  manifest: "/manifest.webmanifest",
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
     title: "NEURO//STRENGTH",
   },
   icons: {
-    icon: "/icon-192.svg",
-    apple: "/icon-192.svg",
+    icon: [
+      { url: "/favicon-32x32.png", sizes: "32x32", type: "image/png" },
+      { url: "/icon-192.png", sizes: "192x192", type: "image/png" },
+      { url: "/icon-192.svg", type: "image/svg+xml" },
+    ],
+    apple: [
+      { url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" },
+    ],
   },
 };
 
