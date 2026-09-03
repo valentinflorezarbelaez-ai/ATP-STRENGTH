@@ -515,46 +515,56 @@ export default function ZenDashboard() {
   );
 
   return (
-    <main className="min-h-screen bg-black text-zinc-100 flex flex-col items-center justify-between p-4 md:p-8 font-sans selection:bg-amber-500 selection:text-black">
+    <main className="min-h-screen bg-black text-zinc-100 flex flex-col items-center justify-between p-4 md:p-8 pb-24 md:pb-8 font-sans selection:bg-amber-500 selection:text-black">
       {/* Top Header */}
-      <header className="w-full max-w-6xl flex items-center justify-between border-b border-zinc-900 pb-5 mb-6">
-        <div className="flex items-center gap-3">
-          <div className="p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-400 glow-zen-gold">
-            <Flame className="w-6 h-6" />
-          </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <h1 className="text-xl md:text-2xl font-black tracking-widest text-zinc-100 uppercase">
-                NEURO//<span className="text-amber-400">STRENGTH</span>
-              </h1>
-              <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-amber-500/20 text-amber-400 border border-amber-500/30">
-                PRO-V1
-              </span>
+      <header className="w-full max-w-6xl flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-zinc-900 pb-5 mb-6">
+        <div className="flex items-center justify-between w-full md:w-auto">
+          <div className="flex items-center gap-3">
+            <div className="p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-400 glow-zen-gold">
+              <Flame className="w-5 h-5 sm:w-6 sm:h-6" />
             </div>
-            <p className="text-xs text-zinc-400 font-mono tracking-tight mt-0.5">
-              MOTOR ZEN DE RESÍNTESIS DE ATP & FUERZA MÁXIMA
-            </p>
+            <div>
+              <div className="flex items-center gap-2">
+                <h1 className="text-lg sm:text-xl md:text-2xl font-black tracking-widest text-zinc-100 uppercase">
+                  NEURO//<span className="text-amber-400">STRENGTH</span>
+                </h1>
+                <span className="px-1.5 sm:px-2 py-0.5 rounded text-[9px] sm:text-[10px] font-mono font-bold bg-amber-500/20 text-amber-400 border border-amber-500/30">
+                  PRO-V1
+                </span>
+              </div>
+              <p className="text-[11px] sm:text-xs text-zinc-400 font-mono tracking-tight mt-0.5">
+                MOTOR ZEN DE RESÍNTESIS DE ATP & FUERZA MÁXIMA
+              </p>
+            </div>
           </div>
+
+          <button
+            onClick={() => setZenFocusMode(true)}
+            className="md:hidden p-2 rounded-xl bg-zinc-950 border border-zinc-800 text-zinc-400 hover:text-amber-400 cursor-pointer"
+            title="Aislamiento Visual True Black"
+          >
+            <Maximize2 className="w-4 h-4" />
+          </button>
         </div>
 
-        {/* Acciones de Cabecera */}
-        <div className="flex items-center gap-3">
+        {/* Acciones de Cabecera (Totalmente visibles y adaptativas en móvil) */}
+        <div className="flex items-center gap-2.5 w-full md:w-auto">
           {/* Botón FUERZA / PROGRESO */}
           <button
             onClick={() => {
               if (activeExercise) setSelectedProgressEx(activeExercise.name);
               setShowProgressModal(true);
             }}
-            className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-gradient-to-r from-amber-500/20 to-amber-600/10 hover:from-amber-500/30 hover:to-amber-600/20 border border-amber-500/40 text-xs font-mono font-bold text-amber-300 shadow-lg shadow-amber-500/5 transition-all transform active:scale-95 cursor-pointer"
+            className="flex-1 md:flex-initial flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-amber-500/20 to-amber-600/10 hover:from-amber-500/30 hover:to-amber-600/20 border border-amber-500/40 text-xs font-mono font-bold text-amber-300 shadow-lg shadow-amber-500/5 transition-all transform active:scale-95 cursor-pointer"
           >
-            <TrendingUp className="w-4 h-4 text-amber-400" />
-            <span>FUERZA / PROGRESO</span>
+            <TrendingUp className="w-4 h-4 text-amber-400 flex-shrink-0" />
+            <span className="tracking-wide">FUERZA / PROGRESO</span>
           </button>
 
-          {/* Botón Aislamiento Zen */}
+          {/* Botón Aislamiento Zen Desktop */}
           <button
             onClick={() => setZenFocusMode(true)}
-            className="hidden sm:flex items-center gap-1.5 px-3 py-2 rounded-xl bg-zinc-950 border border-zinc-800 hover:border-amber-500/50 text-xs font-mono text-zinc-300 hover:text-amber-400 transition-all"
+            className="hidden md:flex items-center gap-1.5 px-3 py-2.5 rounded-xl bg-zinc-950 border border-zinc-800 hover:border-amber-500/50 text-xs font-mono text-zinc-300 hover:text-amber-400 transition-all cursor-pointer"
             title="Aislamiento Visual True Black"
           >
             <Maximize2 className="w-3.5 h-3.5" />
@@ -562,20 +572,20 @@ export default function ZenDashboard() {
           </button>
 
           {/* Backend Connectivity Status */}
-          <div className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-zinc-950 border border-zinc-800 text-xs font-mono">
+          <div className="flex items-center gap-1.5 px-3 py-2.5 rounded-xl bg-zinc-950 border border-zinc-800 text-xs font-mono flex-shrink-0">
             <Server className="w-3.5 h-3.5 text-zinc-400" />
-            <span className="text-zinc-400">FastAPI (5433):</span>
+            <span className="text-zinc-400 hidden sm:inline">FastAPI:</span>
             {backendOnline === null ? (
-              <span className="text-zinc-500">Conectando...</span>
+              <span className="text-zinc-500">...</span>
             ) : backendOnline ? (
-              <span className="flex items-center gap-1.5 text-emerald-400 font-medium">
-                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+              <span className="flex items-center gap-1 text-emerald-400 font-medium">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
                 En Línea
               </span>
             ) : (
-              <span className="flex items-center gap-1.5 text-zinc-400">
-                <span className="w-2 h-2 rounded-full bg-zinc-600"></span>
-                Desconectado
+              <span className="flex items-center gap-1 text-zinc-400">
+                <span className="w-1.5 h-1.5 rounded-full bg-zinc-600"></span>
+                Off
               </span>
             )}
           </div>
@@ -667,11 +677,22 @@ export default function ZenDashboard() {
                   <h3 className="text-2xl font-black text-white tracking-tight">
                     {activeExercise.name}
                   </h3>
-                  {activeExMax && (
-                    <span className="px-2 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/30 text-[11px] font-mono text-emerald-400 font-bold">
-                      1RM: {activeExMax.one_rep_max} kg
-                    </span>
-                  )}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSelectedProgressEx(activeExercise.name);
+                      setShowProgressModal(true);
+                    }}
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-mono font-bold transition-all transform active:scale-95 cursor-pointer ${
+                      activeExMax
+                        ? "bg-emerald-500/10 hover:bg-emerald-500/20 border-emerald-500/30 text-emerald-400"
+                        : "bg-amber-500/10 hover:bg-amber-500/20 border-amber-500/40 text-amber-400 shadow-md shadow-amber-500/10"
+                    }`}
+                    title="Ver y configurar progresión de fuerza y 1RM"
+                  >
+                    <TrendingUp className="w-3.5 h-3.5" />
+                    <span>{activeExMax ? `1RM: ${activeExMax.one_rep_max} kg` : "+ Configurar 1RM"}</span>
+                  </button>
                 </div>
                 <p className="text-xs text-amber-400/90 font-mono mb-3">{activeDay.focus}</p>
                 <p className="text-xs text-zinc-400 italic bg-zinc-900/40 p-2.5 rounded-lg border border-zinc-800/60 mb-5">
@@ -710,12 +731,32 @@ export default function ZenDashboard() {
                 <div className="p-4 rounded-xl bg-zinc-900/50 border border-zinc-800 mb-5">
                   <div className="flex items-center justify-between mb-3 text-xs font-mono">
                     <span className="text-zinc-300 font-bold flex items-center gap-1.5">
-                      <Dumbbell className="w-3.5 h-3.5 text-amber-400" /> CARGA DE LA SERIE ACTUAL:
+                      <Dumbbell className="w-3.5 h-3.5 text-amber-400" /> CARGA DE LA SERIE:
                     </span>
-                    {activeExMax && (
-                      <span className="text-[11px] text-amber-400/90">
-                        Sugerido (Fase 5): <strong className="text-white">{activeExMax.prescriptions.phase_5_work} kg</strong>
-                      </span>
+                    {activeExMax ? (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setSelectedProgressEx(activeExercise.name);
+                          setShowProgressModal(true);
+                        }}
+                        className="text-[11px] text-amber-400 hover:text-amber-300 transition-colors cursor-pointer flex items-center gap-1"
+                        title="Ver desglose por fase de este ejercicio"
+                      >
+                        <span>Sugerido (F5): <strong className="text-white">{activeExMax.prescriptions.phase_5_work} kg</strong></span>
+                        <ChevronRight className="w-3 h-3 text-amber-400/80" />
+                      </button>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setSelectedProgressEx(activeExercise.name);
+                          setShowProgressModal(true);
+                        }}
+                        className="text-[11px] text-amber-400/90 hover:text-amber-300 transition-colors cursor-pointer underline underline-offset-2 flex items-center gap-1"
+                      >
+                        <span>Calcular cargas →</span>
+                      </button>
                     )}
                   </div>
                   <div className="grid grid-cols-3 gap-2">
@@ -988,8 +1029,8 @@ export default function ZenDashboard() {
 
       {/* --- MODAL MAESTRO DE FUERZA Y PROGRESO (MOTOR 1RM / TM) --- */}
       {showProgressModal && (
-        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-3 sm:p-6 animate-in fade-in duration-200">
-          <div className="w-full max-w-4xl max-h-[90vh] bg-zinc-950 border border-zinc-800 rounded-3xl p-6 sm:p-8 flex flex-col overflow-hidden shadow-2xl">
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-2.5 sm:p-6 animate-in fade-in duration-200">
+          <div className="w-full max-w-4xl max-h-[92dvh] sm:max-h-[90vh] bg-zinc-950 border border-zinc-800 rounded-2xl sm:rounded-3xl p-4 sm:p-8 flex flex-col overflow-hidden shadow-2xl">
             {/* Header del Modal */}
             <div className="flex items-center justify-between border-b border-zinc-900 pb-4 mb-5">
               <div>
@@ -1373,6 +1414,42 @@ export default function ZenDashboard() {
         </div>
         <div>NEURO//STRENGTH // High Performance Framework</div>
       </footer>
+
+      {/* Barra Móvil Inferior Fija: acceso 100% permanente a Progreso de Fuerza */}
+      <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-zinc-950/95 border-t border-zinc-800/80 backdrop-blur-xl px-3 py-2.5 pb-[max(0.625rem,env(safe-area-inset-bottom))] shadow-2xl flex items-center justify-between gap-2">
+        <button
+          onClick={() => {
+            if (activeExercise) setSelectedProgressEx(activeExercise.name);
+            setShowProgressModal(true);
+          }}
+          className="flex-1 flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl bg-gradient-to-r from-amber-500/20 to-amber-600/10 border border-amber-500/40 text-amber-300 text-xs font-mono font-bold active:scale-95 transition-all shadow-md shadow-amber-500/10 cursor-pointer"
+        >
+          <TrendingUp className="w-4 h-4 text-amber-400 flex-shrink-0" />
+          <span>PROGRESO 1RM</span>
+          {activeExMax && (
+            <span className="ml-1 px-1.5 py-0.5 rounded bg-amber-500/20 text-[10px] text-amber-300 font-bold">
+              {activeExMax.one_rep_max}kg
+            </span>
+          )}
+        </button>
+
+        <button
+          onClick={() => setShowPrepProtocol(true)}
+          className="flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl bg-zinc-900/90 hover:bg-zinc-800 border border-zinc-800 text-zinc-300 text-xs font-mono active:scale-95 transition-all cursor-pointer"
+          title="Fases de Preparación Neuromuscular"
+        >
+          <Layers className="w-4 h-4 text-amber-400 flex-shrink-0" />
+          <span>F0-F4</span>
+        </button>
+
+        <button
+          onClick={() => setZenFocusMode(true)}
+          className="p-2.5 rounded-xl bg-zinc-900/90 hover:bg-zinc-800 border border-zinc-800 text-zinc-300 active:scale-95 transition-all cursor-pointer"
+          title="Aislamiento Visual True Black"
+        >
+          <Maximize2 className="w-4 h-4 text-amber-400" />
+        </button>
+      </div>
     </main>
   );
 }
