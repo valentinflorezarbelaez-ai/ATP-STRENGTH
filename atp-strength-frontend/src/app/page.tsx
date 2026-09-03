@@ -105,7 +105,7 @@ const NEUROMUSCULAR_PHASES: NeuromuscularPhase[] = [
     phase: 1,
     name: "Fase 1: Activación Dinámica del SNC",
     durationSeconds: 60,
-    repsCue: "20% TM × 10 reps (Barra vacía)",
+    repsCue: "10 reps (Barra vacía)",
     objective: "Reclutamiento de motoneuronas alfa y unidades motoras tipo IIb.",
     percentage: 20,
   },
@@ -113,7 +113,7 @@ const NEUROMUSCULAR_PHASES: NeuromuscularPhase[] = [
     phase: 2,
     name: "Fase 2: Aproximación Ligera",
     durationSeconds: 90,
-    repsCue: "40% TM × 5 reps",
+    repsCue: "5 reps",
     objective: "Fijación del patrón motor sin fatiga metabólica acumulada.",
     percentage: 40,
   },
@@ -121,7 +121,7 @@ const NEUROMUSCULAR_PHASES: NeuromuscularPhase[] = [
     phase: 3,
     name: "Fase 3: Aproximación Media",
     durationSeconds: 120,
-    repsCue: "60% TM × 3 reps",
+    repsCue: "3 reps",
     objective: "Sensibilización barométrica y aclimatación de la tensión tendinosa.",
     percentage: 60,
   },
@@ -129,7 +129,7 @@ const NEUROMUSCULAR_PHASES: NeuromuscularPhase[] = [
     phase: 4,
     name: "Fase 4: Potenciación Pesada (PAP)",
     durationSeconds: 180,
-    repsCue: "80% TM × 1 rep",
+    repsCue: "1 rep pesada",
     objective: "Máxima Potenciación Post-Activación (PAP) previa a series efectivas.",
     percentage: 80,
   },
@@ -382,7 +382,7 @@ export default function ZenDashboard() {
 
   // Modal y Paneles
   const [zenFocusMode, setZenFocusMode] = useState<boolean>(false);
-  const [showPrepProtocol, setShowPrepProtocol] = useState<boolean>(false);
+  const [showPrepProtocol, setShowPrepProtocol] = useState<boolean>(true);
   const [showProgressModal, setShowProgressModal] = useState<boolean>(false);
 
   // Timer State
@@ -1074,41 +1074,41 @@ export default function ZenDashboard() {
                   let buttonLabel = "";
 
                   if (activePhaseStep === "F1") {
-                    stepTitle = "FASE 1 // ACTIVACIÓN DINÁMICA (20% TM)";
-                    stepSubtitle = "Barra vacía / Activación de motoneuronas alfa y unidades motoras rápidas.";
                     stepWeight = activeExMax?.prescriptions.phase_1_activation ?? 20;
+                    stepTitle = `FASE 1 // ACTIVACIÓN DINÁMICA • ${stepWeight} KG`;
+                    stepSubtitle = "Barra vacía / Activación de motoneuronas alfa y unidades motoras rápidas.";
                     stepReps = "10 reps";
                     stepRestSeconds = 60;
                     buttonAction = () => handleCompleteWarmupPhase("F1");
                     buttonLabel = "¡FASE 1 REALIZADA! → PASAR A FASE 2";
                   } else if (activePhaseStep === "F2") {
-                    stepTitle = "FASE 2 // APROXIMACIÓN LIGERA (40% TM)";
-                    stepSubtitle = "Fijación técnica del patrón motor sin fatiga metabólica acumulada.";
                     stepWeight = activeExMax?.prescriptions.phase_2_light ?? 0;
+                    stepTitle = `FASE 2 // APROXIMACIÓN LIGERA • ${stepWeight} KG`;
+                    stepSubtitle = "Fijación técnica del patrón motor sin fatiga metabólica acumulada.";
                     stepReps = "5 reps";
                     stepRestSeconds = 90;
                     buttonAction = () => handleCompleteWarmupPhase("F2");
                     buttonLabel = "¡FASE 2 REALIZADA! → PASAR A FASE 3";
                   } else if (activePhaseStep === "F3") {
-                    stepTitle = "FASE 3 // APROXIMACIÓN MEDIA (60% TM)";
-                    stepSubtitle = "Sensibilización barométrica y aclimatación de la tensión tendinosa.";
                     stepWeight = activeExMax?.prescriptions.phase_3_medium ?? 0;
+                    stepTitle = `FASE 3 // APROXIMACIÓN MEDIA • ${stepWeight} KG`;
+                    stepSubtitle = "Sensibilización barométrica y aclimatación de la tensión tendinosa.";
                     stepReps = "3 reps";
                     stepRestSeconds = 120;
                     buttonAction = () => handleCompleteWarmupPhase("F3");
                     buttonLabel = "¡FASE 3 REALIZADA! → PASAR A FASE 4 (PAP)";
                   } else if (activePhaseStep === "F4") {
-                    stepTitle = "FASE 4 // POTENCIACIÓN PESADA PAP (80% TM)";
-                    stepSubtitle = "Potenciación Post-Activación (PAP) máxima previa a las series efectivas.";
                     stepWeight = activeExMax?.prescriptions.phase_4_pap ?? 0;
+                    stepTitle = `FASE 4 // POTENCIACIÓN PAP • ${stepWeight} KG`;
+                    stepSubtitle = "Potenciación Post-Activación (PAP) máxima previa a las series efectivas.";
                     stepReps = "1 rep pesada";
                     stepRestSeconds = 180;
                     buttonAction = () => handleCompleteWarmupPhase("F4");
                     buttonLabel = "¡FASE 4 PAP REALIZADA! → ENTRAR A SERIES EFECTIVAS";
                   } else {
-                    stepTitle = `SERIE ${currentSet} DE ${activeExercise.sets} // TRABAJO EFECTIVO (85% TM)`;
-                    stepSubtitle = "Máxima expresión de fuerza neural con recuperación bioquímica completa.";
                     stepWeight = parseFloat(inputWeight) || (activeExMax?.prescriptions.phase_5_work ?? 0);
+                    stepTitle = `SERIE ${currentSet} DE ${activeExercise.sets} // TRABAJO EFECTIVO • ${stepWeight} KG`;
+                    stepSubtitle = "Máxima expresión de fuerza neural con recuperación bioquímica completa.";
                     stepReps = `${parseInt(inputReps) || (parseInt(activeExercise.reps) || 3)} reps`;
                     stepRestSeconds = activeExercise.restSeconds || 180;
                     buttonAction = () => handleCompleteSet();
@@ -1299,10 +1299,10 @@ export default function ZenDashboard() {
                     </div>
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center font-mono text-xs">
                       {[
-                        { key: "F1", title: "F1 (20% TM)", reps: "10 reps", kg: activeExMax?.prescriptions.phase_1_activation ?? 20, desc: "Activación" },
-                        { key: "F2", title: "F2 (40% TM)", reps: "5 reps", kg: activeExMax?.prescriptions.phase_2_light ?? 0, desc: "Aproximación" },
-                        { key: "F3", title: "F3 (60% TM)", reps: "3 reps", kg: activeExMax?.prescriptions.phase_3_medium ?? 0, desc: "Media" },
-                        { key: "F4", title: "F4 (80% PAP)", reps: "1 rep pesada", kg: activeExMax?.prescriptions.phase_4_pap ?? 0, desc: "Potenciación" },
+                        { key: "F1", title: `F1: ${activeExMax?.prescriptions.phase_1_activation ?? 20} kg`, reps: "10 reps", kg: activeExMax?.prescriptions.phase_1_activation ?? 20, desc: "Activación" },
+                        { key: "F2", title: `F2: ${activeExMax?.prescriptions.phase_2_light ?? 0} kg`, reps: "5 reps", kg: activeExMax?.prescriptions.phase_2_light ?? 0, desc: "Aproximación" },
+                        { key: "F3", title: `F3: ${activeExMax?.prescriptions.phase_3_medium ?? 0} kg`, reps: "3 reps", kg: activeExMax?.prescriptions.phase_3_medium ?? 0, desc: "Media" },
+                        { key: "F4", title: `F4: ${activeExMax?.prescriptions.phase_4_pap ?? 0} kg`, reps: "1 rep pesada", kg: activeExMax?.prescriptions.phase_4_pap ?? 0, desc: "Potenciación PAP" },
                       ].map((p) => {
                         const isDone = completedWarmupMap[activeExercise.name]?.includes(p.key);
                         const isCurrent = activePhaseStep === p.key;
@@ -1522,30 +1522,97 @@ export default function ZenDashboard() {
             </div>
           </div>
 
-          {/* Guía Fisiológica de las Fases ATP */}
-          <div className="p-5 rounded-2xl bg-zinc-950 border border-zinc-900 shadow-2xl">
-            <div className="flex items-center justify-between mb-3 text-xs font-mono">
+          {/* Guía Fisiológica de las Fases ATP con Kilos Exactos Adaptados */}
+          <div className="p-5 rounded-2xl bg-zinc-950 border border-zinc-900 shadow-2xl space-y-3">
+            <div className="flex items-center justify-between mb-1 text-xs font-mono">
               <span className="text-zinc-300 font-bold uppercase flex items-center gap-2">
-                <Layers className="w-4 h-4 text-amber-400" /> GUÍA DE ACLIMATACIÓN SNC
+                <Layers className="w-4 h-4 text-amber-400" /> GUÍA DE ACLIMATACIÓN SNC • {activeExercise.name.toUpperCase()}
               </span>
               <button
                 onClick={() => setShowPrepProtocol(!showPrepProtocol)}
                 className="text-[11px] text-amber-400 hover:underline cursor-pointer"
               >
-                {showPrepProtocol ? "Ocultar" : "Ver Detalle"}
+                {showPrepProtocol ? "Plegar" : "Expandir"}
               </button>
             </div>
 
-            <p className="text-xs text-zinc-400 font-mono leading-relaxed mb-3">
-              Las fases F1 a F4 aclimantan las motoneuronas alfa y la tensión tendinosa sin fatiga metabólica, preparando al SNC para la carga efectiva (F5).
+            <p className="text-xs text-zinc-400 font-mono leading-relaxed">
+              Cargas exactas calculadas para tu capacidad registrada en <strong className="text-white">{activeExercise.name}</strong> para aclimatar motoneuronas alfa sin fatiga antes de las series efectivas.
             </p>
 
             {showPrepProtocol && (
-              <div className="space-y-2 text-xs font-mono">
-                {NEUROMUSCULAR_PHASES.map((p) => (
-                  <div key={p.phase} className="p-2.5 rounded-lg bg-black border border-zinc-800">
-                    <div className="font-bold text-zinc-300">{p.name}</div>
-                    <div className="text-[11px] text-zinc-400 mt-0.5">{p.objective}</div>
+              <div className="space-y-2.5 font-mono pt-1">
+                {[
+                  {
+                    phase: 0,
+                    key: "F0",
+                    name: "Fase 0: Movilidad & Flujo Sinovial",
+                    cue: "90s continuos",
+                    objective: "Descompresión capsular articular y lubricación con líquido sinovial.",
+                    duration: 90,
+                  },
+                  {
+                    phase: 1,
+                    key: "F1",
+                    name: "Fase 1: Activación Dinámica del SNC",
+                    cue: `${activeExMax?.prescriptions.phase_1_activation ?? 20} kg × 10 reps (Barra vacía)`,
+                    objective: "Reclutamiento de motoneuronas alfa y unidades motoras tipo IIb.",
+                    duration: 60,
+                  },
+                  {
+                    phase: 2,
+                    key: "F2",
+                    name: "Fase 2: Aproximación Ligera",
+                    cue: `${activeExMax?.prescriptions.phase_2_light ?? 0} kg × 5 reps`,
+                    objective: "Fijación del patrón motor sin fatiga metabólica acumulada.",
+                    duration: 90,
+                  },
+                  {
+                    phase: 3,
+                    key: "F3",
+                    name: "Fase 3: Aproximación Media",
+                    cue: `${activeExMax?.prescriptions.phase_3_medium ?? 0} kg × 3 reps`,
+                    objective: "Sensibilización barométrica y aclimatación de la tensión tendinosa.",
+                    duration: 120,
+                  },
+                  {
+                    phase: 4,
+                    key: "F4",
+                    name: "Fase 4: Potenciación Pesada (PAP)",
+                    cue: `${activeExMax?.prescriptions.phase_4_pap ?? 0} kg × 1 rep`,
+                    objective: "Máxima Potenciación Post-Activación (PAP) previa a series efectivas.",
+                    duration: 180,
+                  },
+                ].map((p) => (
+                  <div
+                    key={p.phase}
+                    className="p-3.5 rounded-xl bg-black border border-zinc-800/90 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:border-zinc-700 transition-colors"
+                  >
+                    <div>
+                      <div className="font-bold text-zinc-100 text-xs sm:text-sm">
+                        {p.name}
+                      </div>
+                      <div className="text-amber-400 font-bold text-xs mt-0.5">
+                        {p.cue}
+                      </div>
+                      <div className="text-[11px] text-zinc-400 mt-1 leading-relaxed">
+                        {p.objective}
+                      </div>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (p.key.startsWith("F") && p.phase > 0) {
+                          setActivePhaseStep(p.key);
+                        }
+                        handleStartTimer(p.duration, p.name);
+                        setZenFocusMode(true);
+                      }}
+                      className="self-start sm:self-center px-3 py-1.5 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 border border-amber-500/40 font-mono text-xs font-bold whitespace-nowrap transition-all shadow-sm active:scale-95 cursor-pointer"
+                    >
+                      Timer {p.duration}s
+                    </button>
                   </div>
                 ))}
               </div>
@@ -1665,40 +1732,40 @@ export default function ZenDashboard() {
 
                   <div className="grid grid-cols-2 sm:grid-cols-6 gap-2 text-center text-xs font-mono">
                     <div className="p-2.5 rounded-xl bg-zinc-900/70 border border-zinc-800">
-                      <div className="text-[10px] text-zinc-500">F0 (0%)</div>
+                      <div className="text-[10px] text-zinc-500">F0 • Libre</div>
                       <div className="font-bold text-zinc-300 mt-1">Movilidad</div>
                       <div className="text-[11px] text-zinc-400 mt-1">0 kg (Libre)</div>
                     </div>
                     <div className="p-2.5 rounded-xl bg-zinc-900/70 border border-zinc-800">
-                      <div className="text-[10px] text-zinc-500">F1 (20% TM)</div>
+                      <div className="text-[10px] text-zinc-500">F1 • {currentExMax.prescriptions.phase_1_activation} kg</div>
                       <div className="font-bold text-zinc-300 mt-1">Activación</div>
                       <div className="text-sm font-bold text-amber-400 mt-1">
                         {currentExMax.prescriptions.phase_1_activation} kg
                       </div>
                     </div>
                     <div className="p-2.5 rounded-xl bg-zinc-900/70 border border-zinc-800">
-                      <div className="text-[10px] text-zinc-500">F2 (40% TM)</div>
+                      <div className="text-[10px] text-zinc-500">F2 • {currentExMax.prescriptions.phase_2_light} kg</div>
                       <div className="font-bold text-zinc-300 mt-1">Aprox Ligera</div>
                       <div className="text-sm font-bold text-amber-400 mt-1">
                         {currentExMax.prescriptions.phase_2_light} kg
                       </div>
                     </div>
                     <div className="p-2.5 rounded-xl bg-zinc-900/70 border border-zinc-800">
-                      <div className="text-[10px] text-zinc-500">F3 (60% TM)</div>
+                      <div className="text-[10px] text-zinc-500">F3 • {currentExMax.prescriptions.phase_3_medium} kg</div>
                       <div className="font-bold text-zinc-300 mt-1">Aprox Media</div>
                       <div className="text-sm font-bold text-amber-400 mt-1">
                         {currentExMax.prescriptions.phase_3_medium} kg
                       </div>
                     </div>
                     <div className="p-2.5 rounded-xl bg-zinc-900/70 border border-zinc-800">
-                      <div className="text-[10px] text-zinc-500">F4 (80% TM)</div>
+                      <div className="text-[10px] text-zinc-500">F4 • {currentExMax.prescriptions.phase_4_pap} kg</div>
                       <div className="font-bold text-zinc-300 mt-1">Pesada PAP</div>
                       <div className="text-sm font-bold text-amber-400 mt-1">
                         {currentExMax.prescriptions.phase_4_pap} kg
                       </div>
                     </div>
                     <div className="p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/40">
-                      <div className="text-[10px] text-amber-400 font-bold">F5 (85% TM)</div>
+                      <div className="text-[10px] text-amber-400 font-bold">F5 • {currentExMax.prescriptions.phase_5_work} kg</div>
                       <div className="font-bold text-white mt-1">Fuerza Real</div>
                       <div className="text-sm font-black text-amber-300 mt-1">
                         {currentExMax.prescriptions.phase_5_work} kg
