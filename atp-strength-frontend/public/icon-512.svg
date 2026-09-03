@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <rect width="512" height="512" rx="112" fill="#000000"/>
+  <circle cx="256" cy="256" r="200" stroke="#f59e0b" stroke-width="8" stroke-opacity="0.25" fill="none"/>
+  <circle cx="256" cy="256" r="170" stroke="#f59e0b" stroke-width="10" stroke-opacity="0.85" fill="none"/>
+  <!-- Central Zen Flame / ATP Pulse -->
+  <path d="M256 112c9 37 37 69 56 101 16 27 24 53 24 85 0 45-36 81-80 81s-80-36-80-81c0-32 8-58 24-85 19-32 47-64 56-101z" fill="url(#goldGrad512)"/>
+  <path d="M256 218c5 21 21 40 32 59 8 13 13 27 13 43 0 24-20 45-45 45s-45-21-45-45c0-16 5-30 13-43 11-19 27-38 32-59z" fill="#000000"/>
+  <defs>
+    <linearGradient id="goldGrad512" x1="176" y1="112" x2="336" y2="379" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#fbbf24"/>
+      <stop offset="0.5" stop-color="#f59e0b"/>
+      <stop offset="1" stop-color="#d97706"/>
+    </linearGradient>
+  </defs>
+</svg>
