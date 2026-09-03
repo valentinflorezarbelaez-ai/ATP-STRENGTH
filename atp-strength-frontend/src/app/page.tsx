@@ -32,7 +32,9 @@ import {
   Settings2,
   ChevronLeft,
   ChevronRight,
-  AlertTriangle
+  AlertTriangle,
+  Trophy,
+  Award
 } from "lucide-react";
 
 // --- Interfaces de Tipado ---
@@ -388,6 +390,7 @@ export default function ZenDashboard() {
   const [showPrepProtocol, setShowPrepProtocol] = useState<boolean>(true);
   const [showProgressModal, setShowProgressModal] = useState<boolean>(false);
   const [showResetModal, setShowResetModal] = useState<boolean>(false);
+  const [showVictoryModal, setShowVictoryModal] = useState<boolean>(false);
 
   // Timer State
   const [timerDuration, setTimerDuration] = useState<number>(180);
@@ -594,42 +597,67 @@ export default function ZenDashboard() {
     return () => clearInterval(interval);
   }, [apiUrl]);
 
-  // Campana Zen de 440 Hz con armónico usando Web Audio API
-  const playChime = () => {
+  // Campana Zen de 528 Hz / Fanfarria de Victoria y Vibración Háptica Potente
+  const playChime = (isVictory: boolean = false) => {
     try {
       const AudioCtx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+      if (!AudioCtx) return;
       const audioCtx = new AudioCtx();
+      if (audioCtx.state === "suspended") {
+        audioCtx.resume();
+      }
 
-      // Fundamental 440 Hz
-      const osc1 = audioCtx.createOscillator();
-      const gain1 = audioCtx.createGain();
-      osc1.type = "sine";
-      osc1.frequency.setValueAtTime(440, audioCtx.currentTime);
-      gain1.gain.setValueAtTime(0.35, audioCtx.currentTime);
-      gain1.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 3.0);
-      osc1.connect(gain1);
-      gain1.connect(audioCtx.destination);
+      if (isVictory) {
+        // Acorde triunfal ascendente C5 (523Hz) -> E5 (659Hz) -> G5 (784Hz) -> C6 (1046Hz)
+        const notes = [523.25, 659.25, 783.99, 1046.5];
+        notes.forEach((freq, idx) => {
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          const startTime = audioCtx.currentTime + idx * 0.12;
+          osc.type = "triangle";
+          osc.frequency.setValueAtTime(freq, startTime);
+          gain.gain.setValueAtTime(0.28, startTime);
+          gain.gain.exponentialRampToValueAtTime(0.0001, startTime + 1.2);
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start(startTime);
+          osc.stop(startTime + 1.2);
+        });
 
-      // Armónico cálido 880 Hz
-      const osc2 = audioCtx.createOscillator();
-      const gain2 = audioCtx.createGain();
-      osc2.type = "sine";
-      osc2.frequency.setValueAtTime(880, audioCtx.currentTime);
-      gain2.gain.setValueAtTime(0.12, audioCtx.currentTime);
-      gain2.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 2.0);
-      osc2.connect(gain2);
-      gain2.connect(audioCtx.destination);
+        if (typeof navigator !== "undefined" && navigator.vibrate) {
+          // Secuencia rítmica de victoria
+          navigator.vibrate([150, 70, 150, 70, 200, 100, 450]);
+        }
+      } else {
+        // Campana armónica clara de ATP al 100% (528 Hz frecuencia de claridad + 880 Hz + 1056 Hz)
+        const freqs = [528, 880, 1056];
+        const gains = [0.35, 0.14, 0.08];
+        const decays = [3.0, 2.2, 1.5];
 
-      osc1.start();
-      osc2.start();
-      osc1.stop(audioCtx.currentTime + 3.0);
-      osc2.stop(audioCtx.currentTime + 2.0);
+        freqs.forEach((freq, i) => {
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.type = i === 0 ? "sine" : "triangle";
+          osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+          gain.gain.setValueAtTime(gains[i], audioCtx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + decays[i]);
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start();
+          osc.stop(audioCtx.currentTime + decays[i]);
+        });
+
+        if (typeof navigator !== "undefined" && navigator.vibrate) {
+          // Pulso triple nítido para sentirlo en el bolsillo en el gimnasio (300ms, 150ms pausa, 300ms, 150ms pausa, 500ms)
+          navigator.vibrate([300, 150, 300, 150, 500]);
+        }
+      }
     } catch (err) {
-      console.warn("AudioContext bloqueado:", err);
+      console.warn("AudioContext o Vibración no disponibles:", err);
     }
   };
 
-  // Cronómetro regresivo
+  // Cronómetro regresivo con alerta automática al llegar al 100% de ATP
   useEffect(() => {
     let timer: NodeJS.Timeout;
     if (isRunning && remainingSeconds > 0) {
@@ -637,10 +665,7 @@ export default function ZenDashboard() {
         setRemainingSeconds((prev) => {
           if (prev <= 1) {
             setIsRunning(false);
-            playChime();
-            if (typeof navigator !== "undefined" && navigator.vibrate) {
-              navigator.vibrate([100, 100, 200]);
-            }
+            playChime(false);
             return 0;
           }
           return prev - 1;
@@ -789,6 +814,10 @@ export default function ZenDashboard() {
         setActiveExerciseIndex(nextExIdx);
         setCurrentSet(nextSet);
         setActivePhaseStep(nextStep);
+      } else {
+        // ¡Última serie del último ejercicio del día completada!
+        setShowVictoryModal(true);
+        playChime(true);
       }
     }
 
@@ -912,6 +941,54 @@ export default function ZenDashboard() {
   }, 0);
   const dayProgressPercent = totalDaySets > 0 ? Math.round((completedDaySets / totalDaySets) * 100) : 0;
   const isDayFinished = totalDaySets > 0 && completedDaySets >= totalDaySets;
+
+  // Cálculo preciso de tonelaje total y volumen acumulado de la sesión
+  const calculateSessionStats = () => {
+    let totalKg = 0;
+    let totalReps = 0;
+    let totalEffectiveSets = 0;
+
+    activeDay.exercises.forEach((ex) => {
+      const setsDone = completedSetsMap[ex.name] || [];
+      const exMax = maxesMap[ex.name];
+      const workKg = exMax?.prescriptions.phase_5_work ?? (exMax?.one_rep_max ? Math.round(exMax.one_rep_max * 0.85) : 80);
+      const repsCount = parseInt(ex.reps) || 3;
+
+      // Series de trabajo efectivas
+      setsDone.forEach(() => {
+        totalKg += workKg * repsCount;
+        totalReps += repsCount;
+        totalEffectiveSets += 1;
+      });
+
+      // Fases de preparación neuromuscular
+      const warmupDone = completedWarmupMap[ex.name] || [];
+      if (warmupDone.includes("F1")) {
+        totalKg += (exMax?.prescriptions.phase_1_activation ?? 20) * 10;
+        totalReps += 10;
+      }
+      if (warmupDone.includes("F2")) {
+        totalKg += (exMax?.prescriptions.phase_2_light ?? 0) * 5;
+        totalReps += 5;
+      }
+      if (warmupDone.includes("F3")) {
+        totalKg += (exMax?.prescriptions.phase_3_medium ?? 0) * 3;
+        totalReps += 3;
+      }
+      if (warmupDone.includes("F4")) {
+        totalKg += (exMax?.prescriptions.phase_4_pap ?? 0) * 1;
+        totalReps += 1;
+      }
+    });
+
+    return {
+      tonnageKg: Math.round(totalKg),
+      totalReps,
+      totalEffectiveSets,
+    };
+  };
+
+  const sessionStats = calculateSessionStats();
 
   return (
     <main className="min-h-screen bg-black text-zinc-100 flex flex-col items-center justify-between p-4 md:p-8 pb-24 md:pb-8 font-sans selection:bg-amber-500 selection:text-black">
@@ -1081,16 +1158,33 @@ export default function ZenDashboard() {
                   </div>
                 </div>
 
-                {/* Botón de Reset de Sesión */}
-                <button
-                  type="button"
-                  onClick={() => setShowResetModal(true)}
-                  className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-zinc-800 bg-zinc-900/80 hover:bg-zinc-800 hover:border-amber-500/40 text-xs font-mono text-zinc-300 hover:text-amber-400 transition-all active:scale-95 cursor-pointer shadow-sm"
-                  title="Reiniciar progreso de sesión o ejercicio"
-                >
-                  <RotateCcw className="w-3.5 h-3.5 text-amber-400" />
-                  <span>Reset</span>
-                </button>
+                <div className="flex items-center gap-2">
+                  {isDayFinished && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setShowVictoryModal(true);
+                        playChime(true);
+                      }}
+                      className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-gradient-to-r from-amber-500/20 to-amber-600/10 hover:from-amber-500/30 border border-amber-500/40 text-amber-300 font-mono font-bold text-xs transition-all active:scale-95 cursor-pointer shadow-md shadow-amber-500/10"
+                      title="Ver resumen y tonelaje de la sesión"
+                    >
+                      <Trophy className="w-3.5 h-3.5 text-amber-400" />
+                      <span>Resumen</span>
+                    </button>
+                  )}
+
+                  {/* Botón de Reset de Sesión */}
+                  <button
+                    type="button"
+                    onClick={() => setShowResetModal(true)}
+                    className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-zinc-800 bg-zinc-900/80 hover:bg-zinc-800 hover:border-amber-500/40 text-xs font-mono text-zinc-300 hover:text-amber-400 transition-all active:scale-95 cursor-pointer shadow-sm"
+                    title="Reiniciar progreso de sesión o ejercicio"
+                  >
+                    <RotateCcw className="w-3.5 h-3.5 text-amber-400" />
+                    <span>Reset</span>
+                  </button>
+                </div>
               </div>
 
               {/* Barra de Progreso Visual */}
@@ -2278,6 +2372,123 @@ export default function ZenDashboard() {
         </div>
       )}
 
+      {/* --- MODAL DE VICTORIA Y RESUMEN DE SESIÓN --- */}
+      {showVictoryModal && (
+        <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in duration-300">
+          <div className="w-full max-w-lg bg-zinc-950 border-2 border-amber-500/40 rounded-3xl p-6 sm:p-8 shadow-2xl shadow-amber-500/10 space-y-6 max-h-[90vh] overflow-y-auto">
+            {/* Header de Celebración */}
+            <div className="text-center space-y-2">
+              <div className="inline-flex p-4 rounded-3xl bg-gradient-to-b from-amber-500/20 to-amber-500/5 border border-amber-500/40 text-amber-400 shadow-xl shadow-amber-500/10 animate-bounce">
+                <Trophy className="w-10 h-10 text-amber-400" />
+              </div>
+              <h3 className="text-2xl sm:text-3xl font-black text-white uppercase tracking-tight">
+                ¡Sesión Completada!
+              </h3>
+              <p className="text-xs font-mono text-amber-400 font-bold uppercase tracking-widest">
+                NEURO//SUPERCOMPENSACIÓN ACTIVADA • {activeDay.name}
+              </p>
+            </div>
+
+            {/* Tarjeta de Tonelaje Total Levantado */}
+            <div className="p-5 rounded-2xl bg-gradient-to-b from-amber-500/15 via-zinc-900/80 to-black border border-amber-500/30 text-center shadow-lg">
+              <div className="text-[10px] sm:text-xs font-mono text-zinc-400 uppercase tracking-wider font-bold">
+                TONELAJE TOTAL LEVANTADO HOY
+              </div>
+              <div className="text-4xl sm:text-6xl font-black font-mono text-amber-400 tracking-tight mt-1 flex items-baseline justify-center gap-1.5">
+                <span>{sessionStats.tonnageKg.toLocaleString()}</span>
+                <span className="text-lg sm:text-2xl text-amber-400/80 font-bold">kg</span>
+              </div>
+              <div className="text-[11px] font-mono text-zinc-400 mt-2 flex items-center justify-center gap-1.5">
+                <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+                <span>Carga bruta total movilizada contra la gravedad</span>
+              </div>
+            </div>
+
+            {/* Grid de Métricas Secundarias */}
+            <div className="grid grid-cols-3 gap-2.5 text-center font-mono">
+              <div className="p-3 rounded-xl bg-zinc-900/60 border border-zinc-800">
+                <div className="text-[10px] uppercase text-zinc-400 font-bold">Series</div>
+                <div className="text-base sm:text-lg font-black text-white mt-0.5">
+                  {sessionStats.totalEffectiveSets} / {totalDaySets}
+                </div>
+                <div className="text-[9px] text-zinc-500 mt-0.5">Efectivas</div>
+              </div>
+              <div className="p-3 rounded-xl bg-zinc-900/60 border border-zinc-800">
+                <div className="text-[10px] uppercase text-zinc-400 font-bold">Reps</div>
+                <div className="text-base sm:text-lg font-black text-emerald-400 mt-0.5">
+                  {sessionStats.totalReps}
+                </div>
+                <div className="text-[9px] text-zinc-500 mt-0.5">Completas</div>
+              </div>
+              <div className="p-3 rounded-xl bg-zinc-900/60 border border-zinc-800">
+                <div className="text-[10px] uppercase text-zinc-400 font-bold">Ejercicios</div>
+                <div className="text-base sm:text-lg font-black text-amber-400 mt-0.5">
+                  {activeDay.exercises.length} / {activeDay.exercises.length}
+                </div>
+                <div className="text-[9px] text-zinc-500 mt-0.5">Realizados</div>
+              </div>
+            </div>
+
+            {/* Desglose de Ejercicios Realizados */}
+            <div className="p-4 rounded-2xl bg-zinc-900/40 border border-zinc-800/80 space-y-2">
+              <div className="text-xs font-mono font-bold text-zinc-300 uppercase tracking-wider mb-2 flex items-center justify-between">
+                <span>Resumen de Ejercicios</span>
+                <span className="text-emerald-400 text-[10px]">100% CUMPLIDO ✓</span>
+              </div>
+              <div className="space-y-1.5">
+                {activeDay.exercises.map((ex) => {
+                  const done = completedSetsMap[ex.name]?.length || 0;
+                  const exMax = maxesMap[ex.name];
+                  const workKg = exMax?.prescriptions.phase_5_work ?? (exMax?.one_rep_max ? Math.round(exMax.one_rep_max * 0.85) : 80);
+                  return (
+                    <div
+                      key={ex.name}
+                      className="p-2.5 rounded-xl bg-zinc-950 border border-zinc-800/70 flex items-center justify-between text-xs font-mono"
+                    >
+                      <div className="flex items-center gap-2">
+                        <CheckCircle2 className="w-4 h-4 text-emerald-400 flex-shrink-0" />
+                        <span className="text-zinc-200 font-bold">{ex.name}</span>
+                      </div>
+                      <div className="text-right text-zinc-400">
+                        <span className="text-amber-400 font-bold">{workKg} kg</span> × {done} series
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Mensaje de Supercompensación Fisiológica */}
+            <div className="p-3.5 rounded-xl bg-amber-500/5 border border-amber-500/20 text-xs text-zinc-400 font-mono leading-relaxed">
+              ⚡ <strong>Supercompensación SNC:</strong> El estímulo de alta tensión mecánica ha sido completado. Tu sistema nervioso central entra en fase de resíntesis y adaptación neuromuscular. Descansá y nutrí tus reservas.
+            </div>
+
+            {/* Botones de Acción */}
+            <div className="space-y-2.5 pt-1">
+              <button
+                type="button"
+                onClick={() => setShowVictoryModal(false)}
+                className="w-full py-4 rounded-2xl bg-gradient-to-b from-amber-400 via-amber-500 to-amber-600 hover:from-amber-300 hover:to-amber-500 text-black font-mono font-black text-xs sm:text-sm uppercase tracking-wider transition-all shadow-xl shadow-amber-500/20 active:scale-[0.98] cursor-pointer flex items-center justify-center gap-2"
+              >
+                <CheckCircle2 className="w-4 h-4 text-black stroke-[3]" />
+                <span>CERRAR Y GUARDAR TRIUNFO</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setShowVictoryModal(false);
+                  setShowResetModal(true);
+                }}
+                className="w-full py-2.5 rounded-xl bg-zinc-900/60 hover:bg-zinc-800 border border-zinc-800 text-zinc-400 hover:text-white text-xs font-mono transition-colors cursor-pointer"
+              >
+                Reiniciar sesión de hoy si deseás repetirla
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* --- MÓDULO ZEN DE AISLAMIENTO VISUAL TRUE BLACK (#000000) --- */}
       {zenFocusMode && (
         <div className="fixed inset-0 z-50 bg-[#000000] flex flex-col items-center justify-between p-6 md:p-12 animate-in fade-in duration-300">
@@ -2373,9 +2584,9 @@ export default function ZenDashboard() {
                 <RotateCcw className="w-6 h-6" />
               </button>
               <button
-                onClick={playChime}
+                onClick={() => playChime(false)}
                 className="p-4 rounded-full bg-zinc-900/80 hover:bg-zinc-800 border border-zinc-700 text-zinc-400 hover:text-amber-400 transition-all transform active:scale-95 cursor-pointer"
-                title="Campana 440Hz"
+                title="Campana Zen 528Hz"
               >
                 <Volume2 className="w-6 h-6" />
               </button>
