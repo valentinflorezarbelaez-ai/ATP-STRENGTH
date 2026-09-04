@@ -33,8 +33,7 @@ import {
   ChevronLeft,
   ChevronRight,
   AlertTriangle,
-  Trophy,
-  Award
+  Trophy
 } from "lucide-react";
 
 // --- Interfaces de Tipado ---
@@ -53,15 +52,6 @@ interface RoutineDay {
   isRest: boolean;
   restMessage?: string;
   exercises: Exercise[];
-}
-
-interface NeuromuscularPhase {
-  phase: number;
-  name: string;
-  durationSeconds: number;
-  repsCue: string;
-  objective: string;
-  percentage: number;
 }
 
 interface PhasePrescriptions {
@@ -96,49 +86,6 @@ interface HistoryItem {
   completed: boolean;
 }
 
-// --- Protocolo de Preparación Neuromuscular (Fases 0 a 4) ---
-const NEUROMUSCULAR_PHASES: NeuromuscularPhase[] = [
-  {
-    phase: 0,
-    name: "Fase 0: Movilidad & Flujo Sinovial",
-    durationSeconds: 90,
-    repsCue: "90s continuos",
-    objective: "Descompresión capsular articular y lubricación con líquido sinovial.",
-    percentage: 0,
-  },
-  {
-    phase: 1,
-    name: "Fase 1: Activación Dinámica del SNC",
-    durationSeconds: 60,
-    repsCue: "10 reps (Barra vacía)",
-    objective: "Reclutamiento de motoneuronas alfa y unidades motoras tipo IIb.",
-    percentage: 20,
-  },
-  {
-    phase: 2,
-    name: "Fase 2: Aproximación Ligera",
-    durationSeconds: 90,
-    repsCue: "5 reps",
-    objective: "Fijación del patrón motor sin fatiga metabólica acumulada.",
-    percentage: 40,
-  },
-  {
-    phase: 3,
-    name: "Fase 3: Aproximación Media",
-    durationSeconds: 120,
-    repsCue: "3 reps",
-    objective: "Sensibilización barométrica y aclimatación de la tensión tendinosa.",
-    percentage: 60,
-  },
-  {
-    phase: 4,
-    name: "Fase 4: Potenciación Pesada (PAP)",
-    durationSeconds: 180,
-    repsCue: "1 rep pesada",
-    objective: "Máxima Potenciación Post-Activación (PAP) previa a series efectivas.",
-    percentage: 80,
-  },
-];
 
 // --- Itinerario Élite de 4 Días Fijos + Días de Descanso Absoluto ---
 const SCHEDULE_DAYS: RoutineDay[] = [
@@ -376,13 +323,58 @@ function getBaselineMaxes(): { [key: string]: ExerciseMaxData } {
   return base;
 }
 
+interface SavedSessionProgress {
+  completedSetsMap?: { [exerciseName: string]: number[] };
+  completedWarmupMap?: { [exerciseName: string]: string[] };
+  selectedDayKey?: string;
+  activeExerciseIndex?: number;
+  currentSet?: number;
+  activePhaseStep?: string;
+}
+
+function getSavedSession(): SavedSessionProgress | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const saved = localStorage.getItem("neuro_strength_session_progress");
+    return saved ? JSON.parse(saved) : null;
+  } catch {
+    return null;
+  }
+}
+
+function getInitialMaxes(): { [key: string]: ExerciseMaxData } {
+  const base = getBaselineMaxes();
+  if (typeof window === "undefined") return base;
+  try {
+    const saved = localStorage.getItem("neuro_strength_maxes");
+    return saved ? { ...base, ...JSON.parse(saved) } : base;
+  } catch {
+    return base;
+  }
+}
+
 export default function ZenDashboard() {
-  const [selectedDayKey, setSelectedDayKey] = useState<string>("DAY_A");
-  const [activeExerciseIndex, setActiveExerciseIndex] = useState<number>(0);
-  const [currentSet, setCurrentSet] = useState<number>(1);
-  const [activePhaseStep, setActivePhaseStep] = useState<string>("F1");
-  const [completedSetsMap, setCompletedSetsMap] = useState<{ [exerciseName: string]: number[] }>({});
-  const [completedWarmupMap, setCompletedWarmupMap] = useState<{ [exerciseName: string]: string[] }>({});
+  // Estado base con lazy initializers desde localStorage (cero renders en cascada)
+  const [selectedDayKey, setSelectedDayKey] = useState<string>(() => {
+    return getSavedSession()?.selectedDayKey || "DAY_A";
+  });
+  const [activeExerciseIndex, setActiveExerciseIndex] = useState<number>(() => {
+    const idx = getSavedSession()?.activeExerciseIndex;
+    return typeof idx === "number" ? idx : 0;
+  });
+  const [currentSet, setCurrentSet] = useState<number>(() => {
+    const s = getSavedSession()?.currentSet;
+    return typeof s === "number" ? s : 1;
+  });
+  const [activePhaseStep, setActivePhaseStep] = useState<string>(() => {
+    return getSavedSession()?.activePhaseStep || "F1";
+  });
+  const [completedSetsMap, setCompletedSetsMap] = useState<{ [exerciseName: string]: number[] }>(() => {
+    return getSavedSession()?.completedSetsMap || {};
+  });
+  const [completedWarmupMap, setCompletedWarmupMap] = useState<{ [exerciseName: string]: string[] }>(() => {
+    return getSavedSession()?.completedWarmupMap || {};
+  });
   const [backendOnline, setBackendOnline] = useState<boolean | null>(null);
 
   // Modal y Paneles
@@ -399,15 +391,19 @@ export default function ZenDashboard() {
   const [timerTitle, setTimerTitle] = useState<string>("Resíntesis de ATP-PCr");
 
   // Telemetría de Cargas y 1RM (con inicialización garantizada y offline-first)
-  const [maxesMap, setMaxesMap] = useState<{ [key: string]: ExerciseMaxData }>(getBaselineMaxes);
+  const [maxesMap, setMaxesMap] = useState<{ [key: string]: ExerciseMaxData }>(getInitialMaxes);
   const [selectedProgressEx, setSelectedProgressEx] = useState<string>("Sentadilla Trasera");
-  const [inputWeight, setInputWeight] = useState<string>("90");
-  const [inputReps, setInputReps] = useState<string>("3");
-  const [inputRpe, setInputRpe] = useState<string>("8.5");
 
-  // Calibración Rápida en Vivo en la tarjeta del ejercicio
-  const [quickWeight, setQuickWeight] = useState<string>("100");
-  const [quickReps, setQuickReps] = useState<string>("5");
+  // Overrides de calibración y carga por ejercicio (derivación pura sin efectos en cascada)
+  const [inputOverrides, setInputOverrides] = useState<{
+    [exerciseName: string]: {
+      weight?: string;
+      reps?: string;
+      quickWeight?: string;
+      quickReps?: string;
+    };
+  }>({});
+  const [inputRpe, setInputRpe] = useState<string>("8.5");
   const [showQuickCalibration, setShowQuickCalibration] = useState<boolean>(false);
 
   // Formulario de Nueva Marca 1RM en Modal
@@ -424,115 +420,94 @@ export default function ZenDashboard() {
   const activeExercise = activeDay.exercises[activeExerciseIndex] || activeDay.exercises[0];
   const activeExMax = activeExercise ? (maxesMap[activeExercise.name] || computeMetrics(activeExercise.name, 80, 5)) : null;
 
+  // Derivación en vivo para el ejercicio activo
+  const activeOverrides = (activeExercise && inputOverrides[activeExercise.name]) || {};
+  const quickWeight = activeOverrides.quickWeight ?? (activeExMax?.lifted_weight ? activeExMax.lifted_weight.toString() : "80");
+  const quickReps = activeOverrides.quickReps ?? (activeExMax?.reps_performed ? activeExMax.reps_performed.toString() : "5");
+  const inputWeight = activeOverrides.weight ?? (activeExMax?.prescriptions.phase_5_work ? activeExMax.prescriptions.phase_5_work.toString() : "90");
+  const inputReps = activeOverrides.reps ?? (parseInt(activeExercise?.reps) || 3).toString();
+
+  const setQuickWeight = (val: string) => {
+    if (!activeExercise) return;
+    setInputOverrides((prev) => ({
+      ...prev,
+      [activeExercise.name]: { ...prev[activeExercise.name], quickWeight: val },
+    }));
+  };
+
+  const setQuickReps = (val: string) => {
+    if (!activeExercise) return;
+    setInputOverrides((prev) => ({
+      ...prev,
+      [activeExercise.name]: { ...prev[activeExercise.name], quickReps: val },
+    }));
+  };
+
+  const setInputWeight = (val: string) => {
+    if (!activeExercise) return;
+    setInputOverrides((prev) => ({
+      ...prev,
+      [activeExercise.name]: { ...prev[activeExercise.name], weight: val },
+    }));
+  };
+
+  const setInputReps = (val: string) => {
+    if (!activeExercise) return;
+    setInputOverrides((prev) => ({
+      ...prev,
+      [activeExercise.name]: { ...prev[activeExercise.name], reps: val },
+    }));
+  };
+
   const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
   // Guardar y sincronizar estado de sesión en localStorage
-  const persistSessionProgress = (
-    sets: { [exerciseName: string]: number[] },
-    warmup: { [exerciseName: string]: string[] },
-    dayKey: string,
-    exIdx: number,
-    cSet: number,
-    phaseStep: string
-  ) => {
-    if (typeof window !== "undefined") {
-      try {
-        localStorage.setItem(
-          "neuro_strength_session_progress",
-          JSON.stringify({
-            completedSetsMap: sets,
-            completedWarmupMap: warmup,
-            selectedDayKey: dayKey,
-            activeExerciseIndex: exIdx,
-            currentSet: cSet,
-            activePhaseStep: phaseStep,
-            timestamp: Date.now(),
-          })
-        );
-      } catch (err) {
-        console.warn("Error guardando sesión en localStorage:", err);
-      }
-    }
-  };
-
-  // Cargar caché local en el cliente (1RM y Sesión Activa)
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      try {
-        const saved = localStorage.getItem("neuro_strength_maxes");
-        if (saved) {
-          const parsed = JSON.parse(saved);
-          setMaxesMap((prev) => ({ ...prev, ...parsed }));
+  const persistSessionProgress = useCallback(
+    (
+      sets: { [exerciseName: string]: number[] },
+      warmup: { [exerciseName: string]: string[] },
+      dayKey: string,
+      exIdx: number,
+      cSet: number,
+      phaseStep: string
+    ) => {
+      if (typeof window !== "undefined") {
+        try {
+          localStorage.setItem(
+            "neuro_strength_session_progress",
+            JSON.stringify({
+              completedSetsMap: sets,
+              completedWarmupMap: warmup,
+              selectedDayKey: dayKey,
+              activeExerciseIndex: exIdx,
+              currentSet: cSet,
+              activePhaseStep: phaseStep,
+              timestamp: Date.now(),
+            })
+          );
+        } catch (err) {
+          console.warn("Error guardando sesión en localStorage:", err);
         }
+      }
+    },
+    []
+  );
 
-        const savedSession = localStorage.getItem("neuro_strength_session_progress");
-        if (savedSession) {
-          const s = JSON.parse(savedSession);
-          if (s.completedSetsMap) setCompletedSetsMap(s.completedSetsMap);
-          if (s.completedWarmupMap) setCompletedWarmupMap(s.completedWarmupMap);
-          if (s.selectedDayKey) setSelectedDayKey(s.selectedDayKey);
-          if (typeof s.activeExerciseIndex === "number") setActiveExerciseIndex(s.activeExerciseIndex);
-          if (typeof s.currentSet === "number") setCurrentSet(s.currentSet);
-          if (s.activePhaseStep) setActivePhaseStep(s.activePhaseStep);
+  // Cargar Historial bajo demanda para el modal
+  const refreshHistory = useCallback(
+    async (exName: string) => {
+      try {
+        const res = await fetch(`${apiUrl}/api/strength/history?exercise_name=${encodeURIComponent(exName)}&limit=10`);
+        if (res.ok) {
+          const data = await res.json();
+          setExerciseHistory(data);
         }
-      } catch (err) {
-        console.warn("Error leyendo localStorage:", err);
+      } catch {
+        setExerciseHistory([]);
       }
-    }
-  }, []);
-
-  // Cargar Maxes desde el Backend FastAPI
-  const fetchMaxes = useCallback(async () => {
-    try {
-      const res = await fetch(`${apiUrl}/api/strength/maxes`);
-      if (res.ok) {
-        const data: ExerciseMaxData[] = await res.json();
-        const map: { [key: string]: ExerciseMaxData } = {};
-        data.forEach((item) => {
-          map[item.exercise_name] = item;
-        });
-        setMaxesMap((prev) => {
-          const merged = { ...prev, ...map };
-          if (typeof window !== "undefined") {
-            try {
-              localStorage.setItem("neuro_strength_maxes", JSON.stringify(merged));
-            } catch {}
-          }
-          return merged;
-        });
-      }
-    } catch {
-      // Offline silencioso
-    }
-  }, [apiUrl]);
-
-  // Cargar Historial para el modal
-  const fetchHistory = useCallback(async (exName: string) => {
-    try {
-      const res = await fetch(`${apiUrl}/api/strength/history?exercise_name=${encodeURIComponent(exName)}&limit=10`);
-      if (res.ok) {
-        const data = await res.json();
-        setExerciseHistory(data);
-      }
-    } catch {
-      setExerciseHistory([]);
-    }
-  }, [apiUrl]);
-
-  // Sincronizar calibrador en vivo y carga sugerida al cambiar de ejercicio
-  useEffect(() => {
-    if (activeExercise) {
-      const exMax = maxesMap[activeExercise.name] || computeMetrics(activeExercise.name, 80, 5);
-      setQuickWeight(exMax.lifted_weight ? exMax.lifted_weight.toString() : "80");
-      setQuickReps(exMax.reps_performed ? exMax.reps_performed.toString() : "5");
-      if (exMax.prescriptions.phase_5_work > 0) {
-        setInputWeight(exMax.prescriptions.phase_5_work.toString());
-      }
-      const parsedReps = parseInt(activeExercise.reps) || 3;
-      setInputReps(parsedReps.toString());
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeExerciseIndex, selectedDayKey]);
+    },
+    [apiUrl]
+  );
 
   // Calibración Rápida Inmediata: recalcula al instante y sincroniza
   const handleUpdateQuickMax = (wStr: string, rStr: string) => {
@@ -568,17 +543,67 @@ export default function ZenDashboard() {
     }
   };
 
+  // Carga inicial y sincronización de 1RM desde backend
   useEffect(() => {
-    fetchMaxes();
-  }, [fetchMaxes]);
-
-  useEffect(() => {
-    if (showProgressModal) {
-      fetchHistory(selectedProgressEx);
+    let ignore = false;
+    async function loadBackendMaxes() {
+      try {
+        const res = await fetch(`${apiUrl}/api/strength/maxes`);
+        if (res.ok && !ignore) {
+          const data: ExerciseMaxData[] = await res.json();
+          if (ignore) return;
+          const map: { [key: string]: ExerciseMaxData } = {};
+          data.forEach((item) => {
+            map[item.exercise_name] = item;
+          });
+          setMaxesMap((prev) => {
+            const merged = { ...prev, ...map };
+            if (typeof window !== "undefined") {
+              try {
+                localStorage.setItem("neuro_strength_maxes", JSON.stringify(merged));
+              } catch {}
+            }
+            return merged;
+          });
+        }
+      } catch {
+        // Offline silencioso
+      }
     }
-  }, [selectedProgressEx, showProgressModal, fetchHistory]);
+    loadBackendMaxes();
+    return () => {
+      ignore = true;
+    };
+  }, [apiUrl]);
 
-  // Verificación periódica del Backend Python FastAPI
+  // Carga de historial al abrir modal de progreso
+  useEffect(() => {
+    if (!showProgressModal) return;
+    let ignore = false;
+    async function loadHistory() {
+      try {
+        const res = await fetch(
+          `${apiUrl}/api/strength/history?exercise_name=${encodeURIComponent(selectedProgressEx)}&limit=10`
+        );
+        if (res.ok && !ignore) {
+          const data = await res.json();
+          if (!ignore) {
+            setExerciseHistory(data);
+          }
+        }
+      } catch {
+        if (!ignore) {
+          setExerciseHistory([]);
+        }
+      }
+    }
+    loadHistory();
+    return () => {
+      ignore = true;
+    };
+  }, [selectedProgressEx, showProgressModal, apiUrl]);
+
+    // Verificación periódica del Backend Python FastAPI
   useEffect(() => {
     const checkBackend = async () => {
       try {
@@ -883,7 +908,7 @@ export default function ZenDashboard() {
           }),
         });
         if (res.ok) {
-          await fetchHistory(selectedProgressEx);
+          await refreshHistory(selectedProgressEx);
         }
       }
     } catch (err) {
