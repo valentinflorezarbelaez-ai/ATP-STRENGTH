@@ -1,8 +1,10 @@
 import os
 from contextlib import asynccontextmanager
+
 from dotenv import load_dotenv
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+
 from src.config.database import Base, engine
 from src.routes.state import router as state_router
 from src.routes.strength import router as strength_router

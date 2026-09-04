@@ -1,7 +1,7 @@
-from typing import Optional
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
+
 from src.config.database import get_db
 from src.repository.state_repo import StateRepository
 
@@ -24,15 +24,15 @@ class TimerResponse(BaseModel):
 class UpdateTimerRequest(BaseModel):
     is_running: bool
     remaining_seconds: int
-    timer_type: Optional[str] = "atp_resynthesis"
-    duration_seconds: Optional[int] = 180
+    timer_type: str | None = "atp_resynthesis"
+    duration_seconds: int | None = 180
 
 
 class SessionResponse(BaseModel):
     id: int
     day_key: str
     status: str
-    current_exercise: Optional[str] = None
+    current_exercise: str | None = None
     current_set: int
     total_sets: int
 
@@ -43,7 +43,7 @@ class SessionResponse(BaseModel):
 class UpdateSessionRequest(BaseModel):
     day_key: str = Field(..., example="DAY_A")
     status: str = Field("active", example="active")
-    current_exercise: Optional[str] = None
+    current_exercise: str | None = None
     current_set: int = Field(1, ge=1)
     total_sets: int = Field(1, ge=1)
 
@@ -54,9 +54,9 @@ class LogSetRequest(BaseModel):
     prescribed_reps: int
     load_kg: float
     rest_seconds: int = 180
-    completed_reps: Optional[int] = None
-    session_id: Optional[int] = None
-    notes: Optional[str] = None
+    completed_reps: int | None = None
+    session_id: int | None = None
+    notes: str | None = None
 
 
 class ExecutionResponse(BaseModel):
@@ -64,7 +64,7 @@ class ExecutionResponse(BaseModel):
     exercise_name: str
     set_number: int
     load_kg: float
-    completed_reps: Optional[int]
+    completed_reps: int | None
     completed: bool
 
     class Config:
@@ -90,7 +90,7 @@ def update_timer(request: UpdateTimerRequest, db: Session = Depends(get_db)):
     )
 
 
-@router.get("/session", response_model=Optional[SessionResponse])
+@router.get("/session", response_model=SessionResponse | None)
 def get_session(db: Session = Depends(get_db)):
     repo = StateRepository(db)
     session = repo.get_active_session()

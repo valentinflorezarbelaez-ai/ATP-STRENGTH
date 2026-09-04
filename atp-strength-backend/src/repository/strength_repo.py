@@ -1,6 +1,7 @@
 import datetime
-from typing import List, Optional
+
 from sqlalchemy.orm import Session
+
 from src.domain.models import ExerciseExecution, ExerciseMax
 
 
@@ -48,10 +49,10 @@ class StrengthRepository:
             "phase_5_work": round_plate(training_max * 0.85),
         }
 
-    def get_all_maxes(self) -> List[ExerciseMax]:
+    def get_all_maxes(self) -> list[ExerciseMax]:
         return self.db.query(ExerciseMax).order_by(ExerciseMax.exercise_name).all()
 
-    def get_max_by_name(self, exercise_name: str) -> Optional[ExerciseMax]:
+    def get_max_by_name(self, exercise_name: str) -> ExerciseMax | None:
         return self.db.query(ExerciseMax).filter(ExerciseMax.exercise_name == exercise_name).first()
 
     def upsert_max(
@@ -60,7 +61,7 @@ class StrengthRepository:
         lifted_weight: float,
         reps_performed: int,
         formula: str = "epley",
-        notes: Optional[str] = None,
+        notes: str | None = None,
     ) -> ExerciseMax:
         one_rep_max = self.calculate_1rm(lifted_weight, reps_performed, formula)
         training_max = round(one_rep_max * 0.90, 1)  # 90% CNS protection margin
@@ -90,7 +91,7 @@ class StrengthRepository:
         self.db.refresh(record)
         return record
 
-    def get_history(self, exercise_name: Optional[str] = None, limit: int = 50) -> List[ExerciseExecution]:
+    def get_history(self, exercise_name: str | None = None, limit: int = 50) -> list[ExerciseExecution]:
         query = self.db.query(ExerciseExecution)
         if exercise_name:
             query = query.filter(ExerciseExecution.exercise_name == exercise_name)

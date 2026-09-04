@@ -1,7 +1,8 @@
-from typing import List, Optional
+
 from fastapi import APIRouter, Depends
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
+
 from src.config.database import get_db
 from src.repository.strength_repo import StrengthRepository
 
@@ -26,7 +27,7 @@ class ExerciseMaxResponse(BaseModel):
     formula: str
     lifted_weight: float
     reps_performed: int
-    notes: Optional[str]
+    notes: str | None
     prescriptions: PhasePrescriptionSchema
 
     class Config:
@@ -38,7 +39,7 @@ class UpsertMaxRequest(BaseModel):
     lifted_weight: float = Field(..., gt=0, example=120.0)
     reps_performed: int = Field(..., ge=1, le=30, example=5)
     formula: str = Field("epley", example="epley")  # epley, brzycki, direct
-    notes: Optional[str] = Field(None, example="Sensación sólida con cinto")
+    notes: str | None = Field(None, example="Sensación sólida con cinto")
 
 
 class ExecutionHistoryItem(BaseModel):
@@ -46,10 +47,10 @@ class ExecutionHistoryItem(BaseModel):
     exercise_name: str
     set_number: int
     prescribed_reps: int
-    completed_reps: Optional[int]
+    completed_reps: int | None
     load_kg: float
     rest_seconds: int
-    notes: Optional[str]
+    notes: str | None
     completed: bool
 
     class Config:
@@ -58,7 +59,7 @@ class ExecutionHistoryItem(BaseModel):
 
 # ---------------- Endpoints ---------------- #
 
-@router.get("/maxes", response_model=List[ExerciseMaxResponse])
+@router.get("/maxes", response_model=list[ExerciseMaxResponse])
 def get_all_maxes(db: Session = Depends(get_db)):
     repo = StrengthRepository(db)
     records = repo.get_all_maxes()
@@ -105,7 +106,7 @@ def upsert_max(request: UpsertMaxRequest, db: Session = Depends(get_db)):
     )
 
 
-@router.get("/history", response_model=List[ExecutionHistoryItem])
-def get_history(exercise_name: Optional[str] = None, limit: int = 50, db: Session = Depends(get_db)):
+@router.get("/history", response_model=list[ExecutionHistoryItem])
+def get_history(exercise_name: str | None = None, limit: int = 50, db: Session = Depends(get_db)):
     repo = StrengthRepository(db)
     return repo.get_history(exercise_name=exercise_name, limit=limit)

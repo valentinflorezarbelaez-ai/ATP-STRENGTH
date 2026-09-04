@@ -1,6 +1,7 @@
 import datetime
-from typing import Optional
+
 from sqlalchemy.orm import Session
+
 from src.domain.models import ExerciseExecution, TimerState, WorkoutSession
 
 
@@ -29,8 +30,8 @@ class StateRepository:
         self,
         is_running: bool,
         remaining_seconds: int,
-        timer_type: Optional[str] = None,
-        duration_seconds: Optional[int] = None,
+        timer_type: str | None = None,
+        duration_seconds: int | None = None,
     ) -> TimerState:
         timer = self.get_or_create_timer_state()
         timer.is_running = is_running
@@ -47,7 +48,7 @@ class StateRepository:
         self.db.refresh(timer)
         return timer
 
-    def get_active_session(self) -> Optional[WorkoutSession]:
+    def get_active_session(self) -> WorkoutSession | None:
         return (
             self.db.query(WorkoutSession)
             .filter(WorkoutSession.status == "active")
@@ -59,7 +60,7 @@ class StateRepository:
         self,
         day_key: str,
         status: str = "active",
-        current_exercise: Optional[str] = None,
+        current_exercise: str | None = None,
         current_set: int = 1,
         total_sets: int = 1,
     ) -> WorkoutSession:
@@ -91,9 +92,9 @@ class StateRepository:
         prescribed_reps: int,
         load_kg: float,
         rest_seconds: int,
-        completed_reps: Optional[int] = None,
-        session_id: Optional[int] = None,
-        notes: Optional[str] = None,
+        completed_reps: int | None = None,
+        session_id: int | None = None,
+        notes: str | None = None,
     ) -> ExerciseExecution:
         execution = ExerciseExecution(
             session_id=session_id,

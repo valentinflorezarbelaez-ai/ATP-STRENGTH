@@ -1,5 +1,7 @@
 import datetime
+
 from sqlalchemy import Boolean, Column, DateTime, Float, Integer, String, Text
+
 from src.config.database import Base
 
 
