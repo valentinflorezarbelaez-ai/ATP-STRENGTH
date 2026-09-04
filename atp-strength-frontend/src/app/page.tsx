@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from "react";
 import { PwaInstallPrompt } from "@/components/PwaInstallPrompt";
+import { enqueueWalEntry, flushWalQueue, getPendingWalCount } from "@/lib/walSync";
 import {
   Flame,
   Zap,
@@ -376,6 +377,10 @@ export default function ZenDashboard() {
     return getSavedSession()?.completedWarmupMap || {};
   });
   const [backendOnline, setBackendOnline] = useState<boolean | null>(null);
+  const [pendingWalCount, setPendingWalCount] = useState<number>(() => {
+    if (typeof window !== "undefined") return getPendingWalCount();
+    return 0;
+  });
 
   // Modal y Paneles
   const [zenFocusMode, setZenFocusMode] = useState<boolean>(false);
@@ -528,18 +533,18 @@ export default function ZenDashboard() {
 
     setInputWeight(updated.prescriptions.phase_5_work.toString());
 
+    // [REQ-EARS-WAL-01] Persistencia de Calibración en WAL Offline
+    const calibPayload = {
+      exercise_name: activeExercise.name,
+      lifted_weight: w,
+      reps_performed: r,
+      formula: "epley",
+      notes: "Calibración en vivo",
+    };
+    enqueueWalEntry("/api/strength/maxes", calibPayload);
+    setPendingWalCount(getPendingWalCount());
     if (backendOnline) {
-      fetch(`${apiUrl}/api/strength/maxes`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          exercise_name: activeExercise.name,
-          lifted_weight: w,
-          reps_performed: r,
-          formula: "epley",
-          notes: "Calibración en vivo",
-        }),
-      }).catch((err) => console.warn("Sync err:", err));
+      flushWalQueue(apiUrl).then(() => setPendingWalCount(getPendingWalCount()));
     }
   };
 
@@ -603,13 +608,14 @@ export default function ZenDashboard() {
     };
   }, [selectedProgressEx, showProgressModal, apiUrl]);
 
-    // Verificación periódica del Backend Python FastAPI
+    // Verificación periódica del Backend Python FastAPI y Vaciado Automático del WAL (SPEC-0002)
   useEffect(() => {
     const checkBackend = async () => {
       try {
         const res = await fetch(`${apiUrl}/health`, { method: "GET" });
         if (res.ok) {
           setBackendOnline(true);
+          flushWalQueue(apiUrl).then(() => setPendingWalCount(getPendingWalCount()));
         } else {
           setBackendOnline(false);
         }
@@ -619,7 +625,17 @@ export default function ZenDashboard() {
     };
     checkBackend();
     const interval = setInterval(checkBackend, 12000);
-    return () => clearInterval(interval);
+
+    const handleOnline = () => {
+      checkBackend();
+      flushWalQueue(apiUrl).then(() => setPendingWalCount(getPendingWalCount()));
+    };
+    window.addEventListener("online", handleOnline);
+
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener("online", handleOnline);
+    };
   }, [apiUrl]);
 
   // Campana Zen de 528 Hz / Fanfarria de Victoria y Vibración Háptica Potente
@@ -848,25 +864,21 @@ export default function ZenDashboard() {
 
     persistSessionProgress(nextSetsMap, completedWarmupMap, selectedDayKey, nextExIdx, nextSet, nextStep);
 
-    // Persistir ejecución en Backend Python FastAPI -> PostgreSQL si está online
+    // [REQ-EARS-WAL-01] Persistencia de Serie en WAL Offline First (SPEC-0002)
+    const setPayload = {
+      exercise_name: activeExercise.name,
+      set_number: setToFinish,
+      prescribed_reps: parseInt(activeExercise.reps) || 3,
+      completed_reps: numericReps,
+      load_kg: numericWeight,
+      rest_seconds: restTime,
+      notes: `RPE ${inputRpe}`,
+      completed: true,
+    };
+    enqueueWalEntry("/api/state/log-set", setPayload);
+    setPendingWalCount(getPendingWalCount());
     if (backendOnline) {
-      try {
-        await fetch(`${apiUrl}/api/state/log-set`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            exercise_name: activeExercise.name,
-            set_number: setToFinish,
-            prescribed_reps: parseInt(activeExercise.reps) || 3,
-            completed_reps: numericReps,
-            load_kg: numericWeight,
-            rest_seconds: restTime,
-            notes: `RPE ${inputRpe}`,
-          }),
-        });
-      } catch (err) {
-        console.warn("Backend error al registrar serie:", err);
-      }
+      flushWalQueue(apiUrl).then(() => setPendingWalCount(getPendingWalCount()));
     }
   };
 
@@ -895,21 +907,20 @@ export default function ZenDashboard() {
     }
 
     try {
+      // [REQ-EARS-WAL-01] Persistencia de 1RM en WAL Offline First
+      const maxPayload = {
+        exercise_name: selectedProgressEx,
+        lifted_weight: w,
+        reps_performed: r,
+        formula: formFormula,
+        notes: formNotes,
+      };
+      enqueueWalEntry("/api/strength/maxes", maxPayload);
+      setPendingWalCount(getPendingWalCount());
       if (backendOnline) {
-        const res = await fetch(`${apiUrl}/api/strength/maxes`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            exercise_name: selectedProgressEx,
-            lifted_weight: w,
-            reps_performed: r,
-            formula: formFormula,
-            notes: formNotes,
-          }),
-        });
-        if (res.ok) {
-          await refreshHistory(selectedProgressEx);
-        }
+        await flushWalQueue(apiUrl);
+        setPendingWalCount(getPendingWalCount());
+        await refreshHistory(selectedProgressEx);
       }
     } catch (err) {
       console.warn("Error guardando 1RM:", err);
@@ -1082,6 +1093,22 @@ export default function ZenDashboard() {
             <Maximize2 className="w-3.5 h-3.5" />
             <span>Aislamiento Zen</span>
           </button>
+
+          {/* WAL Offline Sync Badge (SPEC-0002) */}
+          <div className="flex items-center gap-1.5 px-3 py-2.5 rounded-xl bg-zinc-950 border border-zinc-800 text-xs font-mono flex-shrink-0">
+            <span className="text-zinc-400 hidden sm:inline">WAL:</span>
+            {pendingWalCount > 0 ? (
+              <span className="flex items-center gap-1 text-amber-400 font-medium">
+                <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></span>
+                {pendingWalCount} pend.
+              </span>
+            ) : (
+              <span className="flex items-center gap-1 text-emerald-400 font-medium">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                0 pend.
+              </span>
+            )}
+          </div>
 
           {/* Backend Connectivity Status */}
           <div className="flex items-center gap-1.5 px-3 py-2.5 rounded-xl bg-zinc-950 border border-zinc-800 text-xs font-mono flex-shrink-0">
