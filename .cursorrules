@@ -1,0 +1,24 @@
+# EOS SYSTEM — CURSOR AGENT OPERATIONAL RULES (.cursorrules)
+# Project: PRJ-APP-FUERZA (ATP Strength)
+# Control Plane: EOS Central Governance
+
+## 1. Mission Primacy
+- Before executing, read `CURSOR_PROMPT.md` at repository root.
+- The instructions in `CURSOR_PROMPT.md` and `docs/specs/app-fuerza/001-react19-hygiene/spec.md` are the strict executable specification.
+
+## 2. Authorized Blast Radius (Strict Write Barrier)
+- You are ONLY authorized to edit:
+  - `atp-strength-frontend/src/app/page.tsx`
+- You are FORBIDDEN from touching:
+  - `atp-strength-backend/**`
+  - Root configuration or `package.json`
+  - Any files outside `atp-strength-frontend/src/app/`
+
+## 3. Code Quality & Verification Gate
+- You must run:
+  1. `npm --prefix atp-strength-frontend run lint` (must pass with 0 errors, 0 warnings)
+  2. `npm --prefix atp-strength-frontend run build` (must compile cleanly with Turbopack)
+- Use Conventional Commits (`fix(frontend): ...`, `refactor(react19): ...`). Never add AI attribution.
+
+## 4. Return Delivery
+- When done, summarize changes made and terminal verification output so EOS can seal the cryptographic evidence.
