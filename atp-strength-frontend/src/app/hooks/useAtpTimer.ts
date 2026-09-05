@@ -1,52 +1,116 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { playChime } from "@/lib/zenAudio";
+import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  deriveRemainingMs,
+  pauseAbsoluteTimer,
+  resumeAbsoluteTimer,
+  startAbsoluteTimer,
+  tickAbsoluteTimer,
+  triggerPhaseCompleteHaptic,
+} from "@/lib/atpTimerEngine.mjs";
+import { disposeZenAudio, playChime } from "@/lib/zenAudio";
 
-/** ATP-PCr countdown timer with 528Hz completion cue. */
+type AbsoluteSession = {
+  phase: string;
+  durationMs: number;
+  targetTimestamp: number | null;
+  pausedRemainingMs: number | null;
+  status: string;
+  isHardwareVibrationTriggered: boolean;
+  timeRemainingMs?: number;
+};
+
+/**
+ * High-precision ATP timer — SPEC-0001 target-timestamp drift protection.
+ * Remaining = max(0, targetTimestamp - Date.now()); no decrement-by-one ticks.
+ */
 export function useAtpTimer(initialSeconds = 180) {
   const [timerDuration, setTimerDuration] = useState(initialSeconds);
   const [remainingSeconds, setRemainingSeconds] = useState(initialSeconds);
   const [isRunning, setIsRunning] = useState(false);
   const [timerTitle, setTimerTitle] = useState("Resíntesis de ATP-PCr");
+  const sessionRef = useRef<AbsoluteSession | null>(null);
+  const completedRef = useRef(false);
 
   useEffect(() => {
-    let timer: ReturnType<typeof setInterval> | undefined;
-    if (isRunning && remainingSeconds > 0) {
-      timer = setInterval(() => {
-        setRemainingSeconds((prev) => {
-          if (prev <= 1) {
-            setIsRunning(false);
-            playChime(false);
-            return 0;
-          }
-          return prev - 1;
-        });
-      }, 1000);
-    }
     return () => {
-      if (timer) clearInterval(timer);
+      disposeZenAudio();
     };
-  }, [isRunning, remainingSeconds]);
+  }, []);
 
-  const handleStartTimer = (duration: number, title = "Resíntesis de ATP-PCr") => {
+  useEffect(() => {
+    if (!isRunning || !sessionRef.current) return undefined;
+
+    completedRef.current = false;
+    const id = setInterval(() => {
+      const session = sessionRef.current;
+      if (!session) return;
+      const tick = tickAbsoluteTimer(session, Date.now()) as AbsoluteSession;
+      sessionRef.current = tick;
+      const secs = Math.ceil((tick.timeRemainingMs ?? 0) / 1000);
+      setRemainingSeconds(secs);
+
+      if (tick.status === "COMPLETE" && !completedRef.current) {
+        completedRef.current = true;
+        setIsRunning(false);
+        triggerPhaseCompleteHaptic();
+        playChime(false);
+      }
+    }, 250);
+
+    return () => clearInterval(id);
+  }, [isRunning]);
+
+  const handleStartTimer = useCallback((duration: number, title = "Resíntesis de ATP-PCr") => {
+    const durationMs = Math.max(1, Math.round(duration * 1000));
+    const session = startAbsoluteTimer({
+      durationMs,
+      phase: "ATP_CHARGE",
+      now: Date.now(),
+    }) as AbsoluteSession;
+    sessionRef.current = session;
+    completedRef.current = false;
     setTimerTitle(title);
     setTimerDuration(duration);
     setRemainingSeconds(duration);
     setIsRunning(true);
-  };
+  }, []);
 
-  const togglePlayPause = () => setIsRunning((v) => !v);
+  const togglePlayPause = useCallback(() => {
+    const session = sessionRef.current;
+    if (!session) {
+      setIsRunning((v) => !v);
+      return;
+    }
+    if (isRunning) {
+      const paused = pauseAbsoluteTimer(session, Date.now()) as AbsoluteSession;
+      sessionRef.current = paused;
+      setRemainingSeconds(Math.ceil(deriveRemainingMs(paused) / 1000));
+      setIsRunning(false);
+    } else {
+      const resumed = resumeAbsoluteTimer(session, Date.now()) as AbsoluteSession;
+      sessionRef.current = resumed;
+      setIsRunning(resumed.status === "RUNNING");
+      if (resumed.status === "COMPLETE") {
+        setRemainingSeconds(0);
+        triggerPhaseCompleteHaptic();
+        playChime(false);
+      }
+    }
+  }, [isRunning]);
 
-  const handleResetTimer = () => {
+  const handleResetTimer = useCallback(() => {
+    sessionRef.current = null;
     setIsRunning(false);
     setRemainingSeconds(timerDuration);
-  };
+  }, [timerDuration]);
 
-  const skipRest = () => {
+  const skipRest = useCallback(() => {
+    sessionRef.current = null;
     setIsRunning(false);
     setRemainingSeconds(0);
-  };
+  }, []);
 
   const progressPercent =
     timerDuration > 0 ? ((timerDuration - remainingSeconds) / timerDuration) * 100 : 0;

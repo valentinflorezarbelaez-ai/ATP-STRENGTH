@@ -48,6 +48,29 @@ export function useZenDashboard() {
   );
 
   const [zenFocusMode, setZenFocusMode] = useState(false);
+  const [coachMode, setCoachMode] = useState<boolean>(() => {
+    if (typeof window === "undefined") return true;
+    try {
+      const saved = localStorage.getItem("neuro_strength_coach_mode");
+      return saved !== null ? JSON.parse(saved) : true;
+    } catch {
+      return true;
+    }
+  });
+
+  const toggleCoachMode = useCallback(() => {
+    setCoachMode((prev) => {
+      const next = !prev;
+      if (typeof window !== "undefined") {
+        try {
+          localStorage.setItem("neuro_strength_coach_mode", JSON.stringify(next));
+        } catch {
+          // ignore
+        }
+      }
+      return next;
+    });
+  }, []);
   const [showPrepProtocol, setShowPrepProtocol] = useState(true);
   const [showProgressModal, setShowProgressModal] = useState(false);
   const [showResetModal, setShowResetModal] = useState(false);
@@ -305,6 +328,9 @@ export function useZenDashboard() {
     pendingWalCount: wal.pendingWalCount,
     zenFocusMode,
     setZenFocusMode,
+    coachMode,
+    setCoachMode,
+    toggleCoachMode,
     showPrepProtocol,
     setShowPrepProtocol,
     showProgressModal,

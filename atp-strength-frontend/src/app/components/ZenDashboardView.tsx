@@ -83,6 +83,17 @@ export function ZenDashboardView({ d }: { d: Dash }) {
 
         {/* Acciones de Cabecera (Totalmente visibles y adaptativas en móvil) */}
         <div className="flex items-center gap-2.5 w-full md:w-auto">
+          {/* Botón Cambiar a MODO COACH GUIADO */}
+          <button
+            type="button"
+            onClick={d.toggleCoachMode}
+            className="flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl bg-gradient-to-r from-amber-500/20 to-amber-600/20 hover:from-amber-500/30 hover:to-amber-600/30 border border-amber-500/40 text-xs font-mono font-bold text-amber-300 shadow-lg shadow-amber-500/5 transition-all transform active:scale-95 cursor-pointer"
+            title="Cambiar a Modo Coach Guiado (Paso a Paso)"
+          >
+            <Sparkles className="w-4 h-4 text-amber-400 flex-shrink-0" />
+            <span className="tracking-wide">MODO COACH</span>
+          </button>
+
           {/* Botón FUERZA / PROGRESO */}
           <button
             onClick={() => {
