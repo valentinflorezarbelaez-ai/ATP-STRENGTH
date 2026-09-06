@@ -52,6 +52,9 @@ class ExerciseExecution(Base):
     load_kg = Column(Float, nullable=False, default=0.0)
     rest_seconds = Column(Integer, default=180, nullable=False)
     notes = Column(Text, nullable=True)
+    rpe = Column(Float, nullable=True)
+    rir = Column(Float, nullable=True)
+    e1rm = Column(Float, nullable=True)
     completed = Column(Boolean, default=False, nullable=False)
     timestamp = Column(DateTime, default=datetime.datetime.utcnow, nullable=False)
 

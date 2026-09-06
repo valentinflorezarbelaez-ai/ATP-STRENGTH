@@ -5,6 +5,8 @@ import { playChime } from "@/lib/zenAudio";
 import {
   getWarmupRestConfig,
   resolvePhaseAfterNavigation,
+  computeEstimated1Rm,
+  rpeToRir,
   type Exercise,
   type ExerciseMaxData,
   type RoutineDay,
@@ -186,6 +188,14 @@ export function createWorkoutHandlers(d: WorkoutHandlerDeps) {
       nextStep
     );
 
+    const parsedRpe = parseFloat(d.inputRpe) || 8.0;
+    const clampedRpe = Math.min(10, Math.max(6.5, Math.round(parsedRpe * 2) / 2));
+    const rir = rpeToRir(clampedRpe);
+    const e1rm =
+      numericWeight > 0 && numericReps <= 10
+        ? computeEstimated1Rm(numericWeight, Math.min(10, numericReps), clampedRpe)
+        : null;
+
     enqueueWalEntry("/api/state/log-set", {
       exercise_name: d.activeExercise.name,
       set_number: setToFinish,
@@ -195,6 +205,9 @@ export function createWorkoutHandlers(d: WorkoutHandlerDeps) {
       rest_seconds: restTime,
       notes: `RPE ${d.inputRpe}`,
       completed: true,
+      rpe: clampedRpe,
+      rir,
+      e1rm,
     });
     void d.enqueueFlush();
   };

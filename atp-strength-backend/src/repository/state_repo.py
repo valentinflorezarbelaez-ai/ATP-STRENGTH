@@ -95,6 +95,9 @@ class StateRepository:
         completed_reps: int | None = None,
         session_id: int | None = None,
         notes: str | None = None,
+        rpe: float | None = None,
+        rir: float | None = None,
+        e1rm: float | None = None,
     ) -> ExerciseExecution:
         execution = ExerciseExecution(
             session_id=session_id,
@@ -105,6 +108,9 @@ class StateRepository:
             load_kg=load_kg,
             rest_seconds=rest_seconds,
             notes=notes,
+            rpe=rpe,
+            rir=rir,
+            e1rm=e1rm,
             completed=True,
         )
         self.db.add(execution)

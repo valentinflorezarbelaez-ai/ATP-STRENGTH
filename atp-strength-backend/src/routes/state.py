@@ -57,6 +57,9 @@ class LogSetRequest(BaseModel):
     completed_reps: int | None = None
     session_id: int | None = None
     notes: str | None = None
+    rpe: float | None = None
+    rir: float | None = None
+    e1rm: float | None = None
 
 
 class ExecutionResponse(BaseModel):
@@ -66,6 +69,9 @@ class ExecutionResponse(BaseModel):
     load_kg: float
     completed_reps: int | None
     completed: bool
+    rpe: float | None = None
+    rir: float | None = None
+    e1rm: float | None = None
 
     class Config:
         from_attributes = True
@@ -80,6 +86,7 @@ def get_timer(db: Session = Depends(get_db)):
 
 
 @router.post("/timer", response_model=TimerResponse)
+@router.put("/timer", response_model=TimerResponse)
 def update_timer(request: UpdateTimerRequest, db: Session = Depends(get_db)):
     repo = StateRepository(db)
     return repo.update_timer_state(
@@ -121,4 +128,7 @@ def log_set(request: LogSetRequest, db: Session = Depends(get_db)):
         completed_reps=request.completed_reps,
         session_id=request.session_id,
         notes=request.notes,
+        rpe=request.rpe,
+        rir=request.rir,
+        e1rm=request.e1rm,
     )
