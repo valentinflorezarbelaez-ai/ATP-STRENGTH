@@ -15,6 +15,12 @@ import {
 } from "@/lib/workoutStrategies";
 import { PwaInstallPrompt } from "@/components/PwaInstallPrompt";
 import type { useZenDashboard } from "@/app/hooks/useZenDashboard";
+import {
+  acousticEngine,
+  getAudioPreferences,
+  saveAudioPreferences,
+  type CoachAudioPreferences,
+} from "@/lib/acousticFeedback";
 
 type Dash = ReturnType<typeof useZenDashboard>;
 
@@ -60,6 +66,40 @@ export function CoachGuidedView({ d }: { d: Dash }) {
 
   const [showDayMenu, setShowDayMenu] = useState(false);
   const [showResetConfirm, setShowResetConfirm] = useState(false);
+  const [audioPrefs, setAudioPrefs] = useState<CoachAudioPreferences>(() => getAudioPreferences());
+  const hasSpoken10sWarning = React.useRef(false);
+  const hasSpokenVictory = React.useRef(false);
+
+  React.useEffect(() => {
+    if (isRunning && remainingSeconds === 10 && !hasSpoken10sWarning.current) {
+      hasSpoken10sWarning.current = true;
+      acousticEngine.playRestWarningCue();
+    }
+    if (!isRunning) {
+      hasSpoken10sWarning.current = false;
+    }
+  }, [isRunning, remainingSeconds]);
+
+  React.useEffect(() => {
+    if (isDayFinished && !hasSpokenVictory.current) {
+      hasSpokenVictory.current = true;
+      acousticEngine.playSessionVictoryCue();
+    }
+    if (!isDayFinished) {
+      hasSpokenVictory.current = false;
+    }
+  }, [isDayFinished]);
+
+  const toggleVoiceCoach = () => {
+    const next = saveAudioPreferences({ voiceEnabled: !audioPrefs.voiceEnabled });
+    setAudioPrefs(next);
+    if (next.voiceEnabled) {
+      acousticEngine.playSetCompleteCue({
+        weightKg: parseFloat(inputWeight) || 80,
+        reps: parseInt(inputReps, 10) || 5,
+      });
+    }
+  };
 
   // Helper: adjust weight by delta
   const adjustWeight = (delta: number) => {
@@ -152,6 +192,21 @@ export function CoachGuidedView({ d }: { d: Dash }) {
 
         {/* Header Actions: Mode Toggle & Reset */}
         <div className="flex items-center gap-2">
+          {/* Voice Coach Toggle Pill */}
+          <button
+            type="button"
+            onClick={toggleVoiceCoach}
+            className={`flex items-center gap-1.5 px-3 py-2 rounded-xl border text-xs font-mono font-medium transition-all active:scale-95 cursor-pointer ${
+              audioPrefs.voiceEnabled
+                ? "bg-amber-500/10 border-amber-500/40 text-amber-400 shadow-sm"
+                : "bg-zinc-900 border-zinc-800 text-zinc-500 hover:text-zinc-300"
+            }`}
+            title={audioPrefs.voiceEnabled ? "Voz Coach activada (clic para silenciar)" : "Voz Coach silenciada (clic para activar)"}
+          >
+            <Volume2 className={`w-3.5 h-3.5 ${audioPrefs.voiceEnabled ? "text-amber-400 animate-pulse" : "text-zinc-500"}`} />
+            <span className="hidden sm:inline">VOZ:</span> {audioPrefs.voiceEnabled ? "ON" : "OFF"}
+          </button>
+
           {/* Switch to Pro Analytics Mode */}
           <button
             type="button"
@@ -482,7 +537,10 @@ export function CoachGuidedView({ d }: { d: Dash }) {
                 {/* Primary Big Action Button: Complete Warmup Phase */}
                 <button
                   type="button"
-                  onClick={() => handleCompleteWarmupPhase(activePhaseStep as WarmupPhaseKey)}
+                  onClick={() => {
+                    acousticEngine.playSetCompleteCue();
+                    handleCompleteWarmupPhase(activePhaseStep as WarmupPhaseKey);
+                  }}
                   className="w-full h-16 rounded-2xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-black font-black text-base uppercase tracking-wider shadow-xl shadow-amber-500/10 active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer"
                 >
                   <CheckCircle2 className="w-5 h-5" />
@@ -626,7 +684,13 @@ export function CoachGuidedView({ d }: { d: Dash }) {
                 {/* Primary Big Action Button: Complete Set */}
                 <button
                   type="button"
-                  onClick={() => handleCompleteSet()}
+                  onClick={() => {
+                    const weightKg = parseFloat(inputWeight) || undefined;
+                    const reps = parseInt(inputReps, 10) || undefined;
+                    const rpe = parseFloat(inputRpe) || undefined;
+                    acousticEngine.playSetCompleteCue({ weightKg, reps, rpe });
+                    handleCompleteSet();
+                  }}
                   className="w-full h-16 rounded-2xl bg-gradient-to-r from-amber-500 via-amber-400 to-amber-500 hover:brightness-110 text-black font-black text-lg uppercase tracking-wider shadow-2xl shadow-amber-500/20 active:scale-95 transition-all flex items-center justify-center gap-2.5 cursor-pointer"
                 >
                   <CheckCircle2 className="w-6 h-6" />
