@@ -8,8 +8,12 @@ import {
 } from "lucide-react";
 import {
   formatTime,
+  computeEstimated1Rm,
+  rpeToRir,
+  VALID_RPE_VALUES,
   type WarmupPhaseKey,
 } from "@/lib/workoutStrategies";
+import { PwaInstallPrompt } from "@/components/PwaInstallPrompt";
 import type { useZenDashboard } from "@/app/hooks/useZenDashboard";
 
 type Dash = ReturnType<typeof useZenDashboard>;
@@ -28,8 +32,10 @@ export function CoachGuidedView({ d }: { d: Dash }) {
     atpSaturationPercent,
     inputWeight,
     inputReps,
+    inputRpe,
     setInputWeight,
     setInputReps,
+    setInputRpe,
     activeExMax,
     totalDaySets,
     completedDaySets,
@@ -168,6 +174,9 @@ export function CoachGuidedView({ d }: { d: Dash }) {
           </button>
         </div>
       </header>
+
+      {/* PWA Standalone Install Banner */}
+      <PwaInstallPrompt />
 
       {/* Reset Popover Menu */}
       {showResetConfirm && (
@@ -568,6 +577,50 @@ export function CoachGuidedView({ d }: { d: Dash }) {
                   <span>
                     Foco total en la técnica. Respirá profundo antes de sacar la barra y empujá con intención explosiva.
                   </span>
+                </div>
+
+                {/* RPE Effort Selector with Live Telemetry */}
+                <div className="flex flex-col sm:flex-row items-center justify-between text-xs font-mono px-4 py-2.5 text-zinc-400 bg-zinc-900/60 rounded-2xl border border-zinc-800/80 gap-2">
+                  <div className="flex items-center gap-2">
+                    <span className="text-zinc-500 text-[11px] font-bold">RPE ESFUERZO:</span>
+                    <div className="flex items-center gap-1 flex-wrap">
+                      {VALID_RPE_VALUES.map((rpeVal) => {
+                        const isSelected = parseFloat(inputRpe) === rpeVal;
+                        return (
+                          <button
+                            key={rpeVal}
+                            type="button"
+                            onClick={() => setInputRpe(String(rpeVal))}
+                            className={`px-1.5 py-0.5 rounded text-[10px] font-mono font-bold transition-all cursor-pointer ${
+                              isSelected
+                                ? "bg-amber-400 text-black shadow-sm"
+                                : "bg-black border border-zinc-800 text-zinc-400 hover:text-zinc-200"
+                            }`}
+                          >
+                            {rpeVal}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                  {(() => {
+                    const parsedRpe = parseFloat(inputRpe);
+                    if (VALID_RPE_VALUES.includes(parsedRpe)) {
+                      const rir = rpeToRir(parsedRpe);
+                      const parsedWeight = parseFloat(inputWeight) || 0;
+                      const parsedReps = parseInt(inputReps, 10) || 1;
+                      const e1rm =
+                        parsedWeight > 0 && parsedReps <= 10
+                          ? computeEstimated1Rm(parsedWeight, parsedReps, parsedRpe)
+                          : null;
+                      return (
+                        <span className="text-[10px] text-amber-400/90 font-mono bg-amber-500/10 px-2.5 py-1 rounded-lg border border-amber-500/20 whitespace-nowrap">
+                          {rir} RIR {e1rm ? `• e1RM: ${e1rm} kg` : ""}
+                        </span>
+                      );
+                    }
+                    return null;
+                  })()}
                 </div>
 
                 {/* Primary Big Action Button: Complete Set */}

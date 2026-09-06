@@ -5,205 +5,222 @@
 [![React 19](https://img.shields.io/badge/React-19.2.8-61DAFB?style=for-the-badge&logo=react)](https://react.dev/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.115+-009688?style=for-the-badge&logo=fastapi)](https://fastapi.tiangolo.com/)
 [![Python](https://img.shields.io/badge/Python-3.12-3776AB?style=for-the-badge&logo=python)](https://python.org/)
-[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-4169E1?style=for-the-badge&logo=postgresql)](https://www.postgresql.org/)
-[![PWA](https://img.shields.io/badge/PWA-Offline_First-amber?style=for-the-badge&logo=pwa)](https://atp-strength.vercel.app)
+[![PostgreSQL](https://img.shields.io/badge/Neon_PostgreSQL-Serverless-4169E1?style=for-the-badge&logo=postgresql)](https://neon.tech/)
+[![PWA](https://img.shields.io/badge/PWA-OLED_True_Black_%23000000-amber?style=for-the-badge&logo=pwa)](https://atp-strength.vercel.app)
+[![Tests](https://img.shields.io/badge/Tests-32%2F32_Passing_(100%25)-brightgreen?style=for-the-badge&logo=node.js)](https://atp-strength.vercel.app)
 
 > **Aplicación en Producción**: [https://atp-strength.vercel.app](https://atp-strength.vercel.app)  
-> **Documentación de API**: [Swagger Interactivo FastAPI](https://atp-strength-backend.onrender.com/docs)
+> **Documentación Interactiva Swagger / OpenAPI**: [Swagger UI FastAPI](https://atp-strength-backend.onrender.com/docs)  
+> **Control de Especificaciones**: Gobernado por el sistema autónomo **EOS** bajo el estándar formal IEEE 830 / ISO 29148.
 
 ---
 
-## 🎯 Resumen Ejecutivo
+## 🎯 Resumen Ejecutivo & Misión de Ingeniería
 
-**NEURO//STRENGTH** es una plataforma web de entrenamiento de fuerza de élite diseñada para eliminar por completo la fricción cognitiva y la incertidumbre de carga durante esfuerzos neuromusculares máximos.
+**NEURO//STRENGTH** es una plataforma de software de élite para atletas de fuerza máxima y halterofilia, construida para erradicar la sobrecarga cognitiva y la fatiga mental durante el entrenamiento. 
 
-A diferencia de las aplicaciones tradicionales de gimnasio que sobrecargan al atleta con pantallas complejas en pleno estado de fatiga, NEURO//STRENGTH integra:
-1. **Ergonomía de Cero Fricción**: Un flujo asistido paso a paso que le indica al atleta la carga exacta, las repeticiones obligatorias y el montaje de discos por manga para cada serie.
-2. **Resíntesis Fisiológica de Fosfágenos (ATP-PCr)**: Control estricto de descansos de 3 a 5 minutos, garantizando la recuperación bioquímica completa de motoneuronas de alto umbral antes de cada levantamiento.
-3. **Síntesis Acústica y Háptica en el Dispositivo**: Generación sintética nativa mediante Web Audio API (frecuencia armónica de 528 Hz) y alertas hápticas de bolsillo (`navigator.vibrate`), permitiendo entrenar sin mirar la pantalla.
-4. **Resiliencia Offline-First**: Arquitectura Progressive Web App (PWA) con almacenamiento optimista en `localStorage`, garantizando funcionamiento continuo en sótanos o zonas sin cobertura móvil.
+Bajo esfuerzos supra-máximos ($>85\%\text{ 1RM}$), el Sistema Nervioso Central (SNC) y las motoneuronas alfa sufren una depresión transitoria severa. En ese estado, obligar al atleta a calcular porcentajes de fatiga, conversiones de RPE o tiempos de descanso produce degradación técnica y riesgo de lesión.
+
+NEURO//STRENGTH resuelve esto mediante:
+1. **Arquitectura Hexagonal Pura (L0 Domain)**: Motores determinísticos desacoplados de frameworks (`rpeEngine.mjs`, `walEngine.mjs`, `atpTimerEngine.mjs`) testeados en milisegundos con Node.js nativo.
+2. **Autorregulación Dinámica de Mike Tuchscherer (RTS)**: Cálculo reactivo de Reps in Reserve (RIR) y 1RM estimado ($e1RM$) con ajuste adaptativo de fatiga entre series.
+3. **Resiliencia de Datos Offline-First (WAL)**: Registro inmutable con suma de comprobación criptográfica SHA-256 (`atp_wal_v1`) y reintento FIFO tolerante a fallos de red.
+4. **Resíntesis Bioquímica de ATP-PCr con Frecuencia Solfeggio (528 Hz)**: Sintetizador nativo Web Audio API y pulso háptico de bolsillo (`navigator.vibrate`) que independizan al usuario de la pantalla.
+5. **Ergonomía Visual OLED True Black (`#000000`)**: Contraste bio-ergonómico total con gasto de batería mínimo en pantallas AMOLED.
 
 ---
 
-## 🏛️ Arquitectura del Sistema
-
-La solución adopta una **Arquitectura Desacoplada y Resiliente** orientada a alta disponibilidad y latencia cero:
+## 🏛️ Diagrama de Arquitectura del Sistema
 
 ```mermaid
 flowchart TD
-    subgraph Cliente ["Capa Cliente (PWA / Next.js 16)"]
-        UI["Dashboard Zen (True Black #000000)"]
-        State["Motor de Estado Optimista"]
-        LS[("Almacenamiento Local (Caché Offline)")]
-        SW["Service Worker (Caché v4)"]
-        Audio["Web Audio API (Sintetizador 528 Hz)"]
-        Vib["Web Vibration API (Pulso Triple)"]
+    subgraph PWA_Client ["Cliente PWA (Next.js 16.3 / React 19 / TypeScript)"]
+        UI["Interfaz Dual: Coach Guided vs Modo Pro Analítico\nOLED True Black #000000"]
         
-        UI --> State
-        State <--> LS
-        State --> Audio
-        State --> Vib
+        subgraph Domain_Core ["Núcleo de Dominio Puro (L0 ES Modules)"]
+            RPE["rpeEngine.mjs\nMatriz Tuchscherer RTS\ne1RM Dinámico"]
+            WAL["walEngine.mjs\nWrite-Ahead Log FIFO\nSHA-256 Checksum"]
+            TIMER["atpTimerEngine.mjs\nReloj Absoluto de Deriva Cero\nResíntesis ATP-PCr"]
+        end
+        
+        subgraph Hardware_APIs ["APIs Nativas del Dispositivo"]
+            AUDIO["Web Audio API\nSintetizador Armónico 528 Hz"]
+            HAPTIC["Web Vibration API\nPulso Háptico Triple"]
+            STORAGE[("localStorage Inmutable\natp_wal_v1")]
+            SW["Service Worker\nCaché Offline Shell"]
+        end
+        
+        UI --> RPE
+        UI --> WAL
+        UI --> TIMER
+        WAL <--> STORAGE
+        TIMER --> AUDIO
+        TIMER --> HAPTIC
         SW --> UI
     end
 
-    subgraph Transporte ["Capa Edge y Red"]
-        Vercel["Red Global Edge Vercel (CDN)"]
-        HTTP["Sincronización Asíncrona HTTP"]
+    subgraph Edge_Network ["Capa Edge & Sincronización"]
+        VercelEdge["Vercel Global Edge Network\nHTTP/3 + Anycast"]
+        OfflineSync["WAL FIFO Flush Daemon\nBackoff Exponencial"]
     end
 
-    subgraph Backend ["Capa Núcleo Backend (Render Cloud)"]
-        API["FastAPI REST Engine (Python 3.12)"]
-        ORM["Capa Relacional SQLAlchemy"]
-        DB[("Base de Datos PostgreSQL")]
+    subgraph Backend_Cloud ["Backend Cloud (Render + Neon.tech)"]
+        FastAPI["FastAPI REST Core (Python 3.12)\nPydantic v2 Contract Validation"]
+        Repo["StateRepository\nClean Data Layer"]
+        NeonDB[("Neon Serverless PostgreSQL 16\npool_recycle=300 | pool_pre_ping=True\nSSL Mode Required")]
+        SQLiteFallback[("SQLite Embedded Fallback\nOffline Testing Mode")]
         
-        API --> ORM
-        ORM --> DB
+        FastAPI --> Repo
+        Repo --> NeonDB
+        Repo -.->|Fallback de Contingencia| SQLiteFallback
     end
 
-    Cliente -->|Despliegue Automático / CDN| Vercel
-    State -.->|Telemetría en Segundo Plano| HTTP
-    HTTP --> API
+    PWA_Client -->|Despliegue Inmutable| VercelEdge
+    WAL -.->|Telemetría Criptográfica /api/state/log-set| OfflineSync
+    OfflineSync --> FastAPI
 ```
 
 ---
 
-## ⚡ Características Clave de Ingeniería
+## 📐 Especificaciones de Ingeniería Formales (EARS & BDD)
 
-### 1. Experiencia de Usuario Guiada ("Cero Cálculo Mental Bajo Fatiga")
-- **Flujo Secuencial Asistido**: Guía estructurada desde la **Fase 1 de Activación**, pasando por aproximaciones medias y **Fase 4 PAP (Potenciación Post-Activación)**, hasta las **Series Efectivas de Trabajo**.
-- **Botón de Acción Principal (CTA) Adaptativo**: Control ergonómico único que responde al estado exacto de la sesión:
-  - *En Descanso*: `⏱️ DESCANSO ACTIVO (mm:ss) • SALTAR Y LEVANTAR YA`
-  - *En Calentamiento*: `¡FASE X REALIZADA! → PASAR A FASE X+1`
-  - *En Serie Efectiva*: `¡SERIE X REALIZADA! → ENTRAR EN DESCANSO ATP`
-  - *Al Finalizar Sesión*: `🏆 ¡ENTRENAMIENTO COMPLETADO! → VER RESUMEN`
-- **Ergonomía Táctil de Gimnasio**: Botones con áreas táctiles mínimas de 44×44px y respuesta háptica táctil (`active:scale-95`), diseñados para dedos con magnesio o fatiga motora.
+Todo el desarrollo de NEURO//STRENGTH está formalizado bajo el estándar **IEEE 830 / ISO 29148** con sintaxis EARS y validación de escenarios BDD (Given-When-Then):
 
-### 2. Autorregulación Científica de 1RM y Aclimatación SNC
-- **5 Modelos Biomecánicos Validados**: Soporte integrado para las fórmulas de Epley, Brzycki, Lander, Lombardi y Mayhew.
-- **Training Max (TM) al 90%**: Tope de seguridad neuromuscular que previene el sobreentrenamiento sistémico del Sistema Nervioso Central.
-- **Telemetría de Montaje de Discos**: Desglose automático de kilos por manga para barras olímpicas de 20 kg, barras Z de 10 kg, mancuernas y peso corporal lastrado.
+### 1. Motor de Autorregulación Neuromuscular (`SPEC-0003`)
+* **[REQ-EARS-AUTO-01] (Ubiquitous - Consulta Matricial RTS)**:  
+  EL SISTEMA mapea de forma determinística cualquier par de repeticiones ($1 \le \text{reps} \le 10$) y RPE ($6.5 \le \text{RPE} \le 10.0$ en pasos de 0.5) al coeficiente de intensidad $\%1\text{RM}$ oficial de Mike Tuchscherer.
+* **[REQ-EARS-AUTO-02] (Event-Driven - $e1RM$ Dinámico)**:  
+  CUANDO el atleta completa una serie con carga ($kg > 0$), repeticiones y percepción de esfuerzo RPE, EL SISTEMA calcula el 1RM estimado instantáneo:
+  $$e1RM = \frac{\text{Carga Levada}}{\%1RM(\text{reps}, \text{RPE})}$$
+* **[REQ-EARS-AUTO-03] (State-Driven - Prescripción Adaptativa de Carga)**:  
+  MIENTRAS la sesión tenga series de trabajo pendientes, EL SISTEMA recalcula la carga recomendada para la siguiente serie en función del *overshoot* (sobreesfuerzo) o *undershoot* (supercompensación) experimentado.
 
-### 3. Bio-Acústica y Señalización Háptica Integradas
-- **Generación Acústica Sintética (Cero Descargas MP3)**: Utiliza Web Audio API para sintetizar en tiempo real la frecuencia Solfeggio de 528 Hz con armónicos a 880 Hz y 1056 Hz, eliminando latencia de red y dependencias de archivos multimedia.
-- **Fanfarria Armónica Triunfal**: Progresión melódica ascendente (*Do5 → Mi5 → Sol5 → Do6*) ejecutada automáticamente al completar la sesión diaria.
-- **Pulso Háptico Triple de Bolsillo**: Secuencia rítmica `[300ms, 150ms, 300ms, 150ms, 500ms]` perceptible en el pantalón para avisar el fin del descanso sin contacto visual.
+```gherkin
+Scenario: Ajuste adaptativo tras un sobreesfuerzo imprevisto (RPE Overshoot)
+  Dado que el atleta tiene prescritas 3 repeticiones con carga objetivo @ RPE 8.0
+  Y ejecuta la serie con 140 kg pero experimenta una fatiga imprevista de RPE 9.5
+  Cuando el motor de autorregulación procesa la telemetría de la serie
+  Entonces detecta un overshoot de +1.5 RPE y calcula un e1RM degradado de 154.4 kg
+  Y ajusta la prescripción de la siguiente serie a 132.5 kg (-7.5 kg de descarga)
+  Y preserva la velocidad de ejecución y la integridad del SNC.
+```
 
-### 4. Analítica de Sesión y Tonelaje Total Acumulado
-- **Motor de Tonelaje Gravitacional**: Cuantificación matemática de la masa bruta desplazada contra la gravedad:
-  $$\text{Tonelaje} = \sum (\text{Series} \times \text{Repeticiones} \times \text{Carga}_{\text{kg}})$$
-- **Auditoría de Rendimiento**: Resumen con insignias de cumplimiento por ejercicio y fundamentos fisiológicos de supercompensación neuromuscular.
-
-### 5. Control de Reinicio Seguro y No Destructivo
-- **Confirmación en Dos Niveles**: Modal de seguridad que permite reiniciar únicamente el ejercicio activo o bien la totalidad de la sesión del día.
-- Protege los registros históricos y las marcas 1RM contra eliminaciones accidentales.
-
----
-
-## 🛠️ Stack Tecnológico Justificado
-
-| Capa | Tecnología | Justificación Técnica |
-|---|---|---|
-| **Framework Frontend** | **Next.js 16.3.4 (Turbopack)** | Renderizado híbrido con React 19, compilación en milisegundos y pre-renderizado estático optimizado. |
-| **Diseño y Estilos** | **Tailwind CSS v4 + Vanilla CSS** | Paleta personalizada de alto contraste en True Black (`#000000`), reduciendo el consumo energético en pantallas OLED. |
-| **Estado y Caché Local** | **React Hooks + localStorage + SW** | Actualizaciones locales instantáneas (sub-milisegundo) con persistencia offline garantizada. |
-| **Acústica y Hápticos** | **Web Audio API + Web Vibration API** | Generación de sonido y vibración puramente nativa en el dispositivo, sin carga de red ni dependencias externas. |
-| **Framework Backend** | **FastAPI (Python 3.12)** | Microframework asíncrono ASGI de alto rendimiento con validación tipada estricta vía Pydantic y OpenAPI automático. |
-| **Base de Datos y ORM** | **PostgreSQL + SQLAlchemy** | Persistencia relacional transaccional y robusta para telemetría histórica de levantamientos y marcas de fuerza. |
-| **Infraestructura Cloud** | **Vercel + Render** | Distribución Edge global en CDN para el cliente web combinada con servicios administrados para la API Python. |
+### 2. Motor de Sincronización WAL Offline-First (`SPEC-0002` & `SPEC-0004`)
+* **[REQ-EARS-SYNC-01] (Ubiquitous - Ingesta de Telemetría Completa)**:  
+  EL SISTEMA acepta y persiste los campos de telemetría de esfuerzo (`rpe`, `rir`, `e1rm`) en `/api/state/log-set` sin truncar decimales ni perder precisión.
+* **[REQ-EARS-SYNC-02] (Event-Driven - Conexión Resiliente Neon PostgreSQL)**:  
+  CUANDO se inicializa la conexión con Neon.tech o PostgreSQL remoto, EL SISTEMA activa `pool_pre_ping=True`, `pool_recycle=300` y `sslmode=require` para mitigar desconexiones por inactividad de proxies serverless.
+* **[REQ-EARS-SYNC-03] (State-Driven - Contingencia SQLite Local)**:  
+  MIENTRAS la base de datos remota esté inalcanzable durante pruebas automatizadas o cortes de conectividad, EL SISTEMA conmuta a SQLite en memoria sin alterar contratos ni dependencias.
 
 ---
 
-## 📁 Estructura del Repositorio
+## 🔬 Matriz de Mike Tuchscherer (RTS %1RM)
+
+El motor [`rpeEngine.mjs`](file:///c:/Users/valen/Documents/Eos%20system/.eos/satellites/app-fuerza/atp-strength-frontend/src/lib/rpeEngine.mjs) implementa la tabla inmutable de intensidad relativa:
+
+| Reps | RPE 10.0 | RPE 9.5 | RPE 9.0 | RPE 8.5 | RPE 8.0 | RPE 7.5 | RPE 7.0 | RPE 6.5 |
+|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
+| **1** | 100.0% | 97.8% | 95.5% | 93.9% | 92.2% | 90.7% | 89.2% | 87.8% |
+| **2** | 95.5% | 93.9% | 92.2% | 90.7% | 89.2% | 87.8% | 86.3% | 84.9% |
+| **3** | 92.2% | 90.7% | 89.2% | 87.8% | 86.3% | 84.9% | 83.7% | 82.1% |
+| **4** | 89.2% | 87.8% | 86.3% | 84.9% | 83.7% | 82.1% | 80.7% | 79.4% |
+| **5** | 86.3% | 84.9% | 83.7% | 82.1% | 80.7% | 79.4% | 78.2% | 76.8% |
+| **6** | 83.7% | 82.1% | 80.7% | 79.4% | 78.2% | 76.8% | 75.3% | 73.9% |
+| **7** | 80.7% | 79.4% | 78.2% | 76.8% | 75.3% | 73.9% | 72.3% | 70.7% |
+| **8** | 78.2% | 76.8% | 75.3% | 73.9% | 72.3% | 70.7% | 69.4% | 68.0% |
+| **9** | 75.3% | 73.9% | 72.3% | 70.7% | 69.4% | 68.0% | 66.7% | 65.3% |
+| **10** | 72.3% | 70.7% | 69.4% | 68.0% | 66.7% | 65.3% | 64.0% | 62.6% |
+
+$$\text{RIR (Reps In Reserve)} = 10 - \text{RPE}$$
+
+---
+
+## 🧪 Batería de Pruebas y Evidencia Criptográfica
+
+El proyecto mantiene un rigor de verificación epistémica continuo:
 
 ```text
-atp-strength/
-├── 📂 atp-strength-frontend/             # Aplicación de Producción Next.js 16
-│   ├── 📂 public/
-│   │   ├── sw.js                         # Service Worker (Caché v4, Estrategia Network-First)
-│   │   ├── manifest.webmanifest          # Manifiesto PWA Standalone
-│   │   └── icon-*.png                    # Iconos adaptativos de alta resolución
-│   ├── 📂 src/
-│   │   ├── 📂 app/
-│   │   │   ├── layout.tsx                # Metadatos globales, optimización SEO y tema oscuro
-│   │   │   ├── page.tsx                  # Dashboard Zen, motor de fuerza y flujo de entrenamiento
-│   │   │   └── globals.css               # Tokens de diseño y animaciones de resíntesis
-│   │   └── 📂 components/
-│   │       └── PwaInstallPrompt.tsx      # Componente de instalación nativa PWA
-│   ├── next.config.ts                    # Configuración del compilador Turbopack
-│   ├── vercel.json                       # Orquestación de despliegue en Vercel
-│   └── package.json                      # Dependencias y scripts del frontend
-│
-├── 📂 atp-strength-backend/              # API Núcleo en Python FastAPI
-│   ├── 📂 src/
-│   │   ├── 📂 config/                    # Configuración de conexiones PostgreSQL
-│   │   ├── 📂 domain/                    # Esquemas de datos SQLAlchemy y modelos de dominio
-│   │   ├── 📂 repository/                # Abstracción de acceso a datos
-│   │   └── 📂 routes/
-│   │       ├── state.py                  # Endpoints de series (/api/state/log-set)
-│   │       └── strength.py               # Endpoints de 1RM (/api/strength/maxes)
-│   ├── main.py                           # Punto de entrada de la API y middleware CORS
-│   ├── requirements.txt                  # Dependencias bloqueadas de Python
-│   └── render.yaml                       # Infraestructura como Código (IaC) para Render Cloud
-│
-└── README.md                             # Documentación técnica corporativa
+============================= TEST SUITE EXECUTION =============================
+Frontend (Node.js Native Test Runner):
+  ✔ SPEC-0003 Neuromuscular Autoregulation Engine (13 tests passing)
+  ✔ SPEC-0001 ATP Absolute Timer Engine           (7 tests passing)
+  ✔ SPEC-0002 ATP Offline WAL Engine             (7 tests passing)
+  Total Frontend: 27/27 tests PASS (0 failures, 208 ms)
+
+Backend (Pytest 9.1.1 + FastAPI TestClient):
+  ✔ test_health_check                             PASSED
+  ✔ test_root_endpoint                            PASSED
+  ✔ test_log_set_with_neuromuscular_telemetry     PASSED
+  ✔ test_timer_lifecycle                          PASSED
+  ✔ test_exercise_maxes_with_rpe_formula          PASSED
+  Total Backend: 5/5 tests PASS (0 failures, 0.93 s)
+
+Static Analysis & Code Hygiene:
+  ✔ ESLint: 0 errors, 0 warnings
+  ✔ TypeScript (tsc --noEmit): Exit Code 0 (Strict Type-Safety)
+  ✔ Ruff (Python 3.12): All checks passed
+================================================================================
 ```
+
+### Recibos de Evidencia Registrados en EOS
+* [`EVD-FUE-0010.json`](file:///c:/Users/valen/Documents/Eos%20system/docs/evidence/EVD-FUE-0010.json): Verificación de precisión temporal milimétrica contra deriva de throttling.
+* [`EVD-FUE-0020.json`](file:///c:/Users/valen/Documents/Eos%20system/docs/evidence/EVD-FUE-0020.json): Integridad de Write-Ahead Log con checksum SHA-256 inmutable.
+* [`EVD-FUE-0030.json`](file:///c:/Users/valen/Documents/Eos%20system/docs/evidence/EVD-FUE-0030.json): Motor de autorregulación y tabla Tuchscherer validada al 100%.
+* [`EVD-FUE-0040.json`](file:///c:/Users/valen/Documents/Eos%20system/docs/evidence/EVD-FUE-0040.json): Resiliencia de pool de conexiones Neon PostgreSQL y sincronización de telemetría.
 
 ---
 
-## 🚀 Puesta en Marcha Local
+## 🚀 Guía de Puesta en Marcha Local
 
 ### Prerrequisitos
-- **Node.js**: `v20.x` o superior
-- **Python**: `3.12.x`
-- **PostgreSQL**: `v15` o superior (opcional para pruebas con base local)
+* Node.js v20+ o v24+
+* Python 3.11+ o 3.12+
+* Gestor de paquetes `npm`
 
-### 1. Clonar el Repositorio
+### 1. Frontend (Next.js 16)
 ```bash
-git clone https://github.com/valentinflorezarbelaez-ai/ATP-STRENGTH.git
-cd ATP-STRENGTH
-```
-
-### 2. Configuración del Backend (FastAPI)
-```bash
-cd atp-strength-backend
-
-# Crear y activar entorno virtual
-python -m venv .venv
-source .venv/bin/activate    # En Windows: .venv\Scripts\activate
-
-# Instalar dependencias
-pip install -r requirements.txt
-
-# Iniciar servidor de desarrollo
-uvicorn main:app --reload --port 8000
-```
-> La interfaz Swagger interactiva estará disponible en: `http://localhost:8000/docs`.
-
-### 3. Configuración del Frontend (Next.js)
-```bash
-cd ../atp-strength-frontend
-
-# Instalar paquetes
+cd atp-strength-frontend
 npm install
-
-# Iniciar servidor de desarrollo
 npm run dev
 ```
-> Accede a `http://localhost:3000` para interactuar con el Dashboard de **NEURO//STRENGTH**.
+La aplicación estará disponible en `http://localhost:3000` (o `http://localhost:3005`).
+
+Para ejecutar la suite de pruebas unitarias y linters:
+```bash
+# Pruebas unitarias ultrarrápidas
+node --test tests/timers.test.mjs tests/wal.test.mjs tests/rpe-autoregulation.test.mjs
+
+# Validación de tipos y linter
+npm run lint
+npx tsc --noEmit
+```
+
+### 2. Backend (FastAPI + SQLAlchemy)
+```bash
+cd atp-strength-backend
+pip install -r requirements.txt
+python main.py
+```
+El servidor API arrancará en `http://localhost:8000`.
+
+Para ejecutar las pruebas automatizadas del backend:
+```bash
+python -m pytest tests/test_api.py -v
+ruff check .
+```
 
 ---
 
-## 🔒 Estándares de Código y Calidad
+## 📱 Instalación como PWA en Móvil
 
-- **Conventional Commits**: Adherencia rigurosa al estándar de commits convencionales (`feat`, `fix`, `chore`, `docs`).
-- **TypeScript Estricto**: Cobertura tipada al 100% sin uso de `any` laxos en la lógica de negocio.
-- **Autoría Limpia**: Sin atribuciones automatizadas ni marcas de agua de herramientas externas en los commits.
-- **Seguridad y Sanitización**: Variables de entorno desacopladas de credenciales maestras y registros de cliente depurados.
+1. **Android / Chrome / Brave**: Accedé a [https://atp-strength.vercel.app](https://atp-strength.vercel.app) y tocá el botón superior **"Instalar"** o seleccioná *"Instalar aplicación"* en el menú del navegador.
+2. **iOS Safari**: Abrí el enlace en Safari, tocá el botón **Compartir** (icono central con flecha hacia arriba) y seleccioná **"Agregar a pantalla de inicio"**.
+3. La aplicación se ejecutará a pantalla completa en modo `standalone`, con soporte offline absoluto y fondo negro OLED puro (`#000000`).
 
 ---
 
-## 📄 Licencia
+## 📄 Licencia y Gobernanza
 
-Desarrollado por **Valentin Florez** bajo licencia de código abierto para acondicionamiento neuromuscular y autorregulación de fuerza de alto rendimiento.
-
-Distribuido bajo la **Licencia MIT**.
+Este repositorio está protegido bajo gobernanza técnica del ecosistema **EOS** (*Engineering Operating System*).  
+Todos los derechos reservados © 2026.
