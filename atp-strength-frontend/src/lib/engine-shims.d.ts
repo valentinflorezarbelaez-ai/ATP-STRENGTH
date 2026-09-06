@@ -74,3 +74,35 @@ declare module './atpTimerEngine.mjs' {
 declare module './walEngine.mjs' {
   export * from '@/lib/walEngine.mjs';
 }
+
+declare module '@/lib/rpeEngine.mjs' {
+  export type RpeScore = 6.5 | 7.0 | 7.5 | 8.0 | 8.5 | 9.0 | 9.5 | 10.0;
+  export type RepRange = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10;
+  export const VALID_RPE_VALUES: readonly number[];
+  export const TUCHSCHERER_RPE_MATRIX: Readonly<Record<number, Record<number, number>>>;
+  export function getPercentage1Rm(reps: number, rpe: number): number;
+  export function rpeToRir(rpe: number): number;
+  export function rirToRpe(rir: number): number;
+  export function computeEstimated1Rm(weight: number, reps: number, rpe: number): number;
+  export function roundToImplementStep(weight: number, step?: number): number;
+  export function calculateTargetLoad(e1rm: number, targetReps: number, targetRpe: number, implementStepKg?: number): number;
+  export function computeAutoregulatedAdjustment(input: {
+    weightKg: number;
+    reps: number;
+    rpe: number;
+    targetReps: number;
+    targetRpe: number;
+    implementStepKg?: number;
+  }): {
+    e1rm: number;
+    intensityPercent: number;
+    nextTargetWeight: number;
+    deltaKg: number;
+    rpeOvershoot: number;
+    fatigueDetected: boolean;
+  };
+}
+
+declare module './rpeEngine.mjs' {
+  export * from '@/lib/rpeEngine.mjs';
+}

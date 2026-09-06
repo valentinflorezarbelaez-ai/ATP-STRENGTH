@@ -5,7 +5,7 @@ import {
   Dumbbell, Layers, Maximize2, Minus, Plus, Settings2, TrendingUp, Zap,
 } from "lucide-react";
 import { RampingIndicator } from "@/app/components/RampingIndicator";
-import { getExerciseCategory } from "@/lib/workoutStrategies";
+import { getExerciseCategory, computeEstimated1Rm, rpeToRir, VALID_RPE_VALUES } from "@/lib/workoutStrategies";
 import type { useZenDashboard } from "@/app/hooks/useZenDashboard";
 
 type Dash = ReturnType<typeof useZenDashboard>;
@@ -450,15 +450,45 @@ export function WorkoutLogger({ d }: { d: Dash }) {
                           </span>
                         </span>
                         {!isWarmup && (
-                          <div className="flex items-center gap-2">
-                            <span className="text-zinc-500">RPE Esfuerzo:</span>
-                            <input
-                              type="text"
-                              value={inputRpe}
-                              onChange={(e) => setInputRpe(e.target.value)}
-                              placeholder="8.5"
-                              className="w-14 px-2 py-0.5 rounded bg-black border border-zinc-700 text-amber-400 text-center font-mono text-xs focus:outline-none focus:border-amber-500"
-                            />
+                          <div className="flex flex-col sm:flex-row items-center gap-2">
+                            <span className="text-zinc-500 text-[11px]">RPE:</span>
+                            <div className="flex items-center gap-1 flex-wrap">
+                              {VALID_RPE_VALUES.map((rpeVal) => {
+                                const isSelected = parseFloat(inputRpe) === rpeVal;
+                                return (
+                                  <button
+                                    key={rpeVal}
+                                    type="button"
+                                    onClick={() => setInputRpe(String(rpeVal))}
+                                    className={`px-1.5 py-0.5 rounded text-[10px] font-mono font-bold transition-all cursor-pointer ${
+                                      isSelected
+                                        ? "bg-amber-400 text-black shadow-sm"
+                                        : "bg-black border border-zinc-800 text-zinc-400 hover:text-zinc-200"
+                                    }`}
+                                  >
+                                    {rpeVal}
+                                  </button>
+                                );
+                              })}
+                            </div>
+                            {(() => {
+                              const parsedRpe = parseFloat(inputRpe);
+                              if (VALID_RPE_VALUES.includes(parsedRpe)) {
+                                const rir = rpeToRir(parsedRpe);
+                                const parsedWeight = parseFloat(inputWeight) || 0;
+                                const parsedReps = parseInt(inputReps, 10) || 1;
+                                const e1rm =
+                                  parsedWeight > 0 && parsedReps <= 10
+                                    ? computeEstimated1Rm(parsedWeight, parsedReps, parsedRpe)
+                                    : null;
+                                return (
+                                  <span className="text-[10px] text-amber-400/90 font-mono bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/20 whitespace-nowrap">
+                                    {rir} RIR {e1rm ? `• e1RM: ${e1rm} kg` : ""}
+                                  </span>
+                                );
+                              }
+                              return null;
+                            })()}
                           </div>
                         )}
                       </div>

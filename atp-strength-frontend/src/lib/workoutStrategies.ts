@@ -61,8 +61,30 @@ export interface SavedSessionProgress {
   activePhaseStep?: string;
 }
 
+import {
+  TUCHSCHERER_RPE_MATRIX,
+  VALID_RPE_VALUES,
+  getPercentage1Rm,
+  computeEstimated1Rm,
+  calculateTargetLoad,
+  computeAutoregulatedAdjustment,
+  rpeToRir,
+  rirToRpe,
+} from './rpeEngine.mjs';
+
+export {
+  TUCHSCHERER_RPE_MATRIX,
+  VALID_RPE_VALUES,
+  getPercentage1Rm,
+  computeEstimated1Rm,
+  calculateTargetLoad,
+  computeAutoregulatedAdjustment,
+  rpeToRir,
+  rirToRpe,
+};
+
 export type ImplementCategory = "olympic_bar" | "ez_bar" | "bodyweight_weighted" | "dumbbells";
-export type OneRmFormula = "epley" | "brzycki" | "direct";
+export type OneRmFormula = "epley" | "brzycki" | "direct" | "rpe";
 export type WarmupPhaseKey = "F1" | "F2" | "F3" | "F4";
 export type PhaseStep = WarmupPhaseKey | `${number}`;
 
@@ -237,9 +259,19 @@ const ONE_RM_FORMULAS: Record<string, (w: number, r: number) => number> = {
   direct: (w) => w,
 };
 
-export function computeOneRm(weight: number, reps: number, formula: string = "epley"): number {
+export function computeOneRm(
+  weight: number,
+  reps: number,
+  formula: string = "epley",
+  rpe: number = 10
+): number {
   const w = Math.max(0, weight);
   const r = Math.max(1, reps);
+  if (formula === "rpe") {
+    const clampedReps = Math.min(10, r);
+    const clampedRpe = Math.max(6.5, Math.min(10, Math.round(rpe * 2) / 2));
+    return computeEstimated1Rm(w, clampedReps, clampedRpe);
+  }
   if (r <= 1 || formula === "direct") return Math.round(w * 10) / 10;
   const fn = ONE_RM_FORMULAS[formula] || ONE_RM_FORMULAS.epley;
   return Math.round(fn(w, r) * 10) / 10;
