@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const viewport: Viewport = {
-  themeColor: "#000000",
+  themeColor: "#f8f9fc",
   width: "device-width",
   initialScale: 1,
   maximumScale: 1,
@@ -27,7 +27,7 @@ export const metadata: Metadata = {
   manifest: "/manifest.webmanifest",
   appleWebApp: {
     capable: true,
-    statusBarStyle: "black-translucent",
+    statusBarStyle: "default",
     title: "NEURO//STRENGTH",
   },
   icons: {
@@ -42,15 +42,14 @@ export const metadata: Metadata = {
   },
 };
 
-
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="es" className={`${geistSans.variable} ${geistMono.variable} dark`}>
-      <body className="min-h-screen bg-black text-zinc-100 antialiased selection:bg-amber-400 selection:text-black">
+    <html lang="es" className={`${geistSans.variable} ${geistMono.variable}`}>
+      <body className="min-h-screen antialiased selection:bg-pink-500 selection:text-white relative">
         {children}
       </body>
     </html>

@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import {
   Flame, Sparkles, CheckCircle2, ChevronLeft, ChevronRight,
   Play, Pause, RotateCcw, Volume2, Trophy,
-  Minus, Plus, Activity, Heart, ArrowRight, Coffee, Eye
+  Minus, Plus, Activity, Heart, ArrowRight, Coffee, Eye, Sun, Moon
 } from "lucide-react";
 import {
   formatTime,
@@ -167,7 +167,13 @@ export function CoachGuidedView({ d }: { d: Dash }) {
   };
 
   return (
-    <main className="min-h-screen bg-black text-zinc-100 flex flex-col items-center justify-between p-4 md:p-6 pb-20 font-sans selection:bg-amber-500 selection:text-black">
+    <main className="min-h-screen relative overflow-x-hidden flex flex-col items-center justify-between p-4 md:p-6 pb-20 font-sans selection:bg-pink-500 selection:text-white">
+      {/* Ambient Radial Mesh Backgrounds (Apple Music + Tidal Luxury Style) */}
+      <div className="ambient-mesh-light" aria-hidden="true">
+        <div className="ambient-orb-1" />
+        <div className="ambient-orb-2" />
+        <div className="ambient-orb-3" />
+      </div>
       {/* 1. Top Coach Header */}
       <header className="w-full max-w-2xl flex items-center justify-between gap-3 border-b border-zinc-900/80 pb-4 mb-4">
         {/* Brand & Coach Status */}
@@ -192,6 +198,26 @@ export function CoachGuidedView({ d }: { d: Dash }) {
 
         {/* Header Actions: Mode Toggle & Reset */}
         <div className="flex items-center gap-2">
+          {/* Apple White / Tidal Dark Toggle */}
+          <button
+            type="button"
+            onClick={d.toggleTheme}
+            className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-black/10 dark:border-white/15 bg-white/80 dark:bg-white/5 backdrop-blur-xl hover:bg-black/5 dark:hover:bg-white/10 text-xs font-mono font-medium transition-all active:scale-95 cursor-pointer shadow-sm"
+            title={d.themeMode === 'dark' ? "Cambiar a Modo Apple White" : "Cambiar a Modo Tidal Dark"}
+          >
+            {d.themeMode === 'dark' ? (
+              <>
+                <Sun className="w-3.5 h-3.5 text-amber-400" />
+                <span className="hidden sm:inline text-zinc-200">LIGHT</span>
+              </>
+            ) : (
+              <>
+                <Moon className="w-3.5 h-3.5 text-sky-500" />
+                <span className="hidden sm:inline text-zinc-800">DARK</span>
+              </>
+            )}
+          </button>
+
           {/* Voice Coach Toggle Pill */}
           <button
             type="button"

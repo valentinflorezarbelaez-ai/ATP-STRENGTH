@@ -1,27 +1,226 @@
 @import "tailwindcss";
 
 :root {
-  --background: #000000;
-  --foreground: #f4f4f5;
+  --bg-canvas: #f8f9fc;
+  --text-main: #111215;
+  --text-muted: #555b68;
+  --text-sub: #7b8290;
+  --glass-card: rgba(255, 255, 255, 0.78);
+  --glass-card-hover: rgba(255, 255, 255, 0.94);
+  --glass-border: rgba(0, 0, 0, 0.07);
+  --glass-border-hover: rgba(0, 0, 0, 0.14);
+  --glass-shadow: 0 16px 40px -12px rgba(0, 0, 0, 0.05), 0 2px 6px -1px rgba(0, 0, 0, 0.02);
+  --inner-bevel: inset 0 1px 0 0 rgba(255, 255, 255, 0.95);
+  --pill-bg: rgba(255, 255, 255, 0.88);
+  --pill-border: rgba(0, 0, 0, 0.08);
+  --accent-pink: #ff2d55;
+  --accent-cyan: #00d2ff;
+  --accent-purple: #8a2be2;
+  --accent-gold: #f59e0b;
+}
+
+.dark {
+  --bg-canvas: #08090d;
+  --text-main: #f4f5f8;
+  --text-muted: #9ca3af;
+  --text-sub: #6b7280;
+  --glass-card: rgba(18, 20, 29, 0.68);
+  --glass-card-hover: rgba(26, 29, 42, 0.84);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --glass-border-hover: rgba(255, 255, 255, 0.18);
+  --glass-shadow: 0 20px 50px -12px rgba(0, 0, 0, 0.7);
+  --inner-bevel: inset 0 1px 0 0 rgba(255, 255, 255, 0.14);
+  --pill-bg: rgba(255, 255, 255, 0.06);
+  --pill-border: rgba(255, 255, 255, 0.12);
+  --accent-pink: #ff375f;
+  --accent-cyan: #00f0ff;
+  --accent-purple: #bf5af2;
+  --accent-gold: #fbbf24;
 }
 
 body {
-  background-color: #000000;
-  color: #f4f4f5;
-  font-family: var(--font-geist-sans), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background-color: var(--bg-canvas);
+  color: var(--text-main);
+  font-family: var(--font-sans), -apple-system, BlinkMacSystemFont, "SF Pro Display", "Inter", "Segoe UI", Roboto, sans-serif;
   overflow-x: hidden;
+  transition: background-color 0.4s cubic-bezier(0.16, 1, 0.3, 1), color 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-/* Custom Zen Glowing Animations */
-@keyframes pulse-gold {
+/* Ambient Radial Mesh Backgrounds (Apple Music + Tidal Luxury Style) */
+.ambient-mesh-light {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.ambient-orb-1 {
+  position: absolute;
+  top: -12%;
+  left: -8%;
+  width: 60vw;
+  height: 60vw;
+  max-width: 800px;
+  max-height: 800px;
+  background: radial-gradient(circle, rgba(255, 45, 85, 0.18) 0%, rgba(255, 45, 85, 0.04) 50%, transparent 70%);
+  filter: blur(120px);
+  animation: float-apple 20s ease-in-out infinite alternate;
+}
+
+.ambient-orb-2 {
+  position: absolute;
+  top: 10%;
+  right: -10%;
+  width: 65vw;
+  height: 65vw;
+  max-width: 850px;
+  max-height: 850px;
+  background: radial-gradient(circle, rgba(0, 210, 255, 0.18) 0%, rgba(0, 210, 255, 0.04) 50%, transparent 70%);
+  filter: blur(130px);
+  animation: float-apple 24s ease-in-out infinite alternate-reverse;
+}
+
+.ambient-orb-3 {
+  position: absolute;
+  bottom: -10%;
+  left: 15%;
+  width: 55vw;
+  height: 55vw;
+  max-width: 750px;
+  max-height: 750px;
+  background: radial-gradient(circle, rgba(138, 43, 226, 0.15) 0%, rgba(138, 43, 226, 0.03) 50%, transparent 70%);
+  filter: blur(140px);
+  animation: float-apple 28s ease-in-out infinite alternate;
+}
+
+.dark .ambient-orb-1 {
+  background: radial-gradient(circle, rgba(255, 45, 85, 0.25) 0%, rgba(255, 45, 85, 0.06) 50%, transparent 70%);
+}
+
+.dark .ambient-orb-2 {
+  background: radial-gradient(circle, rgba(0, 240, 255, 0.25) 0%, rgba(0, 240, 255, 0.06) 50%, transparent 70%);
+}
+
+.dark .ambient-orb-3 {
+  background: radial-gradient(circle, rgba(191, 90, 242, 0.20) 0%, rgba(191, 90, 242, 0.05) 50%, transparent 70%);
+}
+
+@keyframes float-apple {
+  0% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(40px, 50px) scale(1.08); }
+  100% { transform: translate(-30px, 25px) scale(0.95); }
+}
+
+/* Automatic Theme Bridge: Map raw zinc/black utilities to luxury glass tokens */
+:root:not(.dark) .bg-black {
+  background-color: transparent !important;
+}
+
+:root:not(.dark) .bg-zinc-950,
+:root:not(.dark) [class*="bg-zinc-950"] {
+  background-color: var(--glass-card) !important;
+  backdrop-filter: blur(28px) !important;
+  -webkit-backdrop-filter: blur(28px) !important;
+  box-shadow: var(--glass-shadow), var(--inner-bevel) !important;
+}
+
+:root:not(.dark) [class*="bg-zinc-900"] {
+  background-color: rgba(242, 245, 252, 0.85) !important;
+  backdrop-filter: blur(16px) !important;
+  -webkit-backdrop-filter: blur(16px) !important;
+}
+
+:root:not(.dark) [class*="border-zinc-9"],
+:root:not(.dark) [class*="border-zinc-8"],
+:root:not(.dark) [class*="border-zinc-7"] {
+  border-color: var(--glass-border) !important;
+}
+
+:root:not(.dark) [class*="text-zinc-100"],
+:root:not(.dark) [class*="text-white"] {
+  color: #111215 !important;
+}
+
+:root:not(.dark) [class*="text-zinc-200"],
+:root:not(.dark) [class*="text-zinc-300"] {
+  color: #1f2937 !important;
+}
+
+:root:not(.dark) [class*="text-zinc-400"] {
+  color: #374151 !important;
+}
+
+:root:not(.dark) [class*="text-zinc-500"] {
+  color: #6b7280 !important;
+}
+
+/* Dark Mode Glassmorphic Enhancements */
+.dark .bg-zinc-950 {
+  background-color: var(--glass-card) !important;
+  backdrop-filter: blur(28px) !important;
+  -webkit-backdrop-filter: blur(28px) !important;
+  box-shadow: var(--glass-shadow), var(--inner-bevel) !important;
+}
+
+.dark .border-zinc-900,
+.dark .border-zinc-800 {
+  border-color: var(--glass-border) !important;
+}
+
+/* Glassmorphism Luxury Utilities */
+.glass-luxury {
+  background: var(--glass-card);
+  backdrop-filter: blur(28px);
+  -webkit-backdrop-filter: blur(28px);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow), var(--inner-bevel);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.glass-luxury:hover {
+  background: var(--glass-card-hover);
+  border-color: var(--glass-border-hover);
+}
+
+.pill-luxury {
+  border-radius: 9999px;
+  background: var(--pill-bg);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--pill-border);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Gradients */
+.text-gradient-apple {
+  background: linear-gradient(135deg, #ff2d55 0%, #af52de 50%, #0071e3 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.text-gradient-tidal {
+  background: linear-gradient(135deg, #00d2ff 0%, #3b82f6 50%, #8b5cf6 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.text-gradient-gold {
+  background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 60%, #d97706 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Subtle Specular Highlights & Glows */
+@keyframes pulse-apple-glow {
   0%, 100% {
-    box-shadow: 0 0 15px rgba(245, 158, 11, 0.25), inset 0 0 15px rgba(245, 158, 11, 0.15);
+    box-shadow: 0 0 20px rgba(255, 45, 85, 0.20), inset 0 1px 0 rgba(255, 255, 255, 0.6);
   }
   50% {
-    box-shadow: 0 0 35px rgba(245, 158, 11, 0.45), inset 0 0 25px rgba(245, 158, 11, 0.25);
+    box-shadow: 0 0 35px rgba(255, 45, 85, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.9);
   }
 }
 
-.glow-zen-gold {
-  animation: pulse-gold 3s infinite ease-in-out;
+.glow-apple-pink {
+  animation: pulse-apple-glow 4s infinite ease-in-out;
 }

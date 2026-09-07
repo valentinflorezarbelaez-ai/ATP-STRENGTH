@@ -48,6 +48,33 @@ export function useZenDashboard() {
   );
 
   const [zenFocusMode, setZenFocusMode] = useState(false);
+  const [themeMode, setThemeMode] = useState<'light' | 'dark'>(() => {
+    if (typeof window === 'undefined') return 'light';
+    try {
+      const saved = localStorage.getItem('neuro_strength_theme');
+      return (saved === 'dark' || saved === 'light') ? saved : 'light';
+    } catch {
+      return 'light';
+    }
+  });
+
+  useEffect(() => {
+    if (typeof document === 'undefined') return;
+    if (themeMode === 'dark') {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+    try {
+      localStorage.setItem('neuro_strength_theme', themeMode);
+    } catch {
+      // ignore
+    }
+  }, [themeMode]);
+
+  const toggleTheme = useCallback(() => {
+    setThemeMode((prev) => (prev === 'light' ? 'dark' : 'light'));
+  }, []);
   const [coachMode, setCoachMode] = useState<boolean>(() => {
     if (typeof window === "undefined") return true;
     try {
@@ -328,6 +355,9 @@ export function useZenDashboard() {
     pendingWalCount: wal.pendingWalCount,
     zenFocusMode,
     setZenFocusMode,
+    themeMode,
+    setThemeMode,
+    toggleTheme,
     coachMode,
     setCoachMode,
     toggleCoachMode,

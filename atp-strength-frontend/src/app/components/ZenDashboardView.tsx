@@ -9,7 +9,7 @@ import {
   Flame, Zap, RotateCcw, CheckCircle2, Calendar, Activity,
   ShieldCheck, Lock, Maximize2, Layers, Sparkles,
   TrendingUp, X, Save, Dumbbell, History, Calculator,
-  AlertTriangle, Trophy,
+  AlertTriangle, Trophy, Sun, Moon,
 } from "lucide-react";
 import { computeMetrics } from "@/lib/workoutStrategies";
 import type { useZenDashboard } from "@/app/hooks/useZenDashboard";
@@ -49,7 +49,13 @@ export function ZenDashboardView({ d }: { d: Dash }) {
   const sessionStats = calculateSessionStats();
 
   return (
-    <main className="min-h-screen bg-black text-zinc-100 flex flex-col items-center justify-between p-4 md:p-8 pb-24 md:pb-8 font-sans selection:bg-amber-500 selection:text-black">
+    <main className="min-h-screen relative overflow-x-hidden flex flex-col items-center justify-between p-4 md:p-8 pb-24 md:pb-8 font-sans selection:bg-pink-500 selection:text-white">
+      {/* Ambient Radial Mesh Backgrounds (Apple Music + Tidal Luxury Style) */}
+      <div className="ambient-mesh-light" aria-hidden="true">
+        <div className="ambient-orb-1" />
+        <div className="ambient-orb-2" />
+        <div className="ambient-orb-3" />
+      </div>
       {/* Top Header */}
       <header className="w-full max-w-6xl flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-zinc-900 pb-5 mb-6">
         <div className="flex items-center justify-between w-full md:w-auto">
@@ -83,6 +89,26 @@ export function ZenDashboardView({ d }: { d: Dash }) {
 
         {/* Acciones de Cabecera (Totalmente visibles y adaptativas en móvil) */}
         <div className="flex items-center gap-2.5 w-full md:w-auto">
+          {/* Apple White / Tidal Dark Toggle */}
+          <button
+            type="button"
+            onClick={d.toggleTheme}
+            className="flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-full border border-black/10 dark:border-white/15 bg-white/80 dark:bg-white/5 backdrop-blur-xl hover:bg-black/5 dark:hover:bg-white/10 text-xs font-mono font-bold transition-all transform active:scale-95 cursor-pointer shadow-sm"
+            title={d.themeMode === 'dark' ? "Cambiar a Modo Apple White" : "Cambiar a Modo Tidal Dark"}
+          >
+            {d.themeMode === 'dark' ? (
+              <>
+                <Sun className="w-4 h-4 text-amber-400 flex-shrink-0" />
+                <span className="hidden sm:inline text-zinc-200">LIGHT</span>
+              </>
+            ) : (
+              <>
+                <Moon className="w-4 h-4 text-sky-500 flex-shrink-0" />
+                <span className="hidden sm:inline text-zinc-800">DARK</span>
+              </>
+            )}
+          </button>
+
           {/* Botón Cambiar a MODO COACH GUIADO */}
           <button
             type="button"
