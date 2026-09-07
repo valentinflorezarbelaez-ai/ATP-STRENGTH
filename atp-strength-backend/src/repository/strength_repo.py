@@ -85,7 +85,7 @@ class StrengthRepository:
             record.lifted_weight = lifted_weight
             record.reps_performed = reps_performed
             record.notes = notes
-            record.updated_at = datetime.datetime.utcnow()
+            record.updated_at = datetime.datetime.now(datetime.UTC)
 
         self.db.commit()
         self.db.refresh(record)

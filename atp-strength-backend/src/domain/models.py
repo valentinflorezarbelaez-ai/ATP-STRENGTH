@@ -5,6 +5,11 @@ from sqlalchemy import Boolean, Column, DateTime, Float, Integer, String, Text
 from src.config.database import Base
 
 
+def get_utc_now() -> datetime.datetime:
+    return datetime.datetime.now(datetime.UTC)
+
+
+
 class WorkoutSession(Base):
     __tablename__ = "workout_sessions"
 
@@ -14,11 +19,11 @@ class WorkoutSession(Base):
     current_exercise = Column(String(100), nullable=True)
     current_set = Column(Integer, default=1, nullable=False)
     total_sets = Column(Integer, default=1, nullable=False)
-    created_at = Column(DateTime, default=datetime.datetime.utcnow, nullable=False)
+    created_at = Column(DateTime, default=get_utc_now, nullable=False)
     updated_at = Column(
         DateTime,
-        default=datetime.datetime.utcnow,
-        onupdate=datetime.datetime.utcnow,
+        default=get_utc_now,
+        onupdate=get_utc_now,
         nullable=False
     )
 
@@ -34,8 +39,8 @@ class TimerState(Base):
     started_at = Column(DateTime, nullable=True)
     updated_at = Column(
         DateTime,
-        default=datetime.datetime.utcnow,
-        onupdate=datetime.datetime.utcnow,
+        default=get_utc_now,
+        onupdate=get_utc_now,
         nullable=False
     )
 
@@ -56,7 +61,7 @@ class ExerciseExecution(Base):
     rir = Column(Float, nullable=True)
     e1rm = Column(Float, nullable=True)
     completed = Column(Boolean, default=False, nullable=False)
-    timestamp = Column(DateTime, default=datetime.datetime.utcnow, nullable=False)
+    timestamp = Column(DateTime, default=get_utc_now, nullable=False)
 
 
 class ExerciseMax(Base):
@@ -72,8 +77,8 @@ class ExerciseMax(Base):
     notes = Column(Text, nullable=True)
     updated_at = Column(
         DateTime,
-        default=datetime.datetime.utcnow,
-        onupdate=datetime.datetime.utcnow,
+        default=get_utc_now,
+        onupdate=get_utc_now,
         nullable=False
     )
 

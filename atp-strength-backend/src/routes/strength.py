@@ -1,6 +1,6 @@
 
 from fastapi import APIRouter, Depends
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 from sqlalchemy.orm import Session
 
 from src.config.database import get_db
@@ -30,16 +30,15 @@ class ExerciseMaxResponse(BaseModel):
     notes: str | None
     prescriptions: PhasePrescriptionSchema
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class UpsertMaxRequest(BaseModel):
-    exercise_name: str = Field(..., example="Sentadilla Trasera")
-    lifted_weight: float = Field(..., gt=0, example=120.0)
-    reps_performed: int = Field(..., ge=1, le=30, example=5)
-    formula: str = Field("epley", example="epley")  # epley, brzycki, direct
-    notes: str | None = Field(None, example="Sensación sólida con cinto")
+    exercise_name: str = Field(..., json_schema_extra={"example": "Sentadilla Trasera"})
+    lifted_weight: float = Field(..., gt=0, json_schema_extra={"example": 120.0})
+    reps_performed: int = Field(..., ge=1, le=30, json_schema_extra={"example": 5})
+    formula: str = Field("epley", json_schema_extra={"example": "epley"})  # epley, brzycki, direct
+    notes: str | None = Field(None, json_schema_extra={"example": "Sensación sólida con cinto"})
 
 
 class ExecutionHistoryItem(BaseModel):
@@ -53,8 +52,7 @@ class ExecutionHistoryItem(BaseModel):
     notes: str | None
     completed: bool
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 # ---------------- Endpoints ---------------- #

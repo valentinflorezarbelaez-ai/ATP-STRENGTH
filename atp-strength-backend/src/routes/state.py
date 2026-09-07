@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 from sqlalchemy.orm import Session
 
 from src.config.database import get_db
@@ -17,8 +17,7 @@ class TimerResponse(BaseModel):
     duration_seconds: int
     remaining_seconds: int
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class UpdateTimerRequest(BaseModel):
@@ -36,13 +35,12 @@ class SessionResponse(BaseModel):
     current_set: int
     total_sets: int
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class UpdateSessionRequest(BaseModel):
-    day_key: str = Field(..., example="DAY_A")
-    status: str = Field("active", example="active")
+    day_key: str = Field(..., json_schema_extra={"example": "DAY_A"})
+    status: str = Field("active", json_schema_extra={"example": "active"})
     current_exercise: str | None = None
     current_set: int = Field(1, ge=1)
     total_sets: int = Field(1, ge=1)
@@ -73,8 +71,7 @@ class ExecutionResponse(BaseModel):
     rir: float | None = None
     e1rm: float | None = None
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 # ---------------- Route Endpoints ---------------- #

@@ -41,7 +41,7 @@ class StateRepository:
         if duration_seconds is not None:
             timer.duration_seconds = duration_seconds
         if is_running and timer.started_at is None:
-            timer.started_at = datetime.datetime.utcnow()
+            timer.started_at = datetime.datetime.now(datetime.UTC)
         elif not is_running:
             timer.started_at = None
         self.db.commit()
