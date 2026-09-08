@@ -1,3 +1,11 @@
+const REST_PLACEHOLDER_EXERCISE = {
+  name: "Descanso y Supercompensación",
+  sets: 0,
+  reps: "0 reps",
+  restSeconds: 0,
+  cue: "Regeneración del Sistema Nervioso Central",
+};
+
 "use client";
 
 import { useState, useEffect, useCallback, useMemo } from "react";
@@ -117,7 +125,7 @@ export function useZenDashboard() {
   const [exerciseHistory, setExerciseHistory] = useState<HistoryItem[]>([]);
 
   const activeDay = SCHEDULE_DAYS.find((d) => d.key === selectedDayKey) || SCHEDULE_DAYS[0];
-  const activeExercise = activeDay.exercises[activeExerciseIndex] || activeDay.exercises[0];
+  const activeExercise = activeDay.exercises[activeExerciseIndex] || activeDay.exercises[0] || REST_PLACEHOLDER_EXERCISE;
   const activeExMax = activeExercise
     ? maxesMap[activeExercise.name] || computeMetrics(activeExercise.name, 80, 5)
     : null;
@@ -131,7 +139,7 @@ export function useZenDashboard() {
   const inputWeight =
     activeOverrides.weight ??
     (activeExMax?.prescriptions.phase_5_work ? String(activeExMax.prescriptions.phase_5_work) : "90");
-  const inputReps = activeOverrides.reps ?? String(parseInt(activeExercise?.reps, 10) || 3);
+  const inputReps = activeOverrides.reps ?? String(parseInt(activeExercise.reps, 10) || 3);
 
   const patchOverride = (field: "weight" | "reps" | "quickWeight" | "quickReps", val: string) => {
     if (!activeExercise) return;
@@ -329,8 +337,8 @@ export function useZenDashboard() {
     formFormula
   );
   const currentExMax = maxesMap[selectedProgressEx];
-  const totalDaySets = activeDay.exercises.reduce((sum, ex) => sum + ex.sets, 0);
-  const completedDaySets = activeDay.exercises.reduce((sum, ex) => {
+  const totalDaySets = (activeDay.exercises || []).reduce((sum, ex) => sum + ex.sets, 0);
+  const completedDaySets = (activeDay.exercises || []).reduce((sum, ex) => {
     const done = completedSetsMap[ex.name]?.length || 0;
     return sum + Math.min(done, ex.sets);
   }, 0);

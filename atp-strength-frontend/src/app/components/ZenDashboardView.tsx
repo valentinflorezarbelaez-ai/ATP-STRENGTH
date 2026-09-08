@@ -393,6 +393,7 @@ export function ZenDashboardView({ d }: { d: Dash }) {
           </div>
 
           {/* Guía Fisiológica de las Fases ATP con Kilos Exactos Adaptados */}
+          {!activeDay.isRest && (
           <div id="guia-fases-atp" className="p-5 rounded-2xl bg-zinc-950 border border-zinc-900 shadow-2xl space-y-3 scroll-mt-6">
             <div className="flex items-center justify-between mb-1 text-xs font-mono">
               <span className="text-zinc-300 font-bold uppercase flex items-center gap-2">
@@ -488,6 +489,7 @@ export function ZenDashboardView({ d }: { d: Dash }) {
               </div>
             )}
           </div>
+          )}
         </section>
       </div>
 
@@ -818,7 +820,7 @@ export function ZenDashboardView({ d }: { d: Dash }) {
                 className="w-full p-4 rounded-2xl border border-zinc-800 bg-zinc-900/90 hover:bg-zinc-800 hover:border-amber-500/50 text-left transition-all active:scale-[0.98] cursor-pointer group"
               >
                 <div className="text-xs font-bold text-white group-hover:text-amber-300 flex items-center justify-between">
-                  <span>Reiniciar solo {activeExercise.name}</span>
+                  <span>Reiniciar solo {activeExercise?.name || "este ejercicio"}</span>
                   <span className="text-[10px] font-mono bg-amber-500/10 text-amber-400 px-2 py-0.5 rounded border border-amber-500/20">
                     Este ejercicio
                   </span>
