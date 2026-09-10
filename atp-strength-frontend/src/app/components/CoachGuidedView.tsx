@@ -14,6 +14,8 @@ import {
   type WarmupPhaseKey,
 } from "@/lib/workoutStrategies";
 import { PwaInstallPrompt } from "@/components/PwaInstallPrompt";
+import { playTactileClick } from "@/lib/zenAudio";
+import { useWakeLock } from "@/app/hooks/useWakeLock";
 import type { useZenDashboard } from "@/app/hooks/useZenDashboard";
 import {
   acousticEngine,
@@ -25,6 +27,8 @@ import {
 type Dash = ReturnType<typeof useZenDashboard>;
 
 export function CoachGuidedView({ d }: { d: Dash }) {
+  useWakeLock(d.isRunning || !d.isDayFinished);
+
   const {
     activeDay,
     activeExercise,
@@ -674,7 +678,7 @@ export function CoachGuidedView({ d }: { d: Dash }) {
                           <button
                             key={rpeVal}
                             type="button"
-                            onClick={() => setInputRpe(String(rpeVal))}
+                            onClick={() => { playTactileClick(); setInputRpe(String(rpeVal)); }}
                             className={`px-1.5 py-0.5 rounded text-[10px] font-mono font-bold transition-all cursor-pointer ${
                               isSelected
                                 ? "bg-amber-400 text-black shadow-sm"
