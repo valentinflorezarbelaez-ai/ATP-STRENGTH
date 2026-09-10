@@ -2,7 +2,7 @@ import datetime
 
 from sqlalchemy.orm import Session
 
-from src.domain.models import ExerciseExecution, TimerState, WorkoutSession
+from src.infrastructure.db.models import ExerciseExecution, TimerState, WorkoutSession
 
 
 class StateRepository:

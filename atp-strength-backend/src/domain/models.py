@@ -1,84 +1,65 @@
-import datetime
-
-from sqlalchemy import Boolean, Column, DateTime, Float, Integer, String, Text
-
-from src.config.database import Base
-
-
-def get_utc_now() -> datetime.datetime:
-    return datetime.datetime.now(datetime.UTC)
+"""
+Pure Domain Entities for NEURO//STRENGTH ATP Engine.
+Clean Architecture Domain Layer - Zero ORM or Framework dependencies.
+"""
+from datetime import datetime
+from typing import Literal
+from pydantic import BaseModel, ConfigDict, Field
 
 
+class WorkoutSessionDomain(BaseModel):
+    id: int | None = None
+    day_key: str = Field(..., description="e.g. DAY_A, DAY_B")
+    status: Literal["idle", "active", "completed"] = "idle"
+    current_exercise: str | None = None
+    current_set: int = 1
+    total_sets: int = 1
+    created_at: datetime | None = None
+    updated_at: datetime | None = None
 
-class WorkoutSession(Base):
-    __tablename__ = "workout_sessions"
-
-    id = Column(Integer, primary_key=True, index=True)
-    day_key = Column(String(10), nullable=False)  # e.g., 'DAY_A', 'DAY_B'
-    status = Column(String(50), default="idle", nullable=False)  # idle, active, completed
-    current_exercise = Column(String(100), nullable=True)
-    current_set = Column(Integer, default=1, nullable=False)
-    total_sets = Column(Integer, default=1, nullable=False)
-    created_at = Column(DateTime, default=get_utc_now, nullable=False)
-    updated_at = Column(
-        DateTime,
-        default=get_utc_now,
-        onupdate=get_utc_now,
-        nullable=False
-    )
+    model_config = ConfigDict(from_attributes=True)
 
 
-class TimerState(Base):
-    __tablename__ = "timer_states"
+class TimerStateDomain(BaseModel):
+    id: int | None = None
+    is_running: bool = False
+    timer_type: str = "atp_resynthesis"
+    duration_seconds: int = 180
+    remaining_seconds: int = 180
+    started_at: datetime | None = None
+    updated_at: datetime | None = None
 
-    id = Column(Integer, primary_key=True, index=True)
-    is_running = Column(Boolean, default=False, nullable=False)
-    timer_type = Column(String(50), default="atp_resynthesis", nullable=False)  # atp_resynthesis, mobility, prep
-    duration_seconds = Column(Integer, default=180, nullable=False)
-    remaining_seconds = Column(Integer, default=180, nullable=False)
-    started_at = Column(DateTime, nullable=True)
-    updated_at = Column(
-        DateTime,
-        default=get_utc_now,
-        onupdate=get_utc_now,
-        nullable=False
-    )
+    model_config = ConfigDict(from_attributes=True)
 
 
-class ExerciseExecution(Base):
-    __tablename__ = "exercise_executions"
+class ExerciseExecutionDomain(BaseModel):
+    id: int | None = None
+    session_id: int | None = None
+    exercise_name: str
+    set_number: int
+    prescribed_reps: int
+    completed_reps: int | None = None
+    load_kg: float = 0.0
+    rest_seconds: int = 180
+    notes: str | None = None
+    rpe: float | None = None
+    rir: float | None = None
+    e1rm: float | None = None
+    completed: bool = False
+    timestamp: datetime | None = None
 
-    id = Column(Integer, primary_key=True, index=True)
-    session_id = Column(Integer, nullable=True, index=True)
-    exercise_name = Column(String(150), nullable=False)
-    set_number = Column(Integer, nullable=False)
-    prescribed_reps = Column(Integer, nullable=False)
-    completed_reps = Column(Integer, nullable=True)
-    load_kg = Column(Float, nullable=False, default=0.0)
-    rest_seconds = Column(Integer, default=180, nullable=False)
-    notes = Column(Text, nullable=True)
-    rpe = Column(Float, nullable=True)
-    rir = Column(Float, nullable=True)
-    e1rm = Column(Float, nullable=True)
-    completed = Column(Boolean, default=False, nullable=False)
-    timestamp = Column(DateTime, default=get_utc_now, nullable=False)
+    model_config = ConfigDict(from_attributes=True)
 
 
-class ExerciseMax(Base):
-    __tablename__ = "exercise_maxes"
+class ExerciseMaxDomain(BaseModel):
+    id: int | None = None
+    exercise_name: str
+    one_rep_max: float
+    training_max: float
+    formula: str = "epley"
+    lifted_weight: float = 0.0
+    reps_performed: int = 1
+    notes: str | None = None
+    updated_at: datetime | None = None
 
-    id = Column(Integer, primary_key=True, index=True)
-    exercise_name = Column(String(150), unique=True, index=True, nullable=False)
-    one_rep_max = Column(Float, nullable=False, default=0.0)
-    training_max = Column(Float, nullable=False, default=0.0)  # 90% of 1RM
-    formula = Column(String(50), default="epley", nullable=False)  # epley, brzycki, direct
-    lifted_weight = Column(Float, default=0.0, nullable=False)
-    reps_performed = Column(Integer, default=1, nullable=False)
-    notes = Column(Text, nullable=True)
-    updated_at = Column(
-        DateTime,
-        default=get_utc_now,
-        onupdate=get_utc_now,
-        nullable=False
-    )
-
+    model_config = ConfigDict(from_attributes=True)

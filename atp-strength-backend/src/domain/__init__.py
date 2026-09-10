@@ -1,4 +1,14 @@
-"""Domain models package."""
-from src.domain.models import ExerciseExecution, TimerState, WorkoutSession
+"""Domain layer models and pure entities."""
+from src.domain.models import (
+    ExerciseExecutionDomain,
+    ExerciseMaxDomain,
+    TimerStateDomain,
+    WorkoutSessionDomain,
+)
 
-__all__ = ["WorkoutSession", "TimerState", "ExerciseExecution"]
+__all__ = [
+    "WorkoutSessionDomain",
+    "TimerStateDomain",
+    "ExerciseExecutionDomain",
+    "ExerciseMaxDomain",
+]

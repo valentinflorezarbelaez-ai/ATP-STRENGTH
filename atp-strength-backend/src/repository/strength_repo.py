@@ -2,7 +2,7 @@ import datetime
 
 from sqlalchemy.orm import Session
 
-from src.domain.models import ExerciseExecution, ExerciseMax
+from src.infrastructure.db.models import ExerciseExecution, ExerciseMax
 
 
 class StrengthRepository:

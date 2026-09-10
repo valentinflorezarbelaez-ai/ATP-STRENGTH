@@ -1,3 +1,5 @@
+"use client";
+
 const REST_PLACEHOLDER_EXERCISE = {
   name: "Descanso y Supercompensación",
   sets: 0,
@@ -5,8 +7,6 @@ const REST_PLACEHOLDER_EXERCISE = {
   restSeconds: 0,
   cue: "Regeneración del Sistema Nervioso Central",
 };
-
-"use client";
 
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { enqueueWalEntry } from "@/lib/walSync";
