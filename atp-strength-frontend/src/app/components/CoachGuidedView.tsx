@@ -729,7 +729,7 @@ export function CoachGuidedView({ d }: { d: Dash }) {
       </section>
 
       {/* 4. Bottom Exercise Navigation Bar */}
-      <footer className="w-full max-w-2xl flex items-center justify-between gap-3 pt-4 border-t border-zinc-900/80">
+      <footer className="w-full max-w-2xl flex items-center justify-between gap-3 pt-4 border-t border-zinc-900/80 safe-area-bottom-bar">
         <button
           type="button"
           onClick={handlePreviousExercise}

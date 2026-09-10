@@ -24,6 +24,7 @@ type AbsoluteSession = {
 /**
  * High-precision ATP timer — SPEC-0001 target-timestamp drift protection.
  * Remaining = max(0, targetTimestamp - Date.now()); no decrement-by-one ticks.
+ * Integrates Media Session API & Web Notifications for zero-latency background recovery.
  */
 export function useAtpTimer(initialSeconds = 180) {
   const [timerDuration, setTimerDuration] = useState(initialSeconds);
@@ -39,28 +40,15 @@ export function useAtpTimer(initialSeconds = 180) {
     };
   }, []);
 
+  // Synchronize document title with remaining countdown for instant tab visibility
   useEffect(() => {
-    if (!isRunning || !sessionRef.current) return undefined;
-
-    completedRef.current = false;
-    const id = setInterval(() => {
-      const session = sessionRef.current;
-      if (!session) return;
-      const tick = tickAbsoluteTimer(session, Date.now()) as AbsoluteSession;
-      sessionRef.current = tick;
-      const secs = Math.ceil((tick.timeRemainingMs ?? 0) / 1000);
-      setRemainingSeconds(secs);
-
-      if (tick.status === "COMPLETE" && !completedRef.current) {
-        completedRef.current = true;
-        setIsRunning(false);
-        triggerPhaseCompleteHaptic();
-        playChime(false);
-      }
-    }, 250);
-
-    return () => clearInterval(id);
-  }, [isRunning]);
+    if (typeof document === "undefined") return;
+    if (isRunning && remainingSeconds > 0) {
+      document.title = `(${remainingSeconds}s) ${timerTitle} • NEURO//STRENGTH`;
+    } else {
+      document.title = "NEURO//STRENGTH - ATP Zen Engine";
+    }
+  }, [isRunning, remainingSeconds, timerTitle]);
 
   const handleStartTimer = useCallback((duration: number, title = "Resíntesis de ATP-PCr") => {
     const durationMs = Math.max(1, Math.round(duration * 1000));
@@ -75,6 +63,15 @@ export function useAtpTimer(initialSeconds = 180) {
     setTimerDuration(duration);
     setRemainingSeconds(duration);
     setIsRunning(true);
+
+    // Request notification permission smoothly on first explicit timer start
+    if (
+      typeof window !== "undefined" &&
+      "Notification" in window &&
+      Notification.permission === "default"
+    ) {
+      void Notification.requestPermission();
+    }
   }, []);
 
   const togglePlayPause = useCallback(() => {
@@ -111,6 +108,85 @@ export function useAtpTimer(initialSeconds = 180) {
     setIsRunning(false);
     setRemainingSeconds(0);
   }, []);
+
+  // Synchronize with OS Media Session API (iOS lock screen & Android notification bar)
+  useEffect(() => {
+    if (typeof navigator === "undefined" || !("mediaSession" in navigator)) return;
+
+    if (isRunning) {
+      try {
+        navigator.mediaSession.metadata = new MediaMetadata({
+          title: `Resíntesis ATP: ${remainingSeconds}s`,
+          artist: "NEURO//STRENGTH",
+          album: timerTitle,
+          artwork: [
+            { src: "/icon-192.png", sizes: "192x192", type: "image/png" },
+          ],
+        });
+
+        navigator.mediaSession.setActionHandler("play", () => {
+          togglePlayPause();
+        });
+        navigator.mediaSession.setActionHandler("pause", () => {
+          togglePlayPause();
+        });
+        navigator.mediaSession.setActionHandler("nexttrack", () => {
+          skipRest();
+        });
+      } catch {
+        // ignore
+      }
+    } else {
+      try {
+        navigator.mediaSession.setActionHandler("play", null);
+        navigator.mediaSession.setActionHandler("pause", null);
+        navigator.mediaSession.setActionHandler("nexttrack", null);
+      } catch {
+        // ignore
+      }
+    }
+  }, [isRunning, remainingSeconds, timerTitle, togglePlayPause, skipRest]);
+
+  useEffect(() => {
+    if (!isRunning || !sessionRef.current) return undefined;
+
+    completedRef.current = false;
+    const id = setInterval(() => {
+      const session = sessionRef.current;
+      if (!session) return;
+      const tick = tickAbsoluteTimer(session, Date.now()) as AbsoluteSession;
+      sessionRef.current = tick;
+      const secs = Math.ceil((tick.timeRemainingMs ?? 0) / 1000);
+      setRemainingSeconds(secs);
+
+      if (tick.status === "COMPLETE" && !completedRef.current) {
+        completedRef.current = true;
+        setIsRunning(false);
+        triggerPhaseCompleteHaptic();
+        playChime(false);
+
+        // System notification if athlete minimized tab or locked screen
+        if (
+          typeof window !== "undefined" &&
+          "Notification" in window &&
+          Notification.permission === "granted" &&
+          document.visibilityState === "hidden"
+        ) {
+          try {
+            new Notification("¡Resíntesis de ATP Completada!", {
+              body: "Tu sistema neuromuscular y fosfocreatina están al 100%. ¡Listo para la siguiente serie!",
+              icon: "/icon-192.png",
+              silent: false,
+            });
+          } catch {
+            // ignore
+          }
+        }
+      }
+    }, 250);
+
+    return () => clearInterval(id);
+  }, [isRunning]);
 
   const progressPercent =
     timerDuration > 0 ? ((timerDuration - remainingSeconds) / timerDuration) * 100 : 0;
