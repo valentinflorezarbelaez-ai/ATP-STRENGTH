@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ATP STRENGTH // El Estándar Científico de Fuerza Absoluta</title>
+  <style>
+    :root {
+      --bg: #09090b;
+      --card-bg: #121216;
+      --card-hover: #18181f;
+      --border: #27272a;
+      --border-accent: rgba(245, 158, 11, 0.35);
+      --text: #f4f4f5;
+      --text-muted: #a1a1aa;
+      --gold: #f59e0b;
+      --gold-light: #fbbf24;
+      --cyan: #00f0ff;
+      --purple: #a855f7;
+      --emerald: #10b981;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Ambient Lighting */
+    .ambient-glow {
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100%;
+      max-width: 1200px;
+      height: 550px;
+      background: radial-gradient(circle at 50% 10%, rgba(245, 158, 11, 0.15) 0%, rgba(168, 85, 247, 0.05) 45%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 1.5rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Navbar */
+    header.navbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.75rem 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      text-decoration: none;
+      color: #fff;
+    }
+
+    .brand-icon {
+      width: 38px;
+      height: 38px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(245, 158, 11, 0.05));
+      border: 1px solid rgba(245, 158, 11, 0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+    }
+
+    .brand-name {
+      font-weight: 900;
+      letter-spacing: -0.02em;
+      font-size: 1.2rem;
+    }
+
+    .brand-name span {
+      color: var(--gold);
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 2rem;
+    }
+
+    .nav-link {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 0.85rem;
+      font-weight: 600;
+      transition: color 0.2s;
+    }
+
+    .nav-link:hover {
+      color: #fff;
+    }
+
+    .nav-cta {
+      background: var(--gold);
+      color: #000;
+      font-weight: 800;
+      padding: 0.6rem 1.2rem;
+      border-radius: 10px;
+      font-size: 0.8rem;
+      text-decoration: none;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      transition: all 0.2s;
+    }
+
+    .nav-cta:hover {
+      background: var(--gold-light);
+      transform: translateY(-2px);
+    }
+
+    /* Hero Section */
+    .hero {
+      text-align: center;
+      padding: 5rem 1rem 3.5rem 1rem;
+    }
+
+    .hero-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.4rem 1.1rem;
+      border-radius: 9999px;
+      background: rgba(245, 158, 11, 0.1);
+      border: 1px solid rgba(245, 158, 11, 0.3);
+      color: var(--gold);
+      font-size: 0.75rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      margin-bottom: 1.5rem;
+    }
+
+    .hero-title {
+      font-size: 3.5rem;
+      font-weight: 900;
+      letter-spacing: -0.04em;
+      line-height: 1.1;
+      max-width: 900px;
+      margin: 0 auto 1.5rem auto;
+      background: linear-gradient(180deg, #ffffff 15%, #a1a1aa 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero-subtitle {
+      font-size: 1.2rem;
+      color: var(--text-muted);
+      max-width: 720px;
+      margin: 0 auto 3rem auto;
+      line-height: 1.6;
+    }
+
+    /* DIRECT ACCESS HUB GRID (PRIMARY USER GOAL) */
+    .hub-section {
+      margin-bottom: 5rem;
+    }
+
+    .hub-label {
+      text-align: center;
+      font-family: ui-monospace, monospace;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      color: var(--gold);
+      margin-bottom: 1.5rem;
+      font-weight: 800;
+    }
+
+    .hub-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1.25rem;
+    }
+
+    .hub-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 1.5rem;
+      padding: 2rem 1.5rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      text-decoration: none;
+      color: inherit;
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hub-card:hover {
+      transform: translateY(-4px);
+      border-color: var(--border-accent);
+      background: var(--card-hover);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+    }
+
+    .hub-card-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 1.5rem;
+    }
+
+    .hub-icon {
+      font-size: 2rem;
+    }
+
+    .hub-tag {
+      font-family: ui-monospace, monospace;
+      font-size: 0.65rem;
+      font-weight: 800;
+      padding: 0.25rem 0.6rem;
+      border-radius: 6px;
+      text-transform: uppercase;
+    }
+
+    .tag-app {
+      background: rgba(16, 185, 129, 0.15);
+      border: 1px solid rgba(16, 185, 129, 0.4);
+      color: #34d399;
+    }
+
+    .tag-html {
+      background: rgba(0, 240, 255, 0.15);
+      border: 1px solid rgba(0, 240, 255, 0.4);
+      color: #38bdf8;
+    }
+
+    .tag-pdf {
+      background: rgba(245, 158, 11, 0.15);
+      border: 1px solid rgba(245, 158, 11, 0.4);
+      color: var(--gold);
+    }
+
+    .tag-github {
+      background: rgba(168, 85, 247, 0.15);
+      border: 1px solid rgba(168, 85, 247, 0.4);
+      color: #c084fc;
+    }
+
+    .hub-title {
+      font-size: 1.25rem;
+      font-weight: 800;
+      margin-bottom: 0.5rem;
+      color: #fff;
+    }
+
+    .hub-desc {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+      margin-bottom: 1.5rem;
+    }
+
+    .hub-action {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.8rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--gold);
+    }
+
+    /* MISSION & VISION SECTION */
+    .mission-section {
+      background: linear-gradient(180deg, #111115 0%, #0c0c0e 100%);
+      border: 1px solid var(--border);
+      border-radius: 2rem;
+      padding: 3.5rem 2.5rem;
+      margin-bottom: 5rem;
+    }
+
+    .mission-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 3rem;
+    }
+
+    @media (max-width: 768px) {
+      .hero-title { font-size: 2.3rem; }
+      .mission-grid { grid-template-columns: 1fr; gap: 2rem; }
+      .nav-links { display: none; }
+    }
+
+    .pillar-kicker {
+      font-family: ui-monospace, monospace;
+      font-size: 0.75rem;
+      font-weight: 800;
+      color: var(--gold);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 0.5rem;
+    }
+
+    .pillar-heading {
+      font-size: 1.75rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 1rem;
+      color: #fff;
+    }
+
+    .pillar-text {
+      color: #d4d4d8;
+      font-size: 0.95rem;
+      line-height: 1.7;
+    }
+
+    /* MARKET VALUE & COMPARISON */
+    .market-section {
+      margin-bottom: 5rem;
+    }
+
+    .section-title-wrap {
+      text-align: center;
+      margin-bottom: 3rem;
+    }
+
+    .section-title {
+      font-size: 2.2rem;
+      font-weight: 900;
+      letter-spacing: -0.03em;
+      margin-bottom: 0.75rem;
+      color: #fff;
+    }
+
+    .table-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 1.5rem;
+      overflow: hidden;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+    }
+
+    th {
+      background: #18181b;
+      padding: 1.25rem 1.5rem;
+      font-size: 0.8rem;
+      font-family: ui-monospace, monospace;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      border-bottom: 1px solid var(--border);
+    }
+
+    td {
+      padding: 1.25rem 1.5rem;
+      font-size: 0.9rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+      color: #d4d4d8;
+      vertical-align: middle;
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    .col-feature {
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .col-legacy {
+      color: #f43f5e;
+    }
+
+    .col-atp {
+      color: #34d399;
+      font-weight: 700;
+      background: rgba(16, 185, 129, 0.04);
+    }
+
+    /* FOOTER */
+    footer {
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+      padding: 3rem 0;
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 0.85rem;
+    }
+
+    footer a {
+      color: var(--gold);
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+
+<div class="ambient-glow"></div>
+
+<div class="container">
+
+  <!-- NAVBAR -->
+  <header class="navbar">
+    <a href="#" class="brand">
+      <div class="brand-icon">⚡</div>
+      <div class="brand-name">ATP <span>STRENGTH</span></div>
+    </a>
+    <nav class="nav-links">
+      <a href="#hub" class="nav-link">Accesos</a>
+      <a href="#mision" class="nav-link">Misión & Visión</a>
+      <a href="#mercado" class="nav-link">Propuesta de Valor</a>
+      <a href="http://localhost:3333/manual.html" class="nav-link">Manual Interactivo</a>
+      <a href="https://atp-strength.vercel.app" target="_blank" class="nav-cta">Abrir App Web</a>
+    </nav>
+  </header>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-pill">🏛️ SOVIET STRENGTH SCIENCE • TIER 1 BIG TECH ARCHITECTURE</div>
+    <h1 class="hero-title">La Ciencia de la Fuerza Absoluta Sin Quemar Tu Sistema Nervioso</h1>
+    <p class="hero-subtitle">
+      El software de prescripción neuromuscular determinista basado en el modelo olímpico soviético de A.S. Prilepin y la resíntesis completa de ATP-PCr. Cero fallo metabólico. Cero improvisación.
+    </p>
+  </section>
+
+  <!-- DIRECT ACCESS HUB (THE CORE REQUESTED CARDS) -->
+  <section id="hub" class="hub-section">
+    <div class="hub-label">Directorio de Accesos Directos // Ecosistema Completo</div>
+    <div class="hub-grid">
+      
+      <!-- Card 1: Main App -->
+      <a href="https://atp-strength.vercel.app" target="_blank" class="hub-card">
+        <div>
+          <div class="hub-card-top">
+            <div class="hub-icon">🚀</div>
+            <span class="hub-tag tag-app">Producción Vercel</span>
+          </div>
+          <div class="hub-title">Aplicación Web Principal</div>
+          <div class="hub-desc">
+            Coach guiado paso a paso, cronómetro ATP con Media Session y Wake Lock, registro de series en PostgreSQL y cálculo 1RM.
+          </div>
+        </div>
+        <div class="hub-action">
+          <span>Abrir Aplicación</span>
+          <span>→</span>
+        </div>
+      </a>
+
+      <!-- Card 2: Interactive Manual HTML -->
+      <a href="http://localhost:3333/manual.html" class="hub-card">
+        <div>
+          <div class="hub-card-top">
+            <div class="hub-icon">⚡</div>
+            <span class="hub-tag tag-html">Simuladores Vivos</span>
+          </div>
+          <div class="hub-title">Manual Interactivo (HTML)</div>
+          <div class="hub-desc">
+            Sliders en tiempo real de la tabla de Prilepin, infografías vectoriales SVG de Henneman y autoevaluación interactiva con feedback.
+          </div>
+        </div>
+        <div class="hub-action">
+          <span>Explorar Simulador</span>
+          <span>→</span>
+        </div>
+      </a>
+
+      <!-- Card 3: PDF Manual -->
+      <a href="http://localhost:3333/manual.pdf" target="_blank" class="hub-card">
+        <div>
+          <div class="hub-card-top">
+            <div class="hub-icon">📄</div>
+            <span class="hub-tag tag-pdf">PDF 442 KB</span>
+          </div>
+          <div class="hub-title">Manual Científico (PDF)</div>
+          <div class="hub-desc">
+            Documento de alta resolución optimizado para lectura y descarga directa. Todas las fórmulas, tablas y protocolos de sobrecarga.
+          </div>
+        </div>
+        <div class="hub-action">
+          <span>Descargar PDF</span>
+          <span>↓</span>
+        </div>
+      </a>
+
+      <!-- Card 4: GitHub Repository -->
+      <a href="https://github.com/valentinflorezarbelaez-ai/ATP-STRENGTH" target="_blank" class="hub-card">
+        <div>
+          <div class="hub-card-top">
+            <div class="hub-icon">🏛️</div>
+            <span class="hub-tag tag-github">Open Code</span>
+          </div>
+          <div class="hub-title">Código & Arquitectura</div>
+          <div class="hub-desc">
+            Repositorio GitHub completo: Clean Architecture, FastAPI, Next.js 16 App Router, WAL Engine offline y 53 tests unitarios.
+          </div>
+        </div>
+        <div class="hub-action">
+          <span>Ver en GitHub</span>
+          <span>↗</span>
+        </div>
+      </a>
+
+    </div>
+  </section>
+
+  <!-- MISIÓN & VISIÓN -->
+  <section id="mision" class="mission-section">
+    <div class="mission-grid">
+      <div>
+        <div class="pillar-kicker">01 // PROPÓSITO & MISIÓN</div>
+        <h2 class="pillar-heading">Erradicar el "Entrenamiento por Sensaciones"</h2>
+        <p class="pillar-text">
+          La industria del fitness convence a los atletas de que el sudor y el agotamiento son sinónimos de progreso. <strong>Nuestra misión</strong> es sustituir la conjetura y el daño neural por matemática determinista: prescribir la carga y repeticiones exactas que garanticen la máxima potencia adaptativa sin inducir fallo metabólico ni burnout central.
+        </p>
+      </div>
+      <div>
+        <div class="pillar-kicker">02 // HORIZONTE & VISIÓN</div>
+        <h2 class="pillar-heading">El Estándar de Software para Fuerza de Élite</h2>
+        <p class="pillar-text">
+          <strong>Nuestra visión</strong> es consolidar a ATP STRENGTH como el sistema operativo de referencia mundial para atletas de fuerza, powerlifters y preparadores olímpicos, combinando la biomecánica de la escuela soviética clásica con la ergonomía sensorial de Apple y la robustez tolerante a fallos de Big Tech.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- VALOR EN EL MERCADO / COMPARATIVA -->
+  <section id="mercado" class="market-section">
+    <div class="section-title-wrap">
+      <div class="hero-pill">DIFERENCIAL COMPETITIVO</div>
+      <h2 class="section-title">El Valor Disruptivo en el Mercado</h2>
+      <p style="color: var(--text-muted); max-width: 650px; margin: 0 auto;">
+        Por qué ATP STRENGTH supera radicalmente a las aplicaciones de entrenamiento comercial convencionales.
+      </p>
+    </div>
+
+    <div class="table-card">
+      <table>
+        <thead>
+          <tr>
+            <th>Dimensión</th>
+            <th>Apps Comerciales Convencionales</th>
+            <th>ATP STRENGTH (NEURO//STRENGTH)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="col-feature">Prescripción de Repeticiones</td>
+            <td class="col-legacy">Rangos vagos e imprecisos ("haz 8-12 reps")</td>
+            <td class="col-atp">✔ Enteros deterministas cerrados ("3 reps exactas" vía Prilepin)</td>
+          </tr>
+          <tr>
+            <td class="col-feature">Protección del SNC</td>
+            <td class="col-legacy">Estimulan el fallo muscular concéntrico (RIR 0)</td>
+            <td class="col-atp">✔ Parada obligatoria a RIR 1–2 (98% estímulo, 30% fatiga)</td>
+          </tr>
+          <tr>
+            <td class="col-feature">Resíntesis de Fosfágenos</td>
+            <td class="col-legacy">Pausas arbitrarias de 60 a 90 segundos</td>
+            <td class="col-atp">✔ Bloque biológico de 180s a 300s para 100% de ATP-PCr</td>
+          </tr>
+          <tr>
+            <td class="col-feature">Ergonomía en Gimnasio</td>
+            <td class="col-legacy">La pantalla se apaga; hay que tipear números en teclado</td>
+            <td class="col-atp">✔ W3C Wake Lock activo, Media Session y Quick Plate Stepper</td>
+          </tr>
+          <tr>
+            <td class="col-feature">Tolerancia a Red Offline</td>
+            <td class="col-legacy">Se pierden los datos si se cae el WiFi del gimnasio</td>
+            <td class="col-atp">✔ Motor WAL (Write-Ahead Log) local con sincronización asíncrona</td>
+          </tr>
+          <tr>
+            <td class="col-feature">Control de Carga de Sesión</td>
+            <td class="col-legacy">Métricas superficiales ("calorías quemadas")</td>
+            <td class="col-atp">✔ Medidor de Estrés Neural INOL en vivo (&lt;1.0 Óptimo Soviético)</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <p>© 2026 ATP STRENGTH • Sistema de Alto Rendimiento Neuromuscular.</p>
+    <p style="margin-top: 0.5rem; font-size: 0.75rem;">
+      Basado en A.S. Prilepin (1974), Mike Tuchscherer (RIR/RPE) y el Principio de Henneman.
+    </p>
+  </footer>
+
+</div>
+
+</body>
+</html>
