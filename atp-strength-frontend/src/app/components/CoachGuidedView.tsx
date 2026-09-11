@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import {
   Flame, Sparkles, CheckCircle2, ChevronLeft, ChevronRight,
   Play, Pause, RotateCcw, Volume2, Trophy,
-  Minus, Plus, Activity, Heart, ArrowRight, Coffee, Eye, Sun, Moon
+  Minus, Plus, Activity, Heart, ArrowRight, Coffee, Eye, Sun, Moon, User, Download, Upload, Database
 } from "lucide-react";
 import {
   formatTime,
@@ -16,6 +16,8 @@ import {
 import { PwaInstallPrompt } from "@/components/PwaInstallPrompt";
 import { playTactileClick } from "@/lib/zenAudio";
 import { useWakeLock } from "@/app/hooks/useWakeLock";
+import { getAthleteProfile, setAthleteName, type AthleteProfile } from "@/lib/athleteProfile";
+import { exportBackupJson, exportHistoryCsv, importBackupJsonFile } from "@/lib/dataPortability";
 import type { useZenDashboard } from "@/app/hooks/useZenDashboard";
 import {
   acousticEngine,
@@ -69,6 +71,10 @@ export function CoachGuidedView({ d }: { d: Dash }) {
   } = d;
 
   const [showDayMenu, setShowDayMenu] = useState(false);
+  const [showProfileModal, setShowProfileModal] = useState(false);
+  const [athlete, setAthlete] = useState<AthleteProfile>(() => getAthleteProfile());
+  const [athleteNameInput, setAthleteNameInput] = useState(() => getAthleteProfile().name);
+  const [backupMsg, setBackupMsg] = useState<string | null>(null);
   const [showResetConfirm, setShowResetConfirm] = useState(false);
   const [audioPrefs, setAudioPrefs] = useState<CoachAudioPreferences>(() => getAudioPreferences());
   const hasSpoken10sWarning = React.useRef(false);
@@ -202,6 +208,20 @@ export function CoachGuidedView({ d }: { d: Dash }) {
 
         {/* Header Actions: Mode Toggle & Reset */}
         <div className="flex items-center gap-2">
+          {/* Athlete Profile & Data Backup */}
+          <button
+            type="button"
+            onClick={() => {
+              playTactileClick();
+              setShowProfileModal(true);
+            }}
+            className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-black/10 dark:border-white/15 bg-white/80 dark:bg-white/5 backdrop-blur-xl hover:bg-black/5 dark:hover:bg-white/10 text-xs font-mono font-medium transition-all active:scale-95 cursor-pointer shadow-sm"
+            title="Perfil de Atleta y Copias de Seguridad"
+          >
+            <User className="w-3.5 h-3.5 text-amber-400" />
+            <span className="hidden sm:inline text-zinc-200">{athlete.name}</span>
+          </button>
+
           {/* Apple White / Tidal Dark Toggle */}
           <button
             type="button"
@@ -766,6 +786,133 @@ export function CoachGuidedView({ d }: { d: Dash }) {
           <ChevronRight className="w-4 h-4" />
         </button>
       </footer>
+    
+      {/* 5. Athlete Profile & Data Portability Modal */}
+      {showProfileModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+          <div className="w-full max-w-md p-6 rounded-3xl bg-zinc-950 border border-zinc-800 shadow-2xl space-y-5 animate-in fade-in zoom-in-95 duration-200">
+            <div className="flex items-center justify-between border-b border-zinc-900 pb-3">
+              <div className="flex items-center gap-2">
+                <div className="p-2 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-400">
+                  <User className="w-4 h-4" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-bold text-white uppercase tracking-wider">Perfil de Atleta</h3>
+                  <span className="text-[10px] font-mono text-zinc-500">ID: {athlete.id}</span>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  playTactileClick();
+                  setShowProfileModal(false);
+                }}
+                className="text-zinc-500 hover:text-zinc-300 font-mono text-xs cursor-pointer p-1"
+              >
+                Cerrar ✕
+              </button>
+            </div>
+
+            {/* Athlete Name Field */}
+            <div className="space-y-1.5">
+              <label className="text-[11px] font-mono text-zinc-400 uppercase tracking-wider block">
+                Nombre del Atleta
+              </label>
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={athleteNameInput}
+                  onChange={(e) => setAthleteNameInput(e.target.value)}
+                  className="flex-1 px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-800 text-xs text-white font-medium focus:outline-none focus:border-amber-500/50"
+                  placeholder="Tu nombre o alias"
+                />
+                <button
+                  type="button"
+                  onClick={() => {
+                    try {
+                      playTactileClick();
+                      const updated = setAthleteName(athleteNameInput);
+                      setAthlete(updated);
+                      setBackupMsg("¡Nombre guardado con éxito!");
+                    } catch (err: unknown) {
+                      setBackupMsg(err instanceof Error ? err.message : "Error al guardar");
+                    }
+                  }}
+                  className="px-3 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-black text-xs font-mono font-bold active:scale-95 transition-all cursor-pointer"
+                >
+                  Guardar
+                </button>
+              </div>
+            </div>
+
+            {/* Data Portability Section */}
+            <div className="space-y-2 pt-2 border-t border-zinc-900">
+              <span className="text-[11px] font-mono text-zinc-400 uppercase tracking-wider block">
+                Portabilidad de Datos y Seguridad
+              </span>
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    playTactileClick();
+                    exportBackupJson();
+                    setBackupMsg("Copia de seguridad (.json) descargada");
+                  }}
+                  className="py-2.5 px-3 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-zinc-300 hover:text-white text-xs font-mono font-medium flex items-center justify-center gap-1.5 active:scale-95 transition-all cursor-pointer"
+                >
+                  <Download className="w-3.5 h-3.5 text-amber-400" />
+                  <span>Backup JSON</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    playTactileClick();
+                    exportHistoryCsv(d.exerciseHistory);
+                    setBackupMsg("Historial (.csv) descargado");
+                  }}
+                  className="py-2.5 px-3 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-zinc-300 hover:text-white text-xs font-mono font-medium flex items-center justify-center gap-1.5 active:scale-95 transition-all cursor-pointer"
+                >
+                  <Database className="w-3.5 h-3.5 text-cyan-400" />
+                  <span>Historial CSV</span>
+                </button>
+              </div>
+
+              {/* Restore JSON */}
+              <label className="w-full py-2.5 px-3 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-dashed border-zinc-700 text-zinc-400 hover:text-zinc-200 text-xs font-mono font-medium flex items-center justify-center gap-1.5 active:scale-95 transition-all cursor-pointer block text-center">
+                <Upload className="w-3.5 h-3.5 text-emerald-400 inline mr-1" />
+                <span>Restaurar Copia JSON</span>
+                <input
+                  type="file"
+                  accept=".json"
+                  className="hidden"
+                  onChange={async (e) => {
+                    const file = e.target.files?.[0];
+                    if (!file) return;
+                    try {
+                      playTactileClick();
+                      const res = await importBackupJsonFile(file);
+                      if (res.success) {
+                        setBackupMsg("¡Copia restaurada! Recargando datos...");
+                        setTimeout(() => window.location.reload(), 1200);
+                      }
+                    } catch (err: unknown) {
+                      setBackupMsg(err instanceof Error ? err.message : "Error de restauración");
+                    }
+                  }}
+                />
+              </label>
+            </div>
+
+            {backupMsg && (
+              <div className="p-2.5 rounded-xl bg-zinc-900 border border-amber-500/30 text-[11px] font-mono text-amber-300 text-center animate-in fade-in">
+                {backupMsg}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </main>
+
   );
 }
