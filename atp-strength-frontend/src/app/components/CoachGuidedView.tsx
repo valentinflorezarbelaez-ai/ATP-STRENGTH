@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import {
   Flame, Sparkles, CheckCircle2, ChevronLeft, ChevronRight,
   Play, Pause, RotateCcw, Volume2, Trophy,
-  Minus, Plus, Activity, Heart, ArrowRight, Coffee, Eye, Sun, Moon, User, Download, Upload, Database
+  Minus, Plus, Activity, Heart, ArrowRight, Coffee, Eye, Sun, Moon, User, Download, Upload, Database, Zap
 } from "lucide-react";
 import {
   computeEstimated1Rm,
@@ -14,6 +14,7 @@ import {
 } from "@/lib/workoutStrategies";
 import { PwaInstallPrompt } from "@/components/PwaInstallPrompt";
 import { AtpEnergyRing } from "@/app/components/AtpEnergyRing";
+import { getPrilepinPrescription } from "@/lib/prilepinEngine.mjs";
 import { playTactileClick } from "@/lib/zenAudio";
 import { useWakeLock } from "@/app/hooks/useWakeLock";
 import { getAthleteProfile, setAthleteName, type AthleteProfile } from "@/lib/athleteProfile";
@@ -124,6 +125,10 @@ export function CoachGuidedView({ d }: { d: Dash }) {
     const next = Math.max(1, current + delta);
     setInputReps(String(next));
   };
+
+  const currentWeightNum = parseFloat(inputWeight) || 0;
+  const current1RmNum = activeExMax?.one_rep_max || 0;
+  const prilepin = getPrilepinPrescription(currentWeightNum, current1RmNum);
 
   const isWarmupPhase = ["F0", "F1", "F2", "F3", "F4"].includes(activePhaseStep);
   const currentSetsList = (activeExercise && completedSetsMap[activeExercise.name]) || [];
@@ -612,6 +617,37 @@ export function CoachGuidedView({ d }: { d: Dash }) {
                     Descanso programado: {activeExercise.restSeconds || 180}s
                   </span>
                 </div>
+
+                  {/* Soviet Prilepin Exact Target Banner */}
+                  <div className="p-4 rounded-2xl bg-gradient-to-r from-amber-500/15 via-amber-500/5 to-transparent border border-amber-500/30 space-y-2">
+                    <div className="flex items-center justify-between gap-2 flex-wrap">
+                      <div className="flex items-center gap-2">
+                        <Zap className="w-4 h-4 text-amber-400 animate-pulse" />
+                        <span className="text-xs font-mono font-black text-amber-300 uppercase tracking-wider">
+                          PRESCRIPCIÓN EXACTA RUSA (PRILEPIN)
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="px-2.5 py-0.5 rounded-lg bg-amber-400 text-black text-xs font-black font-mono shadow-sm">
+                          {prilepin.exactTargetReps} REPS EXACTAS
+                        </span>
+                        {prilepin.setInol > 0 && (
+                          <span className="px-2 py-0.5 rounded-lg bg-zinc-900 border border-zinc-800 text-amber-400 text-[10px] font-mono font-bold">
+                            INOL: +{prilepin.setInol}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+
+                    <p className="text-[11px] text-zinc-300 font-sans leading-relaxed">
+                      {prilepin.intensityPercent > 0 ? (
+                        <span className="font-mono text-amber-400 font-bold mr-1">
+                          {prilepin.intensityPercent}% 1RM ({prilepin.zoneName}):
+                        </span>
+                      ) : null}
+                      {prilepin.rationale}
+                    </p>
+                  </div>
 
                 {/* Weight & Reps Controllers (Big Ergonomic Touch Targets) */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
