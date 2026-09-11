@@ -15,6 +15,8 @@ import {
 import { PwaInstallPrompt } from "@/components/PwaInstallPrompt";
 import { AtpEnergyRing } from "@/app/components/AtpEnergyRing";
 import { BarbellPlateVisualizer } from "@/app/components/BarbellPlateVisualizer";
+import { TempleIntroSplash } from "@/app/components/TempleIntroSplash";
+import { WarriorWisdomWidget } from "@/app/components/WarriorWisdomWidget";
 import { getPrilepinPrescription, SOVIET_WARMUP_PROTOCOL } from "@/lib/prilepinEngine.mjs";
 import { playTactileClick } from "@/lib/zenAudio";
 import { useWakeLock } from "@/app/hooks/useWakeLock";
@@ -74,6 +76,19 @@ export function CoachGuidedView({ d }: { d: Dash }) {
 
   const [showDayMenu, setShowDayMenu] = useState(false);
   const [showProfileModal, setShowProfileModal] = useState(false);
+  const [showTempleSplash, setShowTempleSplash] = useState(() => {
+    if (typeof window === "undefined") return false;
+    try {
+      const seen = sessionStorage.getItem("atp_temple_splash_seen");
+      if (!seen) {
+        sessionStorage.setItem("atp_temple_splash_seen", "true");
+        return true;
+      }
+      return false;
+    } catch {
+      return false;
+    }
+  });
   const [athlete, setAthlete] = useState<AthleteProfile>(() => getAthleteProfile());
   const [athleteNameInput, setAthleteNameInput] = useState(() => getAthleteProfile().name);
   const [backupMsg, setBackupMsg] = useState<string | null>(null);
@@ -216,6 +231,20 @@ export function CoachGuidedView({ d }: { d: Dash }) {
 
         {/* Header Actions: Mode Toggle & Reset */}
         <div className="flex items-center gap-2">
+          {/* Templo de los Titanes & Filosofía Guerrera */}
+          <button
+            type="button"
+            onClick={() => {
+              playTactileClick();
+              setShowTempleSplash(true);
+            }}
+            className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-amber-500/40 bg-amber-500/15 hover:bg-amber-500/25 text-xs font-mono font-bold text-amber-300 transition-all active:scale-95 cursor-pointer shadow-sm"
+            title="El Templo de los Titanes: Perseo, Hércules, Leónidas y Sabiduría Gnóstica"
+          >
+            <Zap className="w-3.5 h-3.5 text-amber-400 animate-pulse" />
+            <span className="hidden sm:inline">TEMPLO</span>
+          </button>
+
           {/* Athlete Profile & Data Backup */}
           <button
             type="button"
@@ -486,6 +515,9 @@ export function CoachGuidedView({ d }: { d: Dash }) {
                 atpSaturationPercent={atpSaturationPercent}
                 timerTitle={timerTitle}
               />
+
+              {/* Gnostic / Stoic Warrior Wisdom Quote */}
+              <WarriorWisdomWidget className="max-w-md mx-auto" />
 
               {/* Mindful Breathing Guide */}
             <div className="p-4 rounded-2xl bg-zinc-900/70 border border-zinc-800/80 space-y-1.5 max-w-md mx-auto">
@@ -945,6 +977,12 @@ export function CoachGuidedView({ d }: { d: Dash }) {
       </footer>
     
       {/* 5. Athlete Profile & Data Portability Modal */}
+      {/* 6. El Templo de los Titanes Heroic Splash */}
+      <TempleIntroSplash
+        isOpen={showTempleSplash}
+        onClose={() => setShowTempleSplash(false)}
+      />
+
       {showProfileModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
           <div className="w-full max-w-md p-6 rounded-3xl bg-zinc-950 border border-zinc-800 shadow-2xl space-y-5 animate-in fade-in zoom-in-95 duration-200">
