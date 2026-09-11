@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import {
   Flame, Sparkles, CheckCircle2, ChevronLeft, ChevronRight,
   Play, Pause, RotateCcw, Volume2, Trophy,
-  Minus, Plus, Activity, Heart, ArrowRight, Coffee, Eye, Sun, Moon, User, Download, Upload, Database, Zap
+  Minus, Plus, Activity, Heart, ArrowRight, Coffee, Eye, Sun, Moon, Laptop, User, Download, Upload, Database, Zap
 } from "lucide-react";
 import {
   computeEstimated1Rm,
@@ -227,22 +227,33 @@ export function CoachGuidedView({ d }: { d: Dash }) {
             <span className="hidden sm:inline text-zinc-200">{athlete.name}</span>
           </button>
 
-          {/* Apple White / Tidal Dark Toggle */}
+          {/* Qobuz / Apple Music Tri-Mode Aspect Toggle */}
           <button
             type="button"
             onClick={d.toggleTheme}
             className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-black/10 dark:border-white/15 bg-white/80 dark:bg-white/5 backdrop-blur-xl hover:bg-black/5 dark:hover:bg-white/10 text-xs font-mono font-medium transition-all active:scale-95 cursor-pointer shadow-sm"
-            title={d.themeMode === 'dark' ? "Cambiar a Modo Apple White" : "Cambiar a Modo Tidal Dark"}
+            title={
+              d.themeMode === 'dark'
+                ? "Modo Oscuro (Qobuz Obsidian). Clic para Modo Sistema"
+                : d.themeMode === 'light'
+                ? "Modo Claro (Apple Porcelain). Clic para Modo Oscuro"
+                : "Modo Sistema (Automático). Clic para Modo Claro"
+            }
           >
             {d.themeMode === 'dark' ? (
               <>
-                <Sun className="w-3.5 h-3.5 text-amber-400" />
-                <span className="hidden sm:inline text-zinc-200">LIGHT</span>
+                <Moon className="w-3.5 h-3.5 text-amber-400" />
+                <span className="hidden sm:inline text-zinc-200">DARK</span>
+              </>
+            ) : d.themeMode === 'light' ? (
+              <>
+                <Sun className="w-3.5 h-3.5 text-amber-500" />
+                <span className="hidden sm:inline text-zinc-800">LIGHT</span>
               </>
             ) : (
               <>
-                <Moon className="w-3.5 h-3.5 text-sky-500" />
-                <span className="hidden sm:inline text-zinc-800">DARK</span>
+                <Laptop className="w-3.5 h-3.5 text-amber-400" />
+                <span className="hidden sm:inline text-zinc-300">AUTO</span>
               </>
             )}
           </button>
@@ -878,6 +889,61 @@ export function CoachGuidedView({ d }: { d: Dash }) {
               >
                 Cerrar ✕
               </button>
+            </div>
+
+            {/* Qobuz-Style Aspecto / Theme Selector */}
+            <div className="space-y-2 pb-3 border-b border-zinc-900">
+              <div className="flex items-center gap-1.5 text-xs font-mono font-medium text-zinc-300">
+                <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+                <span>Aspecto</span>
+              </div>
+              <div className="grid grid-cols-3 gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    playTactileClick();
+                    d.setThemeMode('light');
+                  }}
+                  className={`flex flex-col items-center justify-center gap-1.5 py-3 px-2 rounded-2xl border text-xs font-medium transition-all cursor-pointer ${
+                    d.themeMode === 'light'
+                      ? 'bg-amber-500/15 border-amber-500/50 text-amber-400 shadow-sm font-bold'
+                      : 'bg-zinc-900/60 border-zinc-800/80 text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900'
+                  }`}
+                >
+                  <Sun className="w-4 h-4" />
+                  <span>Claro</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    playTactileClick();
+                    d.setThemeMode('dark');
+                  }}
+                  className={`flex flex-col items-center justify-center gap-1.5 py-3 px-2 rounded-2xl border text-xs font-medium transition-all cursor-pointer ${
+                    d.themeMode === 'dark'
+                      ? 'bg-amber-500/15 border-amber-500/50 text-amber-400 shadow-sm font-bold'
+                      : 'bg-zinc-900/60 border-zinc-800/80 text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900'
+                  }`}
+                >
+                  <Moon className="w-4 h-4" />
+                  <span>Oscuro</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    playTactileClick();
+                    d.setThemeMode('system');
+                  }}
+                  className={`flex flex-col items-center justify-center gap-1.5 py-3 px-2 rounded-2xl border text-xs font-medium transition-all cursor-pointer ${
+                    d.themeMode === 'system'
+                      ? 'bg-amber-500/15 border-amber-500/50 text-amber-400 shadow-sm font-bold'
+                      : 'bg-zinc-900/60 border-zinc-800/80 text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900'
+                  }`}
+                >
+                  <Laptop className="w-4 h-4" />
+                  <span>Sistema</span>
+                </button>
+              </div>
             </div>
 
             {/* Athlete Name Field */}

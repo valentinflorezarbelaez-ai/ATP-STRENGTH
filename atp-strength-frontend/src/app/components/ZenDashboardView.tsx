@@ -9,7 +9,7 @@ import {
   Flame, Zap, RotateCcw, CheckCircle2, Calendar, Activity,
   ShieldCheck, Lock, Maximize2, Layers, Sparkles,
   TrendingUp, X, Save, Dumbbell, History, Calculator,
-  AlertTriangle, Trophy, Sun, Moon,
+  AlertTriangle, Trophy, Sun, Moon, Laptop,
 } from "lucide-react";
 import { computeMetrics } from "@/lib/workoutStrategies";
 import type { useZenDashboard } from "@/app/hooks/useZenDashboard";
@@ -89,22 +89,33 @@ export function ZenDashboardView({ d }: { d: Dash }) {
 
         {/* Acciones de Cabecera (Totalmente visibles y adaptativas en móvil) */}
         <div className="flex items-center gap-2.5 w-full md:w-auto">
-          {/* Apple White / Tidal Dark Toggle */}
+          {/* Qobuz / Apple Music Tri-Mode Aspect Toggle */}
           <button
             type="button"
             onClick={d.toggleTheme}
             className="flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-full border border-black/10 dark:border-white/15 bg-white/80 dark:bg-white/5 backdrop-blur-xl hover:bg-black/5 dark:hover:bg-white/10 text-xs font-mono font-bold transition-all transform active:scale-95 cursor-pointer shadow-sm"
-            title={d.themeMode === 'dark' ? "Cambiar a Modo Apple White" : "Cambiar a Modo Tidal Dark"}
+            title={
+              d.themeMode === 'dark'
+                ? "Modo Oscuro (Qobuz Obsidian). Clic para Modo Sistema"
+                : d.themeMode === 'light'
+                ? "Modo Claro (Apple Porcelain). Clic para Modo Oscuro"
+                : "Modo Sistema (Automático). Clic para Modo Claro"
+            }
           >
             {d.themeMode === 'dark' ? (
               <>
-                <Sun className="w-4 h-4 text-amber-400 flex-shrink-0" />
-                <span className="hidden sm:inline text-zinc-200">LIGHT</span>
+                <Moon className="w-4 h-4 text-amber-400 flex-shrink-0" />
+                <span className="hidden sm:inline text-zinc-200">DARK</span>
+              </>
+            ) : d.themeMode === 'light' ? (
+              <>
+                <Sun className="w-4 h-4 text-amber-500 flex-shrink-0" />
+                <span className="hidden sm:inline text-zinc-800">LIGHT</span>
               </>
             ) : (
               <>
-                <Moon className="w-4 h-4 text-sky-500 flex-shrink-0" />
-                <span className="hidden sm:inline text-zinc-800">DARK</span>
+                <Laptop className="w-4 h-4 text-amber-400 flex-shrink-0" />
+                <span className="hidden sm:inline text-zinc-300">AUTO</span>
               </>
             )}
           </button>

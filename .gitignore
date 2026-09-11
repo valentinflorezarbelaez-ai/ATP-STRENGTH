@@ -44,3 +44,5 @@ Thumbs.db
 *.db
 *.sqlite
 *.sqlite3
+
+active_server_port.txt

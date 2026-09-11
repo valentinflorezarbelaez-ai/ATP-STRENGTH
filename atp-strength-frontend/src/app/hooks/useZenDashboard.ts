@@ -58,32 +58,58 @@ export function useZenDashboard() {
   );
 
   const [zenFocusMode, setZenFocusMode] = useState(false);
-  const [themeMode, setThemeMode] = useState<'light' | 'dark'>(() => {
-    if (typeof window === 'undefined') return 'light';
+  const [themeMode, setThemeMode] = useState<'light' | 'dark' | 'system'>(() => {
+    if (typeof window === 'undefined') return 'dark';
     try {
       const saved = localStorage.getItem('neuro_strength_theme');
-      return (saved === 'dark' || saved === 'light') ? saved : 'light';
+      return (saved === 'dark' || saved === 'light' || saved === 'system') ? (saved as 'light' | 'dark' | 'system') : 'dark';
     } catch {
-      return 'light';
+      return 'dark';
     }
   });
 
   useEffect(() => {
     if (typeof document === 'undefined') return;
-    if (themeMode === 'dark') {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
+
+    const applyTheme = () => {
+      let isDark = false;
+      if (themeMode === 'dark') {
+        isDark = true;
+      } else if (themeMode === 'light') {
+        isDark = false;
+      } else {
+        isDark = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)').matches : true;
+      }
+
+      if (isDark) {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+    };
+
+    applyTheme();
+
     try {
       localStorage.setItem('neuro_strength_theme', themeMode);
     } catch {
       // ignore
     }
+
+    if (themeMode === 'system' && typeof window !== 'undefined' && window.matchMedia) {
+      const mq = window.matchMedia('(prefers-color-scheme: dark)');
+      const listener = () => applyTheme();
+      mq.addEventListener('change', listener);
+      return () => mq.removeEventListener('change', listener);
+    }
   }, [themeMode]);
 
   const toggleTheme = useCallback(() => {
-    setThemeMode((prev) => (prev === 'light' ? 'dark' : 'light'));
+    setThemeMode((prev) => {
+      if (prev === 'light') return 'dark';
+      if (prev === 'dark') return 'system';
+      return 'light';
+    });
   }, []);
   const [coachMode, setCoachMode] = useState<boolean>(() => {
     if (typeof window === "undefined") return true;
