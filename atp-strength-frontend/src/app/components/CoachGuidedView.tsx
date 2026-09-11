@@ -14,7 +14,7 @@ import {
 } from "@/lib/workoutStrategies";
 import { PwaInstallPrompt } from "@/components/PwaInstallPrompt";
 import { AtpEnergyRing } from "@/app/components/AtpEnergyRing";
-import { getPrilepinPrescription } from "@/lib/prilepinEngine.mjs";
+import { getPrilepinPrescription, SOVIET_WARMUP_PROTOCOL } from "@/lib/prilepinEngine.mjs";
 import { playTactileClick } from "@/lib/zenAudio";
 import { useWakeLock } from "@/app/hooks/useWakeLock";
 import { getAthleteProfile, setAthleteName, type AthleteProfile } from "@/lib/athleteProfile";
@@ -133,50 +133,50 @@ export function CoachGuidedView({ d }: { d: Dash }) {
   const isWarmupPhase = ["F0", "F1", "F2", "F3", "F4"].includes(activePhaseStep);
   const currentSetsList = (activeExercise && completedSetsMap[activeExercise.name]) || [];
 
-  // Descriptive text for warmup phases
+  // Descriptive text for warmup phases (Soviet Deterministic Protocol)
   const getWarmupPhaseInfo = (phase: string) => {
     switch (phase) {
       case "F0":
         return {
-          title: "F0: Movilidad Articular",
+          title: SOVIET_WARMUP_PROTOCOL.F0.title,
           load: "Sin peso",
-          reps: "8-10 reps",
-          cue: "Rotaciones articulares controladas. Prepará ligamentos y cápsula articular sin fatiga.",
+          reps: SOVIET_WARMUP_PROTOCOL.F0.repsLabel,
+          cue: SOVIET_WARMUP_PROTOCOL.F0.cue,
         };
       case "F1":
         return {
-          title: "F1: Activación Dinámica",
+          title: SOVIET_WARMUP_PROTOCOL.F1.title,
           load: activeExercise.name.toLowerCase().includes("dominada") ? "Peso corporal" : "Barra sola (20 kg)",
-          reps: "5-6 reps",
-          cue: "Sentí la trayectoria exacta de la barra. Enfocate en la fluidez y simetría del movimiento.",
+          reps: SOVIET_WARMUP_PROTOCOL.F1.repsLabel,
+          cue: SOVIET_WARMUP_PROTOCOL.F1.cue,
         };
       case "F2":
         return {
-          title: "F2: Aproximación Liviana",
-          load: activeExMax?.prescriptions.phase_2_light ? `${activeExMax.prescriptions.phase_2_light} kg` : "40-50 kg",
-          reps: "4 reps",
-          cue: "Carga liviana pero intención máxima: acelerá la barra en la fase concéntrica.",
+          title: SOVIET_WARMUP_PROTOCOL.F2.title,
+          load: activeExMax?.prescriptions.phase_2_light ? `${activeExMax.prescriptions.phase_2_light} kg` : "40-50 kg (~50%)",
+          reps: SOVIET_WARMUP_PROTOCOL.F2.repsLabel,
+          cue: SOVIET_WARMUP_PROTOCOL.F2.cue,
         };
       case "F3":
         return {
-          title: "F3: Aproximación Media",
-          load: activeExMax?.prescriptions.phase_3_medium ? `${activeExMax.prescriptions.phase_3_medium} kg` : "65-75 kg",
-          reps: "3 reps",
-          cue: "La barra ya empieza a sentirse sólida. Mantené la tensión abdominal y respiración diafragmática.",
+          title: SOVIET_WARMUP_PROTOCOL.F3.title,
+          load: activeExMax?.prescriptions.phase_3_medium ? `${activeExMax.prescriptions.phase_3_medium} kg` : "65-75 kg (~70%)",
+          reps: SOVIET_WARMUP_PROTOCOL.F3.repsLabel,
+          cue: SOVIET_WARMUP_PROTOCOL.F3.cue,
         };
       case "F4":
         return {
-          title: "F4: Activación Pesada (PAP)",
-          load: activeExMax?.prescriptions.phase_4_pap ? `${activeExMax.prescriptions.phase_4_pap} kg` : "80-85 kg",
-          reps: "1-2 reps",
-          cue: "Potenciación post-activación: despierta todas las unidades motoras antes de las series de trabajo.",
+          title: SOVIET_WARMUP_PROTOCOL.F4.title,
+          load: activeExMax?.prescriptions.phase_4_pap ? `${activeExMax.prescriptions.phase_4_pap} kg` : "80-85 kg (~85%)",
+          reps: SOVIET_WARMUP_PROTOCOL.F4.repsLabel,
+          cue: SOVIET_WARMUP_PROTOCOL.F4.cue,
         };
       default:
         return {
-          title: "Aproximación",
+          title: "Aproximación Técnica",
           load: "Carga progresiva",
-          reps: "3-5 reps",
-          cue: "Calentamiento específico.",
+          reps: "3 reps exactas",
+          cue: "Calentamiento específico controlado.",
         };
     }
   };
@@ -385,6 +385,24 @@ export function CoachGuidedView({ d }: { d: Dash }) {
             style={{ width: `${dayProgressPercent}%` }}
           />
         </div>
+
+        {/* Live Soviet INOL Fatigue Gauge */}
+        {(() => {
+          const stats = d.calculateSessionStats();
+          if (!stats?.sessionInol) return null;
+          return (
+            <div className="flex items-center justify-between px-3.5 py-2 rounded-xl bg-zinc-950/70 border border-zinc-800/80 text-xs font-mono">
+              <div className="flex items-center gap-2">
+                <Zap className="w-3.5 h-3.5 text-amber-400" />
+                <span className="text-zinc-400 text-[11px] font-bold uppercase">Fatiga SNC (INOL):</span>
+                <span className="font-bold text-white text-sm">{stats.sessionInol.totalInol}</span>
+              </div>
+              <span className={`px-2.5 py-0.5 rounded-lg text-[10px] font-bold border ${stats.sessionInol.badgeColor}`}>
+                {stats.sessionInol.label}
+              </span>
+            </div>
+          );
+        })()}
       </section>
 
       {/* 3. Main Guided Card Area */}
@@ -624,7 +642,7 @@ export function CoachGuidedView({ d }: { d: Dash }) {
                       <div className="flex items-center gap-2">
                         <Zap className="w-4 h-4 text-amber-400 animate-pulse" />
                         <span className="text-xs font-mono font-black text-amber-300 uppercase tracking-wider">
-                          PRESCRIPCIÓN EXACTA RUSA (PRILEPIN)
+                          OBJETIVO DETERMINISTA (SNC PROTEGIDO)
                         </span>
                       </div>
                       <div className="flex items-center gap-2">
@@ -680,11 +698,16 @@ export function CoachGuidedView({ d }: { d: Dash }) {
                     </div>
                   </div>
 
-                  {/* Reps Box */}
+                  {/* Reps Box (Soviet Deterministic Exact Target) */}
                   <div className="p-4 rounded-2xl bg-zinc-900/90 border border-zinc-800 space-y-2">
-                    <span className="text-[10px] font-mono text-zinc-400 uppercase tracking-wider block">
-                      Repeticiones objetivo
-                    </span>
+                    <div className="flex items-center justify-between">
+                      <span className="text-[10px] font-mono text-zinc-400 uppercase tracking-wider block">
+                        Repeticiones exactas
+                      </span>
+                      <span className="text-[9px] font-mono font-bold text-amber-400 bg-amber-500/10 px-1.5 py-0.5 rounded border border-amber-500/20">
+                        DETERMINISTA
+                      </span>
+                    </div>
                     <div className="flex items-center justify-between gap-2">
                       <button
                         type="button"
@@ -707,6 +730,19 @@ export function CoachGuidedView({ d }: { d: Dash }) {
                         <Plus className="w-4 h-4" />
                       </button>
                     </div>
+                    {parseInt(inputReps, 10) !== prilepin.exactTargetReps && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          playTactileClick();
+                          setInputReps(String(prilepin.exactTargetReps));
+                        }}
+                        className="w-full mt-1.5 py-1 rounded-lg bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 text-amber-300 text-[10px] font-mono font-bold transition-all cursor-pointer flex items-center justify-center gap-1.5"
+                      >
+                        <Zap className="w-3 h-3 text-amber-400" />
+                        <span>Fijar meta exacta: {prilepin.exactTargetReps} reps (Prilepin)</span>
+                      </button>
+                    )}
                   </div>
                 </div>
 

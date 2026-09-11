@@ -1,5 +1,7 @@
 "use client";
 
+import { getPrilepinPrescription } from "@/lib/prilepinEngine.mjs";
+
 const REST_PLACEHOLDER_EXERCISE = {
   name: "Descanso y Supercompensación",
   sets: 0,
@@ -139,7 +141,10 @@ export function useZenDashboard() {
   const inputWeight =
     activeOverrides.weight ??
     (activeExMax?.prescriptions.phase_5_work ? String(activeExMax.prescriptions.phase_5_work) : "90");
-  const inputReps = activeOverrides.reps ?? String(parseInt(activeExercise.reps, 10) || 3);
+  const defaultDeterministicReps = activeExMax?.one_rep_max
+    ? String(getPrilepinPrescription(parseFloat(inputWeight) || 0, activeExMax.one_rep_max).exactTargetReps)
+    : String(parseInt(activeExercise.reps, 10) || 3);
+  const inputReps = activeOverrides.reps ?? defaultDeterministicReps;
 
   const patchOverride = (field: "weight" | "reps" | "quickWeight" | "quickReps", val: string) => {
     if (!activeExercise) return;

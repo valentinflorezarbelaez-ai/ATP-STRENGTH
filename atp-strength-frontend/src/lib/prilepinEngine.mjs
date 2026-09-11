@@ -14,7 +14,7 @@ export const PRILEPIN_ZONES = Object.freeze({
     optimalReps: 4,
     repRange: Object.freeze([3, 6]),
     optimalTotalVolume: 24,
-    rationale: 'Fase de aceleración máxima: 3-6 repeticiones optimizan el reclutamiento motriz explosivo con fatiga insignificante.',
+    rationale: 'Fase de aceleración máxima: 4 repeticiones exactas optimizan el reclutamiento motriz explosivo con fatiga insignificante.',
   }),
   ZONE_70_79: Object.freeze({
     key: 'ZONE_70_79',
@@ -34,7 +34,7 @@ export const PRILEPIN_ZONES = Object.freeze({
     optimalReps: 3,
     repRange: Object.freeze([2, 4]),
     optimalTotalVolume: 15,
-    rationale: 'Zona Prilepin de Fuerza Absoluta: 2-4 repeticiones (óptimo 3) reclutan el 100% de motoneuronas rápidas tipo IIb.',
+    rationale: 'Zona Prilepin de Fuerza Absoluta: 3 repeticiones exactas reclutan el 100% de motoneuronas rápidas tipo IIb a RIR 1-2.',
   }),
   ZONE_90_PLUS: Object.freeze({
     key: 'ZONE_90_PLUS',
@@ -44,7 +44,49 @@ export const PRILEPIN_ZONES = Object.freeze({
     optimalReps: 1,
     repRange: Object.freeze([1, 2]),
     optimalTotalVolume: 7,
-    rationale: 'Intensidad neural máxima: 1-2 repeticiones exigen sincronización intermuscular extrema sin inducir fallo metabólico.',
+    rationale: 'Intensidad neural máxima: 1 repetición exacta exige sincronización intermuscular extrema sin inducir fallo metabólico.',
+  }),
+});
+
+/**
+ * Deterministic Soviet Warmup & Activation Protocol.
+ * Strict integer prescriptions to protect the Central Nervous System (CNS).
+ */
+export const SOVIET_WARMUP_PROTOCOL = Object.freeze({
+  F0: Object.freeze({
+    phase: 'F0',
+    title: 'F0: Movilidad Articular',
+    exactReps: 8,
+    repsLabel: '8 reps exactas',
+    cue: 'Rotaciones articulares controladas. Prepará ligamentos y cápsula articular sin fatiga metabólica.',
+  }),
+  F1: Object.freeze({
+    phase: 'F1',
+    title: 'F1: Activación Neuromuscular',
+    exactReps: 5,
+    repsLabel: '5 reps exactas',
+    cue: 'Barra sola / sin carga. Aceleración concéntrica limpia para fijar el surco motor neuromuscular.',
+  }),
+  F2: Object.freeze({
+    phase: 'F2',
+    title: 'F2: Aproximación Liviana (~50% 1RM)',
+    exactReps: 4,
+    repsLabel: '4 reps exactas',
+    cue: 'Carga submáxima inicial: velocidad de barra instantánea sin resistencia perceptible.',
+  }),
+  F3: Object.freeze({
+    phase: 'F3',
+    title: 'F3: Aproximación Media (~70% 1RM)',
+    exactReps: 3,
+    repsLabel: '3 reps exactas',
+    cue: 'Tensión diafragmática y brace intraabdominal activo. 3 repeticiones limpias sin desaceleración.',
+  }),
+  F4: Object.freeze({
+    phase: 'F4',
+    title: 'F4: Activación Pesada PAP (~85% 1RM)',
+    exactReps: 1,
+    repsLabel: '1 rep exacta',
+    cue: 'Potenciación Post-Activación (PAP): single solitaria para despertar las motoneuronas sin fatiga residual.',
   }),
 });
 
@@ -80,7 +122,7 @@ export function getPrilepinPrescription(weightKg, oneRepMaxKg) {
       zoneKey: 'ZONE_80_89',
       zoneName: 'Fuerza Absoluta Estándar',
       repRange: [3, 5],
-      rationale: 'Protocolo de fuerza absoluta: 3 repeticiones exactas recomendadas para máxima potencia.',
+      rationale: 'Protocolo soviético de fuerza absoluta: 3 repeticiones exactas recomendadas para máxima potencia.',
       setInol: 0.2,
     };
   }
@@ -103,7 +145,7 @@ export function getPrilepinPrescription(weightKg, oneRepMaxKg) {
 /**
  * Evaluates the accumulated session INOL and returns fatigue/stimulus status.
  * - INOL < 0.4: Estímulo bajo / recuperación
- * - INOL 0.4 - 1.0: Óptimo soviético para progreso de fuerza
+ * - INOL 0.4 - 1.0: Óptimo soviético para progreso de fuerza y protección del SNC
  * - INOL 1.0 - 1.2: Carga dura pero tolerable
  * - INOL > 1.2: Fatiga extrema / riesgo de sobreentrenamiento SNC
  */
@@ -119,7 +161,8 @@ export function evaluateSessionInol(sets = []) {
       totalInol,
       status: 'RECOVERY_VOLUME',
       label: 'Volumen Ligero',
-      guidance: 'Estímulo de descarga o recuperación. Permite sumar más series si el SNC está fresco.',
+      badgeColor: 'text-zinc-400 border-zinc-700 bg-zinc-900',
+      guidance: 'Estímulo de descarga o fase inicial. El SNC está fresco.',
     };
   }
   if (totalInol <= 1.0) {
@@ -127,6 +170,7 @@ export function evaluateSessionInol(sets = []) {
       totalInol,
       status: 'OPTIMAL_STIMULUS',
       label: 'Óptimo Soviético',
+      badgeColor: 'text-emerald-400 border-emerald-500/40 bg-emerald-500/10',
       guidance: 'Óptimo soviético: máximo reclutamiento neural y adaptación sin sobreentrenamiento del SNC.',
     };
   }
@@ -134,14 +178,16 @@ export function evaluateSessionInol(sets = []) {
     return {
       totalInol,
       status: 'HIGH_VOLUME',
-      label: 'Carga Alta',
-      guidance: 'Volumen demandante. Asegurá 4 minutos completos de descanso ATP entre series.',
+      label: 'Carga Alta (Límite Neural)',
+      badgeColor: 'text-amber-400 border-amber-500/40 bg-amber-500/10',
+      guidance: 'Volumen demandante. Asegurá descansos ATP completos de 4 minutos entre series.',
     };
   }
   return {
     totalInol,
     status: 'OVERREACHING',
-    label: 'Sobrecarga Máxima',
-    guidance: 'Límite de fatiga alcanzado. No superar este volumen para evitar degradación de la velocidad de barra.',
+    label: 'Sobrecarga Máxima SNC',
+    badgeColor: 'text-rose-400 border-rose-500/40 bg-rose-500/10',
+    guidance: 'Límite de fatiga alcanzado. Concluir la sesión para preservar la recuperación del SNC.',
   };
 }

@@ -1,3 +1,4 @@
+import { evaluateSessionInol } from './prilepinEngine.mjs';
 /**
  * Workout domain strategies — pure functions and lookup tables.
  * Extracted from page.tsx (First-Principles / Boris Cherny post-green decomposition).
@@ -495,6 +496,7 @@ export function calculateSessionStats(
   let totalKg = 0;
   let totalReps = 0;
   let totalEffectiveSets = 0;
+  const setsForInol: { reps: number; intensity: number }[] = [];
 
   day.exercises.forEach((ex) => {
     const setsDone = completedSetsMap[ex.name] || [];
@@ -503,11 +505,15 @@ export function calculateSessionStats(
       exMax?.prescriptions.phase_5_work ??
       (exMax?.one_rep_max ? Math.round(exMax.one_rep_max * 0.85) : 80);
     const repsCount = parseInt(ex.reps, 10) || 3;
+    const intensity = exMax?.one_rep_max
+      ? Math.round((workKg / exMax.one_rep_max) * 100)
+      : 85;
 
     setsDone.forEach(() => {
       totalKg += workKg * repsCount;
       totalReps += repsCount;
       totalEffectiveSets += 1;
+      setsForInol.push({ reps: repsCount, intensity });
     });
 
     const warmupDone = completedWarmupMap[ex.name] || [];
@@ -529,10 +535,13 @@ export function calculateSessionStats(
     }
   });
 
+  const sessionInol = evaluateSessionInol(setsForInol);
+
   return {
     tonnageKg: Math.round(totalKg),
     totalReps,
     totalEffectiveSets,
+    sessionInol,
   };
 }
 

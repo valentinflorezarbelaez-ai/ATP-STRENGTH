@@ -655,31 +655,64 @@ export function ZenDashboardView({ d }: { d: Dash }) {
                 </div>
 
                 {/* Métodos de Origen */}
-                <div>
-                  <div className="text-[11px] font-mono text-zinc-400 uppercase mb-2">
-                    Método de cálculo:
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[11px] font-mono text-zinc-400 uppercase">
+                      Método de cálculo del 1RM:
+                    </span>
+                    <span className="text-[10px] font-mono text-amber-400 font-bold">
+                      MODELO SUBMÁXIMO SOVIÉTICO
+                    </span>
                   </div>
-                  <div className="grid grid-cols-3 gap-2">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
                     {[
-                      { id: "epley", label: "⚡ Estimación Epley", sub: "P × (1 + R/30)" },
-                      { id: "brzycki", label: "📐 Brzycki", sub: "P / (1.0278 - 0.0278×R)" },
-                      { id: "direct", label: "🎯 1RM Directo", sub: "1 repetición máxima" },
+                      {
+                        id: "epley",
+                        label: "⚡ Estimación Submáxima",
+                        sub: "P × (1 + R/30) • 2 a 5 reps a RIR 1-2",
+                        badge: "⭐ RECOMENDADO SNC",
+                        badgeClass: "text-emerald-400 bg-emerald-500/10 border-emerald-500/30",
+                      },
+                      {
+                        id: "brzycki",
+                        label: "📐 Brzycki Conservador",
+                        sub: "P / (1.0278 - 0.0278×R) • 6 a 10 reps",
+                        badge: "SERIES MEDIAS",
+                        badgeClass: "text-sky-400 bg-sky-500/10 border-sky-500/30",
+                      },
+                      {
+                        id: "direct",
+                        label: "🎯 1RM Directo",
+                        sub: "1 repetición máxima real (fallo técnico)",
+                        badge: "⚠️ ALTO ESTRÉS SNC",
+                        badgeClass: "text-rose-400 bg-rose-500/10 border-rose-500/30",
+                      },
                     ].map((m) => (
                       <button
                         key={m.id}
                         type="button"
                         onClick={() => setFormFormula(m.id)}
-                        className={`p-2.5 rounded-xl text-left border transition-all cursor-pointer ${
+                        className={`p-3 rounded-xl text-left border transition-all cursor-pointer flex flex-col justify-between ${
                           formFormula === m.id
-                            ? "bg-amber-500/10 border-amber-500/50 text-white"
-                            : "bg-black/60 border-zinc-800 text-zinc-400 hover:border-zinc-700"
+                            ? "bg-amber-500/15 border-amber-500/60 text-white shadow-md shadow-amber-500/10"
+                            : "bg-zinc-900/90 border-zinc-700/80 text-zinc-300 hover:border-zinc-500 hover:text-white"
                         }`}
                       >
-                        <div className="text-xs font-bold">{m.label}</div>
-                        <div className="text-[10px] text-zinc-500 font-mono mt-0.5">{m.sub}</div>
+                        <div>
+                          <div className="flex items-center justify-between gap-1 mb-1">
+                            <span className="text-xs font-bold text-white">{m.label}</span>
+                            <span className={`text-[9px] font-mono font-bold px-1.5 py-0.5 rounded border ${m.badgeClass}`}>
+                              {m.badge}
+                            </span>
+                          </div>
+                          <div className="text-[10px] text-zinc-400 font-mono leading-tight">{m.sub}</div>
+                        </div>
                       </button>
                     ))}
                   </div>
+                  <p className="text-[11px] text-zinc-400 font-sans leading-relaxed pt-1">
+                    💡 <strong className="text-amber-300">Criterio Ruso Submáximo:</strong> Para proteger tu Sistema Nervioso Central y progresar sin quemarte, testeá tus marcas en series pesadas de <strong>2 a 5 reps limpias (RIR 1-2)</strong> usando la estimación submáxima. Evitá probar 1RM directo al fallo todas las semanas.
+                  </p>
                 </div>
 
                 {/* Inputs de Peso y Repeticiones */}

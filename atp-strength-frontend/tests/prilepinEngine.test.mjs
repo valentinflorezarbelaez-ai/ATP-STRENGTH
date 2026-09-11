@@ -10,6 +10,7 @@ import {
   getPrilepinPrescription,
   evaluateSessionInol,
   PRILEPIN_ZONES,
+  SOVIET_WARMUP_PROTOCOL,
 } from '../src/lib/prilepinEngine.mjs';
 
 describe('SPEC-0007 Soviet Prilepin Progression Engine', () => {
@@ -61,6 +62,16 @@ describe('SPEC-0007 Soviet Prilepin Progression Engine', () => {
     });
   });
 
+  describe('Deterministic Soviet Warmup Protocol', () => {
+    it('enforces exact integer repetitions for all warmup phases', () => {
+      assert.equal(SOVIET_WARMUP_PROTOCOL.F0.exactReps, 8);
+      assert.equal(SOVIET_WARMUP_PROTOCOL.F1.exactReps, 5);
+      assert.equal(SOVIET_WARMUP_PROTOCOL.F2.exactReps, 4);
+      assert.equal(SOVIET_WARMUP_PROTOCOL.F3.exactReps, 3);
+      assert.equal(SOVIET_WARMUP_PROTOCOL.F4.exactReps, 1);
+    });
+  });
+
   describe('Prilepin Full Prescription', () => {
     it('prescribes exact reps and rationale given weight and 1RM', () => {
       // 140 kg with 1RM of 165 kg -> 84.8% -> Zone 80-89% -> exact 3 reps
@@ -93,6 +104,7 @@ describe('SPEC-0007 Soviet Prilepin Progression Engine', () => {
       assert.equal(evaluation.totalInol, 1.0);
       assert.equal(evaluation.status, 'OPTIMAL_STIMULUS');
       assert.ok(evaluation.guidance.includes('Óptimo soviético'));
+      assert.ok(evaluation.badgeColor.includes('emerald'));
     });
   });
 });
