@@ -14,6 +14,7 @@ import {
 } from "@/lib/workoutStrategies";
 import { PwaInstallPrompt } from "@/components/PwaInstallPrompt";
 import { AtpEnergyRing } from "@/app/components/AtpEnergyRing";
+import { BarbellPlateVisualizer } from "@/app/components/BarbellPlateVisualizer";
 import { getPrilepinPrescription, SOVIET_WARMUP_PROTOCOL } from "@/lib/prilepinEngine.mjs";
 import { playTactileClick } from "@/lib/zenAudio";
 import { useWakeLock } from "@/app/hooks/useWakeLock";
@@ -112,15 +113,17 @@ export function CoachGuidedView({ d }: { d: Dash }) {
     }
   };
 
-  // Helper: adjust weight by delta
+  // Helper: adjust weight by delta with tactile click
   const adjustWeight = (delta: number) => {
+    playTactileClick();
     const current = parseFloat(inputWeight) || 80;
     const next = Math.max(0, current + delta);
     setInputWeight(String(next));
   };
 
-  // Helper: adjust reps by delta
+  // Helper: adjust reps by delta with tactile click
   const adjustReps = (delta: number) => {
+    playTactileClick();
     const current = parseInt(inputReps, 10) || 3;
     const next = Math.max(1, current + delta);
     setInputReps(String(next));
@@ -578,6 +581,48 @@ export function CoachGuidedView({ d }: { d: Dash }) {
               </h2>
             </div>
 
+            {/* Audiophile Segmented Progression Rail (F0 -> F4 -> Series) */}
+            <div className="flex items-center gap-1 p-1 rounded-2xl bg-zinc-900/60 border border-zinc-800/80 overflow-x-auto">
+              {(["F0", "F1", "F2", "F3", "F4"] as const).map((stepKey, idx) => {
+                const isCurrent = activePhaseStep === stepKey;
+                const isPast = !isWarmupPhase || (["F0", "F1", "F2", "F3", "F4"].indexOf(activePhaseStep) > idx);
+                return (
+                  <button
+                    key={stepKey}
+                    type="button"
+                    onClick={() => {
+                      playTactileClick();
+                      setActivePhaseStep(stepKey);
+                    }}
+                    className={`flex-1 min-w-[50px] py-1.5 px-2 rounded-xl text-[10px] font-mono font-bold transition-all flex items-center justify-center gap-1 cursor-pointer active:scale-95 ${
+                      isCurrent
+                        ? "bg-amber-500/20 text-amber-300 border border-amber-500/40 shadow-sm"
+                        : isPast
+                        ? "text-emerald-400 bg-emerald-500/5 hover:bg-emerald-500/10 border border-emerald-500/20"
+                        : "text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800/50 border border-transparent"
+                    }`}
+                  >
+                    <span>{stepKey}</span>
+                    {isPast && <span className="text-[8px]">✔</span>}
+                  </button>
+                );
+              })}
+              <button
+                type="button"
+                onClick={() => {
+                  playTactileClick();
+                  setActivePhaseStep("1");
+                }}
+                className={`flex-1 min-w-[70px] py-1.5 px-2 rounded-xl text-[10px] font-mono font-bold transition-all flex items-center justify-center gap-1 cursor-pointer active:scale-95 ${
+                  !isWarmupPhase
+                    ? "bg-amber-500/20 text-amber-300 border border-amber-500/40 shadow-sm"
+                    : "text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800/50 border border-transparent"
+                }`}
+              >
+                <span>SERIES ({currentSet}/{activeExercise.sets})</span>
+              </button>
+            </div>
+
             {/* Conditional: Warmup Phase vs Working Set */}
             {isWarmupPhase ? (
               /* WARMUP PHASE CARD */
@@ -707,6 +752,26 @@ export function CoachGuidedView({ d }: { d: Dash }) {
                         <Plus className="w-4 h-4" />
                       </button>
                     </div>
+
+                    {/* Quick Step Weight Chips */}
+                    <div className="flex items-center justify-between gap-1 pt-0.5">
+                      {[-5, -2.5, 2.5, 5].map((delta) => (
+                        <button
+                          key={delta}
+                          type="button"
+                          onClick={() => adjustWeight(delta)}
+                          className="flex-1 py-1 rounded-lg bg-zinc-800/80 hover:bg-zinc-700 text-zinc-300 hover:text-white text-[10px] font-mono font-bold active:scale-95 transition-all cursor-pointer"
+                        >
+                          {delta > 0 ? `+${delta}` : delta}
+                        </button>
+                      ))}
+                    </div>
+
+                    {/* Olympic Barbell Plate Visualizer */}
+                    <BarbellPlateVisualizer
+                      targetWeightKg={parseFloat(inputWeight) || 0}
+                      exerciseName={activeExercise.name}
+                    />
                   </div>
 
                   {/* Reps Box (Soviet Deterministic Exact Target) */}
@@ -740,6 +805,20 @@ export function CoachGuidedView({ d }: { d: Dash }) {
                       >
                         <Plus className="w-4 h-4" />
                       </button>
+                    </div>
+
+                    {/* Quick Step Rep Chips */}
+                    <div className="flex items-center justify-between gap-1 pt-0.5">
+                      {[-1, 1].map((delta) => (
+                        <button
+                          key={delta}
+                          type="button"
+                          onClick={() => adjustReps(delta)}
+                          className="flex-1 py-1 rounded-lg bg-zinc-800/80 hover:bg-zinc-700 text-zinc-300 hover:text-white text-[10px] font-mono font-bold active:scale-95 transition-all cursor-pointer"
+                        >
+                          {delta > 0 ? `+${delta} rep` : `${delta} rep`}
+                        </button>
+                      ))}
                     </div>
                     {parseInt(inputReps, 10) !== prilepin.exactTargetReps && (
                       <button
@@ -942,6 +1021,65 @@ export function CoachGuidedView({ d }: { d: Dash }) {
                 >
                   <Laptop className="w-4 h-4" />
                   <span>Sistema</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Audio & Biofeedback Coach Panel */}
+            <div className="space-y-2 pb-3 border-b border-zinc-900">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-1.5 text-xs font-mono font-medium text-zinc-300">
+                  <Volume2 className="w-3.5 h-3.5 text-amber-400" />
+                  <span>Biofeedback Sonoro & Voz Coach</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    playTactileClick();
+                    acousticEngine.playSetCompleteCue({
+                      weightKg: parseFloat(inputWeight) || 80,
+                      reps: parseInt(inputReps, 10) || 5,
+                    });
+                  }}
+                  className="text-[10px] font-mono text-amber-400 hover:underline cursor-pointer"
+                >
+                  Probar audio ♫
+                </button>
+              </div>
+
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    playTactileClick();
+                    const next = saveAudioPreferences({ voiceEnabled: !audioPrefs.voiceEnabled });
+                    setAudioPrefs(next);
+                  }}
+                  className={`py-2 px-3 rounded-xl border text-xs font-mono font-medium flex items-center justify-between cursor-pointer transition-all ${
+                    audioPrefs.voiceEnabled
+                      ? "bg-amber-500/15 border-amber-500/40 text-amber-300"
+                      : "bg-zinc-900 border-zinc-800 text-zinc-500"
+                  }`}
+                >
+                  <span>Voz Coach:</span>
+                  <span className="font-bold">{audioPrefs.voiceEnabled ? "ACTIVA" : "MUTED"}</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    playTactileClick();
+                    const next = saveAudioPreferences({ soundEnabled: !audioPrefs.soundEnabled });
+                    setAudioPrefs(next);
+                  }}
+                  className={`py-2 px-3 rounded-xl border text-xs font-mono font-medium flex items-center justify-between cursor-pointer transition-all ${
+                    audioPrefs.soundEnabled
+                      ? "bg-amber-500/15 border-amber-500/40 text-amber-300"
+                      : "bg-zinc-900 border-zinc-800 text-zinc-500"
+                  }`}
+                >
+                  <span>Campanas 528Hz:</span>
+                  <span className="font-bold">{audioPrefs.soundEnabled ? "ON" : "OFF"}</span>
                 </button>
               </div>
             </div>
