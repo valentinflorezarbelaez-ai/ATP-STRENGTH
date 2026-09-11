@@ -4,21 +4,27 @@
  * Zero external dependencies.
  */
 
-import { playChime, hapticPulse } from './zenAudio';
+import { playChime, hapticPulse } from "./zenAudio";
 import {
   COACH_CUES as CORE_COACH_CUES,
   DEFAULT_PREFS as CORE_DEFAULT_PREFS,
   getRandomCue as coreGetRandomCue,
   formatTelemetryCue as coreFormatTelemetryCue,
+  formatBarbellPlatesSpoken as coreFormatBarbellPlatesSpoken,
+  formatPreSetBriefing as coreFormatPreSetBriefing,
+  formatRestCompletedCue as coreFormatRestCompletedCue,
+  formatAutoregulationCue as coreFormatAutoregulationCue,
   validateAudioPreferences,
-} from './acousticFeedbackCore.mjs';
+} from "./acousticFeedbackCore.mjs";
 
 export type CoachingEventType =
-  | 'SET_COMPLETED'
-  | 'EXERCISE_COMPLETED'
-  | 'REST_HALFWAY'
-  | 'REST_10S_WARNING'
-  | 'SESSION_VICTORY';
+  | "SET_COMPLETED"
+  | "EXERCISE_COMPLETED"
+  | "REST_HALFWAY"
+  | "REST_15S_WARNING"
+  | "REST_10S_WARNING"
+  | "REST_COMPLETED"
+  | "SESSION_VICTORY";
 
 export interface CoachAudioPreferences {
   soundEnabled: boolean; // Chimes / Web Audio
@@ -34,13 +40,37 @@ export interface TelemetryNarrationParams {
   rpe?: number;
 }
 
+export interface PreSetBriefingParams {
+  exerciseName?: string;
+  phaseLabel?: string;
+  weightKg?: number;
+  reps?: number;
+  rpe?: number;
+  cues?: string;
+  platesSpoken?: string;
+}
+
+export interface RestCompletedParams {
+  exerciseName?: string;
+  weightKg?: number;
+  reps?: number;
+  platesSpoken?: string;
+}
+
+export interface AutoregulationParams {
+  direction: "UP" | "DOWN" | "HOLD";
+  deltaKg: number;
+  nextWeightKg: number;
+  rpe: number;
+}
+
 export const COACH_CUES = CORE_COACH_CUES as Record<CoachingEventType, string[]>;
 export const DEFAULT_PREFS: CoachAudioPreferences = CORE_DEFAULT_PREFS;
 
-const PREFS_STORAGE_KEY = 'atp_coach_audio_prefs';
+const PREFS_STORAGE_KEY = "atp_coach_audio_prefs";
 
 export function getAudioPreferences(): CoachAudioPreferences {
-  if (typeof window === 'undefined') return DEFAULT_PREFS;
+  if (typeof window === "undefined") return DEFAULT_PREFS;
   try {
     const raw = localStorage.getItem(PREFS_STORAGE_KEY);
     if (!raw) return DEFAULT_PREFS;
@@ -53,11 +83,11 @@ export function getAudioPreferences(): CoachAudioPreferences {
 export function saveAudioPreferences(prefs: Partial<CoachAudioPreferences>): CoachAudioPreferences {
   const current = getAudioPreferences();
   const updated = validateAudioPreferences({ ...current, ...prefs });
-  if (typeof window !== 'undefined') {
+  if (typeof window !== "undefined") {
     try {
       localStorage.setItem(PREFS_STORAGE_KEY, JSON.stringify(updated));
     } catch (err) {
-      console.warn('Failed to persist coach audio preferences:', err);
+      console.warn("Failed to persist coach audio preferences:", err);
     }
   }
   return updated;
@@ -71,12 +101,28 @@ export function formatTelemetryCue(params?: TelemetryNarrationParams, rng?: () =
   return coreFormatTelemetryCue(params, rng);
 }
 
+export function formatBarbellPlatesSpoken(weightKg: number, barWeight = 20, isBodyweight = false): string {
+  return coreFormatBarbellPlatesSpoken(weightKg, barWeight, isBodyweight);
+}
+
+export function formatPreSetBriefing(params?: PreSetBriefingParams): string {
+  return coreFormatPreSetBriefing(params);
+}
+
+export function formatRestCompletedCue(params?: RestCompletedParams): string {
+  return coreFormatRestCompletedCue(params);
+}
+
+export function formatAutoregulationCue(params?: AutoregulationParams): string {
+  return coreFormatAutoregulationCue(params);
+}
+
 /**
  * Dispatches spoken feedback safely through browser SpeechSynthesis.
  * Resilient against missing API or mobile autoplay restrictions.
  */
 export function speakText(text: string, customPrefs?: Partial<CoachAudioPreferences>): void {
-  if (typeof window === 'undefined' || !('speechSynthesis' in window)) return;
+  if (typeof window === "undefined" || !("speechSynthesis" in window)) return;
 
   try {
     const prefs = { ...getAudioPreferences(), ...customPrefs };
@@ -89,18 +135,18 @@ export function speakText(text: string, customPrefs?: Partial<CoachAudioPreferen
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.volume = Math.max(0, Math.min(1, prefs.voiceVolume));
     utterance.rate = Math.max(0.5, Math.min(2.0, prefs.voiceRate));
-    utterance.lang = 'es-ES';
+    utterance.lang = "es-ES";
 
     // Find best matching Spanish voice if available
     const voices = synth.getVoices();
-    const spanishVoice = voices.find((v) => v.lang.startsWith('es'));
+    const spanishVoice = voices.find((v) => v.lang.startsWith("es"));
     if (spanishVoice) {
       utterance.voice = spanishVoice;
     }
 
     synth.speak(utterance);
   } catch (err) {
-    console.warn('SpeechSynthesis unavailable or rejected:', err);
+    console.warn("SpeechSynthesis unavailable or rejected:", err);
   }
 }
 
@@ -108,13 +154,25 @@ export function speakText(text: string, customPrefs?: Partial<CoachAudioPreferen
  * High-level orchestration facade conforming to SPEC-0005.
  */
 export const acousticEngine = {
+  playPreSetBriefing(params?: PreSetBriefingParams, customPrefs?: Partial<CoachAudioPreferences>): void {
+    const prefs = { ...getAudioPreferences(), ...customPrefs };
+    if (prefs.soundEnabled) {
+      playChime(false);
+    }
+    if (prefs.voiceEnabled) {
+      const text = formatPreSetBriefing(params);
+      setTimeout(() => {
+        speakText(text, prefs);
+      }, 300);
+    }
+  },
+
   playSetCompleteCue(params?: TelemetryNarrationParams, customPrefs?: Partial<CoachAudioPreferences>): void {
     const prefs = { ...getAudioPreferences(), ...customPrefs };
     if (prefs.soundEnabled) {
       playChime(false);
     }
     if (prefs.voiceEnabled) {
-      // 350ms delay lets the instant harmonic chime ring before voice coaching cues in
       const cue = formatTelemetryCue(params);
       setTimeout(() => {
         speakText(cue, prefs);
@@ -125,7 +183,20 @@ export const acousticEngine = {
   playRestHalfwayCue(customPrefs?: Partial<CoachAudioPreferences>): void {
     const prefs = { ...getAudioPreferences(), ...customPrefs };
     if (prefs.voiceEnabled) {
-      speakText(getRandomCue('REST_HALFWAY'), prefs);
+      speakText(getRandomCue("REST_HALFWAY"), prefs);
+    }
+  },
+
+  playRest15sWarningCue(customPrefs?: Partial<CoachAudioPreferences>): void {
+    const prefs = { ...getAudioPreferences(), ...customPrefs };
+    if (prefs.soundEnabled) {
+      playChime(false);
+      hapticPulse([80, 40, 80]);
+    }
+    if (prefs.voiceEnabled) {
+      setTimeout(() => {
+        speakText(getRandomCue("REST_15S_WARNING"), prefs);
+      }, 200);
     }
   },
 
@@ -137,8 +208,32 @@ export const acousticEngine = {
     }
     if (prefs.voiceEnabled) {
       setTimeout(() => {
-        speakText(getRandomCue('REST_10S_WARNING'), prefs);
+        speakText(getRandomCue("REST_10S_WARNING"), prefs);
       }, 250);
+    }
+  },
+
+  playRestCompleteCue(params?: RestCompletedParams, customPrefs?: Partial<CoachAudioPreferences>): void {
+    const prefs = { ...getAudioPreferences(), ...customPrefs };
+    if (prefs.soundEnabled) {
+      playChime(true);
+      hapticPulse([200, 100, 200]);
+    }
+    if (prefs.voiceEnabled) {
+      const text = formatRestCompletedCue(params);
+      setTimeout(() => {
+        speakText(text, prefs);
+      }, 350);
+    }
+  },
+
+  playAutoregulationCue(params: AutoregulationParams, customPrefs?: Partial<CoachAudioPreferences>): void {
+    const prefs = { ...getAudioPreferences(), ...customPrefs };
+    if (prefs.voiceEnabled) {
+      const text = formatAutoregulationCue(params);
+      setTimeout(() => {
+        speakText(text, prefs);
+      }, 400);
     }
   },
 
@@ -150,7 +245,7 @@ export const acousticEngine = {
     if (prefs.voiceEnabled) {
       const text = nextExerciseName
         ? `¡Ejercicio completado! Siguiente movimiento: ${nextExerciseName}.`
-        : getRandomCue('EXERCISE_COMPLETED');
+        : getRandomCue("EXERCISE_COMPLETED");
       setTimeout(() => {
         speakText(text, prefs);
       }, 400);
@@ -164,7 +259,7 @@ export const acousticEngine = {
     }
     if (prefs.voiceEnabled) {
       setTimeout(() => {
-        speakText(getRandomCue('SESSION_VICTORY'), prefs);
+        speakText(getRandomCue("SESSION_VICTORY"), prefs);
       }, 500);
     }
   },

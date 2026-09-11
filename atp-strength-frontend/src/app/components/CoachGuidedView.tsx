@@ -15,6 +15,7 @@ import {
 import { PwaInstallPrompt } from "@/components/PwaInstallPrompt";
 import { AtpEnergyRing } from "@/app/components/AtpEnergyRing";
 import { BarbellPlateVisualizer } from "@/app/components/BarbellPlateVisualizer";
+import { LiveSetCoachModal } from "@/app/components/LiveSetCoachModal";
 import { getPrilepinPrescription, SOVIET_WARMUP_PROTOCOL } from "@/lib/prilepinEngine.mjs";
 import { playTactileClick } from "@/lib/zenAudio";
 import { useWakeLock } from "@/app/hooks/useWakeLock";
@@ -25,6 +26,7 @@ import {
   acousticEngine,
   getAudioPreferences,
   saveAudioPreferences,
+  formatBarbellPlatesSpoken,
   type CoachAudioPreferences,
 } from "@/lib/acousticFeedback";
 
@@ -74,6 +76,10 @@ export function CoachGuidedView({ d }: { d: Dash }) {
 
   const [showDayMenu, setShowDayMenu] = useState(false);
   const [showProfileModal, setShowProfileModal] = useState(false);
+  const [isLiveSetOpen, setIsLiveSetOpen] = useState(false);
+  const hasSpokenHalfway = React.useRef(false);
+  const hasSpoken15s = React.useRef(false);
+  const wasRunning = React.useRef(false);
   const [athlete, setAthlete] = useState<AthleteProfile>(() => getAthleteProfile());
   const [athleteNameInput, setAthleteNameInput] = useState(() => getAthleteProfile().name);
   const [backupMsg, setBackupMsg] = useState<string | null>(null);
@@ -83,14 +89,47 @@ export function CoachGuidedView({ d }: { d: Dash }) {
   const hasSpokenVictory = React.useRef(false);
 
   React.useEffect(() => {
-    if (isRunning && remainingSeconds === 10 && !hasSpoken10sWarning.current) {
-      hasSpoken10sWarning.current = true;
-      acousticEngine.playRestWarningCue();
-    }
-    if (!isRunning) {
+    if (isRunning) {
+      wasRunning.current = true;
+      // 15 seconds warning
+      if (remainingSeconds === 15 && !hasSpoken15s.current) {
+        hasSpoken15s.current = true;
+        acousticEngine.playRest15sWarningCue();
+      }
+      // 10 seconds warning
+      if (remainingSeconds === 10 && !hasSpoken10sWarning.current) {
+        hasSpoken10sWarning.current = true;
+        acousticEngine.playRestWarningCue();
+      }
+      // Halfway recovery reminder
+      const duration = d.timerDuration || 180;
+      const halfway = Math.floor(duration / 2);
+      if (remainingSeconds === halfway && !hasSpokenHalfway.current && duration >= 30) {
+        hasSpokenHalfway.current = true;
+        acousticEngine.playRestHalfwayCue();
+      }
+    } else {
+      hasSpokenHalfway.current = false;
+      hasSpoken15s.current = false;
       hasSpoken10sWarning.current = false;
+
+      // When timer hits zero from active countdown, announce next set instructions
+      if (wasRunning.current && remainingSeconds === 0) {
+        wasRunning.current = false;
+        const weightKg = parseFloat(inputWeight) || 80;
+        const reps = parseInt(inputReps, 10) || 5;
+        const isBodyweight = activeExercise.name.toLowerCase().includes("dominada") || activeExercise.name.toLowerCase().includes("fondo");
+        const platesSpoken = formatBarbellPlatesSpoken(weightKg, 20, isBodyweight);
+
+        acousticEngine.playRestCompleteCue({
+          exerciseName: activeExercise.name,
+          weightKg,
+          reps,
+          platesSpoken,
+        });
+      }
     }
-  }, [isRunning, remainingSeconds]);
+  }, [isRunning, remainingSeconds, d.timerDuration, inputWeight, inputReps, activeExercise.name]);
 
   React.useEffect(() => {
     if (isDayFinished && !hasSpokenVictory.current) {
@@ -111,6 +150,37 @@ export function CoachGuidedView({ d }: { d: Dash }) {
         reps: parseInt(inputReps, 10) || 5,
       });
     }
+  };
+
+  // Execution: logs set with adaptive autoregulation
+  const onExecuteSetComplete = (params?: { weightKg: number; reps: number; rpe: number }) => {
+    const weight = params?.weightKg ?? (parseFloat(inputWeight) || 80);
+    const reps = params?.reps ?? (parseInt(inputReps, 10) || 5);
+    const rpe = params?.rpe ?? (parseFloat(inputRpe) || 8);
+
+    if (rpe >= 9.5 && !isWarmupPhase && currentSet < activeExercise.sets) {
+      const nextWeight = Math.max(20, Math.round((weight - 5) * 10) / 10);
+      setInputWeight(String(nextWeight));
+      acousticEngine.playAutoregulationCue({
+        direction: "DOWN",
+        deltaKg: 5,
+        nextWeightKg: nextWeight,
+        rpe,
+      });
+    } else if (rpe <= 6.5 && !isWarmupPhase && currentSet < activeExercise.sets) {
+      const nextWeight = Math.round((weight + 2.5) * 10) / 10;
+      setInputWeight(String(nextWeight));
+      acousticEngine.playAutoregulationCue({
+        direction: "UP",
+        deltaKg: 2.5,
+        nextWeightKg: nextWeight,
+        rpe,
+      });
+    } else {
+      acousticEngine.playSetCompleteCue({ weightKg: weight, reps, rpe });
+    }
+
+    handleCompleteSet();
   };
 
   // Helper: adjust weight by delta with tactile click
@@ -182,6 +252,42 @@ export function CoachGuidedView({ d }: { d: Dash }) {
           cue: "Calentamiento específico controlado.",
         };
     }
+  };
+
+  // Audio Briefing: tells the athlete exactly what, how much and how to lift
+  const handlePlayPreSetBriefing = () => {
+    playTactileClick();
+    const isWarmup = isWarmupPhase;
+    let weightKg = 0;
+    let reps = 0;
+    let phaseLabel = "";
+    let cueText = activeExercise.cue || "Postura firme y empuje explosivo";
+
+    if (isWarmup) {
+      const phaseKey = activePhaseStep as WarmupPhaseKey;
+      phaseLabel = `Calentamiento ${phaseKey}`;
+      const warmInfo = getWarmupPhaseInfo(phaseKey);
+      weightKg = parseFloat(warmInfo.load) || 20;
+      reps = parseInt(warmInfo.reps, 10) || 5;
+      cueText = warmInfo.cue;
+    } else {
+      phaseLabel = `Serie ${currentSet} de ${activeExercise.sets}`;
+      weightKg = parseFloat(inputWeight) || 80;
+      reps = parseInt(inputReps, 10) || 5;
+    }
+
+    const isBodyweight = activeExercise.name.toLowerCase().includes("dominada") || activeExercise.name.toLowerCase().includes("fondo");
+    const platesSpoken = formatBarbellPlatesSpoken(weightKg, 20, isBodyweight);
+
+    acousticEngine.playPreSetBriefing({
+      exerciseName: activeExercise.name,
+      phaseLabel,
+      weightKg,
+      reps,
+      rpe: isWarmup ? 0 : (parseFloat(inputRpe) || 8),
+      cues: cueText,
+      platesSpoken,
+    });
   };
 
   return (
@@ -658,6 +764,19 @@ export function CoachGuidedView({ d }: { d: Dash }) {
                   );
                 })()}
 
+                {/* Spoken Coach Briefing for Warmup */}
+                <button
+                  type="button"
+                  onClick={handlePlayPreSetBriefing}
+                  className="w-full py-2.5 px-3.5 rounded-xl bg-gradient-to-r from-amber-500/15 via-zinc-900 to-amber-500/10 border border-amber-500/30 hover:border-amber-500/60 text-amber-300 flex items-center justify-between gap-2 text-xs font-mono font-bold transition-all shadow-sm active:scale-[0.99] cursor-pointer"
+                >
+                  <div className="flex items-center gap-2">
+                    <Volume2 className="w-4 h-4 text-amber-400 animate-pulse" />
+                    <span>ESCUCHAR GUÍA DE CALENTAMIENTO (VOZ)</span>
+                  </div>
+                  <span className="text-[10px] text-zinc-400">Paso a paso ♫</span>
+                </button>
+
                 {/* Primary Big Action Button: Complete Warmup Phase */}
                 <button
                   type="button"
@@ -722,6 +841,19 @@ export function CoachGuidedView({ d }: { d: Dash }) {
                       {prilepin.rationale}
                     </p>
                   </div>
+
+                {/* Spoken Coach Briefing for Working Set */}
+                <button
+                  type="button"
+                  onClick={handlePlayPreSetBriefing}
+                  className="w-full py-2.5 px-3.5 rounded-xl bg-gradient-to-r from-amber-500/15 via-zinc-900 to-amber-500/10 border border-amber-500/30 hover:border-amber-500/60 text-amber-300 flex items-center justify-between gap-2 text-xs font-mono font-bold transition-all shadow-sm active:scale-[0.99] cursor-pointer"
+                >
+                  <div className="flex items-center gap-2">
+                    <Volume2 className="w-4 h-4 text-amber-400 animate-pulse" />
+                    <span>ESCUCHAR GUÍA DEL COACH (VOZ)</span>
+                  </div>
+                  <span className="text-[10px] text-zinc-400">Paso a paso ♫</span>
+                </button>
 
                 {/* Weight & Reps Controllers (Big Ergonomic Touch Targets) */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -888,21 +1020,34 @@ export function CoachGuidedView({ d }: { d: Dash }) {
                   })()}
                 </div>
 
-                {/* Primary Big Action Button: Complete Set */}
-                <button
-                  type="button"
-                  onClick={() => {
-                    const weightKg = parseFloat(inputWeight) || undefined;
-                    const reps = parseInt(inputReps, 10) || undefined;
-                    const rpe = parseFloat(inputRpe) || undefined;
-                    acousticEngine.playSetCompleteCue({ weightKg, reps, rpe });
-                    handleCompleteSet();
-                  }}
-                  className="w-full h-16 rounded-2xl bg-gradient-to-r from-amber-500 via-amber-400 to-amber-500 hover:brightness-110 text-black font-black text-lg uppercase tracking-wider shadow-2xl shadow-amber-500/20 active:scale-95 transition-all flex items-center justify-center gap-2.5 cursor-pointer"
-                >
-                  <CheckCircle2 className="w-6 h-6" />
-                  <span>¡Serie Completada!</span>
-                </button>
+                {/* Dual Action Buttons: Live Set Mode & Instant Complete */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      playTactileClick();
+                      setIsLiveSetOpen(true);
+                    }}
+                    className="h-16 rounded-2xl bg-zinc-900/90 border border-amber-500/40 hover:bg-zinc-800 text-amber-300 font-bold text-xs sm:text-sm uppercase tracking-wider flex items-center justify-center gap-2 shadow-lg active:scale-95 transition-all cursor-pointer"
+                  >
+                    <Zap className="w-5 h-5 text-amber-400 fill-amber-400" />
+                    <span>⚡ Modo Serie en Vivo</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const weightKg = parseFloat(inputWeight) || 80;
+                      const reps = parseInt(inputReps, 10) || 5;
+                      const rpe = parseFloat(inputRpe) || 8;
+                      onExecuteSetComplete({ weightKg, reps, rpe });
+                    }}
+                    className="h-16 rounded-2xl bg-gradient-to-r from-amber-500 via-amber-400 to-amber-500 hover:brightness-110 text-black font-black text-base sm:text-lg uppercase tracking-wider shadow-2xl shadow-amber-500/20 active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer"
+                  >
+                    <CheckCircle2 className="w-6 h-6 stroke-[2.5]" />
+                    <span>¡Serie Completada!</span>
+                  </button>
+                </div>
               </div>
             )}
           </div>
@@ -1183,6 +1328,20 @@ export function CoachGuidedView({ d }: { d: Dash }) {
           </div>
         </div>
       )}
+
+      {/* Live Set & Cadence Coach Modal */}
+      <LiveSetCoachModal
+        isOpen={isLiveSetOpen}
+        onClose={() => setIsLiveSetOpen(false)}
+        exerciseName={activeExercise.name}
+        setNumber={currentSet}
+        totalSets={activeExercise.sets}
+        targetWeightKg={parseFloat(inputWeight) || 80}
+        targetReps={parseInt(inputReps, 10) || 5}
+        targetRpe={parseFloat(inputRpe) || 8}
+        cueSummary={activeExercise.cue || "Postura firme, aire al abdomen y empuje explosivo"}
+        onCompleteSet={onExecuteSetComplete}
+      />
     </main>
 
   );

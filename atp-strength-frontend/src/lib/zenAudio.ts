@@ -156,3 +156,32 @@ export function hapticPulse(pattern: number | number[] = [...PHASE_COMPLETE_VIBR
     playTactileClick();
   }
 }
+
+/**
+ * Plays a short audio cue for cadence and tempo guidance (descent / pause / explode).
+ */
+export function playTempoTone(
+  freq: number,
+  durationMs: number = 120,
+  type: OscillatorType = "sine",
+  volume: number = 0.22
+): void {
+  try {
+    const ctx = getAudioContext();
+    if (!ctx) return;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    const now = ctx.currentTime;
+    const durSec = durationMs / 1000;
+    osc.type = type;
+    osc.frequency.setValueAtTime(freq, now);
+    gain.gain.setValueAtTime(volume, now);
+    gain.gain.exponentialRampToValueAtTime(0.0001, now + durSec);
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start(now);
+    osc.stop(now + durSec);
+  } catch {
+    // ignore
+  }
+}
