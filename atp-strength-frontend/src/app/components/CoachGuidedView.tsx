@@ -7,13 +7,13 @@ import {
   Minus, Plus, Activity, Heart, ArrowRight, Coffee, Eye, Sun, Moon, User, Download, Upload, Database
 } from "lucide-react";
 import {
-  formatTime,
   computeEstimated1Rm,
   rpeToRir,
   VALID_RPE_VALUES,
   type WarmupPhaseKey,
 } from "@/lib/workoutStrategies";
 import { PwaInstallPrompt } from "@/components/PwaInstallPrompt";
+import { AtpEnergyRing } from "@/app/components/AtpEnergyRing";
 import { playTactileClick } from "@/lib/zenAudio";
 import { useWakeLock } from "@/app/hooks/useWakeLock";
 import { getAthleteProfile, setAthleteName, type AthleteProfile } from "@/lib/athleteProfile";
@@ -443,19 +443,14 @@ export function CoachGuidedView({ d }: { d: Dash }) {
               </span>
             </div>
 
-            {/* Huge Rest Clock */}
-            <div className="py-2">
-              <div className="text-6xl sm:text-7xl md:text-8xl font-black font-mono tracking-tighter text-white">
-                {formatTime(remainingSeconds)}
-              </div>
-              <div className="mt-2 flex items-center justify-center gap-2">
-                <span className="text-xs font-mono font-semibold text-amber-400">
-                  Saturación ATP: {atpSaturationPercent}%
-                </span>
-              </div>
-            </div>
+            {/* Apple Fitness-grade Radial ATP Energy Ring */}
+              <AtpEnergyRing
+                remainingSeconds={remainingSeconds}
+                atpSaturationPercent={atpSaturationPercent}
+                timerTitle={timerTitle}
+              />
 
-            {/* Mindful Breathing Guide */}
+              {/* Mindful Breathing Guide */}
             <div className="p-4 rounded-2xl bg-zinc-900/70 border border-zinc-800/80 space-y-1.5 max-w-md mx-auto">
               <div className="flex items-center justify-center gap-2 text-xs font-semibold text-zinc-300">
                 <Heart className="w-3.5 h-3.5 text-rose-400 animate-pulse" />
