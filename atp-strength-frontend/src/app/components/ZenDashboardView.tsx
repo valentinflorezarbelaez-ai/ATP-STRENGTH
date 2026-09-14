@@ -182,7 +182,7 @@ export function ZenDashboardView({ d }: { d: Dash }) {
                 <Calendar className="w-4 h-4 text-amber-400" /> ITINERARIO ÉLITE FIJO
               </span>
               <span className="text-[11px] font-mono text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/20">
-                4 DÍAS + 3 DESCANSO
+                {SCHEDULE_DAYS.filter((d) => !d.isRest).length} DÍAS + {SCHEDULE_DAYS.filter((d) => d.isRest).length} DESCANSO
               </span>
             </div>
 

@@ -1,95 +1,12 @@
 import { evaluateSessionInol } from './prilepinEngine.mjs';
+import { computeEstimated1Rm } from './rpeEngine.mjs';
+
 /**
- * Workout domain strategies — pure functions and lookup tables.
- * Extracted from page.tsx (First-Principles / Boris Cherny post-green decomposition).
+ * Workout domain strategies — pure ESM L0 functions and lookup tables.
+ * Zero browser or React dependencies. Testable in native Node.js test runner.
  */
 
-export interface Exercise {
-  name: string;
-  sets: number;
-  reps: string;
-  restSeconds: number;
-  cue: string;
-}
-
-export interface RoutineDay {
-  key: string;
-  name: string;
-  focus: string;
-  isRest: boolean;
-  restMessage?: string;
-  exercises: Exercise[];
-}
-
-export interface PhasePrescriptions {
-  phase_1_activation: number;
-  phase_2_light: number;
-  phase_3_medium: number;
-  phase_4_pap: number;
-  phase_5_work: number;
-}
-
-export interface ExerciseMaxData {
-  id: number;
-  exercise_name: string;
-  one_rep_max: number;
-  training_max: number;
-  formula: string;
-  lifted_weight: number;
-  reps_performed: number;
-  notes?: string;
-  prescriptions: PhasePrescriptions;
-}
-
-export interface HistoryItem {
-  id: number;
-  exercise_name: string;
-  set_number: number;
-  prescribed_reps: number;
-  completed_reps?: number;
-  load_kg: number;
-  rest_seconds: number;
-  notes?: string;
-  completed: boolean;
-}
-
-export interface SavedSessionProgress {
-  completedSetsMap?: { [exerciseName: string]: number[] };
-  completedWarmupMap?: { [exerciseName: string]: string[] };
-  selectedDayKey?: string;
-  activeExerciseIndex?: number;
-  currentSet?: number;
-  activePhaseStep?: string;
-}
-
-import {
-  TUCHSCHERER_RPE_MATRIX,
-  VALID_RPE_VALUES,
-  getPercentage1Rm,
-  computeEstimated1Rm,
-  calculateTargetLoad,
-  computeAutoregulatedAdjustment,
-  rpeToRir,
-  rirToRpe,
-} from './rpeEngine.mjs';
-
-export {
-  TUCHSCHERER_RPE_MATRIX,
-  VALID_RPE_VALUES,
-  getPercentage1Rm,
-  computeEstimated1Rm,
-  calculateTargetLoad,
-  computeAutoregulatedAdjustment,
-  rpeToRir,
-  rirToRpe,
-};
-
-export type ImplementCategory = "olympic_bar" | "ez_bar" | "bodyweight_weighted" | "dumbbells";
-export type OneRmFormula = "epley" | "brzycki" | "direct" | "rpe";
-export type WarmupPhaseKey = "F1" | "F2" | "F3" | "F4";
-export type PhaseStep = WarmupPhaseKey | `${number}`;
-
-export const SCHEDULE_DAYS: RoutineDay[] = [
+export const SCHEDULE_DAYS = [
   {
     key: "DAY_A",
     name: "Lunes - Día A",
@@ -195,9 +112,9 @@ export const ALL_TRACKABLE_EXERCISES = [
   "Salto con Trap Bar (Trap Bar Jump)",
   "Peso Muerto con Déficit (Deficit Deadlift)",
   "Peso Muerto Agarre Arrancada (Snatch Grip Deadlift)",
-] as const;
+];
 
-const DEFAULT_BASE_MAXES: { [key: string]: { weight: number; reps: number } } = {
+export const DEFAULT_BASE_MAXES = {
   "Sentadilla Trasera": { weight: 100, reps: 5 },
   "Press de Banca": { weight: 80, reps: 5 },
   "Press Militar": { weight: 50, reps: 5 },
@@ -225,26 +142,22 @@ const DEFAULT_BASE_MAXES: { [key: string]: { weight: number; reps: number } } = 
   "Peso Muerto Agarre Arrancada (Snatch Grip Deadlift)": { weight: 105, reps: 3 },
 };
 
-/** Category lookup — strategy table over cascading if/includes. */
-const CATEGORY_RULES: Array<{ test: (n: string) => boolean; cat: ImplementCategory }> = [
+export const CATEGORY_RULES = [
   { test: (n) => /Dominadas|Fondos|Planchas|Elevaciones/.test(n), cat: "bodyweight_weighted" },
   { test: (n) => /Barra Z|Curl/.test(n), cat: "ez_bar" },
   { test: (n) => /Paseo del Granjero/.test(n), cat: "dumbbells" },
 ];
 
-export function getExerciseCategory(exerciseName: string): ImplementCategory {
+export function getExerciseCategory(exerciseName) {
   for (const rule of CATEGORY_RULES) {
     if (rule.test(exerciseName)) return rule.cat;
   }
   return "olympic_bar";
 }
 
-const round25 = (val: number) => Math.max(0, Math.round(val / 2.5) * 2.5);
+export const round25 = (val) => Math.max(0, Math.round(val / 2.5) * 2.5);
 
-const RAMP_STRATEGIES: Record<
-  ImplementCategory,
-  (tm: number) => { f1: number; f2: number; f3: number; f4: number; f5: number }
-> = {
+export const RAMP_STRATEGIES = {
   bodyweight_weighted: (tm) => ({
     f1: 0,
     f2: round25(tm * 0.25),
@@ -288,22 +201,17 @@ const RAMP_STRATEGIES: Record<
   },
 };
 
-export function computeNeuromuscularRamp(exerciseName: string, trainingMax: number) {
+export function computeNeuromuscularRamp(exerciseName, trainingMax) {
   return RAMP_STRATEGIES[getExerciseCategory(exerciseName)](trainingMax);
 }
 
-const ONE_RM_FORMULAS: Record<string, (w: number, r: number) => number> = {
+export const ONE_RM_FORMULAS = {
   brzycki: (w, r) => (r < 37 ? w * (36 / (37 - r)) : w),
   epley: (w, r) => w * (1 + r / 30),
   direct: (w) => w,
 };
 
-export function computeOneRm(
-  weight: number,
-  reps: number,
-  formula: string = "epley",
-  rpe: number = 10
-): number {
+export function computeOneRm(weight, reps, formula = "epley", rpe = 10) {
   const w = Math.max(0, weight);
   const r = Math.max(1, reps);
   if (formula === "rpe") {
@@ -316,13 +224,7 @@ export function computeOneRm(
   return Math.round(fn(w, r) * 10) / 10;
 }
 
-export function computeMetrics(
-  exerciseName: string,
-  weight: number,
-  reps: number,
-  formula: string = "epley",
-  notes: string = ""
-): ExerciseMaxData {
+export function computeMetrics(exerciseName, weight, reps, formula = "epley", notes = "") {
   const oneRm = computeOneRm(weight, reps, formula);
   const trainingMax = Math.round(oneRm * 0.9 * 10) / 10;
   const ramp = computeNeuromuscularRamp(exerciseName, trainingMax);
@@ -345,52 +247,31 @@ export function computeMetrics(
   };
 }
 
-export function calculateLive1RM(weight: number, reps: number, formula: string): number {
+export function calculateLive1RM(weight, reps, formula) {
   return computeOneRm(weight, reps, formula);
 }
 
-export function getBaselineMaxes(): { [key: string]: ExerciseMaxData } {
-  const base: { [key: string]: ExerciseMaxData } = {};
+export function getBaselineMaxes() {
+  const base = {};
   Object.entries(DEFAULT_BASE_MAXES).forEach(([name, def]) => {
     base[name] = computeMetrics(name, def.weight, def.reps);
   });
   return base;
 }
 
-export function getSavedSession(): SavedSessionProgress | null {
-  if (typeof window === "undefined") return null;
-  try {
-    const saved = localStorage.getItem("neuro_strength_session_progress");
-    return saved ? JSON.parse(saved) : null;
-  } catch {
-    return null;
-  }
-}
-
-export function getInitialMaxes(): { [key: string]: ExerciseMaxData } {
-  const base = getBaselineMaxes();
-  if (typeof window === "undefined") return base;
-  try {
-    const saved = localStorage.getItem("neuro_strength_maxes");
-    return saved ? { ...base, ...JSON.parse(saved) } : base;
-  } catch {
-    return base;
-  }
-}
-
-export const WARMUP_REST_MAP: Record<WarmupPhaseKey, { time: number; next: PhaseStep; title: string }> = {
+export const WARMUP_REST_MAP = {
   F1: { time: 60, next: "F2", title: "Descanso F1 → F2" },
   F2: { time: 90, next: "F3", title: "Descanso F2 → F3" },
   F3: { time: 120, next: "F4", title: "Descanso F3 → F4 PAP" },
   F4: { time: 180, next: "1", title: "Descanso F4 → Serie 1" },
 };
 
-export function getWarmupRestConfig(phase: WarmupPhaseKey) {
+export function getWarmupRestConfig(phase) {
   return WARMUP_REST_MAP[phase];
 }
 
-export function getAssemblyCue(cat: ImplementCategory, stepWeight: number): string {
-  const cues: Record<ImplementCategory, string> = {
+export function getAssemblyCue(cat, stepWeight) {
+  const cues = {
     olympic_bar: `Monta la barra olímpica a ${stepWeight} kg`,
     ez_bar: `Carga la Barra Z a ${stepWeight} kg`,
     bodyweight_weighted: stepWeight === 0 ? "Peso corporal (sin lastre)" : `Añade ${stepWeight} kg de lastre`,
@@ -399,14 +280,9 @@ export function getAssemblyCue(cat: ImplementCategory, stepWeight: number): stri
   return cues[cat];
 }
 
-export function resolveReadyLabel(
-  step: string,
-  prescriptions: PhasePrescriptions | undefined,
-  exerciseReps: string,
-  currentSet: number
-): string {
+export function resolveReadyLabel(step, prescriptions, exerciseReps, currentSet) {
   const p = prescriptions;
-  const table: Record<string, string> = {
+  const table = {
     F2: `LISTO → PASAR A FASE 2 (${p?.phase_2_light ?? 0} kg × 5 reps)`,
     F3: `LISTO → PASAR A FASE 3 (${p?.phase_3_medium ?? 0} kg × 3 reps)`,
     F4: `LISTO → PASAR A FASE 4 PAP (${p?.phase_4_pap ?? 0} kg × 1 rep)`,
@@ -415,49 +291,28 @@ export function resolveReadyLabel(
   return table[step] || `LISTO PARA LEVANTAR → SERIE ${currentSet} (${p?.phase_5_work ?? 0} kg × ${exerciseReps})`;
 }
 
-export function resolvePhaseAfterNavigation(doneSets: number, totalSets: number): { set: number; phase: string } {
+export function resolvePhaseAfterNavigation(doneSets, totalSets) {
   const nextSet = doneSets < totalSets ? doneSets + 1 : totalSets;
   return { set: nextSet, phase: doneSets === 0 ? "F1" : nextSet.toString() };
 }
 
-export function formatTime(totalSeconds: number): string {
+export function formatTime(totalSeconds) {
   const m = Math.floor(totalSeconds / 60);
   const s = totalSeconds % 60;
   return `${m.toString().padStart(2, "0")}:${s.toString().padStart(2, "0")}`;
 }
 
-export type TelemetrySyncState = "SYNCED" | "PENDING" | "OFFLINE";
-
-export function deriveTelemetrySyncState(
-  pendingWalCount: number,
-  backendOnline: boolean | null
-): TelemetrySyncState {
+export function deriveTelemetrySyncState(pendingWalCount, backendOnline) {
   if (backendOnline === false) return "OFFLINE";
   if (pendingWalCount > 0) return "PENDING";
   if (backendOnline === true) return "SYNCED";
   return "PENDING";
 }
 
-export interface PhaseInstruction {
-  weight: number;
-  reps: string;
-  rest: number;
-  title: string;
-  subtitle: string;
-  label: string;
-  isWarmup: boolean;
-}
-
-export function resolvePhaseInstruction(
-  step: string,
-  prescriptions: PhasePrescriptions | undefined,
-  exercise: Exercise,
-  currentSet: number,
-  isLastExercise: boolean
-): PhaseInstruction {
+export function resolvePhaseInstruction(step, prescriptions, exercise, currentSet, isLastExercise) {
   const p = prescriptions;
   const workKg = p?.phase_5_work ?? 0;
-  const warmup: Record<string, PhaseInstruction> = {
+  const warmup = {
     F1: {
       weight: p?.phase_1_activation ?? 20,
       reps: "10 reps",
@@ -515,7 +370,7 @@ export function resolvePhaseInstruction(
   };
 }
 
-export function previewLiveMax(weight: number, reps: number, formula: string) {
+export function previewLiveMax(weight, reps, formula) {
   const w = weight > 0 ? weight : 0;
   const r = reps > 0 ? reps : 1;
   if (w <= 0) return { oneRm: 0, tm: 0, phase5: 0 };
@@ -525,16 +380,11 @@ export function previewLiveMax(weight: number, reps: number, formula: string) {
   return { oneRm, tm, phase5 };
 }
 
-export function calculateSessionStats(
-  day: RoutineDay,
-  completedSetsMap: { [exerciseName: string]: number[] },
-  completedWarmupMap: { [exerciseName: string]: string[] },
-  maxesMap: { [key: string]: ExerciseMaxData }
-) {
+export function calculateSessionStats(day, completedSetsMap, completedWarmupMap, maxesMap) {
   let totalKg = 0;
   let totalReps = 0;
   let totalEffectiveSets = 0;
-  const setsForInol: { reps: number; intensity: number }[] = [];
+  const setsForInol = [];
 
   day.exercises.forEach((ex) => {
     const setsDone = completedSetsMap[ex.name] || [];
@@ -581,32 +431,4 @@ export function calculateSessionStats(
     totalEffectiveSets,
     sessionInol,
   };
-}
-
-export function writeSessionProgress(payload: {
-  completedSetsMap: { [exerciseName: string]: number[] };
-  completedWarmupMap: { [exerciseName: string]: string[] };
-  selectedDayKey: string;
-  activeExerciseIndex: number;
-  currentSet: number;
-  activePhaseStep: string;
-}) {
-  if (typeof window === "undefined") return;
-  try {
-    localStorage.setItem(
-      "neuro_strength_session_progress",
-      JSON.stringify({ ...payload, timestamp: Date.now() })
-    );
-  } catch (err) {
-    console.warn("Error saving session to localStorage:", err);
-  }
-}
-
-export function writeMaxesMap(next: { [key: string]: ExerciseMaxData }) {
-  if (typeof window === "undefined") return;
-  try {
-    localStorage.setItem("neuro_strength_maxes", JSON.stringify(next));
-  } catch {
-    /* offline-first: ignore quota errors */
-  }
 }
