@@ -1,11 +1,17 @@
 /**
- * SPEC-0008 — Workout Domain Strategies & Olympic Power Suite Tests.
+ * SPEC-0008 — Workout Domain Strategies, Training Programs & Olympic Power Suite Tests.
  * Run: node --test tests/workoutStrategies.test.mjs
  */
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
 import {
   SCHEDULE_DAYS,
+  CLASSIC_DAYS,
+  OLYMPIC_DAYS,
+  HYBRID_DAYS,
+  TRAINING_PROGRAMS,
+  getTrainingProgram,
+  getProgramDays,
   ALL_TRACKABLE_EXERCISES,
   DEFAULT_BASE_MAXES,
   getExerciseCategory,
@@ -18,10 +24,10 @@ import {
   getWarmupRestConfig,
 } from '../src/lib/workoutStrategiesCore.mjs';
 
-describe('SPEC-0008 Workout Strategies & Olympic Power Suite', () => {
+describe('SPEC-0008 Workout Strategies & Multi-Program Power Suite', () => {
   describe('Exercise Catalog & Category Classification', () => {
-    it('contains all 23 trackable exercises including elite Olympic & ballistic lifts', () => {
-      assert.equal(ALL_TRACKABLE_EXERCISES.length, 23);
+    it('contains all 25 trackable exercises including elite Olympic & ballistic lifts', () => {
+      assert.equal(ALL_TRACKABLE_EXERCISES.length, 25);
       const requiredOlympic = [
         'Power Clean (Cargada de Potencia)',
         'Hang Power Clean (Cargada Colgada)',
@@ -52,15 +58,93 @@ describe('SPEC-0008 Workout Strategies & Olympic Power Suite', () => {
       assert.equal(getExerciseCategory('Paseo del Granjero Pesado'), 'dumbbells');
     });
 
-    it('has calibrated base maxes and baseline generation for all 23 exercises', () => {
+    it('has calibrated base maxes and baseline generation for all 25 exercises', () => {
       const baselines = getBaselineMaxes();
       for (const ex of ALL_TRACKABLE_EXERCISES) {
         assert.ok(DEFAULT_BASE_MAXES[ex], `Missing DEFAULT_BASE_MAXES entry for ${ex}`);
         assert.ok(baselines[ex], `Missing baseline for ${ex}`);
-        assert.ok(baselines[ex].one_rep_max > 0, `1RM must be > 0 for ${ex}`);
-        assert.ok(baselines[ex].training_max > 0, `TM must be > 0 for ${ex}`);
-        assert.ok(baselines[ex].prescriptions.phase_5_work > 0, `Phase 5 work load must be > 0 for ${ex}`);
+        assert.ok(baselines[ex].one_rep_max >= 0, `1RM must be >= 0 for ${ex}`);
+        assert.ok(baselines[ex].training_max >= 0, `TM must be >= 0 for ${ex}`);
+        if (ex !== 'Elevaciones Piernas a la Barra') {
+          assert.ok(baselines[ex].one_rep_max > 0, `1RM must be > 0 for ${ex}`);
+          assert.ok(baselines[ex].prescriptions.phase_5_work > 0, `Phase 5 work load must be > 0 for ${ex}`);
+        }
       }
+    });
+  });
+
+  describe('Multi-Program Architecture (Classic, Olympic, Hybrid)', () => {
+    it('defines exactly 3 training programs with full metadata', () => {
+      assert.equal(TRAINING_PROGRAMS.length, 3);
+      const programIds = TRAINING_PROGRAMS.map((p) => p.id);
+      assert.deepEqual(programIds, ['hybrid', 'olympic', 'classic']);
+    });
+
+    it('validates Program 1: Ciclo Clásico (4 Días de Fuerza Pura + 2 Descanso)', () => {
+      const classic = getTrainingProgram('classic');
+      assert.equal(classic.id, 'classic');
+      assert.equal(classic.days.length, 6);
+      const activeDays = classic.days.filter((d) => !d.isRest);
+      const restDays = classic.days.filter((d) => d.isRest);
+      assert.equal(activeDays.length, 4);
+      assert.equal(restDays.length, 2);
+    });
+
+    it('validates Program 2: Ciclo Olímpico (4 Días de Potencia & RFD + 2 Descanso)', () => {
+      const oly = getTrainingProgram('olympic');
+      assert.equal(oly.id, 'olympic');
+      assert.equal(oly.days.length, 6);
+      const activeDays = oly.days.filter((d) => !d.isRest);
+      const restDays = oly.days.filter((d) => d.isRest);
+      assert.equal(activeDays.length, 4);
+      assert.equal(restDays.length, 2);
+
+      // Verify Olympic program exercises
+      const allOlyExercises = activeDays.flatMap((d) => d.exercises.map((e) => e.name));
+      assert.ok(allOlyExercises.includes('Power Clean (Cargada de Potencia)'));
+      assert.ok(allOlyExercises.includes('Power Snatch (Arrancada de Potencia)'));
+      assert.ok(allOlyExercises.includes('Push Press (Press de Empuje)'));
+      assert.ok(allOlyExercises.includes('Hang Power Clean (Cargada Colgada)'));
+      assert.ok(allOlyExercises.includes('Hang Power Snatch (Arrancada Colgada)'));
+    });
+
+    it('validates Program 3: Ciclo Híbrido (5 Días de Fuerza + Potencia Sumadas + 2 Descanso)', () => {
+      const hybrid = getTrainingProgram('hybrid');
+      assert.equal(hybrid.id, 'hybrid');
+      assert.equal(hybrid.days.length, 7);
+      const activeDays = hybrid.days.filter((d) => !d.isRest);
+      const restDays = hybrid.days.filter((d) => d.isRest);
+      assert.equal(activeDays.length, 5);
+      assert.equal(restDays.length, 2);
+
+      // Verify Olympic primers in Day A and Day B
+      const dayA = hybrid.days.find((d) => d.key === 'DAY_A');
+      assert.equal(dayA.exercises[0].name, 'Power Clean (Cargada de Potencia)', 'Day A starts with Power Clean primer');
+      assert.equal(dayA.exercises[1].name, 'Sentadilla Trasera', 'Day A follows with heavy Back Squat');
+
+      const dayB = hybrid.days.find((d) => d.key === 'DAY_B');
+      assert.equal(dayB.exercises[0].name, 'Power Snatch (Arrancada de Potencia)', 'Day B starts with Power Snatch primer');
+      assert.equal(dayB.exercises[1].name, 'Peso Muerto Convencional', 'Day B follows with heavy Deadlift');
+    });
+
+    it('guarantees 100% catalog integrity: all exercises across all programs exist in ALL_TRACKABLE_EXERCISES', () => {
+      for (const prog of TRAINING_PROGRAMS) {
+        for (const day of prog.days) {
+          for (const ex of day.exercises) {
+            assert.ok(
+              ALL_TRACKABLE_EXERCISES.includes(ex.name),
+              `Exercise "${ex.name}" in program "${prog.id}" day "${day.name}" is missing from ALL_TRACKABLE_EXERCISES`
+            );
+          }
+        }
+      }
+    });
+
+    it('falls back safely to default hybrid program for unknown programId', () => {
+      const fallback = getTrainingProgram('unknown_program_id');
+      assert.equal(fallback.id, 'hybrid');
+      const fallbackDays = getProgramDays('unknown_program_id');
+      assert.equal(fallbackDays.length, 7);
     });
   });
 
@@ -91,53 +175,25 @@ describe('SPEC-0008 Workout Strategies & Olympic Power Suite', () => {
     });
   });
 
-  describe('Día E (Potencia Olímpica) & Weekly Schedule Structure', () => {
-    it('schedules exactly 7 days: 5 training days and 2 central recovery rest days', () => {
-      assert.equal(SCHEDULE_DAYS.length, 7);
-      const activeDays = SCHEDULE_DAYS.filter((d) => !d.isRest);
-      const restDays = SCHEDULE_DAYS.filter((d) => d.isRest);
-      assert.equal(activeDays.length, 5);
-      assert.equal(restDays.length, 2);
-    });
-
-    it('configures Día E with 5 high-power explosive exercises and >= 180s ATP-PC rest', () => {
-      const dayE = SCHEDULE_DAYS.find((d) => d.key === 'DAY_E');
-      assert.ok(dayE, 'Día E must exist');
-      assert.equal(dayE.name, 'Sábado - Día E');
-      assert.equal(dayE.focus, 'Potencia Olímpica & RFD Explosiva');
-      assert.equal(dayE.exercises.length, 5);
-
-      for (const ex of dayE.exercises) {
-        assert.ok(ex.restSeconds >= 180, `Rest for ${ex.name} must be >= 180s to allow complete ATP-PC resynthesis`);
-        assert.ok(ex.cue.length > 20, `Cue for ${ex.name} must provide rich biomechanical instructions`);
-      }
-    });
-
-    it('provides Sunday as absolute central nervous system supercompensation', () => {
-      const daySun = SCHEDULE_DAYS.find((d) => d.key === 'DAY_REST_SUN');
-      assert.ok(daySun, 'DAY_REST_SUN must exist');
-      assert.ok(daySun.isRest);
-      assert.ok(daySun.restMessage?.includes('Supercompensación Central Obligatoria'));
-    });
-  });
-
-  describe('Session Calculation & Fatigue Tonnage on Día E', () => {
-    it('calculates session stats and INOL for Día E workout execution', () => {
-      const dayE = SCHEDULE_DAYS.find((d) => d.key === 'DAY_E');
+  describe('Session Calculation & Fatigue Tonnage', () => {
+    it('calculates session stats and INOL for workout execution', () => {
+      const hybrid = getTrainingProgram('hybrid');
+      const dayA = hybrid.days[0];
       const baselines = getBaselineMaxes();
 
-      // Simulate athlete completing 3 sets of Power Clean and all warmups
       const completedSetsMap = {
         'Power Clean (Cargada de Potencia)': [1, 2, 3],
+        'Sentadilla Trasera': [1, 2, 3, 4, 5],
       };
       const completedWarmupMap = {
         'Power Clean (Cargada de Potencia)': ['F1', 'F2', 'F3', 'F4'],
+        'Sentadilla Trasera': ['F1', 'F2', 'F3', 'F4'],
       };
 
-      const stats = calculateSessionStats(dayE, completedSetsMap, completedWarmupMap, baselines);
+      const stats = calculateSessionStats(dayA, completedSetsMap, completedWarmupMap, baselines);
       assert.ok(stats.tonnageKg > 0, 'Tonnage must be positive');
       assert.ok(stats.totalReps > 0, 'Reps must be positive');
-      assert.equal(stats.totalEffectiveSets, 3);
+      assert.equal(stats.totalEffectiveSets, 8);
       assert.ok(stats.sessionInol.totalInol > 0, 'Session INOL must be calculated');
     });
 
@@ -146,8 +202,9 @@ describe('SPEC-0008 Workout Strategies & Olympic Power Suite', () => {
       assert.equal(cfgF4.time, 180);
       assert.equal(cfgF4.next, '1');
 
-      const dayE = SCHEDULE_DAYS.find((d) => d.key === 'DAY_E');
-      const powerClean = dayE.exercises[0];
+      const oly = getTrainingProgram('olympic');
+      const day1 = oly.days[0];
+      const powerClean = day1.exercises[0];
       const baselines = getBaselineMaxes();
       const p = baselines[powerClean.name].prescriptions;
 

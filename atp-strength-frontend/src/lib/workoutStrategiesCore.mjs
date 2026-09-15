@@ -6,9 +6,9 @@ import { computeEstimated1Rm } from './rpeEngine.mjs';
  * Zero browser or React dependencies. Testable in native Node.js test runner.
  */
 
-export const SCHEDULE_DAYS = [
+export const CLASSIC_DAYS = [
   {
-    key: "DAY_A",
+    key: "DAY_CLASSIC_A",
     name: "Lunes - Día A",
     focus: "Empuje & Dominancia Cuádriceps",
     isRest: false,
@@ -20,13 +20,149 @@ export const SCHEDULE_DAYS = [
     ],
   },
   {
-    key: "DAY_B",
+    key: "DAY_CLASSIC_B",
     name: "Martes - Día B",
     focus: "Tracción & Cadena Posterior",
     isRest: false,
     exercises: [
       { name: "Peso Muerto Convencional", sets: 2, reps: "3 reps", restSeconds: 300, cue: "Tensión de dorsales, tracción de la barra pegada a las tibias." },
       { name: "Dominadas Lastradas", sets: 4, reps: "4 reps", restSeconds: 180, cue: "Rango articular completo, depresión escapular antes de traccionar." },
+      { name: "Remo Pendlay", sets: 3, reps: "5 reps", restSeconds: 180, cue: "Torso paralelo al suelo, inicio inerte desde cada repetición." },
+      { name: "Peso Muerto Rumano", sets: 3, reps: "5 reps", restSeconds: 180, cue: "Bisagra de cadera profunda, estiramiento isquiosural controlado." },
+      { name: "Paseo del Granjero Pesado", sets: 3, reps: "40 metros", restSeconds: 180, cue: "Fuerza de agarre crushing, columna vertebral en extensión neutra." },
+    ],
+  },
+  {
+    key: "DAY_CLASSIC_REST_WED",
+    name: "Miércoles",
+    focus: "Descanso Absoluto",
+    isRest: true,
+    restMessage: "Supercompensación Central Obligatoria: Regeneración del Sistema Nervioso Central (SNC) y resíntesis glucogénica sin carga.",
+    exercises: [],
+  },
+  {
+    key: "DAY_CLASSIC_C",
+    name: "Jueves - Día C",
+    focus: "Empuje Supremo & Densidad",
+    isRest: false,
+    exercises: [
+      { name: "Press de Banca", sets: 6, reps: "2 reps", restSeconds: 240, cue: "Potencia elástica y aceleración máxima en fase de ascenso." },
+      { name: "Press Militar", sets: 4, reps: "3 reps", restSeconds: 180, cue: "Control excéntrico de 2s, pausa clavicular mínima." },
+      { name: "Fondos en Paralelas", sets: 3, reps: "5 reps", restSeconds: 180, cue: "Lastre progresivo preservando rango articular sin dolor acromial." },
+      { name: "Planchas Isométricas Pesadas", sets: 4, reps: "30 seg", restSeconds: 120, cue: "Retroversión pélvica, co-contracción máxima abdominal con lastre." },
+    ],
+  },
+  {
+    key: "DAY_CLASSIC_D",
+    name: "Viernes - Día D",
+    focus: "Tracción Técnica & Brazos",
+    isRest: false,
+    exercises: [
+      { name: "Sentadilla Trasera Técnica", sets: 3, reps: "3 reps", restSeconds: 180, cue: "Velocidad de ejecución perfecta a 75% 1RM con pausa en paralelo." },
+      { name: "Dominadas Lastradas", sets: 4, reps: "4 reps", restSeconds: 180, cue: "Pectoral tocando la barra, descenso de 3 segundos." },
+      { name: "Remo Pendlay", sets: 3, reps: "5 reps", restSeconds: 180, cue: "Potencia neuromuscular de la espalda media sin impulso lumbar." },
+      { name: "Curl Bíceps Barra Z", sets: 4, reps: "5 reps", restSeconds: 120, cue: "Codos anclados a la caja torácica, supinación sostenida." },
+      { name: "Elevaciones Piernas a la Barra", sets: 3, reps: "8 reps", restSeconds: 120, cue: "Flexión espinal activa, sin balanceo de inercia." },
+    ],
+  },
+  {
+    key: "DAY_CLASSIC_REST_WEEKEND",
+    name: "Sábado y Domingo",
+    focus: "Descanso Absoluto",
+    isRest: true,
+    restMessage: "Ventana Anabólica de Recuperación Sistémica: Cero estímulo de carga. Optimización del sueño profundo y resíntesis biológica total.",
+    exercises: [],
+  },
+];
+
+export const OLYMPIC_DAYS = [
+  {
+    key: "DAY_OLYMPIC_1",
+    name: "Lunes - Día 1",
+    focus: "Potencia de Cargada & Triple Extensión",
+    isRest: false,
+    exercises: [
+      { name: "Power Clean (Cargada de Potencia)", sets: 5, reps: "3 reps", restSeconds: 240, cue: "Triple extensión violenta (tobillos, rodillas, cadera), codos rápidos al frente, recepción firme en 1/4 de sentadilla." },
+      { name: "Clean High Pull (Tirón Alto de Cargada)", sets: 4, reps: "3 reps", restSeconds: 180, cue: "Extensión terminal potente, encogimiento brutal de trapecios y codos liderando la elevación vertical." },
+      { name: "Sentadilla con Salto con Barra (Barbell Jump Squat)", sets: 4, reps: "3 reps", restSeconds: 180, cue: "Carga balística ligera (20-30% 1RM), cuarto de flexión elástico y despegue con aceleración concéntrica máxima." },
+      { name: "Planchas Isométricas Pesadas", sets: 3, reps: "30 seg", restSeconds: 120, cue: "Retroversión pélvica, co-contracción máxima abdominal con lastre." },
+    ],
+  },
+  {
+    key: "DAY_OLYMPIC_2",
+    name: "Martes - Día 2",
+    focus: "Velocidad de Arrancada & Cadena Posterior",
+    isRest: false,
+    exercises: [
+      { name: "Power Snatch (Arrancada de Potencia)", sets: 5, reps: "2 reps", restSeconds: 240, cue: "Aceleración continua desde el suelo, segundo tirón explosivo en la cadera y recepción con brazos bloqueados como columnas." },
+      { name: "Snatch High Pull (Tirón Alto de Arrancada)", sets: 4, reps: "3 reps", restSeconds: 180, cue: "Agarre ancho, trayectoria vertical pegada al abdomen, máxima velocidad de barra." },
+      { name: "Peso Muerto Agarre Arrancada (Snatch Grip Deadlift)", sets: 3, reps: "3 reps", restSeconds: 240, cue: "Agarre amplio de arrancada, cadera baja y máxima activación de espalda alta e isquiotibiales." },
+      { name: "Dominadas Lastradas", sets: 3, reps: "4 reps", restSeconds: 180, cue: "Rango articular completo, depresión escapular antes de traccionar." },
+    ],
+  },
+  {
+    key: "DAY_OLYMPIC_REST_WED",
+    name: "Miércoles",
+    focus: "Descanso Absoluto",
+    isRest: true,
+    restMessage: "Supercompensación Central Obligatoria: Regeneración neuromuscular del SNC y restauración de fosfágenos.",
+    exercises: [],
+  },
+  {
+    key: "DAY_OLYMPIC_3",
+    name: "Jueves - Día 3",
+    focus: "Empuje de Potencia & Envión",
+    isRest: false,
+    exercises: [
+      { name: "Push Press (Press de Empuje)", sets: 5, reps: "3 reps", restSeconds: 240, cue: "Dip vertical reactivo de 10 cm, drive violento de piernas y bloqueo escapular sólido." },
+      { name: "Power Jerk (Envión de Potencia)", sets: 4, reps: "2 reps", restSeconds: 180, cue: "Impulso vertical limpio desde piernas, re-flexión rápida bajo la barra y bloqueo pétreo." },
+      { name: "Salto con Trap Bar (Trap Bar Jump)", sets: 4, reps: "3 reps", restSeconds: 180, cue: "Agarre neutro centrado, despegue vertical sin cizalla espinal, disipación elástica de impacto en recepción." },
+      { name: "Fondos en Paralelas", sets: 3, reps: "5 reps", restSeconds: 180, cue: "Codos en 45°, torso con ligera inclinación hacia adelante." },
+    ],
+  },
+  {
+    key: "DAY_OLYMPIC_4",
+    name: "Viernes - Día 4",
+    focus: "Potencia Colgada & Tracción con Déficit",
+    isRest: false,
+    exercises: [
+      { name: "Hang Power Clean (Cargada Colgada)", sets: 4, reps: "3 reps", restSeconds: 180, cue: "Inicio desde sobre las rodillas, ciclo estiramiento-acortamiento violento y recepción rápida." },
+      { name: "Hang Power Snatch (Arrancada Colgada)", sets: 4, reps: "2 reps", restSeconds: 180, cue: "Bisagra explosiva desde posición colgante, velocidad angular implacable." },
+      { name: "Peso Muerto con Déficit (Deficit Deadlift)", sets: 3, reps: "3 reps", restSeconds: 240, cue: "Parado sobre tarima de 5 cm, mayor recorrido articular y tensión brutal en despegue." },
+      { name: "Paseo del Granjero Pesado", sets: 3, reps: "40 metros", restSeconds: 180, cue: "Fuerza de agarre crushing, columna vertebral en extensión neutra." },
+    ],
+  },
+  {
+    key: "DAY_OLYMPIC_REST_WEEKEND",
+    name: "Sábado y Domingo",
+    focus: "Descanso Absoluto",
+    isRest: true,
+    restMessage: "Supercompensación Anabólica: Descompresión espinal, reposición de ATP-PC y descanso completo del SNC.",
+    exercises: [],
+  },
+];
+
+export const HYBRID_DAYS = [
+  {
+    key: "DAY_A",
+    name: "Lunes - Día A",
+    focus: "Potencia Olímpica & Empuje Cuádriceps",
+    isRest: false,
+    exercises: [
+      { name: "Power Clean (Cargada de Potencia)", sets: 4, reps: "3 reps", restSeconds: 240, cue: "Triple extensión violenta (tobillos, rodillas, cadera), codos rápidos al frente, recepción firme en 1/4 de sentadilla." },
+      { name: "Sentadilla Trasera", sets: 5, reps: "3 reps", restSeconds: 240, cue: "Apoyo trípode, empuje contra el suelo con cadencia explosiva concéntrica tras la activación del Clean." },
+      { name: "Press de Banca", sets: 5, reps: "3 reps", restSeconds: 240, cue: "Retracción escapular máxima, arco lumbar biomecánico estable." },
+      { name: "Fondos en Paralelas", sets: 3, reps: "5 reps", restSeconds: 180, cue: "Codos en 45°, torso con ligera inclinación hacia adelante." },
+    ],
+  },
+  {
+    key: "DAY_B",
+    name: "Martes - Día B",
+    focus: "Arrancada & Tracción Cadena Posterior",
+    isRest: false,
+    exercises: [
+      { name: "Power Snatch (Arrancada de Potencia)", sets: 4, reps: "2 reps", restSeconds: 240, cue: "Aceleración continua desde el suelo, segundo tirón explosivo en la cadera y recepción con brazos bloqueados." },
+      { name: "Peso Muerto Convencional", sets: 3, reps: "3 reps", restSeconds: 300, cue: "Tensión de dorsales, tracción de la barra pegada a las tibias con SNC hiper-activado." },
       { name: "Remo Pendlay", sets: 3, reps: "5 reps", restSeconds: 180, cue: "Torso paralelo al suelo, inicio inerte desde cada repetición." },
       { name: "Peso Muerto Rumano", sets: 3, reps: "5 reps", restSeconds: 180, cue: "Bisagra de cadera profunda, estiramiento isquiosural controlado." },
       { name: "Paseo del Granjero Pesado", sets: 3, reps: "40 metros", restSeconds: 180, cue: "Fuerza de agarre crushing, columna vertebral en extensión neutra." },
@@ -43,39 +179,39 @@ export const SCHEDULE_DAYS = [
   {
     key: "DAY_C",
     name: "Jueves - Día C",
-    focus: "Empuje Supremo & Densidad",
+    focus: "Empuje de Potencia & Densidad Torácica",
     isRest: false,
     exercises: [
+      { name: "Push Press (Press de Empuje)", sets: 4, reps: "3 reps", restSeconds: 240, cue: "Dip vertical reactivo de 10 cm, drive violento de piernas y bloqueo escapular sólido." },
       { name: "Press de Banca", sets: 6, reps: "2 reps", restSeconds: 240, cue: "Potencia elástica y aceleración máxima en fase de ascenso." },
       { name: "Press Militar", sets: 4, reps: "3 reps", restSeconds: 180, cue: "Control excéntrico de 2s, pausa clavicular mínima." },
-      { name: "Fondos en Paralelas", sets: 3, reps: "5 reps", restSeconds: 180, cue: "Lastre progresivo preservando rango articular sin dolor acromial." },
       { name: "Planchas Isométricas Pesadas", sets: 4, reps: "30 seg", restSeconds: 120, cue: "Retroversión pélvica, co-contracción máxima abdominal con lastre." },
     ],
   },
   {
     key: "DAY_D",
     name: "Viernes - Día D",
-    focus: "Tracción Técnica & Brazos",
+    focus: "Tirones Altos & Tracción Técnica",
     isRest: false,
     exercises: [
+      { name: "Clean High Pull (Tirón Alto de Cargada)", sets: 4, reps: "3 reps", restSeconds: 180, cue: "Extensión terminal potente, encogimiento brutal de trapecios y codos liderando la elevación vertical." },
       { name: "Sentadilla Trasera Técnica", sets: 3, reps: "3 reps", restSeconds: 180, cue: "Velocidad de ejecución perfecta a 75% 1RM con pausa en paralelo." },
       { name: "Dominadas Lastradas", sets: 4, reps: "4 reps", restSeconds: 180, cue: "Pectoral tocando la barra, descenso de 3 segundos." },
-      { name: "Remo Pendlay", sets: 3, reps: "5 reps", restSeconds: 180, cue: "Potencia neuromuscular de la espalda media sin impulso lumbar." },
+      { name: "Peso Muerto con Déficit (Deficit Deadlift)", sets: 3, reps: "3 reps", restSeconds: 240, cue: "Parado sobre tarima de 5 cm, mayor recorrido articular y tensión brutal en despegue." },
       { name: "Curl Bíceps Barra Z", sets: 4, reps: "5 reps", restSeconds: 120, cue: "Codos anclados a la caja torácica, supinación sostenida." },
-      { name: "Elevaciones Piernas a la Barra", sets: 3, reps: "8 reps", restSeconds: 120, cue: "Flexión espinal activa, sin balanceo de inercia." },
     ],
   },
   {
     key: "DAY_E",
     name: "Sábado - Día E",
-    focus: "Potencia Olímpica & RFD Explosiva",
+    focus: "Potencia Balística & Complejo Explosivo",
     isRest: false,
     exercises: [
-      { name: "Power Clean (Cargada de Potencia)", sets: 5, reps: "3 reps", restSeconds: 240, cue: "Triple extensión violenta (tobillos, rodillas, cadera), codos rápidos al frente, recepción firme en 1/4 de sentadilla." },
-      { name: "Push Press (Press de Empuje)", sets: 4, reps: "3 reps", restSeconds: 180, cue: "Dip vertical reactivo de 10 cm, drive violento de piernas y bloqueo escapular sólido." },
       { name: "Sentadilla con Salto con Barra (Barbell Jump Squat)", sets: 4, reps: "3 reps", restSeconds: 180, cue: "Carga balística ligera (20-30% 1RM), cuarto de flexión elástico y despegue con aceleración concéntrica máxima." },
-      { name: "Clean High Pull (Tirón Alto de Cargada)", sets: 3, reps: "3 reps", restSeconds: 180, cue: "Extensión terminal potente, encogimiento brutal de trapecios y codos liderando la elevación vertical." },
-      { name: "Salto con Trap Bar (Trap Bar Jump)", sets: 3, reps: "3 reps", restSeconds: 180, cue: "Agarre neutro centrado, despegue vertical sin cizalla espinal, disipación elástica de impacto en recepción." },
+      { name: "Salto con Trap Bar (Trap Bar Jump)", sets: 4, reps: "3 reps", restSeconds: 180, cue: "Agarre neutro centrado, despegue vertical sin cizalla espinal, disipación elástica de impacto en recepción." },
+      { name: "Snatch High Pull (Tirón Alto de Arrancada)", sets: 3, reps: "3 reps", restSeconds: 180, cue: "Agarre ancho, trayectoria vertical pegada al abdomen, máxima velocidad de barra." },
+      { name: "Peso Muerto Agarre Arrancada (Snatch Grip Deadlift)", sets: 3, reps: "3 reps", restSeconds: 240, cue: "Agarre amplio de arrancada, cadera baja y máxima activación de espalda alta e isquiotibiales." },
+      { name: "Elevaciones Piernas a la Barra", sets: 3, reps: "8 reps", restSeconds: 120, cue: "Flexión espinal activa, sin balanceo de inercia." },
     ],
   },
   {
@@ -87,6 +223,44 @@ export const SCHEDULE_DAYS = [
     exercises: [],
   },
 ];
+
+/** Default schedule days export for backward compatibility. */
+export const SCHEDULE_DAYS = HYBRID_DAYS;
+
+export const TRAINING_PROGRAMS = [
+  {
+    id: "hybrid",
+    name: "Ciclo Híbrido: Fuerza & Potencia Máxima",
+    shortName: "Híbrido Élite",
+    badge: "5 DÍAS · FUERZA + POTENCIA",
+    description: "Activación neural explosiva olímpica (PAP) integrada al inicio de cada sesión pesada.",
+    days: HYBRID_DAYS,
+  },
+  {
+    id: "olympic",
+    name: "Ciclo Olímpico: Potencia Explosiva & RFD",
+    shortName: "Olímpico Puro",
+    badge: "4 DÍAS · POTENCIA & VELOCIDAD",
+    description: "Cargadas, arrancadas, tirones altos, push press y saltos con barra de máxima velocidad.",
+    days: OLYMPIC_DAYS,
+  },
+  {
+    id: "classic",
+    name: "Ciclo Clásico: Fuerza Pura",
+    shortName: "Fuerza Clásica",
+    badge: "4 DÍAS · POWERLIFTING PURO",
+    description: "Sentadilla, press de banca, peso muerto y press militar pesado con periodización rusa.",
+    days: CLASSIC_DAYS,
+  },
+];
+
+export function getTrainingProgram(programId = "hybrid") {
+  return TRAINING_PROGRAMS.find((p) => p.id === programId) || TRAINING_PROGRAMS[0];
+}
+
+export function getProgramDays(programId = "hybrid") {
+  return getTrainingProgram(programId).days;
+}
 
 export const ALL_TRACKABLE_EXERCISES = [
   "Sentadilla Trasera",
@@ -100,6 +274,8 @@ export const ALL_TRACKABLE_EXERCISES = [
   "Paseo del Granjero Pesado",
   "Sentadilla Trasera Técnica",
   "Curl Bíceps Barra Z",
+  "Elevaciones Piernas a la Barra",
+  "Planchas Isométricas Pesadas",
   "Power Clean (Cargada de Potencia)",
   "Hang Power Clean (Cargada Colgada)",
   "Power Snatch (Arrancada de Potencia)",

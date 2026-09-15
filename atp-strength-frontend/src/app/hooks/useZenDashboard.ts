@@ -18,6 +18,10 @@ import { createWorkoutHandlers } from "@/app/hooks/createWorkoutHandlers";
 import {
   SCHEDULE_DAYS,
   ALL_TRACKABLE_EXERCISES,
+  TRAINING_PROGRAMS,
+  getTrainingProgram,
+  getProgramDays,
+  type TrainingProgram,
   computeMetrics,
   getSavedSession,
   getInitialMaxes,
@@ -36,8 +40,21 @@ export function useZenDashboard() {
   const timer = useAtpTimer(180);
   const wal = useBackendWal(apiUrl);
 
+  const [selectedProgramId, setSelectedProgramId] = useState<string>(() => {
+    if (typeof window === "undefined") return "hybrid";
+    try {
+      const saved = localStorage.getItem("neuro_strength_selected_program");
+      return (saved === "classic" || saved === "olympic" || saved === "hybrid") ? saved : "hybrid";
+    } catch {
+      return "hybrid";
+    }
+  });
+
+  const currentProgram = getTrainingProgram(selectedProgramId);
+  const scheduleDays = currentProgram.days;
+
   const [selectedDayKey, setSelectedDayKey] = useState(
-    () => getSavedSession()?.selectedDayKey || "DAY_A"
+    () => getSavedSession()?.selectedDayKey || scheduleDays[0].key
   );
   const [activeExerciseIndex, setActiveExerciseIndex] = useState(() => {
     const idx = getSavedSession()?.activeExerciseIndex;
@@ -152,7 +169,7 @@ export function useZenDashboard() {
   const [isSavingMax, setIsSavingMax] = useState(false);
   const [exerciseHistory, setExerciseHistory] = useState<HistoryItem[]>([]);
 
-  const activeDay = SCHEDULE_DAYS.find((d) => d.key === selectedDayKey) || SCHEDULE_DAYS[0];
+  const activeDay = scheduleDays.find((d) => d.key === selectedDayKey) || scheduleDays[0];
   const activeExercise = activeDay.exercises[activeExerciseIndex] || activeDay.exercises[0] || REST_PLACEHOLDER_EXERCISE;
   const activeExMax = activeExercise
     ? maxesMap[activeExercise.name] || computeMetrics(activeExercise.name, 80, 5)
@@ -199,6 +216,37 @@ export function useZenDashboard() {
       });
     },
     []
+  );
+
+  const handleSelectProgram = useCallback(
+    (programId: string) => {
+      setSelectedProgramId(programId);
+      if (typeof window !== "undefined") {
+        try {
+          localStorage.setItem("neuro_strength_selected_program", programId);
+        } catch {
+          // ignore
+        }
+      }
+      const prog = getTrainingProgram(programId);
+      const firstActiveDay = prog.days.find((d) => !d.isRest) || prog.days[0];
+      setSelectedDayKey(firstActiveDay.key);
+      setActiveExerciseIndex(0);
+      const firstEx = firstActiveDay.exercises[0];
+      const done = firstEx ? (completedSetsMap[firstEx.name]?.length || 0) : 0;
+      const nextSet = done > 0 && done < (firstEx?.sets || 1) ? done + 1 : 1;
+      setCurrentSet(nextSet);
+      setActivePhaseStep(done === 0 ? "F1" : nextSet.toString());
+      persistSessionProgress(
+        completedSetsMap,
+        completedWarmupMap,
+        firstActiveDay.key,
+        0,
+        nextSet,
+        done === 0 ? "F1" : nextSet.toString()
+      );
+    },
+    [completedSetsMap, completedWarmupMap, persistSessionProgress]
   );
 
   const refreshHistory = useCallback(
@@ -470,6 +518,12 @@ export function useZenDashboard() {
       calculateSessionStats(activeDay, completedSetsMap, completedWarmupMap, maxesMap),
     playChime,
     SCHEDULE_DAYS,
+    scheduleDays,
+    selectedProgramId,
+    setSelectedProgramId,
+    handleSelectProgram,
+    currentProgram,
+    availablePrograms: TRAINING_PROGRAMS,
     ALL_TRACKABLE_EXERCISES,
   };
 }

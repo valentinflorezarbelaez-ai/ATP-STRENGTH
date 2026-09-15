@@ -44,6 +44,7 @@ export function ZenDashboardView({ d }: { d: Dash }) {
     handleSaveMax,
     formatTime, playChime, calculateSessionStats,
     SCHEDULE_DAYS, ALL_TRACKABLE_EXERCISES,
+    scheduleDays, selectedProgramId, handleSelectProgram, currentProgram, availablePrograms,
   } = d;
 
   const sessionStats = calculateSessionStats();
@@ -175,19 +176,64 @@ export function ZenDashboardView({ d }: { d: Dash }) {
       <div className="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-12 gap-6 flex-1 items-start">
         {/* Left Column: Itinerario Élite de 4 Días + Ejercicio Activo */}
         <section className="lg:col-span-6 flex flex-col gap-5">
+          {/* Selector de Programa / Mesociclo */}
+          <div className="p-4 sm:p-5 rounded-2xl bg-zinc-950 border border-zinc-900 shadow-2xl space-y-3">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-mono text-zinc-400 flex items-center gap-2">
+                <Dumbbell className="w-4 h-4 text-amber-400" /> PROGRAMA ACTIVO
+              </span>
+              <span className="text-[10px] font-mono text-amber-400 bg-amber-500/10 px-2.5 py-0.5 rounded-full border border-amber-500/20 font-bold tracking-wider">
+                {currentProgram.badge}
+              </span>
+            </div>
+
+            {/* Selector Tabs */}
+            <div className="grid grid-cols-3 gap-2">
+              {availablePrograms.map((prog) => {
+                const isProgActive = prog.id === selectedProgramId;
+                return (
+                  <button
+                    key={prog.id}
+                    type="button"
+                    onClick={() => handleSelectProgram(prog.id)}
+                    className={`p-2.5 sm:p-3 rounded-xl text-left transition-all border relative flex flex-col justify-between cursor-pointer ${
+                      isProgActive
+                        ? "bg-amber-500/15 border-amber-500/60 text-white shadow-lg shadow-amber-500/10 scale-[1.01]"
+                        : "bg-zinc-900/40 border-zinc-800/80 text-zinc-400 hover:border-zinc-700 hover:text-zinc-200"
+                    }`}
+                  >
+                    <div className="flex items-center justify-between w-full mb-1">
+                      <span className="text-xs font-bold truncate">{prog.shortName}</span>
+                      {isProgActive && (
+                        <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-ping" />
+                      )}
+                    </div>
+                    <span className="text-[9px] font-mono text-zinc-500 line-clamp-1">
+                      {prog.id === "hybrid" ? "5 Días · PAP" : prog.id === "olympic" ? "4 Días · RFD" : "4 Días · Fuerza"}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+
+            <p className="text-[11px] font-mono text-zinc-400 pt-1.5 border-t border-zinc-900 leading-relaxed">
+              ⚡ {currentProgram.description}
+            </p>
+          </div>
+
           {/* Selector de Itinerario */}
           <div className="p-5 rounded-2xl bg-zinc-950 border border-zinc-900 shadow-2xl">
             <div className="flex items-center justify-between mb-4">
               <span className="text-xs font-mono text-zinc-400 flex items-center gap-2">
-                <Calendar className="w-4 h-4 text-amber-400" /> ITINERARIO ÉLITE FIJO
+                <Calendar className="w-4 h-4 text-amber-400" /> ITINERARIO DEL CICLO
               </span>
               <span className="text-[11px] font-mono text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/20">
-                {SCHEDULE_DAYS.filter((d) => !d.isRest).length} DÍAS + {SCHEDULE_DAYS.filter((d) => d.isRest).length} DESCANSO
+                {scheduleDays.filter((d) => !d.isRest).length} DÍAS + {scheduleDays.filter((d) => d.isRest).length} DESCANSO
               </span>
             </div>
 
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-              {SCHEDULE_DAYS.map((day) => {
+              {scheduleDays.map((day) => {
                 const isSelected = day.key === selectedDayKey;
                 return (
                   <button
@@ -195,7 +241,7 @@ export function ZenDashboardView({ d }: { d: Dash }) {
                     onClick={() => {
                       setSelectedDayKey(day.key);
                       setActiveExerciseIndex(0);
-                      const dayObj = SCHEDULE_DAYS.find((d) => d.key === day.key);
+                      const dayObj = scheduleDays.find((d) => d.key === day.key);
                       const firstEx = dayObj?.exercises[0];
                       const done = firstEx ? (completedSetsMap[firstEx.name]?.length || 0) : 0;
                       const nextSet = done > 0 && done < (firstEx?.sets || 1) ? done + 1 : 1;
@@ -203,7 +249,7 @@ export function ZenDashboardView({ d }: { d: Dash }) {
                       setActivePhaseStep(done === 0 ? "F1" : nextSet.toString());
                       persistSessionProgress(completedSetsMap, completedWarmupMap, day.key, 0, nextSet, done === 0 ? "F1" : nextSet.toString());
                     }}
-                    className={`p-3 rounded-xl text-left transition-all border relative overflow-hidden ${
+                    className={`p-3 rounded-xl text-left transition-all border relative overflow-hidden cursor-pointer ${
                       isSelected
                         ? "bg-amber-500/10 border-amber-500/50 text-white shadow-lg shadow-amber-500/5"
                         : day.isRest

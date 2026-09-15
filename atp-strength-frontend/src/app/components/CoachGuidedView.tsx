@@ -69,6 +69,11 @@ export function CoachGuidedView({ d }: { d: Dash }) {
     toggleCoachMode,
     playChime,
     SCHEDULE_DAYS,
+    scheduleDays,
+    selectedProgramId,
+    handleSelectProgram,
+    currentProgram,
+    availablePrograms,
     setSelectedDayKey,
     selectedDayKey,
     setActivePhaseStep,
@@ -457,32 +462,62 @@ export function CoachGuidedView({ d }: { d: Dash }) {
               className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-zinc-900/90 border border-zinc-800 text-xs font-semibold text-zinc-200 hover:border-amber-500/40 transition-all cursor-pointer"
             >
               <Activity className="w-3.5 h-3.5 text-amber-400" />
+              <span className="text-amber-400 font-mono text-[10px] uppercase font-bold">{currentProgram.shortName} ·</span>
               <span>{activeDay.name}</span>
               <span className="text-zinc-500 text-[10px]">▼</span>
             </button>
 
             {showDayMenu && (
-              <div className="absolute top-full left-0 mt-1 z-30 w-56 p-1.5 rounded-2xl bg-zinc-950 border border-zinc-800 shadow-2xl space-y-1">
-                {SCHEDULE_DAYS.map((dItem) => (
-                  <button
-                    key={dItem.key}
-                    type="button"
-                    onClick={() => {
-                      setSelectedDayKey(dItem.key);
-                      setShowDayMenu(false);
-                    }}
-                    className={`w-full text-left px-3 py-2 rounded-xl text-xs font-medium transition-all flex items-center justify-between cursor-pointer ${
-                      dItem.key === selectedDayKey
-                        ? "bg-amber-500/20 text-amber-300 border border-amber-500/30"
-                        : "text-zinc-400 hover:bg-zinc-900 hover:text-zinc-200"
-                    }`}
-                  >
-                    <span>{dItem.name}</span>
-                    <span className="text-[10px] font-mono text-zinc-500">
-                      {dItem.exercises.length} ejer.
-                    </span>
-                  </button>
-                ))}
+              <div className="absolute top-full left-0 mt-1 z-30 w-64 p-2.5 rounded-2xl bg-zinc-950 border border-zinc-800 shadow-2xl space-y-2.5">
+                {/* Program Selector */}
+                <div className="pb-2 border-b border-zinc-900">
+                  <span className="text-[10px] font-mono text-zinc-500 uppercase tracking-wider block mb-1.5">
+                    Programa Activo
+                  </span>
+                  <div className="grid grid-cols-3 gap-1">
+                    {availablePrograms.map((prog) => (
+                      <button
+                        key={prog.id}
+                        type="button"
+                        onClick={() => handleSelectProgram(prog.id)}
+                        className={`px-2 py-1 rounded-lg text-[10px] font-bold font-mono transition-all text-center cursor-pointer ${
+                          prog.id === selectedProgramId
+                            ? "bg-amber-500/20 text-amber-300 border border-amber-500/40"
+                            : "bg-zinc-900/60 text-zinc-400 hover:text-zinc-200"
+                        }`}
+                      >
+                        {prog.shortName}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Days of Selected Program */}
+                <div className="space-y-1">
+                  <span className="text-[10px] font-mono text-zinc-500 uppercase tracking-wider block mb-1">
+                    Sesiones del Ciclo
+                  </span>
+                  {scheduleDays.map((dItem) => (
+                    <button
+                      key={dItem.key}
+                      type="button"
+                      onClick={() => {
+                        setSelectedDayKey(dItem.key);
+                        setShowDayMenu(false);
+                      }}
+                      className={`w-full text-left px-3 py-2 rounded-xl text-xs font-medium transition-all flex items-center justify-between cursor-pointer ${
+                        dItem.key === selectedDayKey
+                          ? "bg-amber-500/20 text-amber-300 border border-amber-500/30"
+                          : "text-zinc-400 hover:bg-zinc-900 hover:text-zinc-200"
+                      }`}
+                    >
+                      <span className="truncate">{dItem.name}</span>
+                      <span className="text-[10px] font-mono text-zinc-500 flex-shrink-0">
+                        {dItem.exercises.length} ejer.
+                      </span>
+                    </button>
+                  ))}
+                </div>
               </div>
             )}
           </div>
