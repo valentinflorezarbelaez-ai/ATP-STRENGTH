@@ -47,7 +47,7 @@ export function ZenDashboardView({ d }: { d: Dash }) {
     scheduleDays, selectedProgramId, handleSelectProgram, currentProgram, availablePrograms,
   } = d;
 
-  const sessionStats = calculateSessionStats();
+  const sessionStats = React.useMemo(() => calculateSessionStats(), [calculateSessionStats]);
 
   return (
     <main className="min-h-screen relative overflow-x-hidden flex flex-col items-center justify-between p-4 md:p-8 pb-24 md:pb-8 font-sans selection:bg-pink-500 selection:text-white">

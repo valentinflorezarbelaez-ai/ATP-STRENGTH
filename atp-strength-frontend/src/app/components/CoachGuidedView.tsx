@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import {
   Flame, Sparkles, CheckCircle2, ChevronLeft, ChevronRight,
   Play, Pause, RotateCcw, Volume2, Trophy,
@@ -34,6 +34,7 @@ type Dash = ReturnType<typeof useZenDashboard>;
 
 export function CoachGuidedView({ d }: { d: Dash }) {
   useWakeLock(d.isRunning || !d.isDayFinished);
+  const sessionStats = useMemo(() => d.calculateSessionStats(), [d.calculateSessionStats]);
 
   const {
     activeDay,
@@ -542,22 +543,18 @@ export function CoachGuidedView({ d }: { d: Dash }) {
         </div>
 
         {/* Live Soviet INOL Fatigue Gauge */}
-        {(() => {
-          const stats = d.calculateSessionStats();
-          if (!stats?.sessionInol) return null;
-          return (
-            <div className="flex items-center justify-between px-3.5 py-2 rounded-xl bg-zinc-950/70 border border-zinc-800/80 text-xs font-mono">
-              <div className="flex items-center gap-2">
-                <Zap className="w-3.5 h-3.5 text-amber-400" />
-                <span className="text-zinc-400 text-[11px] font-bold uppercase">Fatiga SNC (INOL):</span>
-                <span className="font-bold text-white text-sm">{stats.sessionInol.totalInol}</span>
-              </div>
-              <span className={`px-2.5 py-0.5 rounded-lg text-[10px] font-bold border ${stats.sessionInol.badgeColor}`}>
-                {stats.sessionInol.label}
-              </span>
+        {sessionStats?.sessionInol && (
+          <div className="flex items-center justify-between px-3.5 py-2 rounded-xl bg-zinc-950/70 border border-zinc-800/80 text-xs font-mono">
+            <div className="flex items-center gap-2">
+              <Zap className="w-3.5 h-3.5 text-amber-400" />
+              <span className="text-zinc-400 text-[11px] font-bold uppercase">Fatiga SNC (INOL):</span>
+              <span className="font-bold text-white text-sm">{sessionStats.sessionInol.totalInol}</span>
             </div>
-          );
-        })()}
+            <span className={`px-2.5 py-0.5 rounded-lg text-[10px] font-bold border ${sessionStats.sessionInol.badgeColor}`}>
+              {sessionStats.sessionInol.label}
+            </span>
+          </div>
+        )}
       </section>
 
       {/* 3. Main Guided Card Area */}

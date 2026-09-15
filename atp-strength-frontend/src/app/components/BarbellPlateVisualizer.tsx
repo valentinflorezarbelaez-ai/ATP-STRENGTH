@@ -27,7 +27,7 @@ const IWF_PLATES = [
   { weight: 0.5, bgClass: "bg-zinc-500/25", textClass: "text-zinc-400", borderClass: "border-zinc-500/40" },
 ];
 
-export function BarbellPlateVisualizer({
+function BarbellPlateVisualizerBase({
   targetWeightKg,
   exerciseName = "",
   className = "",
@@ -103,3 +103,6 @@ export function BarbellPlateVisualizer({
     </div>
   );
 }
+
+export const BarbellPlateVisualizer = React.memo(BarbellPlateVisualizerBase);
+

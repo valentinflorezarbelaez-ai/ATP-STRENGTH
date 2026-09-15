@@ -410,20 +410,41 @@ export function useZenDashboard() {
     }
   };
 
-  const liveCalc = previewLiveMax(
-    parseFloat(formWeight) || 0,
-    parseInt(formReps, 10) || 1,
-    formFormula
+  const liveCalc = useMemo(
+    () =>
+      previewLiveMax(
+        parseFloat(formWeight) || 0,
+        parseInt(formReps, 10) || 1,
+        formFormula
+      ),
+    [formWeight, formReps, formFormula]
   );
-  const currentExMax = maxesMap[selectedProgressEx];
-  const totalDaySets = (activeDay.exercises || []).reduce((sum, ex) => sum + ex.sets, 0);
-  const completedDaySets = (activeDay.exercises || []).reduce((sum, ex) => {
-    const done = completedSetsMap[ex.name]?.length || 0;
-    return sum + Math.min(done, ex.sets);
-  }, 0);
-  const dayProgressPercent =
-    totalDaySets > 0 ? Math.round((completedDaySets / totalDaySets) * 100) : 0;
-  const isDayFinished = totalDaySets > 0 && completedDaySets >= totalDaySets;
+
+  const currentExMax = useMemo(
+    () => maxesMap[selectedProgressEx],
+    [maxesMap, selectedProgressEx]
+  );
+
+  const { totalDaySets, completedDaySets, dayProgressPercent, isDayFinished } = useMemo(() => {
+    const total = (activeDay.exercises || []).reduce((sum, ex) => sum + ex.sets, 0);
+    const completed = (activeDay.exercises || []).reduce((sum, ex) => {
+      const done = completedSetsMap[ex.name]?.length || 0;
+      return sum + Math.min(done, ex.sets);
+    }, 0);
+    const percent = total > 0 ? Math.round((completed / total) * 100) : 0;
+    const finished = total > 0 && completed >= total;
+    return {
+      totalDaySets: total,
+      completedDaySets: completed,
+      dayProgressPercent: percent,
+      isDayFinished: finished,
+    };
+  }, [activeDay, completedSetsMap]);
+
+  const getSessionStats = useCallback(
+    () => calculateSessionStats(activeDay, completedSetsMap, completedWarmupMap, maxesMap),
+    [activeDay, completedSetsMap, completedWarmupMap, maxesMap]
+  );
 
   return {
     selectedDayKey,
@@ -514,8 +535,7 @@ export function useZenDashboard() {
     calculateLive1RM: () =>
       previewLiveMax(parseFloat(formWeight) || 0, parseInt(formReps, 10) || 1, formFormula),
     formatTime,
-    calculateSessionStats: () =>
-      calculateSessionStats(activeDay, completedSetsMap, completedWarmupMap, maxesMap),
+    calculateSessionStats: getSessionStats,
     playChime,
     SCHEDULE_DAYS,
     scheduleDays,

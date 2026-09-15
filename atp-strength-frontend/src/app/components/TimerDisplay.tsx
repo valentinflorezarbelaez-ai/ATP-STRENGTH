@@ -1,5 +1,6 @@
 "use client";
 
+import React from "react";
 import { Minimize2, Pause, Play, RotateCcw, Sparkles, Volume2 } from "lucide-react";
 import { formatTime, resolveReadyLabel, type PhasePrescriptions } from "@/lib/workoutStrategies";
 
@@ -25,7 +26,7 @@ export interface TimerDisplayProps {
   onCloseZen?: () => void;
 }
 
-export function TimerDisplay(props: TimerDisplayProps) {
+function TimerDisplayBase(props: TimerDisplayProps) {
   const {
     variant,
     title,
@@ -170,3 +171,6 @@ export function TimerDisplay(props: TimerDisplayProps) {
     </div>
   );
 }
+
+export const TimerDisplay = React.memo(TimerDisplayBase);
+

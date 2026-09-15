@@ -16,7 +16,7 @@ interface AtpEnergyRingProps {
  * Features dual-gradient phosphagen saturation, tabular wall-clock numerals,
  * and physiological zone guidance.
  */
-export function AtpEnergyRing({
+function AtpEnergyRingBase({
   remainingSeconds,
     atpSaturationPercent,
   timerTitle = "Resíntesis de ATP-PCr",
@@ -149,3 +149,6 @@ export function AtpEnergyRing({
     </div>
   );
 }
+
+export const AtpEnergyRing = React.memo(AtpEnergyRingBase);
+

@@ -1,5 +1,6 @@
 "use client";
 
+import React from "react";
 import { Layers } from "lucide-react";
 import type { PhasePrescriptions } from "@/lib/workoutStrategies";
 
@@ -15,7 +16,7 @@ export interface RampingIndicatorProps {
   onSelectPhase: (key: RampBadgeKey) => void;
 }
 
-export function RampingIndicator({
+function RampingIndicatorBase({
   variant = "badge-grid",
   prescriptions,
   activePhaseStep,
@@ -97,3 +98,6 @@ export function RampingIndicator({
     </div>
   );
 }
+
+export const RampingIndicator = React.memo(RampingIndicatorBase);
+

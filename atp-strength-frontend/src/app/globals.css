@@ -70,6 +70,14 @@ body {
   overflow: hidden;
 }
 
+.ambient-orb-1,
+.ambient-orb-2,
+.ambient-orb-3 {
+  will-change: transform;
+  transform: translate3d(0, 0, 0);
+  contain: strict;
+}
+
 .ambient-orb-1 {
   position: absolute;
   top: -10%;
@@ -122,9 +130,19 @@ body {
 }
 
 @keyframes float-ambient {
-  0% { transform: translate(0, 0) scale(1); }
-  50% { transform: translate(30px, 40px) scale(1.05); }
-  100% { transform: translate(-25px, 20px) scale(0.96); }
+  0% { transform: translate3d(0, 0, 0) scale(1); }
+  50% { transform: translate3d(30px, 40px, 0) scale(1.05); }
+  100% { transform: translate3d(-25px, 20px, 0) scale(0.96); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ambient-orb-1,
+  .ambient-orb-2,
+  .ambient-orb-3 {
+    animation: none !important;
+    transform: none !important;
+    will-change: auto !important;
+  }
 }
 
 /* Automatic Theme Bridge: Map raw zinc/black utilities to luxury glass tokens */

@@ -1,5 +1,6 @@
 "use client";
 
+import React from "react";
 import { Server } from "lucide-react";
 import {
   deriveTelemetrySyncState,
@@ -19,7 +20,7 @@ const STATE_STYLES: Record<TelemetrySyncState, { wal: string; dot: string; label
   OFFLINE: { wal: "text-zinc-400", dot: "bg-zinc-600", label: "OFFLINE" },
 };
 
-export function TelemetrySyncBadge({
+function TelemetrySyncBadgeBase({
   pendingWalCount,
   backendOnline,
   showWalLabel = true,
@@ -58,3 +59,6 @@ export function TelemetrySyncBadge({
     </>
   );
 }
+
+export const TelemetrySyncBadge = React.memo(TelemetrySyncBadgeBase);
+

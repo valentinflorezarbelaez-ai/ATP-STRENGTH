@@ -109,30 +109,15 @@ export function useAtpTimer(initialSeconds = 180) {
     setRemainingSeconds(0);
   }, []);
 
-  // Synchronize with OS Media Session API (iOS lock screen & Android notification bar)
+  // Synchronize action handlers with OS Media Session API (only re-binds when run state changes)
   useEffect(() => {
     if (typeof navigator === "undefined" || !("mediaSession" in navigator)) return;
 
     if (isRunning) {
       try {
-        navigator.mediaSession.metadata = new MediaMetadata({
-          title: `Resíntesis ATP: ${remainingSeconds}s`,
-          artist: "NEURO//STRENGTH",
-          album: timerTitle,
-          artwork: [
-            { src: "/icon-192.png", sizes: "192x192", type: "image/png" },
-          ],
-        });
-
-        navigator.mediaSession.setActionHandler("play", () => {
-          togglePlayPause();
-        });
-        navigator.mediaSession.setActionHandler("pause", () => {
-          togglePlayPause();
-        });
-        navigator.mediaSession.setActionHandler("nexttrack", () => {
-          skipRest();
-        });
+        navigator.mediaSession.setActionHandler("play", togglePlayPause);
+        navigator.mediaSession.setActionHandler("pause", togglePlayPause);
+        navigator.mediaSession.setActionHandler("nexttrack", skipRest);
       } catch {
         // ignore
       }
@@ -145,7 +130,35 @@ export function useAtpTimer(initialSeconds = 180) {
         // ignore
       }
     }
-  }, [isRunning, remainingSeconds, timerTitle, togglePlayPause, skipRest]);
+
+    return () => {
+      try {
+        navigator.mediaSession.setActionHandler("play", null);
+        navigator.mediaSession.setActionHandler("pause", null);
+        navigator.mediaSession.setActionHandler("nexttrack", null);
+      } catch {
+        // ignore
+      }
+    };
+  }, [isRunning, togglePlayPause, skipRest]);
+
+  // Synchronize metadata with OS Media Session API on countdown ticks
+  useEffect(() => {
+    if (typeof navigator === "undefined" || !("mediaSession" in navigator) || !isRunning) return;
+
+    try {
+      navigator.mediaSession.metadata = new MediaMetadata({
+        title: `Resíntesis ATP: ${remainingSeconds}s`,
+        artist: "NEURO//STRENGTH",
+        album: timerTitle,
+        artwork: [
+          { src: "/icon-192.png", sizes: "192x192", type: "image/png" },
+        ],
+      });
+    } catch {
+      // ignore
+    }
+  }, [isRunning, remainingSeconds, timerTitle]);
 
   useEffect(() => {
     if (!isRunning || !sessionRef.current) return undefined;

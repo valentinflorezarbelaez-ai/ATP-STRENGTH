@@ -5,15 +5,17 @@ import "./globals.css";
 const geistSans = Geist({
   variable: "--font-sans",
   subsets: ["latin"],
+  display: "swap",
 });
 
 const geistMono = Geist_Mono({
   variable: "--font-mono",
   subsets: ["latin"],
+  display: "swap",
 });
 
 export const viewport: Viewport = {
-  themeColor: "#f8f9fc",
+  themeColor: "#0c0d11",
   width: "device-width",
   initialScale: 1,
   maximumScale: 1,
@@ -22,14 +24,28 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://atp-strength.vercel.app"),
   title: "NEURO//STRENGTH - ATP Zen Engine",
-  description: "Motor Zen de Autoconfiguración Neuromuscular de Élite para Fuerza Máxima y Resíntesis de ATP.",
+  description: "Motor Zen de Autoconfiguración Neuromuscular de Élite para Fuerza Máxima, Potencia Olímpica y Resíntesis de ATP.",
   applicationName: "NEURO//STRENGTH",
   manifest: "/manifest.webmanifest",
   appleWebApp: {
     capable: true,
-    statusBarStyle: "default",
+    statusBarStyle: "black-translucent",
     title: "NEURO//STRENGTH",
+  },
+  openGraph: {
+    title: "NEURO//STRENGTH - ATP Zen Engine",
+    description: "Motor Zen de Autoconfiguración Neuromuscular de Élite para Fuerza Máxima, Potencia Olímpica y Resíntesis de ATP.",
+    url: "https://atp-strength.vercel.app",
+    siteName: "NEURO//STRENGTH",
+    locale: "es_ES",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "NEURO//STRENGTH - ATP Zen Engine",
+    description: "Motor Zen de Autoconfiguración Neuromuscular de Élite para Fuerza Máxima, Potencia Olímpica y Resíntesis de ATP.",
   },
   icons: {
     icon: [
