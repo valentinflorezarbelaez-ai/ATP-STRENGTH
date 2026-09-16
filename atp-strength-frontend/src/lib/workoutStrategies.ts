@@ -234,6 +234,79 @@ export const OLYMPIC_DAYS: RoutineDay[] = [
   },
 ];
 
+export const WARRIOR_DAYS: RoutineDay[] = [
+  {
+    key: "DAY_WARRIOR_A",
+    name: "Lunes - Día A",
+    focus: "Max Effort Empuje (Coan Top Set + Pavel Tensión + Stone RPE ≤ 9)",
+    isRest: false,
+    exercises: [
+      { name: "Press de Banca", sets: 4, reps: "Top Set 1x2-3 reps @ RPE 9", restSeconds: 360, cue: "Arco biomecánico sólido, retracción escapular férrea, pausa en el pecho e irradiación total de tensión de Pavel. Descanso de 6 min para resíntesis total de ATP." },
+      { name: "Press Militar", sets: 3, reps: "6 reps @ RPE 8", restSeconds: 180, cue: "Glúteos y abdomen como roca, trayectoria vertical limpia sin hiperextensión lumbar." },
+      { name: "Fondos en Paralelas", sets: 3, reps: "8 reps @ RPE 8", restSeconds: 180, cue: "Descenso controlado a 90°, codos en 45°, empuje potente sin balanceo." },
+      { name: "Planchas Isométricas Pesadas", sets: 3, reps: "45 seg", restSeconds: 90, cue: "Tensión corporal total irradiada, respiración diafragmática continua." },
+    ],
+  },
+  {
+    key: "DAY_WARRIOR_REST_1",
+    name: "Martes",
+    focus: "Descanso Total: Restauración del Centro Motor & Capital Vital",
+    isRest: true,
+    restMessage: "Preservación del Capital Vital: El centro motor y el cerebelo recargan su energía de reserva. Cero fatiga neural para permitir la transmutación del Hidrógeno Si-12 y evitar el agotamiento del sistema nervioso central.",
+    exercises: [],
+  },
+  {
+    key: "DAY_WARRIOR_B",
+    name: "Miércoles - Día B",
+    focus: "Max Effort Cadena Posterior & Pierna (Coan Top Sets)",
+    isRest: false,
+    exercises: [
+      { name: "Sentadilla Trasera", sets: 4, reps: "Top Set 1x2-3 reps @ RPE 9", restSeconds: 360, cue: "Apoyo trípode, maniobra de Valsalva intraabdominal, descenso controlado y empuje explosivo sin guiño de glúteo." },
+      { name: "Peso Muerto Convencional", sets: 3, reps: "Top Set 1x2-3 reps @ RPE 9", restSeconds: 420, cue: "Tracción contra las tibias, dorsales acerados, empujar el piso con los pies, cero rebote y cero fallo muscular." },
+      { name: "Remo Pendlay", sets: 3, reps: "6 reps @ RPE 8", restSeconds: 180, cue: "Torso paralelo al suelo, inicio inerte desde los discos en cada repetición con tirón explosivo al esternón." },
+      { name: "Elevaciones Piernas a la Barra", sets: 3, reps: "10 reps", restSeconds: 90, cue: "Flexión de cadera pura sin impulso, control excéntrico estricto." },
+    ],
+  },
+  {
+    key: "DAY_WARRIOR_REST_2",
+    name: "Jueves",
+    focus: "Descanso Total: Asimilación Neuromuscular & Preservación",
+    isRest: true,
+    restMessage: "Supercompensación Biológica: Los depósitos de fosfocreatina y glucógeno se recargan al 100%. Meditación, caminata suave y armonía fisiológica del templo físico.",
+    exercises: [],
+  },
+  {
+    key: "DAY_WARRIOR_C",
+    name: "Viernes - Día C",
+    focus: "Dynamic Effort Empuje (Louie Simmons Explosivo & Velocidad)",
+    isRest: false,
+    exercises: [
+      { name: "Press de Banca", sets: 8, reps: "3 reps @ 55-60% 1RM", restSeconds: 60, cue: "Aceleración compensatoria máxima (CAT). Mueve la barra con la máxima velocidad concéntrica posible. Descanso estricto de 60s." },
+      { name: "Push Press (Press de Empuje)", sets: 3, reps: "5 reps @ RPE 8", restSeconds: 120, cue: "Dip corto y vertical, drive violento de cadera y transferencia instantánea al tren superior." },
+      { name: "Dominadas Lastradas", sets: 4, reps: "Max reps (RIR 2)", restSeconds: 120, cue: "Rango articular completo, parada 2 repeticiones antes del fallo para preservar el sistema nervioso central." },
+    ],
+  },
+  {
+    key: "DAY_WARRIOR_D",
+    name: "Sábado - Día D",
+    focus: "Dynamic Effort Cadena Posterior & Pliometría",
+    isRest: false,
+    exercises: [
+      { name: "Sentadilla Trasera Técnica", sets: 6, reps: "2 reps @ 60% 1RM", restSeconds: 60, cue: "Velocidad explosiva desde el paralelo con pausa de 1 segundo abajo, 60s descanso estricto entre series." },
+      { name: "Sentadilla con Salto con Barra (Barbell Jump Squat)", sets: 4, reps: "3 reps", restSeconds: 90, cue: "Triple extensión pliométrica elástica, recepción suave y amortiguada." },
+      { name: "Paseo del Granjero Pesado", sets: 3, reps: "40 metros", restSeconds: 120, cue: "Fuerza de agarre férrea, postura erguida impecable, pasos rápidos y controlados." },
+    ],
+  },
+  {
+    key: "DAY_WARRIOR_REST_3",
+    name: "Domingo",
+    focus: "Descanso Absoluto & Regeneración Cósmica",
+    isRest: true,
+    restMessage: "Cierre de Ciclo Semanal: Armonía total de los 5 centros de la máquina humana. Descanso reparador antes de la nueva semana de forja.",
+    exercises: [],
+  },
+];
+
 export const HYBRID_DAYS: RoutineDay[] = [
   {
     key: "DAY_A",
@@ -320,6 +393,14 @@ export const SCHEDULE_DAYS: RoutineDay[] = HYBRID_DAYS;
 
 export const TRAINING_PROGRAMS: TrainingProgram[] = [
   {
+    id: "warrior",
+    name: "Sistema Híbrido 4 Días: Forja del Guerrero",
+    shortName: "Guerrero 4 Días",
+    badge: "4 DÍAS · COAN + SIMMONS + STONE + PAVEL",
+    description: "Doctrina del Centro Motor y Capital Vital: Lunes Max Effort Push (Coan Top Set, 5-7 min rest), Miércoles Max Effort Posterior (Squat & Deadlift Top Sets), Viernes Dynamic Effort Push (Simmons 55% velocidad), Sábado Dynamic Effort Posterior (Simmons 60% + Pliometría). Cero fallo (Stone RPE ≤ 9) y máxima tensión (Pavel).",
+    days: WARRIOR_DAYS,
+  },
+  {
     id: "hybrid",
     name: "Ciclo Híbrido: Fuerza & Potencia Máxima",
     shortName: "Híbrido Élite",
@@ -345,11 +426,11 @@ export const TRAINING_PROGRAMS: TrainingProgram[] = [
   },
 ];
 
-export function getTrainingProgram(programId = "hybrid"): TrainingProgram {
+export function getTrainingProgram(programId = "warrior"): TrainingProgram {
   return TRAINING_PROGRAMS.find((p) => p.id === programId) || TRAINING_PROGRAMS[0];
 }
 
-export function getProgramDays(programId = "hybrid"): RoutineDay[] {
+export function getProgramDays(programId = "warrior"): RoutineDay[] {
   return getTrainingProgram(programId).days;
 }
 

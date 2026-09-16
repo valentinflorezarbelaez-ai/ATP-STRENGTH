@@ -32,7 +32,7 @@ import {
 
 type Dash = ReturnType<typeof useZenDashboard>;
 
-export function CoachGuidedView({ d }: { d: Dash }) {
+export function CoachGuidedView({ d, onShowNutrition }: { d: Dash; onShowNutrition?: () => void }) {
   useWakeLock(d.isRunning || !d.isDayFinished);
   const sessionStats = useMemo(() => d.calculateSessionStats(), [d.calculateSessionStats]);
 

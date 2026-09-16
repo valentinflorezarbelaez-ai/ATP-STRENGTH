@@ -73,11 +73,36 @@ describe('SPEC-0008 Workout Strategies & Multi-Program Power Suite', () => {
     });
   });
 
-  describe('Multi-Program Architecture (Classic, Olympic, Hybrid)', () => {
-    it('defines exactly 3 training programs with full metadata', () => {
-      assert.equal(TRAINING_PROGRAMS.length, 3);
+  describe('Multi-Program Architecture (Warrior, Classic, Olympic, Hybrid)', () => {
+    it('defines exactly 4 training programs with full metadata', () => {
+      assert.equal(TRAINING_PROGRAMS.length, 4);
       const programIds = TRAINING_PROGRAMS.map((p) => p.id);
-      assert.deepEqual(programIds, ['hybrid', 'olympic', 'classic']);
+      assert.deepEqual(programIds, ['warrior', 'hybrid', 'olympic', 'classic']);
+    });
+
+    it('validates Program 4: Sistema Híbrido 4 Días: Forja del Guerrero (4 Activos + 3 Descanso)', () => {
+      const warrior = getTrainingProgram('warrior');
+      assert.equal(warrior.id, 'warrior');
+      assert.equal(warrior.days.length, 7);
+      const activeDays = warrior.days.filter((d) => !d.isRest);
+      const restDays = warrior.days.filter((d) => d.isRest);
+      assert.equal(activeDays.length, 4);
+      assert.equal(restDays.length, 3);
+
+      // Verify rest days contain Gnostic Motor Center & Vital Capital messages
+      for (const restDay of restDays) {
+        assert.ok(restDay.restMessage, 'Rest day must have a pedagogical message');
+      }
+
+      // Verify Coan Top sets exist in active days
+      const dayA = warrior.days.find((d) => d.key === 'DAY_WARRIOR_A');
+      assert.equal(dayA.exercises[0].name, 'Press de Banca');
+      assert.equal(dayA.exercises[0].restSeconds, 360);
+
+      const dayB = warrior.days.find((d) => d.key === 'DAY_WARRIOR_B');
+      assert.equal(dayB.exercises[0].name, 'Sentadilla Trasera');
+      assert.equal(dayB.exercises[1].name, 'Peso Muerto Convencional');
+      assert.equal(dayB.exercises[1].restSeconds, 420);
     });
 
     it('validates Program 1: Ciclo Clásico (4 Días de Fuerza Pura + 2 Descanso)', () => {
@@ -140,9 +165,9 @@ describe('SPEC-0008 Workout Strategies & Multi-Program Power Suite', () => {
       }
     });
 
-    it('falls back safely to default hybrid program for unknown programId', () => {
+    it('falls back safely to default warrior program for unknown programId', () => {
       const fallback = getTrainingProgram('unknown_program_id');
-      assert.equal(fallback.id, 'hybrid');
+      assert.equal(fallback.id, 'warrior');
       const fallbackDays = getProgramDays('unknown_program_id');
       assert.equal(fallbackDays.length, 7);
     });

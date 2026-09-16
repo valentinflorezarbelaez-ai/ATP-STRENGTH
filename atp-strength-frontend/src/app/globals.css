@@ -308,3 +308,301 @@ body {
   font-variant-numeric: tabular-nums;
   font-feature-settings: "tnum" 1;
 }
+
+/* ═══════════════════════════════════════════════════════ */
+/* LA FORJA DE LOS GUERREROS — Epic Landing Page Styles   */
+/* ═══════════════════════════════════════════════════════ */
+
+.forge-container {
+  position: relative;
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background: #080808;
+  transition: opacity 1s ease-out, transform 1s ease-out;
+}
+
+.forge-container.forge-exit {
+  opacity: 0;
+  transform: scale(1.1);
+}
+
+/* Background layers */
+.forge-bg-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.forge-bg-hero {
+  background-image: url('/hero/warrior_forge_epic.webp');
+  background-size: cover;
+  background-position: center 25%;
+  opacity: 0.38;
+  filter: contrast(1.18) brightness(0.88);
+  z-index: 1;
+}
+
+.forge-bg-vignette {
+  background: radial-gradient(ellipse at center, transparent 30%, rgba(0,0,0,0.85) 100%);
+  z-index: 1;
+}
+
+.forge-bg-radial {
+  background:
+    radial-gradient(ellipse at 50% 120%, rgba(204,164,59,0.15) 0%, transparent 60%),
+    radial-gradient(ellipse at 50% -20%, rgba(139,69,19,0.08) 0%, transparent 50%),
+    radial-gradient(ellipse at 20% 80%, rgba(255,69,0,0.06) 0%, transparent 40%),
+    radial-gradient(ellipse at 80% 80%, rgba(255,69,0,0.06) 0%, transparent 40%);
+  z-index: 2;
+  animation: forge-pulse 8s ease-in-out infinite;
+}
+
+@keyframes forge-pulse {
+  0%, 100% { opacity: 0.7; }
+  50% { opacity: 1; }
+}
+
+.forge-bg-noise {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  z-index: 3;
+  opacity: 0.6;
+}
+
+/* Fire particles */
+.forge-fire-container {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 100%;
+  z-index: 4;
+  pointer-events: none;
+}
+
+.fire-particle {
+  position: absolute;
+  bottom: -10px;
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #ffd700 0%, #ff6b00 60%, transparent 100%);
+  box-shadow: 0 0 6px 2px rgba(255,107,0,0.4);
+  animation: fire-rise 3s ease-out infinite;
+}
+
+@keyframes fire-rise {
+  0% {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: translateY(-40vh) translateX(10px) scale(0.7);
+    opacity: 0.6;
+  }
+  100% {
+    transform: translateY(-80vh) translateX(-5px) scale(0);
+    opacity: 0;
+  }
+}
+
+.ember-particle {
+  position: absolute;
+  bottom: 10%;
+  border-radius: 50%;
+  background: #ff4500;
+  box-shadow: 0 0 4px 1px rgba(255,69,0,0.6);
+  animation: ember-float 5s ease-in-out infinite;
+}
+
+@keyframes ember-float {
+  0% {
+    transform: translateY(0) translateX(0) scale(1);
+    opacity: 0.8;
+  }
+  33% {
+    transform: translateY(-30vh) translateX(20px) scale(0.8);
+    opacity: 0.5;
+  }
+  66% {
+    transform: translateY(-55vh) translateX(-15px) scale(0.4);
+    opacity: 0.3;
+  }
+  100% {
+    transform: translateY(-75vh) translateX(5px) scale(0);
+    opacity: 0;
+  }
+}
+
+/* Content */
+.forge-content {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 2rem;
+  max-width: 700px;
+  animation: forge-fade-in 2s ease-out;
+}
+
+@keyframes forge-fade-in {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Emblem */
+.forge-emblem {
+  margin-bottom: 2rem;
+  animation: emblem-glow 4s ease-in-out infinite;
+  filter: drop-shadow(0 0 20px rgba(204,164,59,0.3));
+}
+
+@keyframes emblem-glow {
+  0%, 100% { filter: drop-shadow(0 0 15px rgba(204,164,59,0.3)); }
+  50% { filter: drop-shadow(0 0 30px rgba(204,164,59,0.6)); }
+}
+
+/* Title */
+.forge-title {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.forge-title-sub {
+  font-size: 0.75rem;
+  letter-spacing: 0.5em;
+  color: rgba(204,164,59,0.6);
+  font-weight: 300;
+  text-transform: uppercase;
+  margin-bottom: 0.5rem;
+}
+
+.forge-title-main {
+  font-size: clamp(2.5rem, 8vw, 5rem);
+  font-weight: 900;
+  letter-spacing: 0.15em;
+  background: linear-gradient(180deg, #ffd700 0%, #cca43b 40%, #8b6914 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-shadow: none;
+  filter: drop-shadow(0 4px 12px rgba(204,164,59,0.3));
+  line-height: 1;
+}
+
+/* Subtitle */
+.forge-subtitle {
+  font-size: 0.65rem;
+  letter-spacing: 0.8em;
+  color: rgba(204,164,59,0.4);
+  font-weight: 400;
+  text-transform: uppercase;
+  margin-bottom: 3rem;
+  font-family: ui-monospace, monospace;
+}
+
+/* Quote */
+.forge-quote-container {
+  min-height: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 3rem;
+  padding: 0 1rem;
+}
+
+.forge-quote {
+  text-align: center;
+}
+
+.forge-quote-text {
+  font-size: clamp(1rem, 2.5vw, 1.25rem);
+  color: rgba(255,255,255,0.8);
+  font-style: italic;
+  line-height: 1.6;
+  font-weight: 300;
+  max-width: 500px;
+}
+
+.forge-quote-author {
+  font-size: 0.75rem;
+  color: rgba(204,164,59,0.5);
+  margin-top: 0.75rem;
+  font-weight: 400;
+  letter-spacing: 0.1em;
+}
+
+/* Enter Button */
+.forge-enter-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  padding: 1rem 2.5rem;
+  border: 1px solid rgba(204,164,59,0.4);
+  background: rgba(204,164,59,0.08);
+  color: #cca43b;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  cursor: pointer;
+  overflow: hidden;
+  transition: all 0.4s ease;
+  backdrop-filter: blur(8px);
+  font-family: ui-monospace, monospace;
+}
+
+.forge-enter-btn:hover {
+  border-color: rgba(204,164,59,0.8);
+  background: rgba(204,164,59,0.15);
+  color: #ffd700;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 32px rgba(204,164,59,0.2), inset 0 1px 0 rgba(255,215,0,0.1);
+}
+
+.forge-enter-btn:active {
+  transform: translateY(0);
+}
+
+.forge-enter-btn-glow {
+  position: absolute;
+  inset: -1px;
+  background: linear-gradient(45deg, transparent, rgba(204,164,59,0.1), transparent);
+  animation: btn-glow-sweep 3s ease-in-out infinite;
+}
+
+@keyframes btn-glow-sweep {
+  0% { transform: translateX(-100%); }
+  50% { transform: translateX(100%); }
+  100% { transform: translateX(100%); }
+}
+
+.forge-enter-btn-text {
+  position: relative;
+  z-index: 1;
+}
+
+/* Mantra */
+.forge-mantra {
+  margin-top: 3rem;
+  font-size: 0.6rem;
+  letter-spacing: 0.5em;
+  color: rgba(255,255,255,0.15);
+  font-weight: 300;
+  text-transform: uppercase;
+}
+
+/* Mobile adjustments */
+@media (max-width: 640px) {
+  .forge-title-sub { font-size: 0.6rem; letter-spacing: 0.3em; }
+  .forge-subtitle { font-size: 0.55rem; letter-spacing: 0.4em; }
+  .forge-enter-btn { padding: 0.85rem 1.8rem; font-size: 0.7rem; }
+  .forge-mantra { font-size: 0.5rem; letter-spacing: 0.3em; }
+}

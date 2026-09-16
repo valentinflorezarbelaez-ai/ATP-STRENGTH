@@ -16,7 +16,7 @@ import type { useZenDashboard } from "@/app/hooks/useZenDashboard";
 
 type Dash = ReturnType<typeof useZenDashboard>;
 
-export function ZenDashboardView({ d }: { d: Dash }) {
+export function ZenDashboardView({ d, onShowNutrition }: { d: Dash; onShowNutrition?: () => void }) {
   const {
     selectedDayKey, setSelectedDayKey,
     activeExerciseIndex, setActiveExerciseIndex,
@@ -72,6 +72,22 @@ export function ZenDashboardView({ d }: { d: Dash }) {
                 <span className="px-1.5 sm:px-2 py-0.5 rounded text-[9px] sm:text-[10px] font-mono font-bold bg-amber-500/20 text-amber-400 border border-amber-500/30">
                   PRO-V1
                 </span>
+                {onShowNutrition && (
+                  <button
+                    onClick={onShowNutrition}
+                    className="px-2.5 py-1 rounded-lg text-[10px] font-mono font-bold bg-green-500/15 text-green-400 border border-green-500/25 hover:bg-green-500/25 transition-all flex items-center gap-1"
+                    title="Plan Nutricional"
+                  >
+                    🍎 NUTRICIÓN
+                  </button>
+                )}
+                <a
+                  href="/forge"
+                  className="px-2.5 py-1 rounded-lg text-[10px] font-mono font-bold bg-amber-500/15 text-amber-400 border border-amber-500/25 hover:bg-amber-500/25 transition-all flex items-center gap-1"
+                  title="La Forja de los Guerreros"
+                >
+                  ⚔️ FORJA
+                </a>
               </div>
               <p className="text-[11px] sm:text-xs text-zinc-400 font-mono tracking-tight mt-0.5">
                 MOTOR ZEN DE RESÍNTESIS DE ATP & FUERZA MÁXIMA
