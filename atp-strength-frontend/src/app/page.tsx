@@ -1,12 +1,9 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import dynamic from "next/dynamic";
+import ForgeLanding from "@/app/forge/page";
 
-/**
- * Presentation container (Root Page)
- * Dynamically imports ZenDashboardClient with ssr: false to prevent hydration mismatch
- * caused by client-side localStorage state (coachMode, saved workouts, and custom 1RM maxes).
- */
 const ZenDashboardClient = dynamic(
   () =>
     import("@/app/components/ZenDashboardClient").then(
@@ -28,5 +25,23 @@ const ZenDashboardClient = dynamic(
 );
 
 export default function ZenDashboard() {
+  const [showIntro, setShowIntro] = useState(true);
+
+  useEffect(() => {
+    // Check if the user already entered the temple during this browser session
+    if (sessionStorage.getItem("atp_intro_entered") === "true") {
+      setShowIntro(false);
+    }
+  }, []);
+
+  const handleEnter = () => {
+    sessionStorage.setItem("atp_intro_entered", "true");
+    setShowIntro(false);
+  };
+
+  if (showIntro) {
+    return <ForgeLanding onEnterDirect={handleEnter} />;
+  }
+
   return <ZenDashboardClient />;
 }

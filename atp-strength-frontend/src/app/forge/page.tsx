@@ -4,16 +4,24 @@ import { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 
 const WARRIOR_QUOTES = [
-  { text: "No hay camino al poder. El camino ES el poder.", author: "Miyamoto Musashi" },
   { text: "La victoria pertenece al más perseverante.", author: "Napoleón" },
-  { text: "El hierro cura todo.", author: "Henry Rollins" },
-  { text: "El dolor de hoy es la fuerza del mañana.", author: "Anónimo" },
   { text: "Un guerrero no se rinde. Un guerrero trasciende.", author: "V.M. Samael Aun Weor" },
-  { text: "El cuerpo logra lo que la mente cree.", author: "Proverbio Espartano" },
-  { text: "Percibe aquello que no puede ser visto con los ojos.", author: "Miyamoto Musashi" },
-  { text: "No temas a quien practica 10.000 patadas. Teme a quien practica una patada 10.000 veces.", author: "Bruce Lee" },
-  { text: "La espada y la mente deben ser una sola cosa.", author: "Miyamoto Musashi" },
-  { text: "Miguel, Príncipe de los Ejércitos Celestiales, defiéndenos en la batalla.", author: "Oración a San Miguel" },
+  { text: "No te detengas cuando estés cansado; detente cuando hayas terminado.", author: "David Goggins" },
+  { text: "No hay camino al poder. El camino ES el poder.", author: "Miyamoto Musashi" },
+  { text: "El dolor es la prueba de que sigues vivo; forjá una mente que no pueda ser doblegada.", author: "David Goggins" },
+  { text: "El auténtico guerrero forja su alma en el crisol de la voluntad y la templanza.", author: "V.M. Samael Aun Weor" },
+  { text: "Tienes poder sobre tu mente, no sobre los acontecimientos. Comprende esto y hallarás fuerza invencible.", author: "Marco Aurelio" },
+  { text: "El hierro cura todo. El hierro nunca te miente.", author: "Henry Rollins" },
+  { text: "El guerrero victorioso gana primero en su espíritu, y luego marcha a la batalla.", author: "Sun Tzu" },
+  { text: "No temas a quien practica 10.000 patadas una vez. Teme a quien practica una patada 10.000 veces.", author: "Bruce Lee" },
+  { text: "Cuando creas que has llegado a tu límite, apenas estás al 40% de tu capacidad real.", author: "David Goggins" },
+  { text: "El cuerpo logra lo que la mente cree y sostiene con disciplina.", author: "Proverbio Espartano" },
+  { text: "No hay nada imposible para aquel que tiene la osadía y el coraje de intentar.", author: "Alejandro Magno" },
+  { text: "Percibe aquello que no puede ser visto con los ojos carnales.", author: "Miyamoto Musashi" },
+  { text: "La espada y la mente deben ser una sola cosa indivisible.", author: "Miyamoto Musashi" },
+  { text: "El espartano jamás pregunta cuántos son los enemigos, sino en qué coordenadas se encuentran.", author: "Rey Leónidas de Esparta" },
+  { text: "Lo que no me mata, me hace infinitamente más fuerte.", author: "Friedrich Nietzsche" },
+  { text: "Miguel, Príncipe de los Ejércitos Celestiales, defiéndenos en la batalla del Ser.", author: "Oración a San Miguel" },
 ];
 
 function FireParticle({ delay, x }: { delay: number; x: number }) {
@@ -42,7 +50,11 @@ function EmberParticle({ delay, x, size }: { delay: number; x: number; size: num
   );
 }
 
-export default function ForgeLanding() {
+interface ForgeLandingProps {
+  onEnterDirect?: () => void;
+}
+
+export default function ForgeLanding({ onEnterDirect }: ForgeLandingProps) {
   const router = useRouter();
   const [quoteIdx, setQuoteIdx] = useState(0);
   const [fadeClass, setFadeClass] = useState("opacity-100");
@@ -55,14 +67,36 @@ export default function ForgeLanding() {
       setTimeout(() => {
         setQuoteIdx((prev) => (prev + 1) % WARRIOR_QUOTES.length);
         setFadeClass("opacity-100");
-      }, 600);
-    }, 5000);
+      }, 500);
+    }, 6000);
     return () => clearInterval(interval);
   }, []);
 
+  const handleNextQuote = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setFadeClass("opacity-0");
+    setTimeout(() => {
+      setQuoteIdx((prev) => (prev + 1) % WARRIOR_QUOTES.length);
+      setFadeClass("opacity-100");
+    }, 250);
+  };
+
+  const handlePrevQuote = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setFadeClass("opacity-0");
+    setTimeout(() => {
+      setQuoteIdx((prev) => (prev - 1 + WARRIOR_QUOTES.length) % WARRIOR_QUOTES.length);
+      setFadeClass("opacity-100");
+    }, 250);
+  };
+
   const handleEnter = () => {
     setEntering(true);
-    setTimeout(() => router.push("/"), 1200);
+    if (onEnterDirect) {
+      setTimeout(() => onEnterDirect(), 1100);
+    } else {
+      setTimeout(() => router.push("/"), 1100);
+    }
   };
 
   const quote = WARRIOR_QUOTES[quoteIdx];
@@ -136,16 +170,34 @@ export default function ForgeLanding() {
           EL TEMPLO DEL HIERRO
         </p>
 
-        {/* Rotating Quotes */}
-        <div className="forge-quote-container">
-          <div className={`forge-quote transition-opacity duration-500 ${fadeClass}`}>
+        {/* Rotating Quotes with Manual Navigation Controls */}
+        <div className="forge-quote-container relative flex items-center justify-center gap-2 max-w-2xl mx-auto w-full px-4">
+          <button
+            onClick={handlePrevQuote}
+            className="w-8 h-8 rounded-full bg-white/5 hover:bg-white/15 text-[#ffd700] flex items-center justify-center text-xs transition-colors cursor-pointer shrink-0"
+            title="Frase anterior"
+            aria-label="Frase anterior"
+          >
+            ◀
+          </button>
+
+          <div className={`forge-quote transition-opacity duration-500 flex-1 min-w-0 ${fadeClass}`}>
             <p className="forge-quote-text">&ldquo;{quote.text}&rdquo;</p>
             <p className="forge-quote-author">— {quote.author}</p>
           </div>
+
+          <button
+            onClick={handleNextQuote}
+            className="w-8 h-8 rounded-full bg-white/5 hover:bg-white/15 text-[#ffd700] flex items-center justify-center text-xs transition-colors cursor-pointer shrink-0"
+            title="Siguiente frase"
+            aria-label="Siguiente frase"
+          >
+            ▶
+          </button>
         </div>
 
         {/* Enter Button */}
-        <button onClick={handleEnter} className="forge-enter-btn group">
+        <button onClick={handleEnter} className="forge-enter-btn group mt-4">
           <span className="forge-enter-btn-glow" />
           <span className="forge-enter-btn-text">
             ENTRAR AL TEMPLO
