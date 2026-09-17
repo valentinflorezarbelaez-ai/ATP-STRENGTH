@@ -1,10 +1,13 @@
 "use client";
 
+import React, { useState } from "react";
 import {
   Calculator, CheckCircle2, ChevronDown, ChevronLeft, ChevronRight, ChevronUp,
   Dumbbell, Layers, Maximize2, Minus, Plus, Settings2, TrendingUp, Zap,
 } from "lucide-react";
 import { RampingIndicator } from "@/app/components/RampingIndicator";
+import { BarbellPlateVisualizer } from "@/app/components/BarbellPlateVisualizer";
+import { WarmupCalculatorModal } from "@/app/components/WarmupCalculatorModal";
 import { getExerciseCategory, computeEstimated1Rm, rpeToRir, VALID_RPE_VALUES } from "@/lib/workoutStrategies";
 import type { useZenDashboard } from "@/app/hooks/useZenDashboard";
 
@@ -12,6 +15,7 @@ type Dash = ReturnType<typeof useZenDashboard>;
 
 /** Exercise selection, set/rep counter, 1RM auto-regulation, and phase logging. */
 export function WorkoutLogger({ d }: { d: Dash }) {
+  const [showWarmupModal, setShowWarmupModal] = useState(false);
   const {
     activeExerciseIndex,
     currentSet, setCurrentSet,
@@ -76,6 +80,16 @@ export function WorkoutLogger({ d }: { d: Dash }) {
                     </div>
 
                     <div className="flex items-center gap-2 flex-shrink-0">
+                      <button
+                        type="button"
+                        onClick={() => setShowWarmupModal(true)}
+                        className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl border border-emerald-500/40 bg-emerald-500/10 hover:bg-emerald-500/20 text-xs font-mono font-bold text-emerald-300 transition-all active:scale-95 cursor-pointer shadow-[0_0_12px_rgba(16,185,129,0.15)]"
+                        title="Abrir Calculador de Series de Aproximación y Cuidado Articular"
+                      >
+                        <Calculator className="w-3.5 h-3.5 text-emerald-400" />
+                        <span className="hidden sm:inline">APROXIMACIÓN</span>
+                      </button>
+
                       <button
                         type="button"
                         onClick={() => setShowQuickCalibration(!showQuickCalibration)}
@@ -493,6 +507,14 @@ export function WorkoutLogger({ d }: { d: Dash }) {
                         )}
                       </div>
 
+                      {/* Visualizador de Discos IWF en Tiempo Real */}
+                      <div className="mt-3">
+                        <BarbellPlateVisualizer
+                          targetWeightKg={stepWeight}
+                          exerciseName={activeExercise.name}
+                        />
+                      </div>
+
                       {/* Botón Principal Bio-Ergonómico: Completar Serie & Abrir Descanso */}
                       <button
                         onClick={finalButtonAction}
@@ -622,6 +644,24 @@ export function WorkoutLogger({ d }: { d: Dash }) {
                   </div>
                 </div>
               </div>
+
+      {/* Modal de Calculador de Aproximación y Cuidado Articular */}
+      <WarmupCalculatorModal
+        isOpen={showWarmupModal}
+        onClose={() => setShowWarmupModal(false)}
+        exerciseName={activeExercise.name}
+        defaultWorkWeightKg={
+          parseFloat(inputWeight) || activeExMax?.prescriptions.phase_5_work || 100
+        }
+        onApplyWeightToLogger={(w, r, key) => {
+          setInputWeight(w.toString());
+          setInputReps(r.toString());
+          if (key) setActivePhaseStep(key);
+        }}
+        onStartTimer={(seconds, title) => {
+          d.handleStartTimer(seconds, title);
+        }}
+      />
     </>
   );
 }

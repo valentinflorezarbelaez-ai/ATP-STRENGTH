@@ -4,6 +4,8 @@ import React from "react";
 import { PwaInstallPrompt } from "@/components/PwaInstallPrompt";
 import { TelemetrySyncBadge } from "@/app/components/TelemetrySyncBadge";
 import { TimerDisplay } from "@/app/components/TimerDisplay";
+import { BarbellPlateVisualizer } from "@/app/components/BarbellPlateVisualizer";
+import { WarmupCalculatorModal } from "@/app/components/WarmupCalculatorModal";
 import { WorkoutLogger } from "@/app/components/WorkoutLogger";
 import {
   Flame, Zap, RotateCcw, CheckCircle2, Calendar, Activity,
@@ -17,6 +19,7 @@ import type { useZenDashboard } from "@/app/hooks/useZenDashboard";
 type Dash = ReturnType<typeof useZenDashboard>;
 
 export function ZenDashboardView({ d, onShowSpotify }: { d: Dash; onShowSpotify?: () => void }) {
+  const [showWarmupModal, setShowWarmupModal] = React.useState(false);
   const {
     selectedDayKey, setSelectedDayKey,
     activeExerciseIndex, setActiveExerciseIndex,
@@ -472,12 +475,23 @@ export function ZenDashboardView({ d, onShowSpotify }: { d: Dash; onShowSpotify?
               <span className="text-zinc-300 font-bold uppercase flex items-center gap-2">
                 <Layers className="w-4 h-4 text-amber-400" /> GUÍA DE ACLIMATACIÓN SNC • {activeExercise.name.toUpperCase()}
               </span>
-              <button
-                onClick={() => setShowPrepProtocol(!showPrepProtocol)}
-                className="text-[11px] text-amber-400 hover:underline cursor-pointer"
-              >
-                {showPrepProtocol ? "Plegar" : "Expandir"}
-              </button>
+              <div className="flex items-center gap-3">
+                <button
+                  type="button"
+                  onClick={() => setShowWarmupModal(true)}
+                  className="px-2.5 py-1 rounded-xl border border-emerald-500/40 bg-emerald-500/10 hover:bg-emerald-500/20 text-xs font-mono font-bold text-emerald-300 transition-all flex items-center gap-1 cursor-pointer shadow-[0_0_12px_rgba(16,185,129,0.15)]"
+                  title="Abrir Calculador de Aproximación y Placas"
+                >
+                  <Calculator className="w-3.5 h-3.5 text-emerald-400" />
+                  <span>CALCULADOR & DISCOS</span>
+                </button>
+                <button
+                  onClick={() => setShowPrepProtocol(!showPrepProtocol)}
+                  className="text-[11px] text-amber-400 hover:underline cursor-pointer"
+                >
+                  {showPrepProtocol ? "Plegar" : "Expandir"}
+                </button>
+              </div>
             </div>
 
             <p className="text-xs text-zinc-400 font-mono leading-relaxed">
@@ -532,7 +546,7 @@ export function ZenDashboardView({ d, onShowSpotify }: { d: Dash; onShowSpotify?
                     key={p.phase}
                     className="p-3.5 rounded-xl bg-black border border-zinc-800/90 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:border-zinc-700 transition-colors"
                   >
-                    <div>
+                    <div className="flex-1 min-w-0">
                       <div className="font-bold text-zinc-100 text-xs sm:text-sm">
                         {p.name}
                       </div>
@@ -542,6 +556,22 @@ export function ZenDashboardView({ d, onShowSpotify }: { d: Dash; onShowSpotify?
                       <div className="text-[11px] text-zinc-400 mt-1 leading-relaxed">
                         {p.objective}
                       </div>
+                      {p.phase > 0 && (
+                        <div className="mt-2 sm:max-w-xs">
+                          <BarbellPlateVisualizer
+                            targetWeightKg={
+                              p.phase === 1
+                                ? (activeExMax?.prescriptions.phase_1_activation ?? 20)
+                                : p.phase === 2
+                                ? (activeExMax?.prescriptions.phase_2_light ?? 40)
+                                : p.phase === 3
+                                ? (activeExMax?.prescriptions.phase_3_medium ?? 60)
+                                : (activeExMax?.prescriptions.phase_4_pap ?? 80)
+                            }
+                            exerciseName={activeExercise.name}
+                          />
+                        </div>
+                      )}
                     </div>
 
                     <button
@@ -1148,6 +1178,21 @@ export function ZenDashboardView({ d, onShowSpotify }: { d: Dash; onShowSpotify?
           <Maximize2 className="w-4 h-4 text-amber-400" />
         </button>
       </div>
+          {/* Modal de Calculador de Aproximación & Cuidado Articular */}
+      <WarmupCalculatorModal
+        isOpen={showWarmupModal}
+        onClose={() => setShowWarmupModal(false)}
+        exerciseName={activeExercise.name}
+        defaultWorkWeightKg={
+          activeExMax?.prescriptions.phase_5_work || 100
+        }
+        onApplyWeightToLogger={(w, r, key) => {
+          if (key) setActivePhaseStep(key);
+        }}
+        onStartTimer={(seconds, title) => {
+          handleStartTimer(seconds, title);
+        }}
+      />
     </main>
   );
 
