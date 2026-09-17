@@ -391,6 +391,141 @@ export const HYBRID_DAYS: RoutineDay[] = [
 
 export const SCHEDULE_DAYS: RoutineDay[] = HYBRID_DAYS;
 
+export const DELTA_ARCANGEL_DAYS: RoutineDay[] = [
+  {
+    key: "DAY_DELTA_1",
+    name: "Lunes - Fase 1: Asalto & Pegada Demoledora",
+    focus: "Tensión Neural Máxima, Explosividad de Cadera & Fuerza de Empuje Letal",
+    isRest: false,
+    exercises: [
+      {
+        name: "Power Clean (Cargada de Potencia)",
+        sets: 4,
+        reps: "Top Sets 3x2 reps @ RPE 8.5",
+        restSeconds: 300,
+        cue: "Triple extensión violenta (tobillos, rodillas, cadera) estilo Bas Rutten. La barra vuela por pura aceleración balística, recepción de roca y codos altos."
+      },
+      {
+        name: "Floor Press Táctico",
+        sets: 4,
+        reps: "4x3 reps @ RPE 9",
+        restSeconds: 300,
+        cue: "Pausa muerta de 2 segundos en el suelo con tríceps apoyados. Elimina el ciclo de estiramiento-acortamiento para simular el empuje letal de combate cuerpo a cuerpo."
+      },
+      {
+        name: "Push Press (Press de Empuje)",
+        sets: 3,
+        reps: "3x4 reps @ RPE 8.5",
+        restSeconds: 240,
+        cue: "Dip corto y potente con cadera, transmisión cinemática desde el suelo hasta el bloqueo sobre la cabeza. Core blindado como titanio."
+      },
+      {
+        name: "Landmine Rotacional Balístico",
+        sets: 3,
+        reps: "3x6 por lado",
+        restSeconds: 120,
+        cue: "Transferencia de torque rotacional desde el pie pivote a la mano. Fuerza explosiva de pegada demoledora para noqueo de UFC o proyección marcial."
+      }
+    ]
+  },
+  {
+    key: "DAY_DELTA_REST_1",
+    name: "Martes - Temple de Acero & Cero Desgaste",
+    focus: "Recarga del Sistema Nervioso Autónomo & Regeneración Neural",
+    isRest: true,
+    restMessage: "Doctrina de San Miguel: El verdadero guerrero no dilapida su energía vital en cardio extenuante. Cero fatiga metabólica inútil; regeneración de ATP y mielina para responder al máximo nivel en la próxima incursión.",
+    exercises: []
+  },
+  {
+    key: "DAY_DELTA_2",
+    name: "Miércoles - Fase 2: Blindaje de Titanio & Tracción Brutal",
+    focus: "Sentadilla Zercher Militar, Dominadas con Lastre & Grip de Acero",
+    isRest: false,
+    exercises: [
+      {
+        name: "Sentadilla Zercher",
+        sets: 4,
+        reps: "4x3 reps @ RPE 8.5",
+        restSeconds: 300,
+        cue: "Barra alojada en el pliegue de los codos. Fuerza isométrica colosal de erectores espinales, bíceps y abdomen para cargar cuerpos u obstáculos pesados estilo John Wick / Nikolai."
+      },
+      {
+        name: "Dominadas Lastradas",
+        sets: 4,
+        reps: "4x3 reps @ RPE 9",
+        restSeconds: 240,
+        cue: "Agarre prono estricto con sobrecarga pesada. Bloqueo muerto abajo, barbilla clara sobre la barra sin impulso. Espalda y dorsales como armadura medieval."
+      },
+      {
+        name: "Peso Muerto Rumano",
+        sets: 3,
+        reps: "3x5 reps @ RPE 8",
+        restSeconds: 240,
+        cue: "Tensión brutal en isquiotibiales y glúteos. Al bloquear arriba, contracción escapular sólida para blindar cuello y mandíbula contra impactos."
+      },
+      {
+        name: "Paseo del Granjero Pesado",
+        sets: 3,
+        reps: "3x30 metros @ carga pesada",
+        restSeconds: 180,
+        cue: "Fuerza de agarre indestructible estilo Steven Seagal (rompimiento de articulaciones y control de extremidades). Columna neutra y pasos cortos marciales."
+      }
+    ]
+  },
+  {
+    key: "DAY_DELTA_REST_2",
+    name: "Jueves - Concentración Zen & Descompresión Espinal",
+    focus: "Resíntesis Neuromuscular & Templanza Interior",
+    isRest: true,
+    restMessage: "Invariante de Miyamoto Musashi: «Percibe aquello que no puede ser visto con los ojos carnales». Descanso profundo, respiración táctica diafragmática y cero elevación de cortisol.",
+    exercises: []
+  },
+  {
+    key: "DAY_DELTA_3",
+    name: "Viernes - Fase 3: Fuerza de Impacto & Explosividad Balística",
+    focus: "Potencia Dinámica, Aceleración Máxima & Fondos Lastrados",
+    isRest: false,
+    exercises: [
+      {
+        name: "Salto con Trap Bar (Trap Bar Jump)",
+        sets: 5,
+        reps: "5x2 reps @ 60% 1RM (Máxima Velocidad)",
+        restSeconds: 180,
+        cue: "Tasa de desarrollo de fuerza (RFD). Acelera la barra a velocidad supersónica desde el suelo. Máxima descarga de unidades motoras rápidas tipo IIb."
+      },
+      {
+        name: "Fondos en Paralelas",
+        sets: 4,
+        reps: "4x4 reps con lastre @ RPE 8.5",
+        restSeconds: 240,
+        cue: "Cadena de empuje de tríceps, deltoides y pectoral inferior. Estabilidad de hombros a prueba de balas para soportar fuerzas de palanca extremas."
+      },
+      {
+        name: "Remo Pendlay",
+        sets: 4,
+        reps: "4x5 reps @ RPE 8.5",
+        restSeconds: 180,
+        cue: "Tracción horizontal pura sin trampa lumbar. Inicio inerte desde el suelo en cada repetición para desarrollar potencia estática."
+      },
+      {
+        name: "Planchas Isométricas Pesadas",
+        sets: 3,
+        reps: "3x45 seg con disco en la espalda",
+        restSeconds: 90,
+        cue: "Blindaje del core contra fuerzas rotacionales externas. Nada te mueve del centro de gravedad."
+      }
+    ]
+  },
+  {
+    key: "DAY_DELTA_REST_3",
+    name: "Sábado y Domingo - Regeneración del Soldado del Ser",
+    focus: "Nutrición, Transmutación & Preparación para la Misión",
+    isRest: true,
+    restMessage: "El justiciero Robert McCall y el soldado de San Miguel saben que la victoria se decide antes de entrar a la batalla. Recuperación total de reservas neuromusculares para dominar.",
+    exercises: []
+  }
+];
+
 export const TRAINING_PROGRAMS: TrainingProgram[] = [
   {
     id: "warrior",

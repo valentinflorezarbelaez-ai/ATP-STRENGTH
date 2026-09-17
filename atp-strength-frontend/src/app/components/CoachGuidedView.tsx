@@ -489,7 +489,7 @@ export function CoachGuidedView({ d, onShowSpotify }: { d: Dash; onShowSpotify?:
                   <span className="text-[10px] font-mono text-zinc-500 uppercase tracking-wider block mb-1.5">
                     Programa Activo
                   </span>
-                  <div className="grid grid-cols-3 gap-1">
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-1">
                     {availablePrograms.map((prog) => (
                       <button
                         key={prog.id}
