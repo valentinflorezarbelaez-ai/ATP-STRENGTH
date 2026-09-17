@@ -3,6 +3,59 @@
 import { useEffect, useState, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
 
+export interface SoundtrackTrack {
+  id: string;
+  title: string;
+  composer: string;
+  src: string;
+  tag: string;
+}
+
+export const WARRIOR_SOUNDTRACKS: SoundtrackTrack[] = [
+  {
+    id: "warrior-dakota",
+    title: "The Spirit of the Warrior",
+    composer: "Markus Schulz presents Dakota",
+    src: "/audio/the-spirit-of-the-warrior.mp3",
+    tag: "Trance Épico",
+  },
+  {
+    id: "samurai-way-of-life",
+    title: "A Way of Life",
+    composer: "Hans Zimmer • El Último Samurai",
+    src: "/audio/the-last-samurai-a-way-of-life.mp3",
+    tag: "Honor Marcial",
+  },
+  {
+    id: "lotr-khazad-dum",
+    title: "The Bridge of Khazad-dûm",
+    composer: "Howard Shore • El Señor de los Anillos",
+    src: "/audio/lotr-bridge-of-khazad-dum.mp3",
+    tag: "Batalla Balrog",
+  },
+  {
+    id: "lotr-ring-goes-south",
+    title: "The Ring Goes South",
+    composer: "Howard Shore • El Señor de los Anillos",
+    src: "/audio/lotr-the-ring-goes-south.mp3",
+    tag: "Marcha de la Comunidad",
+  },
+  {
+    id: "lotr-hobbits",
+    title: "Concerning Hobbits",
+    composer: "Howard Shore • El Señor de los Anillos",
+    src: "/audio/concerning-hobbits.mp3",
+    tag: "Temple & Serenidad",
+  },
+  {
+    id: "lotr-council",
+    title: "The Council of Elrond / Aníron",
+    composer: "Howard Shore • El Señor de los Anillos",
+    src: "/audio/council-of-elrond.mp3",
+    tag: "Trascendencia",
+  },
+];
+
 const WARRIOR_QUOTES = [
   { text: "La victoria pertenece al más perseverante.", author: "Napoleón" },
   { text: "Un guerrero no se rinde. Un guerrero trasciende.", author: "V.M. Samael Aun Weor" },
@@ -57,6 +110,7 @@ interface ForgeLandingProps {
 export default function ForgeLanding({ onEnterDirect }: ForgeLandingProps) {
   const router = useRouter();
   const [quoteIdx, setQuoteIdx] = useState(0);
+  const [trackIdx, setTrackIdx] = useState(0);
   const [fadeClass, setFadeClass] = useState("opacity-100");
   const [entering, setEntering] = useState(false);
 
@@ -65,19 +119,16 @@ export default function ForgeLanding({ onEnterDirect }: ForgeLandingProps) {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // Play audio safely
+  const currentTrack = WARRIOR_SOUNDTRACKS[trackIdx];
+
   const startAudio = useCallback(() => {
     if (!audioRef.current) return;
     audioRef.current.volume = 0.85;
     const playPromise = audioRef.current.play();
     if (playPromise !== undefined) {
       playPromise
-        .then(() => {
-          setIsPlaying(true);
-        })
-        .catch(() => {
-          setIsPlaying(false);
-        });
+        .then(() => setIsPlaying(true))
+        .catch(() => setIsPlaying(false));
     }
   }, []);
 
@@ -92,7 +143,28 @@ export default function ForgeLanding({ onEnterDirect }: ForgeLandingProps) {
     }
   };
 
-  // Attempt play immediately on mount and setup global interaction listener
+  const handleNextTrack = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setTrackIdx((prev) => (prev + 1) % WARRIOR_SOUNDTRACKS.length);
+  };
+
+  const handlePrevTrack = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setTrackIdx((prev) => (prev - 1 + WARRIOR_SOUNDTRACKS.length) % WARRIOR_SOUNDTRACKS.length);
+  };
+
+  // Re-play when trackIdx changes if it was already playing or user explicitly switched
+  useEffect(() => {
+    if (audioRef.current) {
+      audioRef.current.src = currentTrack.src;
+      audioRef.current.load();
+      if (isPlaying) {
+        startAudio();
+      }
+    }
+  }, [trackIdx, currentTrack.src, startAudio, isPlaying]);
+
+  // Attempt play on mount and listen to first user gesture
   useEffect(() => {
     startAudio();
 
@@ -148,7 +220,7 @@ export default function ForgeLanding({ onEnterDirect }: ForgeLandingProps) {
   const handleEnter = (e: React.MouseEvent) => {
     e.stopPropagation();
     setEntering(true);
-    // Smooth cinematic audio fade out synchronized with exit transition
+    // Smooth cinematic audio fade out
     if (audioRef.current) {
       const audio = audioRef.current;
       const fadeInterval = setInterval(() => {
@@ -183,32 +255,62 @@ export default function ForgeLanding({ onEnterDirect }: ForgeLandingProps) {
       {/* Audio Engine */}
       <audio
         ref={audioRef}
-        src="/audio/the-spirit-of-the-warrior.mp3"
-        loop
+        src={currentTrack.src}
+        onEnded={() => {
+          setTrackIdx((prev) => (prev + 1) % WARRIOR_SOUNDTRACKS.length);
+        }}
         preload="auto"
       />
 
-      {/* Floating Epic Audio Controller (Pill) */}
-      <button
-        onClick={toggleAudio}
+      {/* Floating Epic Audio Controller (Jukebox Pill) */}
+      <div
         className={`forge-audio-pill ${isPlaying ? "active" : ""}`}
-        title={isPlaying ? "Pausar Himno" : "Reproducir The Spirit of the Warrior"}
-        aria-label="Control de audio de fondo"
+        onClick={(e) => e.stopPropagation()}
+        title="Reproductor de Bandas Sonoras de la Forja"
       >
-        <div className={`forge-audio-bars ${!isPlaying ? "paused" : ""}`}>
-          <div className="forge-audio-bar" />
-          <div className="forge-audio-bar" />
-          <div className="forge-audio-bar" />
-          <div className="forge-audio-bar" />
-          <div className="forge-audio-bar" />
-        </div>
-        <span className="text-[10px] tracking-wider uppercase font-mono text-[#ffd700] hidden sm:inline-block">
-          {isPlaying ? "The Spirit of the Warrior" : "Música Pausada"}
-        </span>
-        <span className="text-xs text-[#cca43b]">
-          {isPlaying ? "🔊" : "🔇"}
-        </span>
-      </button>
+        <button
+          onClick={handlePrevTrack}
+          className="text-[#cca43b] hover:text-[#ffd700] p-1 text-xs transition-colors cursor-pointer"
+          title="Pista anterior"
+          aria-label="Pista anterior"
+        >
+          ⏮
+        </button>
+
+        <button
+          onClick={toggleAudio}
+          className="flex items-center gap-2 cursor-pointer"
+          title={isPlaying ? "Pausar música" : "Reproducir música"}
+        >
+          <div className={`forge-audio-bars ${!isPlaying ? "paused" : ""}`}>
+            <div className="forge-audio-bar" />
+            <div className="forge-audio-bar" />
+            <div className="forge-audio-bar" />
+            <div className="forge-audio-bar" />
+            <div className="forge-audio-bar" />
+          </div>
+          <div className="text-left flex flex-col max-w-[150px] sm:max-w-[200px]">
+            <span className="text-[10px] font-bold tracking-wider uppercase font-mono text-[#ffd700] truncate">
+              {currentTrack.title}
+            </span>
+            <span className="text-[9px] text-[#cca43b]/80 truncate font-mono">
+              {currentTrack.composer}
+            </span>
+          </div>
+          <span className="text-xs text-[#cca43b]">
+            {isPlaying ? "🔊" : "🔇"}
+          </span>
+        </button>
+
+        <button
+          onClick={handleNextTrack}
+          className="text-[#cca43b] hover:text-[#ffd700] p-1 text-xs transition-colors cursor-pointer"
+          title="Siguiente pista"
+          aria-label="Siguiente pista"
+        >
+          ⏭
+        </button>
+      </div>
 
       {/* Forge Background Layers */}
       <div className="forge-bg-layer forge-bg-hero" />
@@ -274,17 +376,32 @@ export default function ForgeLanding({ onEnterDirect }: ForgeLandingProps) {
           EL TEMPLO DEL HIERRO
         </p>
 
-        {/* Prominent Play / Sound Trigger Button */}
-        {!isPlaying && (
-          <button
-            onClick={toggleAudio}
-            className="my-3 px-5 py-2.5 rounded-full border border-amber-400/60 bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 font-mono text-xs tracking-widest uppercase flex items-center gap-2 shadow-[0_0_20px_rgba(251,191,36,0.3)] animate-pulse cursor-pointer transition-all hover:scale-105 z-20"
-          >
-            <span className="text-base">⚔️</span>
-            <span>ACTIVAR HIMNO: THE SPIRIT OF THE WARRIOR</span>
-            <span className="text-sm">▶</span>
-          </button>
-        )}
+        {/* Soundtrack Quick Selector / Play Trigger */}
+        <div className="flex flex-wrap items-center justify-center gap-2 my-3 z-20">
+          {!isPlaying ? (
+            <button
+              onClick={toggleAudio}
+              className="px-5 py-2.5 rounded-full border border-amber-400/60 bg-amber-500/15 hover:bg-amber-500/25 text-amber-300 font-mono text-xs tracking-widest uppercase flex items-center gap-2 shadow-[0_0_20px_rgba(251,191,36,0.35)] animate-pulse cursor-pointer transition-all hover:scale-105"
+            >
+              <span className="text-base">⚔️</span>
+              <span>ACTIVAR HIMNO: {currentTrack.title}</span>
+              <span className="text-sm">▶</span>
+            </button>
+          ) : (
+            <div className="flex items-center gap-2 bg-black/60 border border-amber-500/30 rounded-full px-4 py-1.5 backdrop-blur-md">
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
+              <span className="text-[11px] font-mono text-amber-300 tracking-wider">
+                {currentTrack.tag}: <strong className="text-white">{currentTrack.title}</strong>
+              </span>
+              <button
+                onClick={handleNextTrack}
+                className="text-xs text-amber-400 hover:text-amber-200 ml-2 font-mono underline cursor-pointer"
+              >
+                Cambiar pista ⏭
+              </button>
+            </div>
+          )}
+        </div>
 
         {/* Rotating Quotes with Manual Navigation Controls */}
         <div className="forge-quote-container relative flex items-center justify-center gap-2 max-w-2xl mx-auto w-full px-4">
