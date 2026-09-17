@@ -447,7 +447,7 @@ export const DELTA_ARCANGEL_DAYS: RoutineDay[] = [
         sets: 4,
         reps: "4x3 reps @ RPE 8.5",
         restSeconds: 300,
-        cue: "Barra alojada en el pliegue de los codos. Fuerza isométrica colosal de erectores espinales, bíceps y abdomen para cargar cuerpos u obstáculos pesados estilo John Wick / Nikolai."
+        cue: "Barra alojada en el pliegue de los codos. Fuerza isométrica colosal de erectores espinales, bíceps y abdomen para cargar cuerpos u obstáculos pesados estilo John Wick / Operador Delta."
       },
       {
         name: "Dominadas Lastradas",

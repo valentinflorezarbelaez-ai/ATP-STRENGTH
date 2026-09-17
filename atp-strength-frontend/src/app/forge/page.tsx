@@ -218,10 +218,6 @@ const WARRIOR_QUOTES = [
   {
     text: "Cuando rezas por lluvia, debes lidiar también con el barro. La fuerza física implacable y la justicia deben ser una sola herramienta.",
     author: "Robert McCall • The Equalizer"
-  },
-  {
-    text: "En el fragor de la batalla, la mente fría y la respiración pausada son las armas más letales que existen.",
-    author: "Doctrina Nikolai • Fuerza Táctica"
   }
 ];
 
