@@ -71,7 +71,9 @@ export function SpotifyTrainingView({ onBack }: SpotifyTrainingViewProps) {
                 <span>Playlists Oficiales de Entrenamiento</span>
               </div>
               <h1 className="text-2xl sm:text-4xl font-extrabold tracking-tight font-mono text-white flex items-center gap-3">
-                <span>TEMPLO DEL HIERRO</span>
+                <span className="text-white font-black tracking-wide drop-shadow-[0_0_20px_rgba(255,255,255,0.8)]">
+                  TEMPLO DEL HIERRO
+                </span>
                 <span className="text-emerald-400 text-base sm:text-lg font-normal">
                   • SPOTIFY
                 </span>

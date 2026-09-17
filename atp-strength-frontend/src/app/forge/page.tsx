@@ -372,7 +372,7 @@ export default function ForgeLanding({ onEnterDirect }: ForgeLandingProps) {
         </h1>
 
         {/* Subtitle */}
-        <p className="forge-subtitle">
+        <p className="forge-subtitle text-white font-mono font-bold text-xs sm:text-sm tracking-[0.5em] sm:tracking-[0.8em] drop-shadow-[0_0_16px_rgba(255,255,255,0.7)]">
           EL TEMPLO DEL HIERRO
         </p>
 
