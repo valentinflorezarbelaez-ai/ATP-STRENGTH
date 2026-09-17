@@ -8,7 +8,7 @@ interface SpotifyTrainingViewProps {
 }
 
 export function SpotifyTrainingView({ onBack }: SpotifyTrainingViewProps) {
-  const [activeTab, setActiveTab] = useState<"playlist1" | "playlist2">("playlist1");
+  const [activeTab, setActiveTab] = useState<"playlist1" | "playlist2" | "playlist3">("playlist1");
 
   const playlists = {
     playlist1: {
@@ -30,6 +30,16 @@ export function SpotifyTrainingView({ onBack }: SpotifyTrainingViewProps) {
         "https://open.spotify.com/playlist/2fTZFN3VN7HJpGJ3o8cvYz?si=VSj-uBbjSI-i5DwI-ieA1Q",
       description:
         "Banda sonora inmersiva para sesiones de potencia pura, levantamientos balísticos y enfoque mental inquebrantable.",
+    },
+    playlist3: {
+      name: "Fuerza Sagrada & Épica",
+      tag: "Trance & Resíntesis ATP",
+      embedUrl:
+        "https://open.spotify.com/embed/playlist/1UgETfNVpbBWXyuUuvADTf?utm_source=generator",
+      directUrl:
+        "https://open.spotify.com/playlist/1UgETfNVpbBWXyuUuvADTf?si=CZ9p8R1dSLS_9Lijc1P9RA",
+      description:
+        "Banda sonora celestial y de alta cadencia para trascendencia marcial, enfoque de acero y superación de límites.",
     },
   };
 
@@ -101,7 +111,7 @@ export function SpotifyTrainingView({ onBack }: SpotifyTrainingViewProps) {
           </div>
 
           {/* Playlist Tabs */}
-          <div className="grid grid-cols-2 gap-3 mt-6 pt-6 border-t border-zinc-800/80">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-6 pt-6 border-t border-zinc-800/80">
             <button
               onClick={() => setActiveTab("playlist1")}
               className={`p-3.5 rounded-2xl border text-left transition-all cursor-pointer ${
@@ -141,6 +151,27 @@ export function SpotifyTrainingView({ onBack }: SpotifyTrainingViewProps) {
               </div>
               <p className="text-xs sm:text-sm font-bold text-white truncate font-mono">
                 {playlists.playlist2.name}
+              </p>
+            </button>
+
+            <button
+              onClick={() => setActiveTab("playlist3")}
+              className={`p-3.5 rounded-2xl border text-left transition-all cursor-pointer ${
+                activeTab === "playlist3"
+                  ? "bg-emerald-500/20 border-emerald-400/80 shadow-[0_0_20px_rgba(16,185,129,0.25)]"
+                  : "bg-zinc-950/50 border-zinc-800/80 hover:border-zinc-700 text-zinc-400"
+              }`}
+            >
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-emerald-400">
+                  {playlists.playlist3.tag}
+                </span>
+                {activeTab === "playlist3" && (
+                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
+                )}
+              </div>
+              <p className="text-xs sm:text-sm font-bold text-white truncate font-mono">
+                {playlists.playlist3.name}
               </p>
             </button>
           </div>
