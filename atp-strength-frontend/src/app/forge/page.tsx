@@ -106,6 +106,52 @@ export const WARRIOR_SOUNDTRACKS: SoundtrackTrack[] = [
 ];
 
 const WARRIOR_QUOTES = [
+  // --- ESTRATEGIA, CONQUISTA & DOCTRINA DEL HIERRO (NAPOLEÓN & CLÁSICOS) ---
+  {
+    text: "La victoria pertenece al más perseverante.",
+    author: "Napoleón Bonaparte • Emperador & Estratega Militar"
+  },
+  {
+    text: "Imposible es una palabra que solo se encuentra en el diccionario de los necios.",
+    author: "Napoleón Bonaparte"
+  },
+  {
+    text: "No hay camino al poder. El camino ES el poder.",
+    author: "Miyamoto Musashi • El Santo de la Espada"
+  },
+  {
+    text: "Percibe aquello que no puede ser visto con los ojos carnales. La espada y la mente deben ser una sola cosa indivisible.",
+    author: "Miyamoto Musashi"
+  },
+  {
+    text: "El espartano jamás pregunta cuántos son los enemigos, sino en qué coordenadas se encuentran.",
+    author: "Rey Leónidas de Esparta"
+  },
+  {
+    text: "No hay nada imposible para aquel que tiene la osadía y el coraje de intentar.",
+    author: "Alejandro Magno"
+  },
+  {
+    text: "No temas a quien practica 10.000 patadas una vez. Teme a quien practica una patada 10.000 veces.",
+    author: "Bruce Lee"
+  },
+  {
+    text: "El dolor es la prueba de que sigues vivo; forjá una mente que no pueda ser quebrada por nada ni nadie.",
+    author: "David Goggins • Navy SEAL & Ultra-Guerrero"
+  },
+  {
+    text: "Cuando creas que has llegado a tu límite, apenas estás al 40% de tu capacidad real. Atraviesa el umbral.",
+    author: "David Goggins"
+  },
+  {
+    text: "Tienes poder sobre tu mente, no sobre los acontecimientos. Comprende esto y hallarás fuerza invencible.",
+    author: "Marco Aurelio • Emperador Filósofo"
+  },
+  {
+    text: "El hierro cura todo. El hierro nunca te miente: doscientos kilos son doscientos kilos en cualquier rincón del cosmos.",
+    author: "Henry Rollins"
+  },
+
   // --- LOS ARCÁNGELES & EL LOGOS SOLAR ---
   {
     text: "¿Quién como Dios? ¡Nadie como Dios! Blandid la espada de la voluntad inquebrantable contra toda debilidad del cuerpo y de la mente.",
@@ -176,49 +222,7 @@ const WARRIOR_QUOTES = [
   {
     text: "En el fragor de la batalla, la mente fría y la respiración pausada son las armas más letales que existen.",
     author: "Doctrina Nikolai • Fuerza Táctica"
-  },
-
-  // --- MAESTROS ETERNOS DE LA ESTRATEGIA & EL HIERRO ---
-  {
-    text: "No hay camino al poder. El camino ES el poder.",
-    author: "Miyamoto Musashi • El Santo de la Espada"
-  },
-  {
-    text: "Percibe aquello que no puede ser visto con los ojos carnales. La espada y la mente deben ser una sola cosa indivisible.",
-    author: "Miyamoto Musashi"
-  },
-  {
-    text: "El espartano jamás pregunta cuántos son los enemigos, sino en qué coordenadas se encuentran.",
-    author: "Rey Leónidas de Esparta"
-  },
-  {
-    text: "No hay nada imposible para aquel que tiene la osadía y el coraje de intentar.",
-    author: "Alejandro Magno"
-  },
-  {
-    text: "No temas a quien practica 10.000 patadas una vez. Teme a quien practica una patada 10.000 veces.",
-    author: "Bruce Lee"
-  },
-  {
-    text: "El dolor es la prueba de que sigues vivo; forjá una mente que no pueda ser quebrada por nada ni nadie.",
-    author: "David Goggins • Navy SEAL & Ultra-Guerrero"
-  },
-  {
-    text: "Cuando creas que has llegado a tu límite, apenas estás al 40% de tu capacidad real. Atraviesa el umbral.",
-    author: "David Goggins"
-  },
-  {
-    text: "Tienes poder sobre tu mente, no sobre los acontecimientos. Comprende esto y hallarás fuerza invencible.",
-    author: "Marco Aurelio • Emperador Filósofo"
-  },
-  {
-    text: "El hierro cura todo. El hierro nunca te miente: doscientos kilos son doscientos kilos en cualquier rincón del cosmos.",
-    author: "Henry Rollins"
-  },
-  {
-    text: "La victoria pertenece al más perseverante.",
-    author: "Napoleón Bonaparte"
-  },
+  }
 ];
 
 function FireParticle({ delay, x }: { delay: number; x: number }) {
