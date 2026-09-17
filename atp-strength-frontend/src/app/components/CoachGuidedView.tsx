@@ -32,7 +32,7 @@ import {
 
 type Dash = ReturnType<typeof useZenDashboard>;
 
-export function CoachGuidedView({ d, onShowNutrition }: { d: Dash; onShowNutrition?: () => void }) {
+export function CoachGuidedView({ d, onShowSpotify }: { d: Dash; onShowSpotify?: () => void }) {
   useWakeLock(d.isRunning || !d.isDayFinished);
   const sessionStats = useMemo(() => d.calculateSessionStats(), [d.calculateSessionStats]);
 
@@ -329,6 +329,20 @@ export function CoachGuidedView({ d, onShowNutrition }: { d: Dash; onShowNutriti
         {/* Header Actions: Mode Toggle & Reset */}
         <div className="flex items-center gap-2">
           {/* Athlete Profile & Data Backup */}
+          {onShowSpotify && (
+            <button
+              type="button"
+              onClick={() => {
+                playTactileClick();
+                onShowSpotify();
+              }}
+              className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-emerald-500/30 bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20 hover:border-emerald-400/50 transition-all text-xs font-mono font-bold cursor-pointer shadow-[0_0_12px_rgba(16,185,129,0.15)]"
+              title="Playlists de Spotify para Entrenar"
+            >
+              <span>🎵</span>
+              <span className="hidden sm:inline">SPOTIFY</span>
+            </button>
+          )}
           <button
             type="button"
             onClick={() => {

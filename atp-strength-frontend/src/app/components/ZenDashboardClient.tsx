@@ -4,23 +4,23 @@ import { useState } from "react";
 import { useZenDashboard } from "@/app/hooks/useZenDashboard";
 import { ZenDashboardView } from "@/app/components/ZenDashboardView";
 import { CoachGuidedView } from "@/app/components/CoachGuidedView";
-import { NutritionPlanView } from "@/app/components/NutritionPlanView";
+import { SpotifyTrainingView } from "@/app/components/SpotifyTrainingView";
 import { ErrorBoundary } from "@/app/components/ErrorBoundary";
 
 /**
  * ZenDashboardClient
  * Client component executing in the browser context with direct access to localStorage.
- * Handles view switching between CoachGuidedView, ZenDashboardView, and NutritionPlanView
+ * Handles view switching between CoachGuidedView, ZenDashboardView, and SpotifyTrainingView
  * without hydration mismatch.
  */
 export function ZenDashboardClient() {
   const d = useZenDashboard();
-  const [showNutrition, setShowNutrition] = useState(false);
+  const [showSpotify, setShowSpotify] = useState(false);
 
-  if (showNutrition) {
+  if (showSpotify) {
     return (
       <ErrorBoundary>
-        <NutritionPlanView onBack={() => setShowNutrition(false)} />
+        <SpotifyTrainingView onBack={() => setShowSpotify(false)} />
       </ErrorBoundary>
     );
   }
@@ -28,9 +28,9 @@ export function ZenDashboardClient() {
   return (
     <ErrorBoundary>
       {d.coachMode ? (
-        <CoachGuidedView d={d} onShowNutrition={() => setShowNutrition(true)} />
+        <CoachGuidedView d={d} onShowSpotify={() => setShowSpotify(true)} />
       ) : (
-        <ZenDashboardView d={d} onShowNutrition={() => setShowNutrition(true)} />
+        <ZenDashboardView d={d} onShowSpotify={() => setShowSpotify(true)} />
       )}
     </ErrorBoundary>
   );
