@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import dynamic from "next/dynamic";
 import ForgeLanding from "@/app/forge/page";
 
@@ -27,15 +27,7 @@ const ZenDashboardClient = dynamic(
 export default function ZenDashboard() {
   const [showIntro, setShowIntro] = useState(true);
 
-  useEffect(() => {
-    // Check if the user already entered the temple during this browser session
-    if (sessionStorage.getItem("atp_intro_entered") === "true") {
-      setShowIntro(false);
-    }
-  }, []);
-
   const handleEnter = () => {
-    sessionStorage.setItem("atp_intro_entered", "true");
     setShowIntro(false);
   };
 

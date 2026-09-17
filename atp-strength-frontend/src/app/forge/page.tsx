@@ -62,24 +62,23 @@ export default function ForgeLanding({ onEnterDirect }: ForgeLandingProps) {
 
   // Audio state
   const [isPlaying, setIsPlaying] = useState(false);
-  const [needsInteraction, setNeedsInteraction] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // Play audio safely handling browser autoplay restrictions
+  // Play audio safely
   const startAudio = useCallback(() => {
     if (!audioRef.current) return;
-    audioRef.current.volume = 0.8;
-    audioRef.current
-      .play()
-      .then(() => {
-        setIsPlaying(true);
-        setNeedsInteraction(false);
-      })
-      .catch(() => {
-        setIsPlaying(false);
-        setNeedsInteraction(true);
-      });
+    audioRef.current.volume = 0.85;
+    const playPromise = audioRef.current.play();
+    if (playPromise !== undefined) {
+      playPromise
+        .then(() => {
+          setIsPlaying(true);
+        })
+        .catch(() => {
+          setIsPlaying(false);
+        });
+    }
   }, []);
 
   const toggleAudio = (e?: React.MouseEvent) => {
@@ -93,26 +92,30 @@ export default function ForgeLanding({ onEnterDirect }: ForgeLandingProps) {
     }
   };
 
+  // Attempt play immediately on mount and setup global interaction listener
   useEffect(() => {
-    // Attempt auto-play on mount
     startAudio();
 
-    // Global listener: first user touch/click anywhere immediately triggers audio if blocked
-    const handleFirstInteraction = () => {
+    const handleUserInteraction = () => {
       if (audioRef.current && audioRef.current.paused) {
         startAudio();
       }
     };
 
-    window.addEventListener("pointerdown", handleFirstInteraction, { once: true });
-    window.addEventListener("keydown", handleFirstInteraction, { once: true });
+    window.addEventListener("pointerdown", handleUserInteraction);
+    window.addEventListener("touchstart", handleUserInteraction);
+    window.addEventListener("click", handleUserInteraction);
+    window.addEventListener("keydown", handleUserInteraction);
 
     return () => {
-      window.removeEventListener("pointerdown", handleFirstInteraction);
-      window.removeEventListener("keydown", handleFirstInteraction);
+      window.removeEventListener("pointerdown", handleUserInteraction);
+      window.removeEventListener("touchstart", handleUserInteraction);
+      window.removeEventListener("click", handleUserInteraction);
+      window.removeEventListener("keydown", handleUserInteraction);
     };
   }, [startAudio]);
 
+  // Rotate quotes
   useEffect(() => {
     const interval = setInterval(() => {
       setFadeClass("opacity-0");
@@ -142,7 +145,8 @@ export default function ForgeLanding({ onEnterDirect }: ForgeLandingProps) {
     }, 250);
   };
 
-  const handleEnter = () => {
+  const handleEnter = (e: React.MouseEvent) => {
+    e.stopPropagation();
     setEntering(true);
     // Smooth cinematic audio fade out synchronized with exit transition
     if (audioRef.current) {
@@ -170,7 +174,11 @@ export default function ForgeLanding({ onEnterDirect }: ForgeLandingProps) {
   return (
     <div
       ref={containerRef}
-      className={`forge-container ${entering ? "forge-exit" : ""}`}
+      onClick={() => {
+        if (!isPlaying) startAudio();
+      }}
+      className={`forge-container ${entering ? "forge-exit" : ""} cursor-pointer`}
+      title={!isPlaying ? "Tocar la pantalla para activar el himno" : undefined}
     >
       {/* Audio Engine */}
       <audio
@@ -180,7 +188,7 @@ export default function ForgeLanding({ onEnterDirect }: ForgeLandingProps) {
         preload="auto"
       />
 
-      {/* Floating Epic Audio Controller */}
+      {/* Floating Epic Audio Controller (Pill) */}
       <button
         onClick={toggleAudio}
         className={`forge-audio-pill ${isPlaying ? "active" : ""}`}
@@ -201,17 +209,6 @@ export default function ForgeLanding({ onEnterDirect }: ForgeLandingProps) {
           {isPlaying ? "🔊" : "🔇"}
         </span>
       </button>
-
-      {/* Pulsing prompt banner if browser blocked autoplay until gesture */}
-      {needsInteraction && !isPlaying && (
-        <button
-          onClick={toggleAudio}
-          className="forge-audio-banner"
-          aria-label="Activar música de batalla"
-        >
-          ⚔️ TOCÁ PARA ACTIVAR EL HIMNO DE GUERRA
-        </button>
-      )}
 
       {/* Forge Background Layers */}
       <div className="forge-bg-layer forge-bg-hero" />
@@ -277,11 +274,23 @@ export default function ForgeLanding({ onEnterDirect }: ForgeLandingProps) {
           EL TEMPLO DEL HIERRO
         </p>
 
+        {/* Prominent Play / Sound Trigger Button */}
+        {!isPlaying && (
+          <button
+            onClick={toggleAudio}
+            className="my-3 px-5 py-2.5 rounded-full border border-amber-400/60 bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 font-mono text-xs tracking-widest uppercase flex items-center gap-2 shadow-[0_0_20px_rgba(251,191,36,0.3)] animate-pulse cursor-pointer transition-all hover:scale-105 z-20"
+          >
+            <span className="text-base">⚔️</span>
+            <span>ACTIVAR HIMNO: THE SPIRIT OF THE WARRIOR</span>
+            <span className="text-sm">▶</span>
+          </button>
+        )}
+
         {/* Rotating Quotes with Manual Navigation Controls */}
         <div className="forge-quote-container relative flex items-center justify-center gap-2 max-w-2xl mx-auto w-full px-4">
           <button
             onClick={handlePrevQuote}
-            className="w-8 h-8 rounded-full bg-white/5 hover:bg-white/15 text-[#ffd700] flex items-center justify-center text-xs transition-colors cursor-pointer shrink-0"
+            className="w-8 h-8 rounded-full bg-white/5 hover:bg-white/15 text-[#ffd700] flex items-center justify-center text-xs transition-colors cursor-pointer shrink-0 z-20"
             title="Frase anterior"
             aria-label="Frase anterior"
           >
@@ -295,7 +304,7 @@ export default function ForgeLanding({ onEnterDirect }: ForgeLandingProps) {
 
           <button
             onClick={handleNextQuote}
-            className="w-8 h-8 rounded-full bg-white/5 hover:bg-white/15 text-[#ffd700] flex items-center justify-center text-xs transition-colors cursor-pointer shrink-0"
+            className="w-8 h-8 rounded-full bg-white/5 hover:bg-white/15 text-[#ffd700] flex items-center justify-center text-xs transition-colors cursor-pointer shrink-0 z-20"
             title="Siguiente frase"
             aria-label="Siguiente frase"
           >
@@ -304,7 +313,7 @@ export default function ForgeLanding({ onEnterDirect }: ForgeLandingProps) {
         </div>
 
         {/* Enter Button */}
-        <button onClick={handleEnter} className="forge-enter-btn group mt-4">
+        <button onClick={handleEnter} className="forge-enter-btn group mt-4 z-20">
           <span className="forge-enter-btn-glow" />
           <span className="forge-enter-btn-text">
             ENTRAR AL TEMPLO
