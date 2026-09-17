@@ -106,24 +106,119 @@ export const WARRIOR_SOUNDTRACKS: SoundtrackTrack[] = [
 ];
 
 const WARRIOR_QUOTES = [
-  { text: "La victoria pertenece al más perseverante.", author: "Napoleón" },
-  { text: "Un guerrero no se rinde. Un guerrero trasciende.", author: "V.M. Samael Aun Weor" },
-  { text: "No te detengas cuando estés cansado; detente cuando hayas terminado.", author: "David Goggins" },
-  { text: "No hay camino al poder. El camino ES el poder.", author: "Miyamoto Musashi" },
-  { text: "El dolor es la prueba de que sigues vivo; forjá una mente que no pueda ser doblegada.", author: "David Goggins" },
-  { text: "El auténtico guerrero forja su alma en el crisol de la voluntad y la templanza.", author: "V.M. Samael Aun Weor" },
-  { text: "Tienes poder sobre tu mente, no sobre los acontecimientos. Comprende esto y hallarás fuerza invencible.", author: "Marco Aurelio" },
-  { text: "El hierro cura todo. El hierro nunca te miente.", author: "Henry Rollins" },
-  { text: "El guerrero victorioso gana primero en su espíritu, y luego marcha a la batalla.", author: "Sun Tzu" },
-  { text: "No temas a quien practica 10.000 patadas una vez. Teme a quien practica una patada 10.000 veces.", author: "Bruce Lee" },
-  { text: "Cuando creas que has llegado a tu límite, apenas estás al 40% de tu capacidad real.", author: "David Goggins" },
-  { text: "El cuerpo logra lo que la mente cree y sostiene con disciplina.", author: "Proverbio Espartano" },
-  { text: "No hay nada imposible para aquel que tiene la osadía y el coraje de intentar.", author: "Alejandro Magno" },
-  { text: "Percibe aquello que no puede ser visto con los ojos carnales.", author: "Miyamoto Musashi" },
-  { text: "La espada y la mente deben ser una sola cosa indivisible.", author: "Miyamoto Musashi" },
-  { text: "El espartano jamás pregunta cuántos son los enemigos, sino en qué coordenadas se encuentran.", author: "Rey Leónidas de Esparta" },
-  { text: "Lo que no me mata, me hace infinitamente más fuerte.", author: "Friedrich Nietzsche" },
-  { text: "Miguel, Príncipe de los Ejércitos Celestiales, defiéndenos en la batalla del Ser.", author: "Oración a San Miguel" },
+  // --- LOS ARCÁNGELES & EL LOGOS SOLAR ---
+  {
+    text: "¿Quién como Dios? ¡Nadie como Dios! Blandid la espada de la voluntad inquebrantable contra toda debilidad del cuerpo y de la mente.",
+    author: "San Miguel Arcángel • Príncipe de la Milicia Celeste"
+  },
+  {
+    text: "El Reino de los Cielos se hace fuerza, y solo los valientes y esforzados lo arrebatan.",
+    author: "Jesucristo • El León de Judá"
+  },
+  {
+    text: "No he venido a traer paz de cobardes, sino espada de fuego y discernimiento divino.",
+    author: "Jesucristo • El Gran Hierofante"
+  },
+  {
+    text: "El guerrero cósmico sostiene la llama de la pureza en el centro mismo de la tormenta. Sé inamovible como la roca sagrada.",
+    author: "Sanat Kumara • Regente del Mundo & Anciano de los Días"
+  },
+  {
+    text: "La iniciación no se pide con palabras ni plegarias huecas: se conquista con el hierro forjado de la voluntad.",
+    author: "Sanat Kumara • Avatar de la Llama"
+  },
+
+  // --- DOCTRINA GNÓSTICA MARCIAL ---
+  {
+    text: "Un guerrero no se rinde. Un guerrero trasciende en la fragua de Vulcano, dominando la mente y templando la carne.",
+    author: "V.M. Samael Aun Weor • Quinto de los Siete"
+  },
+  {
+    text: "El auténtico guerrero forja su alma en el crisol de la voluntad y la templanza. Quien se vence a sí mismo es el más grande de los héroes.",
+    author: "V.M. Samael Aun Weor"
+  },
+  {
+    text: "La fuerza real no proviene del músculo vano, sino del fuego concentrado en el centro motor que jamás se dilapida.",
+    author: "V.M. Samael Aun Weor"
+  },
+  {
+    text: "El camino del guerrero de la Gran Logia Blanca es angosto y difícil, como el filo de una navaja.",
+    author: "V.M. Samael Aun Weor"
+  },
+
+  // --- TITANES DE UFC & ARTES MARCIALES DE COMBATE REAL ---
+  {
+    text: "No hay atajos para el cinturón. El miedo desaparece cuando tu disciplina, tu preparación y tu potencia de cadera son implacables.",
+    author: "Georges St-Pierre (GSP) • Leyenda Invicta UFC"
+  },
+  {
+    text: "¡Golpea con la cadera, el talón y todo el peso de tu existencia! La potencia demoledora no se pide, se descarga.",
+    author: "Bas Rutten • Salón de la Fama UFC & Rey de Pancrase"
+  },
+  {
+    text: "El verdadero poder marcial reside en el centro inamovible: calma absoluta, muñecas de acero y fluidez letal para desarticular al oponente.",
+    author: "Steven Seagal • 7° Dan Aikido Shihan"
+  },
+  {
+    text: "El cuerpo de un artista marcial debe ser demoledor en el impacto, pero ingrávido y relampagueante en el aire. Eso es poder total.",
+    author: "Marko Zaror • Gladiador Marcial & Atleta de Élite"
+  },
+
+  // --- JUSTICIEROS & DOCTRINAS TÁCTICAS OPERADOR DELTA ---
+  {
+    text: "Enfoque absoluto, compromiso total y una determinación de hierro que ningún dolor terrenal puede doblegar.",
+    author: "Doctrina John Wick • Baba Yaga"
+  },
+  {
+    text: "Cuando rezas por lluvia, debes lidiar también con el barro. La fuerza física implacable y la justicia deben ser una sola herramienta.",
+    author: "Robert McCall • The Equalizer"
+  },
+  {
+    text: "En el fragor de la batalla, la mente fría y la respiración pausada son las armas más letales que existen.",
+    author: "Doctrina Nikolai • Fuerza Táctica"
+  },
+
+  // --- MAESTROS ETERNOS DE LA ESTRATEGIA & EL HIERRO ---
+  {
+    text: "No hay camino al poder. El camino ES el poder.",
+    author: "Miyamoto Musashi • El Santo de la Espada"
+  },
+  {
+    text: "Percibe aquello que no puede ser visto con los ojos carnales. La espada y la mente deben ser una sola cosa indivisible.",
+    author: "Miyamoto Musashi"
+  },
+  {
+    text: "El espartano jamás pregunta cuántos son los enemigos, sino en qué coordenadas se encuentran.",
+    author: "Rey Leónidas de Esparta"
+  },
+  {
+    text: "No hay nada imposible para aquel que tiene la osadía y el coraje de intentar.",
+    author: "Alejandro Magno"
+  },
+  {
+    text: "No temas a quien practica 10.000 patadas una vez. Teme a quien practica una patada 10.000 veces.",
+    author: "Bruce Lee"
+  },
+  {
+    text: "El dolor es la prueba de que sigues vivo; forjá una mente que no pueda ser quebrada por nada ni nadie.",
+    author: "David Goggins • Navy SEAL & Ultra-Guerrero"
+  },
+  {
+    text: "Cuando creas que has llegado a tu límite, apenas estás al 40% de tu capacidad real. Atraviesa el umbral.",
+    author: "David Goggins"
+  },
+  {
+    text: "Tienes poder sobre tu mente, no sobre los acontecimientos. Comprende esto y hallarás fuerza invencible.",
+    author: "Marco Aurelio • Emperador Filósofo"
+  },
+  {
+    text: "El hierro cura todo. El hierro nunca te miente: doscientos kilos son doscientos kilos en cualquier rincón del cosmos.",
+    author: "Henry Rollins"
+  },
+  {
+    text: "La victoria pertenece al más perseverante.",
+    author: "Napoleón Bonaparte"
+  },
 ];
 
 function FireParticle({ delay, x }: { delay: number; x: number }) {
@@ -491,7 +586,7 @@ export default function ForgeLanding({ onEnterDirect }: ForgeLandingProps) {
 
         {/* Bottom Mantra */}
         <p className="forge-mantra">
-          VOLUNTAD • DISCIPLINA • TRASCENDENCIA
+          ⚔️ SAN MIGUEL • SANAT KUMARA • SAMAEL • CRISTO JESÚS • FUERZA SUPREMA DE GUERRERO ⚔️
         </p>
       </div>
     </div>
