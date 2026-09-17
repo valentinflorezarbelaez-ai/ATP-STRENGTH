@@ -606,3 +606,110 @@ body {
   .forge-enter-btn { padding: 0.85rem 1.8rem; font-size: 0.7rem; }
   .forge-mantra { font-size: 0.5rem; letter-spacing: 0.3em; }
 }
+
+/* ═══════════════════════════════════════════════════════ */
+/* LA FORJA — The Spirit of the Warrior Epic Audio Engine  */
+/* ═══════════════════════════════════════════════════════ */
+
+.forge-audio-pill {
+  position: absolute;
+  top: 1.25rem;
+  right: 1.25rem;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.5rem 1rem;
+  background: rgba(12, 12, 12, 0.85);
+  border: 1px solid rgba(204, 164, 59, 0.4);
+  border-radius: 9999px;
+  backdrop-filter: blur(16px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.7), 0 0 15px rgba(204, 164, 59, 0.2);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  cursor: pointer;
+  user-select: none;
+}
+
+.forge-audio-pill:hover {
+  border-color: rgba(255, 215, 0, 0.85);
+  box-shadow: 0 4px 25px rgba(0, 0, 0, 0.9), 0 0 25px rgba(255, 215, 0, 0.4);
+  transform: translateY(-2px);
+  background: rgba(20, 18, 14, 0.95);
+}
+
+.forge-audio-pill:active {
+  transform: translateY(0);
+}
+
+.forge-audio-pill.active {
+  border-color: rgba(255, 215, 0, 0.65);
+  box-shadow: 0 0 20px rgba(255, 215, 0, 0.25), inset 0 0 12px rgba(204, 164, 59, 0.15);
+}
+
+.forge-audio-bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 2.5px;
+  height: 14px;
+}
+
+.forge-audio-bar {
+  width: 3px;
+  background: linear-gradient(to top, #cca43b, #ffd700);
+  border-radius: 1px;
+  box-shadow: 0 0 4px rgba(255, 215, 0, 0.6);
+  animation: forge-bar-dance 0.9s ease-in-out infinite alternate;
+}
+
+.forge-audio-bar:nth-child(1) { height: 35%; animation-delay: 0.05s; }
+.forge-audio-bar:nth-child(2) { height: 85%; animation-delay: 0.25s; }
+.forge-audio-bar:nth-child(3) { height: 60%; animation-delay: 0.45s; }
+.forge-audio-bar:nth-child(4) { height: 100%; animation-delay: 0.15s; }
+.forge-audio-bar:nth-child(5) { height: 50%; animation-delay: 0.35s; }
+
+.forge-audio-bars.paused .forge-audio-bar {
+  animation: none;
+  height: 3px;
+  opacity: 0.4;
+  box-shadow: none;
+}
+
+@keyframes forge-bar-dance {
+  0% { height: 20%; transform: scaleY(0.6); }
+  50% { height: 100%; transform: scaleY(1.1); }
+  100% { height: 35%; transform: scaleY(0.7); }
+}
+
+.forge-audio-banner {
+  position: absolute;
+  top: 4.25rem;
+  right: 1.25rem;
+  z-index: 49;
+  background: rgba(20, 16, 10, 0.92);
+  border: 1px solid rgba(255, 215, 0, 0.6);
+  padding: 0.4rem 0.85rem;
+  border-radius: 9999px;
+  font-size: 0.65rem;
+  font-family: ui-monospace, monospace;
+  letter-spacing: 0.15em;
+  color: #ffd700;
+  box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
+  animation: forge-banner-pulse 2s infinite ease-in-out;
+  cursor: pointer;
+}
+
+@keyframes forge-banner-pulse {
+  0%, 100% { opacity: 0.85; transform: scale(1); box-shadow: 0 0 12px rgba(255, 215, 0, 0.2); }
+  50% { opacity: 1; transform: scale(1.03); box-shadow: 0 0 25px rgba(255, 215, 0, 0.5); }
+}
+
+.forge-emblem.playing-anthem svg {
+  filter: drop-shadow(0 0 18px rgba(255, 215, 0, 0.6)) drop-shadow(0 0 35px rgba(255, 107, 0, 0.4));
+  animation: emblem-epic-aura 4s ease-in-out infinite alternate;
+}
+
+@keyframes emblem-epic-aura {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.04); }
+  100% { transform: scale(1); }
+}

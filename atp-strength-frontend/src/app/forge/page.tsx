@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
 
 const WARRIOR_QUOTES = [
@@ -59,7 +59,59 @@ export default function ForgeLanding({ onEnterDirect }: ForgeLandingProps) {
   const [quoteIdx, setQuoteIdx] = useState(0);
   const [fadeClass, setFadeClass] = useState("opacity-100");
   const [entering, setEntering] = useState(false);
+
+  // Audio state
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [needsInteraction, setNeedsInteraction] = useState(false);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+
+  // Play audio safely handling browser autoplay restrictions
+  const startAudio = useCallback(() => {
+    if (!audioRef.current) return;
+    audioRef.current.volume = 0.8;
+    audioRef.current
+      .play()
+      .then(() => {
+        setIsPlaying(true);
+        setNeedsInteraction(false);
+      })
+      .catch(() => {
+        setIsPlaying(false);
+        setNeedsInteraction(true);
+      });
+  }, []);
+
+  const toggleAudio = (e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    if (!audioRef.current) return;
+    if (isPlaying) {
+      audioRef.current.pause();
+      setIsPlaying(false);
+    } else {
+      startAudio();
+    }
+  };
+
+  useEffect(() => {
+    // Attempt auto-play on mount
+    startAudio();
+
+    // Global listener: first user touch/click anywhere immediately triggers audio if blocked
+    const handleFirstInteraction = () => {
+      if (audioRef.current && audioRef.current.paused) {
+        startAudio();
+      }
+    };
+
+    window.addEventListener("pointerdown", handleFirstInteraction, { once: true });
+    window.addEventListener("keydown", handleFirstInteraction, { once: true });
+
+    return () => {
+      window.removeEventListener("pointerdown", handleFirstInteraction);
+      window.removeEventListener("keydown", handleFirstInteraction);
+    };
+  }, [startAudio]);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -92,6 +144,20 @@ export default function ForgeLanding({ onEnterDirect }: ForgeLandingProps) {
 
   const handleEnter = () => {
     setEntering(true);
+    // Smooth cinematic audio fade out synchronized with exit transition
+    if (audioRef.current) {
+      const audio = audioRef.current;
+      const fadeInterval = setInterval(() => {
+        if (audio.volume > 0.05) {
+          audio.volume = Math.max(0, audio.volume - 0.08);
+        } else {
+          audio.volume = 0;
+          audio.pause();
+          clearInterval(fadeInterval);
+        }
+      }, 60);
+    }
+
     if (onEnterDirect) {
       setTimeout(() => onEnterDirect(), 1100);
     } else {
@@ -106,6 +172,47 @@ export default function ForgeLanding({ onEnterDirect }: ForgeLandingProps) {
       ref={containerRef}
       className={`forge-container ${entering ? "forge-exit" : ""}`}
     >
+      {/* Audio Engine */}
+      <audio
+        ref={audioRef}
+        src="/audio/the-spirit-of-the-warrior.mp3"
+        loop
+        preload="auto"
+      />
+
+      {/* Floating Epic Audio Controller */}
+      <button
+        onClick={toggleAudio}
+        className={`forge-audio-pill ${isPlaying ? "active" : ""}`}
+        title={isPlaying ? "Pausar Himno" : "Reproducir The Spirit of the Warrior"}
+        aria-label="Control de audio de fondo"
+      >
+        <div className={`forge-audio-bars ${!isPlaying ? "paused" : ""}`}>
+          <div className="forge-audio-bar" />
+          <div className="forge-audio-bar" />
+          <div className="forge-audio-bar" />
+          <div className="forge-audio-bar" />
+          <div className="forge-audio-bar" />
+        </div>
+        <span className="text-[10px] tracking-wider uppercase font-mono text-[#ffd700] hidden sm:inline-block">
+          {isPlaying ? "The Spirit of the Warrior" : "Música Pausada"}
+        </span>
+        <span className="text-xs text-[#cca43b]">
+          {isPlaying ? "🔊" : "🔇"}
+        </span>
+      </button>
+
+      {/* Pulsing prompt banner if browser blocked autoplay until gesture */}
+      {needsInteraction && !isPlaying && (
+        <button
+          onClick={toggleAudio}
+          className="forge-audio-banner"
+          aria-label="Activar música de batalla"
+        >
+          ⚔️ TOCÁ PARA ACTIVAR EL HIMNO DE GUERRA
+        </button>
+      )}
+
       {/* Forge Background Layers */}
       <div className="forge-bg-layer forge-bg-hero" />
       <div className="forge-bg-layer forge-bg-vignette" />
@@ -124,9 +231,9 @@ export default function ForgeLanding({ onEnterDirect }: ForgeLandingProps) {
 
       {/* Main Content */}
       <div className="forge-content">
-        {/* Crossed Swords Emblem */}
-        <div className="forge-emblem">
-          <svg viewBox="0 0 120 120" className="w-24 h-24 md:w-32 md:h-32">
+        {/* Crossed Swords Emblem with Epic Aura */}
+        <div className={`forge-emblem ${isPlaying ? "playing-anthem" : ""}`}>
+          <svg viewBox="0 0 120 120" className="w-24 h-24 md:w-32 md:h-32 transition-all duration-700">
             {/* Left Sword */}
             <line x1="20" y1="100" x2="60" y2="15" stroke="url(#swordGrad)" strokeWidth="2.5" strokeLinecap="round" />
             <line x1="35" y1="75" x2="50" y2="80" stroke="url(#swordGrad)" strokeWidth="2" strokeLinecap="round" />
