@@ -406,25 +406,25 @@ export const DELTA_ARCANGEL_DAYS: RoutineDay[] = [
         cue: "Triple extensión violenta (tobillos, rodillas, cadera) estilo Bas Rutten. La barra vuela por pura aceleración balística, recepción de roca y codos altos."
       },
       {
-        name: "Floor Press Táctico",
+        name: "Press de Banca",
         sets: 4,
         reps: "4x3 reps @ RPE 9",
         restSeconds: 300,
-        cue: "Pausa muerta de 2 segundos en el suelo con tríceps apoyados. Elimina el ciclo de estiramiento-acortamiento para simular el empuje letal de combate cuerpo a cuerpo."
+        cue: "Pausa muerta de 2 segundos en el pecho con máxima tensión estilo combate cuerpo a cuerpo. Elimina el rebote para construir empuje letal puro."
       },
       {
         name: "Push Press (Press de Empuje)",
         sets: 3,
         reps: "3x4 reps @ RPE 8.5",
         restSeconds: 240,
-        cue: "Dip corto y potente con cadera, transmisión cinemática desde el suelo hasta el bloqueo sobre la cabeza. Core blindado como titanio."
+        cue: "Dip corto y potente con cadera, transmisión cinemática desde el suelo hasta el bloqueo sobre la cabeza estilo GSP. Core blindado como titanio."
       },
       {
-        name: "Landmine Rotacional Balístico",
+        name: "Clean High Pull (Tirón Alto de Cargada)",
         sets: 3,
-        reps: "3x6 por lado",
-        restSeconds: 120,
-        cue: "Transferencia de torque rotacional desde el pie pivote a la mano. Fuerza explosiva de pegada demoledora para noqueo de UFC o proyección marcial."
+        reps: "3x5 reps @ RPE 8.5",
+        restSeconds: 180,
+        cue: "Transferencia de torque vertical explosivo para pegada demoledora y noqueo marcial. Trapecios y cadena posterior en máxima aceleración."
       }
     ]
   },
@@ -443,7 +443,7 @@ export const DELTA_ARCANGEL_DAYS: RoutineDay[] = [
     isRest: false,
     exercises: [
       {
-        name: "Sentadilla Zercher",
+        name: "Sentadilla Trasera Técnica",
         sets: 4,
         reps: "4x3 reps @ RPE 8.5",
         restSeconds: 300,
@@ -491,7 +491,7 @@ export const DELTA_ARCANGEL_DAYS: RoutineDay[] = [
         sets: 5,
         reps: "5x2 reps @ 60% 1RM (Máxima Velocidad)",
         restSeconds: 180,
-        cue: "Tasa de desarrollo de fuerza (RFD). Acelera la barra a velocidad supersónica desde el suelo. Máxima descarga de unidades motoras rápidas tipo IIb."
+        cue: "Tasa de desarrollo de fuerza (RFD) estilo Marko Zaror. Acelera la barra a velocidad supersónica desde el suelo. Máxima descarga de unidades motoras rápidas tipo IIb."
       },
       {
         name: "Fondos en Paralelas",
@@ -516,10 +516,18 @@ export const DELTA_ARCANGEL_DAYS: RoutineDay[] = [
       }
     ]
   },
-  {
+    {
     key: "DAY_DELTA_REST_3",
-    name: "Sábado y Domingo - Regeneración del Soldado del Ser",
-    focus: "Nutrición, Transmutación & Preparación para la Misión",
+    name: "Sábado - Regeneración Táctica",
+    focus: "Descompresión, Nutrición & Regeneración del Soldado del Ser",
+    isRest: true,
+    restMessage: "Doctrina de San Miguel: El verdadero guerrero no dilapida su energía vital. Cero fatiga metabólica inútil; regeneración de ATP y mielina para responder al máximo nivel en la próxima incursión.",
+    exercises: []
+  },
+  {
+    key: "DAY_DELTA_REST_4",
+    name: "Domingo - Templanza & Alistamiento",
+    focus: "Meditación, Transmutación & Preparación para la Misión",
     isRest: true,
     restMessage: "El justiciero Robert McCall y el soldado de San Miguel saben que la victoria se decide antes de entrar a la batalla. Recuperación total de reservas neuromusculares para dominar.",
     exercises: []

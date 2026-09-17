@@ -73,11 +73,24 @@ describe('SPEC-0008 Workout Strategies & Multi-Program Power Suite', () => {
     });
   });
 
-  describe('Multi-Program Architecture (Warrior, Classic, Olympic, Hybrid)', () => {
-    it('defines exactly 4 training programs with full metadata', () => {
-      assert.equal(TRAINING_PROGRAMS.length, 4);
+  describe('Multi-Program Architecture (Warrior, Classic, Olympic, Hybrid, Delta Arcángel)', () => {
+    it('defines exactly 5 training programs with full metadata', () => {
+      assert.equal(TRAINING_PROGRAMS.length, 5);
       const programIds = TRAINING_PROGRAMS.map((p) => p.id);
-      assert.deepEqual(programIds, ['warrior', 'hybrid', 'olympic', 'classic']);
+      assert.deepEqual(programIds, ['warrior', 'hybrid', 'olympic', 'classic', 'delta-arcangel']);
+    });
+
+    it('validates Program 5: Soldado de San Miguel Arcángel (3 Activos + 4 Descanso)', () => {
+      const delta = getTrainingProgram('delta-arcangel');
+      assert.equal(delta.id, 'delta-arcangel');
+      assert.equal(delta.days.length, 7);
+      const activeDays = delta.days.filter((d) => !d.isRest);
+      const restDays = delta.days.filter((d) => d.isRest);
+      assert.equal(activeDays.length, 3);
+      assert.equal(restDays.length, 4);
+      for (const restDay of restDays) {
+        assert.ok(restDay.restMessage, 'Rest day must have a pedagogical message');
+      }
     });
 
     it('validates Program 4: Sistema Híbrido 4 Días: Forja del Guerrero (4 Activos + 3 Descanso)', () => {
