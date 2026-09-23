@@ -86,6 +86,19 @@ describe('SPEC-0006 Anatoly Fit Video & Form Guidance Engine', () => {
       const media = getExerciseMedia('Militar');
       assert.equal(media.id, 'overhead_press');
     });
+
+    it('accurately resolves English aliases and variations without misclassifying', () => {
+      assert.equal(getExerciseMedia('bench press').id, 'bench_press');
+      assert.equal(getExerciseMedia('squat').id, 'squat_back');
+      assert.equal(getExerciseMedia('back squat').id, 'squat_back');
+      assert.equal(getExerciseMedia('deadlift').id, 'deadlift_conv');
+      assert.equal(getExerciseMedia('bicep curl').id, 'ez_bar_curl');
+      assert.equal(getExerciseMedia('pendlay row').id, 'pendlay_row');
+      assert.equal(getExerciseMedia('leg raises').id, 'toes_to_bar');
+      assert.equal(getExerciseMedia('farmer walk').id, 'farmers_walk');
+      assert.equal(getExerciseMedia('overhead press').id, 'overhead_press');
+      assert.equal(getExerciseMedia('power clean').id, 'power_clean');
+    });
   });
 
   describe('REQ-EARS-ANATOLY-03: Resilient Fallback for Unknown Exercises', () => {

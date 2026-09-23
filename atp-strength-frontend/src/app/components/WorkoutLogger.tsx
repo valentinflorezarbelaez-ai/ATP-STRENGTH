@@ -3,11 +3,13 @@
 import React, { useState } from "react";
 import {
   Calculator, CheckCircle2, ChevronDown, ChevronLeft, ChevronRight, ChevronUp,
-  Dumbbell, Layers, Maximize2, Minus, Plus, Settings2, TrendingUp, Zap,
+  Dumbbell, Layers, Maximize2, Minus, Play, Plus, Settings2, TrendingUp, Zap,
 } from "lucide-react";
 import { RampingIndicator } from "@/app/components/RampingIndicator";
 import { BarbellPlateVisualizer } from "@/app/components/BarbellPlateVisualizer";
 import { WarmupCalculatorModal } from "@/app/components/WarmupCalculatorModal";
+import { ExerciseVideoModal } from "@/app/components/ExerciseVideoModal";
+import { getExerciseMedia } from "@/lib/exerciseMediaCatalog";
 import { getExerciseCategory, computeEstimated1Rm, rpeToRir, VALID_RPE_VALUES } from "@/lib/workoutStrategies";
 import type { useZenDashboard } from "@/app/hooks/useZenDashboard";
 
@@ -16,6 +18,7 @@ type Dash = ReturnType<typeof useZenDashboard>;
 /** Exercise selection, set/rep counter, 1RM auto-regulation, and phase logging. */
 export function WorkoutLogger({ d }: { d: Dash }) {
   const [showWarmupModal, setShowWarmupModal] = useState(false);
+  const [showVideoModal, setShowVideoModal] = useState(false);
   const {
     activeExerciseIndex,
     currentSet, setCurrentSet,

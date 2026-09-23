@@ -636,53 +636,114 @@ export function getExerciseMedia(rawName) {
 
   const clean = rawName.toLowerCase().trim();
 
-  // 1. Direct hit in 25 primary catalog
+  // 1. Direct hit in 25 primary catalog keys
   if (EXERCISE_MEDIA_CATALOG[clean]) {
     return EXERCISE_MEDIA_CATALOG[clean];
   }
 
-  // 2. Fuzzy match exact keys
-  for (const [key, media] of Object.entries(EXERCISE_MEDIA_CATALOG)) {
-    if (clean === key || clean.includes(key) || key.includes(clean)) {
+  // 2. Direct hit by ID
+  for (const media of Object.values(EXERCISE_MEDIA_CATALOG)) {
+    if (clean === media.id.toLowerCase()) {
       return media;
     }
   }
 
-  // 3. Normalized keyword resolvers for specific variations
-  if (clean.includes("sentadilla") && (clean.includes("técnica") || clean.includes("pausa"))) return EXERCISE_MEDIA_CATALOG["sentadilla trasera técnica"];
-  if (clean.includes("sentadilla") && clean.includes("salto")) return EXERCISE_MEDIA_CATALOG["sentadilla con salto con barra (barbell jump squat)"];
-  if (clean.includes("sentadilla")) return EXERCISE_MEDIA_CATALOG["sentadilla trasera"];
+  // 3. High-precision keyword resolvers (Specific before general to avoid misclassification)
+  // Bench / Pecho / Empuje horizontal
+  if (clean.includes("banca") || clean.includes("bench") || clean.includes("pecho") || clean.includes("chest press")) {
+    return EXERCISE_MEDIA_CATALOG["press de banca"];
+  }
 
-  if (clean.includes("banca") || clean.includes("pecho")) return EXERCISE_MEDIA_CATALOG["press de banca"];
+  // Squats / Sentadillas
+  if (clean.includes("sentadilla") || clean.includes("squat")) {
+    if (clean.includes("técnica") || clean.includes("tecnica") || clean.includes("pausa") || clean.includes("pause")) {
+      return EXERCISE_MEDIA_CATALOG["sentadilla trasera técnica"];
+    }
+    if (clean.includes("salto") || clean.includes("jump")) {
+      return EXERCISE_MEDIA_CATALOG["sentadilla con salto con barra (barbell jump squat)"];
+    }
+    return EXERCISE_MEDIA_CATALOG["sentadilla trasera"];
+  }
 
-  if (clean.includes("muerto") && clean.includes("arrancada")) return EXERCISE_MEDIA_CATALOG["peso muerto agarre arrancada (snatch grip deadlift)"];
-  if (clean.includes("muerto") && clean.includes("déficit")) return EXERCISE_MEDIA_CATALOG["peso muerto con déficit (deficit deadlift)"];
-  if (clean.includes("muerto") && clean.includes("rumano")) return EXERCISE_MEDIA_CATALOG["peso muerto rumano"];
-  if (clean.includes("muerto")) return EXERCISE_MEDIA_CATALOG["peso muerto convencional"];
+  // Deadlifts / Peso Muerto
+  if (clean.includes("muerto") || clean.includes("deadlift") || clean.includes("rdl")) {
+    if (clean.includes("arrancada") || clean.includes("snatch")) {
+      return EXERCISE_MEDIA_CATALOG["peso muerto agarre arrancada (snatch grip deadlift)"];
+    }
+    if (clean.includes("déficit") || clean.includes("deficit")) {
+      return EXERCISE_MEDIA_CATALOG["peso muerto con déficit (deficit deadlift)"];
+    }
+    if (clean.includes("rumano") || clean.includes("romanian") || clean.includes("rdl")) {
+      return EXERCISE_MEDIA_CATALOG["peso muerto rumano"];
+    }
+    return EXERCISE_MEDIA_CATALOG["peso muerto convencional"];
+  }
 
+  // Overhead & Push Press
   if (clean.includes("push press")) return EXERCISE_MEDIA_CATALOG["push press (press de empuje)"];
-  if (clean.includes("militar") || clean.includes("overhead")) return EXERCISE_MEDIA_CATALOG["press militar"];
+  if (clean.includes("militar") || clean.includes("overhead") || clean.includes("ohp") || clean.includes("hombro")) {
+    return EXERCISE_MEDIA_CATALOG["press militar"];
+  }
 
-  if (clean.includes("hang") && clean.includes("clean")) return EXERCISE_MEDIA_CATALOG["hang power clean (cargada colgada)"];
-  if (clean.includes("power clean") || clean.includes("cargada")) return EXERCISE_MEDIA_CATALOG["power clean (cargada de potencia)"];
+  // Olympic Lifts
+  if (clean.includes("clean") || clean.includes("cargada")) {
+    if (clean.includes("hang") || clean.includes("colgada")) {
+      return EXERCISE_MEDIA_CATALOG["hang power clean (cargada colgada)"];
+    }
+    if (clean.includes("pull") || clean.includes("tirón") || clean.includes("tiron")) {
+      return EXERCISE_MEDIA_CATALOG["clean high pull (tirón alto de cargada)"];
+    }
+    return EXERCISE_MEDIA_CATALOG["power clean (cargada de potencia)"];
+  }
 
-  if (clean.includes("hang") && clean.includes("snatch")) return EXERCISE_MEDIA_CATALOG["hang power snatch (arrancada colgada)"];
-  if (clean.includes("power snatch") || clean.includes("arrancada")) return EXERCISE_MEDIA_CATALOG["power snatch (arrancada de potencia)"];
+  if (clean.includes("snatch") || clean.includes("arrancada")) {
+    if (clean.includes("hang") || clean.includes("colgada")) {
+      return EXERCISE_MEDIA_CATALOG["hang power snatch (arrancada colgada)"];
+    }
+    if (clean.includes("pull") || clean.includes("tirón") || clean.includes("tiron")) {
+      return EXERCISE_MEDIA_CATALOG["snatch high pull (tirón alto de arrancada)"];
+    }
+    return EXERCISE_MEDIA_CATALOG["power snatch (arrancada de potencia)"];
+  }
 
-  if (clean.includes("power jerk") || clean.includes("envión") || clean.includes("jerk")) return EXERCISE_MEDIA_CATALOG["power jerk (envión de potencia)"];
+  if (clean.includes("jerk") || clean.includes("envión") || clean.includes("envion")) {
+    return EXERCISE_MEDIA_CATALOG["power jerk (envión de potencia)"];
+  }
 
-  if (clean.includes("clean") && clean.includes("pull")) return EXERCISE_MEDIA_CATALOG["clean high pull (tirón alto de cargada)"];
-  if (clean.includes("snatch") && clean.includes("pull")) return EXERCISE_MEDIA_CATALOG["snatch high pull (tirón alto de arrancada)"];
+  // Jumps
+  if ((clean.includes("salto") || clean.includes("jump")) && (clean.includes("trap") || clean.includes("trampa"))) {
+    return EXERCISE_MEDIA_CATALOG["salto con trap bar (trap bar jump)"];
+  }
 
-  if (clean.includes("salto") && clean.includes("trap")) return EXERCISE_MEDIA_CATALOG["salto con trap bar (trap bar jump)"];
-  if (clean.includes("curl") && clean.includes("barra")) return EXERCISE_MEDIA_CATALOG["curl bíceps barra z"];
-  if (clean.includes("piernas") && clean.includes("barra")) return EXERCISE_MEDIA_CATALOG["elevaciones piernas a la barra"];
+  // Pull / Calisthenics / Accessories
+  if (clean.includes("dominada") || clean.includes("pullup") || clean.includes("pull-up") || clean.includes("chinup") || clean.includes("chin-up")) {
+    return EXERCISE_MEDIA_CATALOG["dominadas lastradas"];
+  }
+  if (clean.includes("fondo") || clean.includes("dip") || clean.includes("paralela")) {
+    return EXERCISE_MEDIA_CATALOG["fondos en paralelas"];
+  }
+  if (clean.includes("remo") || clean.includes("row") || clean.includes("pendlay")) {
+    return EXERCISE_MEDIA_CATALOG["remo pendlay"];
+  }
+  if (clean.includes("curl") || clean.includes("bicep") || clean.includes("bíceps") || clean.includes("biceps")) {
+    return EXERCISE_MEDIA_CATALOG["curl bíceps barra z"];
+  }
+  if (clean.includes("pierna") || clean.includes("leg raise") || clean.includes("leg-raise") || clean.includes("toes to bar")) {
+    return EXERCISE_MEDIA_CATALOG["elevaciones piernas a la barra"];
+  }
+  if (clean.includes("granjero") || clean.includes("farmer") || clean.includes("carry")) {
+    return EXERCISE_MEDIA_CATALOG["paseo del granjero pesado"];
+  }
+  if (clean.includes("plancha") || clean.includes("plank") || clean.includes("core") || clean.includes("abs") || clean.includes("isométrica") || clean.includes("isometrica")) {
+    return EXERCISE_MEDIA_CATALOG["planchas isométricas pesadas"];
+  }
 
-  if (clean.includes("dominada") || clean.includes("pullup")) return EXERCISE_MEDIA_CATALOG["dominadas lastradas"];
-  if (clean.includes("fondo") || clean.includes("dip")) return EXERCISE_MEDIA_CATALOG["fondos en paralelas"];
-  if (clean.includes("remo")) return EXERCISE_MEDIA_CATALOG["remo pendlay"];
-  if (clean.includes("granjero") || clean.includes("farmer")) return EXERCISE_MEDIA_CATALOG["paseo del granjero pesado"];
-  if (clean.includes("plancha") || clean.includes("core") || clean.includes("abs")) return EXERCISE_MEDIA_CATALOG["planchas isométricas pesadas"];
+  // 4. Safe substring fallback
+  for (const [key, media] of Object.entries(EXERCISE_MEDIA_CATALOG)) {
+    if (clean.includes(key) || (clean.length > 5 && key.includes(clean))) {
+      return media;
+    }
+  }
 
   return getFallbackMedia(rawName);
 }

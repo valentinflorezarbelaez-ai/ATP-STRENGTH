@@ -716,42 +716,42 @@
     </div>
   </section>
 
-  <!-- SECCIÓN 6: BIBLIOTECA TÉCNICA AUDIOVISUAL HD -->
+  
+  <!-- SECCIÓN 6: BIBLIOTECA TÉCNICA AUDIOVISUAL HD (25 EJERCICIOS COMPLETOS) -->
   <section id="videos-tecnicos" class="section-card">
     <div class="section-header">
       <span class="section-num">06//</span>
-      <h2>Biblioteca Audiovisual: Ejecución Biomecánica Real (HD)</h2>
+      <h2>Biblioteca Audiovisual: Catálogo Técnico Completo (25 Videos HD)</h2>
     </div>
     <p>
-      Demostraciones técnicas auténticas e hiper-rigurosas grabadas por los entrenadores de fuerza y halterofilia más respetados a nivel mundial (Alan Thrall, Catalyst Athletics, Calisthenicmovement). Seleccioná cualquier ejercicio para reproducir su guía milimetrada:
+      Demostraciones biomecánicas reales de los <strong>25 ejercicios oficiales</strong> de ATP Strength, ejecutados por autoridades mundiales de fuerza y halterofilia (Alan Thrall, Catalyst Athletics, Calisthenicmovement). Filtrá por categoría o seleccioná cualquier ejercicio:
     </p>
 
-    <!-- Interactive Video Selector Tabs -->
-    <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 1.5rem 0;" id="videoTabs">
-      <button class="quiz-btn active-tab" onclick="switchVideo('bench', this)" style="border-color: var(--gold); color: #fff; font-weight: bold; background: rgba(245, 158, 11, 0.15);">
-        🏋️‍♂️ Press de Banca
+    <!-- Category Filter Tabs -->
+    <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 1.25rem 0 1rem 0;" id="videoCategoryFilters">
+      <button class="quiz-btn active-filter" onclick="filterVideoCategory('Todos', this)" style="border-color: var(--gold); color: #fff; font-weight: bold; background: rgba(245, 158, 11, 0.2); padding: 0.4rem 0.8rem; font-size: 0.75rem;">
+        ⚡ Todos (25)
       </button>
-      <button class="quiz-btn" onclick="switchVideo('deadlift', this)">
-        ⚡ Peso Muerto (5 Pasos)
+      <button class="quiz-btn" onclick="filterVideoCategory('Fuerza Básica', this)" style="padding: 0.4rem 0.8rem; font-size: 0.75rem;">
+        🏋️‍♂️ Fuerza Básica (4)
       </button>
-      <button class="quiz-btn" onclick="switchVideo('squat', this)">
-        🛡️ Sentadilla Trasera
+      <button class="quiz-btn" onclick="filterVideoCategory('Tracción & Espalda', this)" style="padding: 0.4rem 0.8rem; font-size: 0.75rem;">
+        🧗 Tracción & Espalda (6)
       </button>
-      <button class="quiz-btn" onclick="switchVideo('press', this)">
-        💥 Press Militar
+      <button class="quiz-btn" onclick="filterVideoCategory('Halterofilia & Potencia', this)" style="padding: 0.4rem 0.8rem; font-size: 0.75rem;">
+        ⚡ Halterofilia & Potencia (8)
       </button>
-      <button class="quiz-btn" onclick="switchVideo('pullup', this)">
-        🧗 Dominadas Estrictas
+      <button class="quiz-btn" onclick="filterVideoCategory('Brazos, Core & Accesorios', this)" style="padding: 0.4rem 0.8rem; font-size: 0.75rem;">
+        🛡️ Brazos, Core & Accesorios (5)
       </button>
-      <button class="quiz-btn" onclick="switchVideo('dips', this)">
-        💪 Fondos en Paralelas
+      <button class="quiz-btn" onclick="filterVideoCategory('Pliometría & Salto', this)" style="padding: 0.4rem 0.8rem; font-size: 0.75rem;">
+        🚀 Pliometría & Salto (2)
       </button>
-      <button class="quiz-btn" onclick="switchVideo('clean', this)">
-        ⚡ Power Clean Olímpico
-      </button>
-      <button class="quiz-btn" onclick="switchVideo('pushpress', this)">
-        🚀 Push Press
-      </button>
+    </div>
+
+    <!-- Exercise Grid Buttons -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 0.5rem; max-height: 280px; overflow-y: auto; padding: 0.5rem; background: #09090b; border: 1px solid var(--border); border-radius: 1rem; margin-bottom: 1.5rem;" id="exerciseButtonGrid">
+      <!-- Buttons dynamically populated -->
     </div>
 
     <!-- Active Video Player Frame -->
@@ -769,11 +769,16 @@
       </div>
       <div style="padding: 1.25rem; display: flex; justify-content: space-between; align-items: center; background: #14151b; border-top: 1px solid var(--border); flex-wrap: wrap; gap: 1rem;">
         <div>
-          <div id="videoCategory" style="font-size: 0.75rem; font-family: monospace; color: var(--gold); text-transform: uppercase; font-weight: bold;">
-            Banca • Patrón de Empuje Horizontal
+          <div style="display: flex; align-items: center; gap: 0.5rem;">
+            <span id="videoCategoryBadge" style="font-size: 0.7rem; font-family: monospace; color: var(--gold); text-transform: uppercase; font-weight: bold; background: rgba(245,158,11,0.1); border: 1px solid rgba(245,158,11,0.3); padding: 0.2rem 0.5rem; border-radius: 4px;">
+              Banca • Empuje Horizontal
+            </span>
+            <span id="videoTempoBadge" style="font-size: 0.7rem; font-family: monospace; color: #38bdf8; background: rgba(56,189,248,0.1); border: 1px solid rgba(56,189,248,0.3); padding: 0.2rem 0.5rem; border-radius: 4px;">
+              Tempo 2-1-X-1
+            </span>
           </div>
-          <h3 id="videoTitle" style="font-size: 1.15rem; color: #fff; margin-top: 0.25rem;">
-            How to Bench Press — Alan Thrall (Untamed Strength)
+          <h3 id="videoTitle" style="font-size: 1.15rem; color: #fff; margin-top: 0.4rem; font-weight: 800;">
+            Press de Banca Plano
           </h3>
         </div>
         <a id="videoDirectLink" href="https://www.youtube.com/watch?v=BYKScL2sgCs" target="_blank" rel="noopener noreferrer" class="btn btn-secondary" style="font-size: 0.75rem; padding: 0.5rem 1rem; border-color: rgba(239, 68, 68, 0.4); color: #fca5a5;">
@@ -785,12 +790,10 @@
     <!-- Biomechanical Cue Box for Selected Exercise -->
     <div id="videoCuesBox" style="background: #18181b; border: 1px solid var(--border); border-radius: 1rem; padding: 1.25rem;">
       <h4 style="color: var(--gold); font-size: 0.85rem; font-family: monospace; text-transform: uppercase; margin-bottom: 0.5rem;">
-        🎯 Claves de Ejecución Milimetrada:
+        🎯 Claves de Ejecución Técnica (Form Cues):
       </h4>
       <ul id="videoCuesList" style="list-style: none; padding-left: 0; font-size: 0.85rem; color: #d4d4d8; display: flex; flex-direction: column; gap: 0.4rem;">
-        <li>✔ <strong>Retracción y depresión escapular:</strong> Clavar los omóplatos firmemente en el banco creando una plataforma rígida.</li>
-        <li>✔ <strong>Arco torácico activo y leg drive:</strong> Talones clavados al piso impulsando tensión hacia la barra sin despegar los glúteos.</li>
-        <li>✔ <strong>Trayectoria en 'J' (Bar Path):</strong> Descenso controlado al esternón inferior y empuje diagonal hacia los soportes.</li>
+        <!-- Populated dynamically -->
       </ul>
     </div>
   </section>
@@ -871,120 +874,490 @@
   }
 
   
-  // Video Library Engine
-  const videoData = {
-    bench: {
-      id: 'BYKScL2sgCs',
-      cat: 'Banca • Patrón de Empuje Horizontal',
-      title: 'How to Bench Press — Alan Thrall (Untamed Strength)',
-      cues: [
-        'Retracción y depresión escapular: Clavar los omóplatos firmemente en el banco creando una plataforma rígida.',
-        'Arco torácico activo y leg drive: Talones clavados al piso impulsando tensión hacia la barra sin despegar los glúteos.',
-        'Trayectoria en J (Bar Path): Descenso controlado al esternón inferior y empuje diagonal hacia los soportes.'
-      ]
-    },
-    deadlift: {
-      id: 'wYREQkVtvEc',
-      cat: 'Peso Muerto • Cadena Posterior & Tracción',
-      title: 'How To Deadlift: Starting Strength 5 Step — Alan Thrall',
-      cues: [
-        'Pies bajo la barra a 1 pulgada de la espinilla; bisagra de cadera sin mover la barra.',
-        'Doblar rodillas hasta que las espinillas toquen la barra sin rodarla hacia adelante.',
-        'Apretar el pecho arriba y fijar la columna lumbar como una viga de acero antes de despegar.'
-      ]
-    },
-    squat: {
-      id: 'vmNPOjaGrVE',
-      cat: 'Sentadilla • Dominancia de Rodilla & Cadera',
-      title: 'How To Squat: Low Bar Guide — Alan Thrall',
-      cues: [
-        'Barra apoyada sobre la espina escapular (Low Bar) con muñecas neutras y codos bloqueados.',
-        'Iniciación simultánea de flexión de rodilla y cadera abriendo las rodillas en la línea de las puntas.',
-        'Profundidad válida rompiendo el paralelo con el pliegue de la cadera por debajo de la rótula.'
-      ]
-    },
-    press: {
-      id: 'wol7Hko8RhY',
-      cat: 'Militar • Empuje Vertical Estricto',
-      title: 'How To Overhead Press — Alan Thrall',
-      cues: [
-        'Antebrazos perfectamente verticales bajo la barra en la posición de salida.',
-        'Glúteos y cuádriceps apretados al 100% creando una columna corporal inamovible.',
-        'Llevar la cabeza ligeramente hacia atrás al despegar y meter el torso bajo la barra al bloquear.'
-      ]
-    },
-    pullup: {
-      id: 'eGo4IYlbE5g',
-      cat: 'Calistenia • Tracción Vertical',
-      title: 'The Perfect Pull Up - Do it right! — Calisthenicmovement',
-      cues: [
-        'Comenzar desde suspensión muerta con codos extendidos y retracción escapular previa.',
-        'Tracción guiada llevando el pecho hacia la barra sin balanceo de piernas ni kipping.',
-        'Descenso controlado de 2 segundos hasta el bloqueo completo de brazos.'
-      ]
-    },
-    dips: {
-      id: '2z8JmcrW-As',
-      cat: 'Calistenia • Empuje en Barras Paralelas',
-      title: 'The Perfect Dip - Do it right! — Calisthenicmovement',
-      cues: [
-        'Depresión escapular continua; no permitir que los hombros suban hacia las orejas.',
-        'Inclinación de torso a 15-20° para reclutar las fibras inferiores del pectoral.',
-        'Descenso hasta que el codo forme al menos un ángulo de 90° sin comprometer la cápsula del hombro.'
-      ]
-    },
-    clean: {
-      id: 'YG8M_-11C2A',
-      cat: 'Halterofilia • Potencia y Triple Extensión',
-      title: 'Power Clean Guide — Catalyst Athletics (Greg Everett)',
-      cues: [
-        'Primer tirón controlado manteniendo el ángulo del torso constante desde el piso.',
-        'Segundo tirón explosivo: Triple extensión simultánea de tobillos, rodillas y cadera.',
-        'Rotación veloz de codos recibiendo la barra sólidamente sobre los deltoides en posición de cuarto de sentadilla.'
-      ]
-    },
-    pushpress: {
-      id: 'yklSQG1_Ovc',
-      cat: 'Potencia • Transferencia Cinética Piernas-Brazos',
-      title: 'Push Press Guide — Catalyst Athletics',
-      cues: [
-        'Dip vertical corto y elástico (5 a 8 cm) con el torso totalmente perpendicular al suelo.',
-        'Drive explosivo empujando desde los talones para transferir energía cinética a la barra.',
-        'Terminar con extensión violenta de brazos fijando la barra por detrás de la línea de las orejas.'
-      ]
+  
+  // Full 25 Exercise Video Suite
+  const exerciseVideoDatabase = [
+  {
+    "key": "sentadilla trasera",
+    "id": "squat_back",
+    "name": "Sentadilla Trasera",
+    "category": "Sentadilla",
+    "group": "Fuerza Básica",
+    "youtubeId": "vmNPOjaGrVE",
+    "videoUrl": "https://www.youtube.com/watch?v=vmNPOjaGrVE",
+    "formCues": [
+      "Apoyo trípode firme con los pies al ancho de hombros y puntas ligeramente abiertas.",
+      "Inspiración diafragmática profunda 360° y maniobra de Valsalva antes de iniciar el descenso.",
+      "Control excéntrico bajando hasta que la cadera rompa el paralelo de las rodillas.",
+      "Empuje concéntrico explosivo manteniendo el pecho orgulloso y rodillas alineadas con los pies."
+    ],
+    "tempo": "3-1-X-1"
+  },
+  {
+    "key": "press de banca",
+    "id": "bench_press",
+    "name": "Press de Banca Plano",
+    "category": "Banca",
+    "group": "Fuerza Básica",
+    "youtubeId": "BYKScL2sgCs",
+    "videoUrl": "https://www.youtube.com/watch?v=BYKScL2sgCs",
+    "formCues": [
+      "Retracción y depresión escapular estricta clavando los omóplatos en el banco.",
+      "Leg drive constante con las plantas de los pies bien pegadas al suelo.",
+      "Descenso controlado llevando la barra a la línea media del esternón (ángulo de codos ~45-75°).",
+      "Pausa sólida sin rebote en el pecho y extensión concéntrica potente."
+    ],
+    "tempo": "2-1-X-1"
+  },
+  {
+    "key": "peso muerto convencional",
+    "id": "deadlift_conv",
+    "name": "Peso Muerto Convencional",
+    "category": "Peso Muerto",
+    "group": "Fuerza Básica",
+    "youtubeId": "wYREQkVtvEc",
+    "videoUrl": "https://www.youtube.com/watch?v=wYREQkVtvEc",
+    "formCues": [
+      "Barra pegada a la mitad del pie (1 pulgada de la espinilla) con agarre por fuera de las piernas.",
+      "Bisagra de cadera hasta sujetar la barra sin moverla de su posición.",
+      "Espalda neutra apretando los dorsales como si exprimieras naranjas en las axilas.",
+      "Extensión simultánea de rodilla y cadera empujando el suelo con los talones."
+    ],
+    "tempo": "1-1-X-1"
+  },
+  {
+    "key": "press militar",
+    "id": "overhead_press",
+    "name": "Press Militar de Pie",
+    "category": "Militar",
+    "group": "Fuerza Básica",
+    "youtubeId": "wol7Hko8RhY",
+    "videoUrl": "https://www.youtube.com/watch?v=wol7Hko8RhY",
+    "formCues": [
+      "Agarre apenas por fuera de los hombros con muñecas rectas sobre los antebrazos.",
+      "Glúteos y cuádriceps apretados al 100% creando una base de soporte rígida como una columna de concreto.",
+      "Trayectoria vertical recta de la barra, esquivando la cabeza hacia atrás brevemente.",
+      "Bloqueo firme con la barra centrada directamente sobre la coronilla y escápulas encogidas arriba."
+    ],
+    "tempo": "2-0-X-1"
+  },
+  {
+    "key": "dominadas lastradas",
+    "id": "pullups_weighted",
+    "name": "Dominadas con Lastre / Estrictas",
+    "category": "Tracción",
+    "group": "Tracción & Espalda",
+    "youtubeId": "eGo4IYlbE5g",
+    "videoUrl": "https://www.youtube.com/watch?v=eGo4IYlbE5g",
+    "formCues": [
+      "Comenzar desde suspensión muerta con codos bloqueados y escápulas activas.",
+      "Traccionar llevando el pecho hacia la barra en lugar de simplemente pasar la barbilla.",
+      "Codos apuntando hacia los bolsillos laterales en un tirón continuo sin balanceo (kipping).",
+      "Descenso controlado resistiendo la gravedad en todo el rango articular."
+    ],
+    "tempo": "2-1-X-1"
+  },
+  {
+    "key": "fondos en paralelas",
+    "id": "dips_weighted",
+    "name": "Fondos en Paralelas",
+    "category": "Empuje",
+    "group": "Otros",
+    "youtubeId": "2z8JmcrW-As",
+    "videoUrl": "https://www.youtube.com/watch?v=2z8JmcrW-As",
+    "formCues": [
+      "Depresión escapular firme manteniendo los hombros lejos de las orejas.",
+      "Ligera inclinación del torso hacia adelante para activar el pectoral.",
+      "Descenso hasta que el codo alcance un ángulo de 90° sin comprometer la cápsula del hombro.",
+      "Empuje potente extendiendo codos sin hiperextensión brusca."
+    ],
+    "tempo": "2-1-X-1"
+  },
+  {
+    "key": "remo pendlay",
+    "id": "pendlay_row",
+    "name": "Remo Pendlay",
+    "category": "Tracción",
+    "group": "Tracción & Espalda",
+    "youtubeId": "RQU8wZPbioA",
+    "videoUrl": "https://www.youtube.com/watch?v=RQU8wZPbioA",
+    "formCues": [
+      "Torso completamente paralelo al suelo en cada repetición partiendo del piso muerto.",
+      "Tirón explosivo llevando la barra hacia el esternón inferior/abdomen superior.",
+      "Bloqueo estricto de la espalda baja sin elevar el torso durante el tirón.",
+      "Regresar la barra al suelo con control y reiniciar la inercia a cero."
+    ],
+    "tempo": "1-0-X-1"
+  },
+  {
+    "key": "peso muerto rumano",
+    "id": "romanian_deadlift",
+    "name": "Peso Muerto Rumano (RDL)",
+    "category": "Cadena Posterior",
+    "group": "Otros",
+    "youtubeId": "cTcUyyq7um8",
+    "videoUrl": "https://www.youtube.com/watch?v=cTcUyyq7um8",
+    "formCues": [
+      "Iniciar desde arriba; flexionar ligeramente las rodillas y bloquear ese ángulo.",
+      "Empujar la cadera hacia atrás hacia la pared trasera sintiendo tensión en los isquios.",
+      "Mantener la barra rozando los muslos y tibias en todo el recorrido.",
+      "Bajar solo hasta donde la cadera deje de viajar hacia atrás sin curvar la columna."
+    ],
+    "tempo": "3-1-1-0"
+  },
+  {
+    "key": "paseo del granjero pesado",
+    "id": "farmers_walk",
+    "name": "Paseo del Granjero Pesado",
+    "category": "Acarreo & Agarre",
+    "group": "Otros",
+    "youtubeId": "wtHHiJecbQg",
+    "videoUrl": "https://www.youtube.com/watch?v=wtHHiJecbQg",
+    "formCues": [
+      "Despegue inicial como un peso muerto perfecto con columna totalmente neutra.",
+      "Retracción y elevación neutra de hombros; no permitir que el peso tire hacia abajo.",
+      "Pasos cortos, rápidos y precisos apoyando talón a punta con cadencia firme.",
+      "Core 100% contraído evitando cualquier bamboleo o balanceo lateral del torso."
+    ],
+    "tempo": "Paso controlado"
+  },
+  {
+    "key": "planchas isométricas pesadas",
+    "id": "heavy_plank",
+    "name": "Planchas Isométricas Pesadas / RKC",
+    "category": "Core",
+    "group": "Otros",
+    "youtubeId": "M0u5sm9Xcv4",
+    "videoUrl": "https://www.youtube.com/watch?v=M0u5sm9Xcv4",
+    "formCues": [
+      "Apoyo en antebrazos con codos directamente debajo de los hombros.",
+      "Tracción activa isométrica de codos hacia los pies y pies hacia los codos.",
+      "Contracción máxima de glúteos y retroversión pélvica para activar el transverso.",
+      "Tensión máxima de cuerpo entero durante series cortas de alta intensidad."
+    ],
+    "tempo": "Isométrico Máximo"
+  },
+  {
+    "key": "sentadilla trasera técnica",
+    "id": "pause_squat",
+    "name": "Sentadilla Trasera Técnica (con Pausa)",
+    "category": "Sentadilla",
+    "group": "Fuerza Básica",
+    "youtubeId": "YJtjwPnb9as",
+    "videoUrl": "https://www.youtube.com/watch?v=YJtjwPnb9as",
+    "formCues": [
+      "Descenso controlado en 3 segundos manteniendo la rigidez del torso.",
+      "Pausa absoluta de 2 segundos en el punto más profundo (el hoyo) sin relajar la tensión.",
+      "Cero rebote elástico: la salida debe ser generada 100% por fuerza neuromuscular concéntrica pura.",
+      "Mantener la mirada al frente y el pecho erguido durante toda la transición."
+    ],
+    "tempo": "3-2-X-1"
+  },
+  {
+    "key": "curl bíceps barra z",
+    "id": "ez_bar_curl",
+    "name": "Curl Bíceps Barra Z",
+    "category": "Brazos",
+    "group": "Brazos, Core & Accesorios",
+    "youtubeId": "sOcM7gcnQC0",
+    "videoUrl": "https://www.youtube.com/watch?v=sOcM7gcnQC0",
+    "formCues": [
+      "Agarre en los ángulos de la barra Z que alinean la muñeca de forma anatómica y segura.",
+      "Codos pegados a los costados y ligeramente por delante del plano del torso.",
+      "Flexión concéntrica sin balanceo ni arqueo de espalda.",
+      "Extensión excéntrica lenta sintiendo la contracción en la elongación del bíceps."
+    ],
+    "tempo": "3-0-1-1"
+  },
+  {
+    "key": "elevaciones piernas a la barra",
+    "id": "toes_to_bar",
+    "name": "Elevaciones de Piernas a la Barra",
+    "category": "Core Dinámico",
+    "group": "Otros",
+    "youtubeId": "1QeII_BfQps",
+    "videoUrl": "https://www.youtube.com/watch?v=1QeII_BfQps",
+    "formCues": [
+      "Comenzar colgado en posición hollow con escápulas activas.",
+      "Comprimir el abdomen y elevar las piernas rectas hacia la barra sin balanceo.",
+      "Tocar la barra con las puntas de los pies de forma controlada.",
+      "Descenso resistido manteniendo la tensión abdominal sin hiperextender la espalda."
+    ],
+    "tempo": "2-0-X-1"
+  },
+  {
+    "key": "power clean (cargada de potencia)",
+    "id": "power_clean",
+    "name": "Power Clean (Cargada de Potencia)",
+    "category": "Halterofilia",
+    "group": "Halterofilia & Potencia",
+    "youtubeId": "YG8M_-11C2A",
+    "videoUrl": "https://www.youtube.com/watch?v=YG8M_-11C2A",
+    "formCues": [
+      "Primer tirón controlado desde el suelo manteniendo el ángulo del torso.",
+      "Segundo tirón explosivo con triple extensión (tobillos, rodillas, cadera) al pasar las rodillas.",
+      "Encogimiento de hombros violento manteniendo la barra pegada a la camiseta.",
+      "Rotación rápida de codos hacia arriba y recepción sólida por encima del paralelo (cuarto de sentadilla)."
+    ],
+    "tempo": "Explosivo"
+  },
+  {
+    "key": "hang power clean (cargada colgada)",
+    "id": "hang_power_clean",
+    "name": "Hang Power Clean (Cargada Colgada)",
+    "category": "Halterofilia",
+    "group": "Halterofilia & Potencia",
+    "youtubeId": "efHjodEVf9w",
+    "videoUrl": "https://www.youtube.com/watch?v=efHjodEVf9w",
+    "formCues": [
+      "Iniciar desde la posición de colgado (justo arriba o a la altura de las rodillas).",
+      "Bisagra de cadera con hombros ligeramente por delante de la barra.",
+      "Extensión violenta de cadera hacia arriba acelerando la barra verticalmente.",
+      "Recepción reactiva en front rack con codos altos y base firme."
+    ],
+    "tempo": "Explosivo"
+  },
+  {
+    "key": "power snatch (arrancada de potencia)",
+    "id": "power_snatch",
+    "name": "Power Snatch (Arrancada de Potencia)",
+    "category": "Halterofilia",
+    "group": "Halterofilia & Potencia",
+    "youtubeId": "1Lv1IyigIUY",
+    "videoUrl": "https://www.youtube.com/watch?v=1Lv1IyigIUY",
+    "formCues": [
+      "Agarre ancho con hook grip (agarre de gancho) y pecho erguido sobre la barra.",
+      "Aceleración progresiva desde el suelo hasta el punto de contacto en la cadera.",
+      "Triple extensión explosiva catapultando la barra hacia arriba en línea recta.",
+      "Recepción agresiva por encima de los 90° con codos completamente bloqueados sobre la cabeza."
+    ],
+    "tempo": "Explosivo"
+  },
+  {
+    "key": "hang power snatch (arrancada colgada)",
+    "id": "hang_power_snatch",
+    "name": "Hang Power Snatch (Arrancada Colgada)",
+    "category": "Halterofilia",
+    "group": "Halterofilia & Potencia",
+    "youtubeId": "ydHHsju1-Nc",
+    "videoUrl": "https://www.youtube.com/watch?v=ydHHsju1-Nc",
+    "formCues": [
+      "Deslizar la barra por los muslos hasta la posición de colgado con torso firme.",
+      "Máxima velocidad de extensión de cadera desde el bolsillo articular.",
+      "Tirón alto de codos manteniendo la barra ceñida al cuerpo.",
+      "Golpe de pies y bloqueo firme overhead con escápulas empujando hacia arriba."
+    ],
+    "tempo": "Explosivo"
+  },
+  {
+    "key": "push press (press de empuje)",
+    "id": "push_press",
+    "name": "Push Press (Press de Empuje)",
+    "category": "Potencia / Empuje",
+    "group": "Halterofilia & Potencia",
+    "youtubeId": "yklSQG1_Ovc",
+    "videoUrl": "https://www.youtube.com/watch?v=yklSQG1_Ovc",
+    "formCues": [
+      "Barra apoyada sólidamente sobre los deltoides anteriores (front rack posicional).",
+      "Dip vertical corto y controlado de 5 a 10 cm con el torso completamente recto.",
+      "Drive explosivo de piernas transfiriendo la energía del suelo a la barra.",
+      "Terminar con empuje potente de brazos hasta el bloqueo total sobre la cabeza."
+    ],
+    "tempo": "1-0-X-1"
+  },
+  {
+    "key": "power jerk (envión de potencia)",
+    "id": "power_jerk",
+    "name": "Power Jerk (Envión de Potencia)",
+    "category": "Halterofilia",
+    "group": "Halterofilia & Potencia",
+    "youtubeId": "Ir_34nxrk1Q",
+    "videoUrl": "https://www.youtube.com/watch?v=Ir_34nxrk1Q",
+    "formCues": [
+      "Dip vertical idéntico al push press manteniendo el torso perpendicular al piso.",
+      "Drive concéntrico explosivo de cuádriceps proyectando la barra hacia arriba.",
+      "Segundo dip rápido recepcionando la barra con flexión de rodillas y codos bloqueados a la vez.",
+      "Ponerse de pie completando la extensión con la barra dominada overhead."
+    ],
+    "tempo": "Explosivo"
+  },
+  {
+    "key": "clean high pull (tirón alto de cargada)",
+    "id": "clean_high_pull",
+    "name": "Clean High Pull (Tirón Alto de Cargada)",
+    "category": "Potencia Balística",
+    "group": "Halterofilia & Potencia",
+    "youtubeId": "2Qv8pEnprpU",
+    "videoUrl": "https://www.youtube.com/watch?v=2Qv8pEnprpU",
+    "formCues": [
+      "Ejecución del primer y segundo tirón con idéntica técnica al clean de competición.",
+      "Triple extensión violenta catapultando el cuerpo sobre la punta de los pies.",
+      "Encogimiento de trapecios seguido de tirón con codos altos apuntando al techo.",
+      "Permitir que la barra caiga con control guiado al suelo sin atraparla."
+    ],
+    "tempo": "Explosivo"
+  },
+  {
+    "key": "snatch high pull (tirón alto de arrancada)",
+    "id": "snatch_high_pull",
+    "name": "Snatch High Pull (Tirón Alto de Arrancada)",
+    "category": "Potencia Balística",
+    "group": "Halterofilia & Potencia",
+    "youtubeId": "9WRp0a5hcb0",
+    "videoUrl": "https://www.youtube.com/watch?v=9WRp0a5hcb0",
+    "formCues": [
+      "Agarre ancho de snatch asegurando la barra pegada a los muslos durante el recorrido.",
+      "Extensión masiva de cadera y rodillas al unísono proyectando la barra vertical.",
+      "Codos altos por encima de las muñecas dirigiendo la trayectoria recta de la barra.",
+      "Pies se mantienen firmes transmitiendo toda la potencia contra la plataforma."
+    ],
+    "tempo": "Explosivo"
+  },
+  {
+    "key": "sentadilla con salto con barra (barbell jump squat)",
+    "id": "barbell_jump_squat",
+    "name": "Sentadilla con Salto con Barra",
+    "category": "Potencia / Pliometría",
+    "group": "Pliometría & Salto",
+    "youtubeId": "z7GAKBpGzws",
+    "videoUrl": "https://www.youtube.com/watch?v=z7GAKBpGzws",
+    "formCues": [
+      "Carga ligera (20-30% de 1RM) asegurando la barra firmemente pegada a los trapecios.",
+      "Descenso controlado a un cuarto o media sentadilla cargando la musculatura como un resorte.",
+      "Triple extensión explosiva despegando del suelo con máxima intención vertical.",
+      "Recepción suave amortiguando con flexión coordinada de tobillos, rodillas y cadera."
+    ],
+    "tempo": "1-0-X-0"
+  },
+  {
+    "key": "salto con trap bar (trap bar jump)",
+    "id": "trap_bar_jump",
+    "name": "Salto con Trap Bar (Trap Bar Jump)",
+    "category": "Potencia / Salto",
+    "group": "Pliometría & Salto",
+    "youtubeId": "I-Zm8g6kXIM",
+    "videoUrl": "https://www.youtube.com/watch?v=I-Zm8g6kXIM",
+    "formCues": [
+      "Posición centrada en la Trap Bar con agarre neutro firme y brazos extendidos.",
+      "Descenso rápido a cuarto de sentadilla manteniendo la columna perfectamente neutra.",
+      "Salto vertical con máxima fuerza y velocidad intentando tocar el techo.",
+      "Aterrizaje en el mismo punto exacto absorbiendo el impacto con control neuromuscular."
+    ],
+    "tempo": "1-0-X-0"
+  },
+  {
+    "key": "peso muerto con déficit (deficit deadlift)",
+    "id": "deficit_deadlift",
+    "name": "Peso Muerto con Déficit",
+    "category": "Peso Muerto Especial",
+    "group": "Tracción & Espalda",
+    "youtubeId": "XuJ9SYsJms4",
+    "videoUrl": "https://www.youtube.com/watch?v=XuJ9SYsJms4",
+    "formCues": [
+      "Parado sobre una plataforma o disco de 2 a 5 cm aumentando el recorrido del tirón.",
+      "Flexión de rodillas ligeramente mayor para alcanzar la barra manteniendo la columna neutra.",
+      "Empuje brutal del suelo con los cuádriceps para superar el despegue inicial comprometido.",
+      "Mantener la barra pegada a las piernas para evitar palancas desfavorables sobre la espalda baja."
+    ],
+    "tempo": "1-1-X-1"
+  },
+  {
+    "key": "peso muerto agarre arrancada (snatch grip deadlift)",
+    "id": "snatch_grip_deadlift",
+    "name": "Peso Muerto Agarre Arrancada",
+    "category": "Peso Muerto Especial",
+    "group": "Tracción & Espalda",
+    "youtubeId": "mp9gtX-JqB0",
+    "videoUrl": "https://www.youtube.com/watch?v=mp9gtX-JqB0",
+    "formCues": [
+      "Agarre extra ancho en los anillos de la barra obligando a bajar más la cadera al inicio.",
+      "Pecho abierto con retracción escapular y mirada hacia el frente.",
+      "Apretón dorsal máximo para evitar que la barra se despegue de las piernas.",
+      "Rango de movimiento ampliado exigiendo el doble de trabajo a los isquios y espalda alta."
+    ],
+    "tempo": "2-1-X-1"
+  }
+];
+  let activeExerciseKey = "press de banca";
+
+  function renderExerciseButtons(filteredList) {
+    const grid = document.getElementById('exerciseButtonGrid');
+    if (!grid) return;
+    grid.innerHTML = '';
+    filteredList.forEach(ex => {
+      const btn = document.createElement('button');
+      btn.className = 'quiz-btn' + (ex.key === activeExerciseKey ? ' active-ex' : '');
+      btn.style.padding = '0.6rem 0.8rem';
+      btn.style.fontSize = '0.8rem';
+      btn.style.textAlign = 'left';
+      btn.style.display = 'flex';
+      btn.style.flexDirection = 'column';
+      btn.style.gap = '0.2rem';
+      if (ex.key === activeExerciseKey) {
+        btn.style.borderColor = 'var(--gold)';
+        btn.style.color = '#fff';
+        btn.style.background = 'rgba(245, 158, 11, 0.18)';
+        btn.style.fontWeight = 'bold';
+      }
+      btn.innerHTML = '<span style="font-size: 0.65rem; color: #a1a1aa; text-transform: uppercase; font-family: monospace;">' + ex.category + '</span><span style="font-weight: 700;">' + ex.name + '</span>';
+      btn.onclick = () => selectExerciseVideo(ex.key);
+      grid.appendChild(btn);
+    });
+  }
+
+  function filterVideoCategory(group, tabBtn) {
+    const tabs = document.querySelectorAll('#videoCategoryFilters button');
+    tabs.forEach(t => {
+      t.style.borderColor = 'var(--border)';
+      t.style.color = '#d4d4d8';
+      t.style.background = '#09090b';
+      t.style.fontWeight = 'normal';
+    });
+    tabBtn.style.borderColor = 'var(--gold)';
+    tabBtn.style.color = '#fff';
+    tabBtn.style.background = 'rgba(245, 158, 11, 0.2)';
+    tabBtn.style.fontWeight = 'bold';
+
+    if (group === 'Todos') {
+      renderExerciseButtons(exerciseVideoDatabase);
+    } else {
+      const filtered = exerciseVideoDatabase.filter(e => e.group === group);
+      renderExerciseButtons(filtered);
     }
-  };
+  }
 
-  function switchVideo(key, btn) {
-    const data = videoData[key];
-    if (!data) return;
+  function selectExerciseVideo(key) {
+    activeExerciseKey = key;
+    const ex = exerciseVideoDatabase.find(e => e.key === key);
+    if (!ex) return;
 
-    // Update buttons
-    const buttons = document.querySelectorAll('#videoTabs button');
-    buttons.forEach(b => {
+    // Update buttons in grid
+    document.querySelectorAll('#exerciseButtonGrid button').forEach((b, idx) => {
       b.style.borderColor = 'var(--border)';
       b.style.color = '#d4d4d8';
       b.style.background = '#09090b';
       b.style.fontWeight = 'normal';
     });
-    btn.style.borderColor = 'var(--gold)';
-    btn.style.color = '#fff';
-    btn.style.background = 'rgba(245, 158, 11, 0.15)';
-    btn.style.fontWeight = 'bold';
+    renderExerciseButtons(exerciseVideoDatabase);
 
     // Update player
     const player = document.getElementById('mainVideoPlayer');
-    player.src = 'https://www.youtube-nocookie.com/embed/' + data.id + '?autoplay=1&rel=0&modestbranding=1';
+    player.src = 'https://www.youtube-nocookie.com/embed/' + ex.youtubeId + '?autoplay=1&rel=0&modestbranding=1';
 
-    // Update meta
-    document.getElementById('videoCategory').innerText = data.cat;
-    document.getElementById('videoTitle').innerText = data.title;
-    document.getElementById('videoDirectLink').href = 'https://www.youtube.com/watch?v=' + data.id;
+    // Update details
+    document.getElementById('videoCategoryBadge').innerText = ex.category + ' • ' + ex.group;
+    document.getElementById('videoTempoBadge').innerText = 'Tempo ' + ex.tempo;
+    document.getElementById('videoTitle').innerText = ex.name;
+    document.getElementById('videoDirectLink').href = 'https://www.youtube.com/watch?v=' + ex.youtubeId;
 
     // Update cues
-    const list = document.getElementById('videoCuesList');
-    list.innerHTML = data.cues.map(c => '<li>✔ ' + c + '</li>').join('');
+    const cuesList = document.getElementById('videoCuesList');
+    cuesList.innerHTML = ex.formCues.map(c => '<li>✔ ' + c + '</li>').join('');
   }
+
+  // Initial populate
+  renderExerciseButtons(exerciseVideoDatabase);
+  selectExerciseVideo("press de banca");
 
   // Initial call
   updateSim();
