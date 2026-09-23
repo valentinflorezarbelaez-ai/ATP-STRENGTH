@@ -448,6 +448,9 @@
       <a href="#simulador" class="btn btn-secondary">
         ⚡ Ir a los Simuladores
       </a>
+      <a href="#videos-tecnicos" class="btn btn-secondary" style="border-color: rgba(245, 158, 11, 0.4); color: var(--gold);">
+        🎬 Videos Técnicos HD
+      </a>
     </div>
   </header>
 
@@ -713,6 +716,85 @@
     </div>
   </section>
 
+  <!-- SECCIÓN 6: BIBLIOTECA TÉCNICA AUDIOVISUAL HD -->
+  <section id="videos-tecnicos" class="section-card">
+    <div class="section-header">
+      <span class="section-num">06//</span>
+      <h2>Biblioteca Audiovisual: Ejecución Biomecánica Real (HD)</h2>
+    </div>
+    <p>
+      Demostraciones técnicas auténticas e hiper-rigurosas grabadas por los entrenadores de fuerza y halterofilia más respetados a nivel mundial (Alan Thrall, Catalyst Athletics, Calisthenicmovement). Seleccioná cualquier ejercicio para reproducir su guía milimetrada:
+    </p>
+
+    <!-- Interactive Video Selector Tabs -->
+    <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 1.5rem 0;" id="videoTabs">
+      <button class="quiz-btn active-tab" onclick="switchVideo('bench', this)" style="border-color: var(--gold); color: #fff; font-weight: bold; background: rgba(245, 158, 11, 0.15);">
+        🏋️‍♂️ Press de Banca
+      </button>
+      <button class="quiz-btn" onclick="switchVideo('deadlift', this)">
+        ⚡ Peso Muerto (5 Pasos)
+      </button>
+      <button class="quiz-btn" onclick="switchVideo('squat', this)">
+        🛡️ Sentadilla Trasera
+      </button>
+      <button class="quiz-btn" onclick="switchVideo('press', this)">
+        💥 Press Militar
+      </button>
+      <button class="quiz-btn" onclick="switchVideo('pullup', this)">
+        🧗 Dominadas Estrictas
+      </button>
+      <button class="quiz-btn" onclick="switchVideo('dips', this)">
+        💪 Fondos en Paralelas
+      </button>
+      <button class="quiz-btn" onclick="switchVideo('clean', this)">
+        ⚡ Power Clean Olímpico
+      </button>
+      <button class="quiz-btn" onclick="switchVideo('pushpress', this)">
+        🚀 Push Press
+      </button>
+    </div>
+
+    <!-- Active Video Player Frame -->
+    <div style="background: #000; border: 1px solid var(--border); border-radius: 1.25rem; overflow: hidden; margin-bottom: 1.5rem; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+      <div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;">
+        <iframe
+          id="mainVideoPlayer"
+          src="https://www.youtube-nocookie.com/embed/BYKScL2sgCs?rel=0&modestbranding=1"
+          title="Video Demostración Técnica"
+          style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0;"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+          referrerpolicy="strict-origin-when-cross-origin"
+          allowfullscreen
+        ></iframe>
+      </div>
+      <div style="padding: 1.25rem; display: flex; justify-content: space-between; align-items: center; background: #14151b; border-top: 1px solid var(--border); flex-wrap: wrap; gap: 1rem;">
+        <div>
+          <div id="videoCategory" style="font-size: 0.75rem; font-family: monospace; color: var(--gold); text-transform: uppercase; font-weight: bold;">
+            Banca • Patrón de Empuje Horizontal
+          </div>
+          <h3 id="videoTitle" style="font-size: 1.15rem; color: #fff; margin-top: 0.25rem;">
+            How to Bench Press — Alan Thrall (Untamed Strength)
+          </h3>
+        </div>
+        <a id="videoDirectLink" href="https://www.youtube.com/watch?v=BYKScL2sgCs" target="_blank" rel="noopener noreferrer" class="btn btn-secondary" style="font-size: 0.75rem; padding: 0.5rem 1rem; border-color: rgba(239, 68, 68, 0.4); color: #fca5a5;">
+          ▶ Ver en YouTube
+        </a>
+      </div>
+    </div>
+
+    <!-- Biomechanical Cue Box for Selected Exercise -->
+    <div id="videoCuesBox" style="background: #18181b; border: 1px solid var(--border); border-radius: 1rem; padding: 1.25rem;">
+      <h4 style="color: var(--gold); font-size: 0.85rem; font-family: monospace; text-transform: uppercase; margin-bottom: 0.5rem;">
+        🎯 Claves de Ejecución Milimetrada:
+      </h4>
+      <ul id="videoCuesList" style="list-style: none; padding-left: 0; font-size: 0.85rem; color: #d4d4d8; display: flex; flex-direction: column; gap: 0.4rem;">
+        <li>✔ <strong>Retracción y depresión escapular:</strong> Clavar los omóplatos firmemente en el banco creando una plataforma rígida.</li>
+        <li>✔ <strong>Arco torácico activo y leg drive:</strong> Talones clavados al piso impulsando tensión hacia la barra sin despegar los glúteos.</li>
+        <li>✔ <strong>Trayectoria en 'J' (Bar Path):</strong> Descenso controlado al esternón inferior y empuje diagonal hacia los soportes.</li>
+      </ul>
+    </div>
+  </section>
+
 </div>
 
 <script>
@@ -786,6 +868,122 @@
       fb.style.border = '1px solid #f43f5e';
       fb.innerHTML = '✖ <strong>Incorrecto.</strong> Revisa el fundamento científico en la sección correspondiente.';
     }
+  }
+
+  
+  // Video Library Engine
+  const videoData = {
+    bench: {
+      id: 'BYKScL2sgCs',
+      cat: 'Banca • Patrón de Empuje Horizontal',
+      title: 'How to Bench Press — Alan Thrall (Untamed Strength)',
+      cues: [
+        'Retracción y depresión escapular: Clavar los omóplatos firmemente en el banco creando una plataforma rígida.',
+        'Arco torácico activo y leg drive: Talones clavados al piso impulsando tensión hacia la barra sin despegar los glúteos.',
+        'Trayectoria en J (Bar Path): Descenso controlado al esternón inferior y empuje diagonal hacia los soportes.'
+      ]
+    },
+    deadlift: {
+      id: 'wYREQkVtvEc',
+      cat: 'Peso Muerto • Cadena Posterior & Tracción',
+      title: 'How To Deadlift: Starting Strength 5 Step — Alan Thrall',
+      cues: [
+        'Pies bajo la barra a 1 pulgada de la espinilla; bisagra de cadera sin mover la barra.',
+        'Doblar rodillas hasta que las espinillas toquen la barra sin rodarla hacia adelante.',
+        'Apretar el pecho arriba y fijar la columna lumbar como una viga de acero antes de despegar.'
+      ]
+    },
+    squat: {
+      id: 'vmNPOjaGrVE',
+      cat: 'Sentadilla • Dominancia de Rodilla & Cadera',
+      title: 'How To Squat: Low Bar Guide — Alan Thrall',
+      cues: [
+        'Barra apoyada sobre la espina escapular (Low Bar) con muñecas neutras y codos bloqueados.',
+        'Iniciación simultánea de flexión de rodilla y cadera abriendo las rodillas en la línea de las puntas.',
+        'Profundidad válida rompiendo el paralelo con el pliegue de la cadera por debajo de la rótula.'
+      ]
+    },
+    press: {
+      id: 'wol7Hko8RhY',
+      cat: 'Militar • Empuje Vertical Estricto',
+      title: 'How To Overhead Press — Alan Thrall',
+      cues: [
+        'Antebrazos perfectamente verticales bajo la barra en la posición de salida.',
+        'Glúteos y cuádriceps apretados al 100% creando una columna corporal inamovible.',
+        'Llevar la cabeza ligeramente hacia atrás al despegar y meter el torso bajo la barra al bloquear.'
+      ]
+    },
+    pullup: {
+      id: 'eGo4IYlbE5g',
+      cat: 'Calistenia • Tracción Vertical',
+      title: 'The Perfect Pull Up - Do it right! — Calisthenicmovement',
+      cues: [
+        'Comenzar desde suspensión muerta con codos extendidos y retracción escapular previa.',
+        'Tracción guiada llevando el pecho hacia la barra sin balanceo de piernas ni kipping.',
+        'Descenso controlado de 2 segundos hasta el bloqueo completo de brazos.'
+      ]
+    },
+    dips: {
+      id: '2z8JmcrW-As',
+      cat: 'Calistenia • Empuje en Barras Paralelas',
+      title: 'The Perfect Dip - Do it right! — Calisthenicmovement',
+      cues: [
+        'Depresión escapular continua; no permitir que los hombros suban hacia las orejas.',
+        'Inclinación de torso a 15-20° para reclutar las fibras inferiores del pectoral.',
+        'Descenso hasta que el codo forme al menos un ángulo de 90° sin comprometer la cápsula del hombro.'
+      ]
+    },
+    clean: {
+      id: 'YG8M_-11C2A',
+      cat: 'Halterofilia • Potencia y Triple Extensión',
+      title: 'Power Clean Guide — Catalyst Athletics (Greg Everett)',
+      cues: [
+        'Primer tirón controlado manteniendo el ángulo del torso constante desde el piso.',
+        'Segundo tirón explosivo: Triple extensión simultánea de tobillos, rodillas y cadera.',
+        'Rotación veloz de codos recibiendo la barra sólidamente sobre los deltoides en posición de cuarto de sentadilla.'
+      ]
+    },
+    pushpress: {
+      id: 'yklSQG1_Ovc',
+      cat: 'Potencia • Transferencia Cinética Piernas-Brazos',
+      title: 'Push Press Guide — Catalyst Athletics',
+      cues: [
+        'Dip vertical corto y elástico (5 a 8 cm) con el torso totalmente perpendicular al suelo.',
+        'Drive explosivo empujando desde los talones para transferir energía cinética a la barra.',
+        'Terminar con extensión violenta de brazos fijando la barra por detrás de la línea de las orejas.'
+      ]
+    }
+  };
+
+  function switchVideo(key, btn) {
+    const data = videoData[key];
+    if (!data) return;
+
+    // Update buttons
+    const buttons = document.querySelectorAll('#videoTabs button');
+    buttons.forEach(b => {
+      b.style.borderColor = 'var(--border)';
+      b.style.color = '#d4d4d8';
+      b.style.background = '#09090b';
+      b.style.fontWeight = 'normal';
+    });
+    btn.style.borderColor = 'var(--gold)';
+    btn.style.color = '#fff';
+    btn.style.background = 'rgba(245, 158, 11, 0.15)';
+    btn.style.fontWeight = 'bold';
+
+    // Update player
+    const player = document.getElementById('mainVideoPlayer');
+    player.src = 'https://www.youtube-nocookie.com/embed/' + data.id + '?autoplay=1&rel=0&modestbranding=1';
+
+    // Update meta
+    document.getElementById('videoCategory').innerText = data.cat;
+    document.getElementById('videoTitle').innerText = data.title;
+    document.getElementById('videoDirectLink').href = 'https://www.youtube.com/watch?v=' + data.id;
+
+    // Update cues
+    const list = document.getElementById('videoCuesList');
+    list.innerHTML = data.cues.map(c => '<li>✔ ' + c + '</li>').join('');
   }
 
   // Initial call

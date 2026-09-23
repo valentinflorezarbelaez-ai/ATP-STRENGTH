@@ -40,8 +40,8 @@ export const EXERCISE_MEDIA_CATALOG = {
       "Deltoides Anterior",
       "Dorsal Ancho"
     ],
-    "videoUrl": "https://www.youtube.com/watch?v=vUa1TzR5h9w",
-    "youtubeId": "vUa1TzR5h9w",
+    "videoUrl": "https://www.youtube.com/watch?v=BYKScL2sgCs",
+    "youtubeId": "BYKScL2sgCs",
     "posterUrl": "https://images.unsplash.com/photo-1517838277536-f5f99be501cd?q=80&w=800&auto=format&fit=crop",
     "formCues": [
       "Retracción y depresión escapular estricta clavando los omóplatos en el banco.",
@@ -66,8 +66,8 @@ export const EXERCISE_MEDIA_CATALOG = {
       "Erectores Espinales",
       "Antebrazo"
     ],
-    "videoUrl": "https://www.youtube.com/watch?v=FprOAIe498c",
-    "youtubeId": "FprOAIe498c",
+    "videoUrl": "https://www.youtube.com/watch?v=wYREQkVtvEc",
+    "youtubeId": "wYREQkVtvEc",
     "posterUrl": "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=800&auto=format&fit=crop",
     "formCues": [
       "Barra pegada a la mitad del pie (1 pulgada de la espinilla) con agarre por fuera de las piernas.",
@@ -116,8 +116,8 @@ export const EXERCISE_MEDIA_CATALOG = {
       "Braquiorradial",
       "Redondo Mayor"
     ],
-    "videoUrl": "https://www.youtube.com/watch?v=JQuhpouR-DQ",
-    "youtubeId": "JQuhpouR-DQ",
+    "videoUrl": "https://www.youtube.com/watch?v=eGo4IYlbE5g",
+    "youtubeId": "eGo4IYlbE5g",
     "posterUrl": "https://images.unsplash.com/photo-1526506118085-60ce8714f8c5?q=80&w=800&auto=format&fit=crop",
     "formCues": [
       "Comenzar desde suspensión muerta con codos bloqueados y escápulas activas.",
@@ -288,8 +288,8 @@ export const EXERCISE_MEDIA_CATALOG = {
       "Braquial Anterior",
       "Braquiorradial"
     ],
-    "videoUrl": "https://www.youtube.com/watch?v=s31W_yL2U2Q",
-    "youtubeId": "s31W_yL2U2Q",
+    "videoUrl": "https://www.youtube.com/watch?v=sOcM7gcnQC0",
+    "youtubeId": "sOcM7gcnQC0",
     "posterUrl": "https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?q=80&w=800&auto=format&fit=crop",
     "formCues": [
       "Agarre en los ángulos de la barra Z que alinean la muñeca de forma anatómica y segura.",
@@ -364,8 +364,8 @@ export const EXERCISE_MEDIA_CATALOG = {
       "Trapecios",
       "Erectores Espinales"
     ],
-    "videoUrl": "https://www.youtube.com/watch?v=7X5XG3w5_cQ",
-    "youtubeId": "7X5XG3w5_cQ",
+    "videoUrl": "https://www.youtube.com/watch?v=efHjodEVf9w",
+    "youtubeId": "efHjodEVf9w",
     "posterUrl": "https://images.unsplash.com/photo-1517838277536-f5f99be501cd?q=80&w=800&auto=format&fit=crop",
     "formCues": [
       "Iniciar desde la posición de colgado (justo arriba o a la altura de las rodillas).",
@@ -440,8 +440,8 @@ export const EXERCISE_MEDIA_CATALOG = {
       "Glúteos",
       "Core"
     ],
-    "videoUrl": "https://www.youtube.com/watch?v=kYJ_85a_F-o",
-    "youtubeId": "kYJ_85a_F-o",
+    "videoUrl": "https://www.youtube.com/watch?v=yklSQG1_Ovc",
+    "youtubeId": "yklSQG1_Ovc",
     "posterUrl": "https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?q=80&w=800&auto=format&fit=crop",
     "formCues": [
       "Barra apoyada sólidamente sobre los deltoides anteriores (front rack posicional).",
@@ -539,8 +539,8 @@ export const EXERCISE_MEDIA_CATALOG = {
       "Gemelos",
       "Core"
     ],
-    "videoUrl": "https://www.youtube.com/watch?v=eB56J3uH1sA",
-    "youtubeId": "eB56J3uH1sA",
+    "videoUrl": "https://www.youtube.com/watch?v=z7GAKBpGzws",
+    "youtubeId": "z7GAKBpGzws",
     "posterUrl": "https://images.unsplash.com/photo-1574680096145-d05b474e2155?q=80&w=800&auto=format&fit=crop",
     "formCues": [
       "Carga ligera (20-30% de 1RM) asegurando la barra firmemente pegada a los trapecios.",
@@ -589,8 +589,8 @@ export const EXERCISE_MEDIA_CATALOG = {
       "Isquiosurales",
       "Erectores Espinales"
     ],
-    "videoUrl": "https://www.youtube.com/watch?v=A8t80Y9m844",
-    "youtubeId": "A8t80Y9m844",
+    "videoUrl": "https://www.youtube.com/watch?v=XuJ9SYsJms4",
+    "youtubeId": "XuJ9SYsJms4",
     "posterUrl": "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=800&auto=format&fit=crop",
     "formCues": [
       "Parado sobre una plataforma o disco de 2 a 5 cm aumentando el recorrido del tirón.",
@@ -614,8 +614,8 @@ export const EXERCISE_MEDIA_CATALOG = {
       "Glúteos",
       "Isquiosurales"
     ],
-    "videoUrl": "https://www.youtube.com/watch?v=D-aZJm4q57o",
-    "youtubeId": "D-aZJm4q57o",
+    "videoUrl": "https://www.youtube.com/watch?v=mp9gtX-JqB0",
+    "youtubeId": "mp9gtX-JqB0",
     "posterUrl": "https://images.unsplash.com/photo-1541534741688-6078c6bfb5c5?q=80&w=800&auto=format&fit=crop",
     "formCues": [
       "Agarre extra ancho en los anillos de la barra obligando a bajar más la cadera al inicio.",
