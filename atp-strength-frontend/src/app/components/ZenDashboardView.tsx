@@ -79,15 +79,18 @@ export function ZenDashboardView({ d, onShowSpotify }: { d: Dash; onShowSpotify?
                 <span className="px-1.5 sm:px-2 py-0.5 rounded text-[9px] sm:text-[10px] font-mono font-bold bg-amber-500/20 text-amber-400 border border-amber-500/30">
                   PRO-V1
                 </span>
-                {onShowSpotify && (
-                  <button
-                    onClick={onShowSpotify}
-                    className="px-2.5 py-1 rounded-lg text-[10px] font-mono font-bold bg-emerald-500/15 text-emerald-400 border border-emerald-500/25 hover:bg-emerald-500/25 hover:border-emerald-400/50 transition-all flex items-center gap-1 shadow-[0_0_12px_rgba(16,185,129,0.15)] cursor-pointer"
-                    title="Playlists de Spotify para Entrenar"
-                  >
-                    🎵 SPOTIFY
-                  </button>
-                )}
+                <a
+                  href="https://open.spotify.com/intl-es"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={() => {
+                    try { window.location.href = "spotify:"; } catch {}
+                  }}
+                  className="px-2.5 py-1 rounded-lg text-[10px] font-mono font-bold bg-emerald-500/15 text-emerald-400 border border-emerald-500/25 hover:bg-emerald-500/25 hover:border-emerald-400/50 transition-all flex items-center gap-1 shadow-[0_0_12px_rgba(16,185,129,0.15)] cursor-pointer"
+                  title="Abrir Spotify directamente"
+                >
+                  🎵 SPOTIFY
+                </a>
                 <a
                   href="/forge"
                   className="px-2.5 py-1 rounded-lg text-[10px] font-mono font-bold bg-amber-500/15 text-amber-400 border border-amber-500/25 hover:bg-amber-500/25 transition-all flex items-center gap-1"

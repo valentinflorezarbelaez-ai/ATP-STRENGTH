@@ -1,36 +1,32 @@
 "use client";
 
-import { useState } from "react";
 import { useZenDashboard } from "@/app/hooks/useZenDashboard";
 import { ZenDashboardView } from "@/app/components/ZenDashboardView";
 import { CoachGuidedView } from "@/app/components/CoachGuidedView";
-import { SpotifyTrainingView } from "@/app/components/SpotifyTrainingView";
 import { ErrorBoundary } from "@/app/components/ErrorBoundary";
 
 /**
  * ZenDashboardClient
  * Client component executing in the browser context with direct access to localStorage.
- * Handles view switching between CoachGuidedView, ZenDashboardView, and SpotifyTrainingView
- * without hydration mismatch.
+ * Handles view switching between CoachGuidedView and ZenDashboardView.
+ * The Spotify button now directly opens Spotify (https://open.spotify.com/intl-es).
  */
 export function ZenDashboardClient() {
   const d = useZenDashboard();
-  const [showSpotify, setShowSpotify] = useState(false);
 
-  if (showSpotify) {
-    return (
-      <ErrorBoundary>
-        <SpotifyTrainingView onBack={() => setShowSpotify(false)} />
-      </ErrorBoundary>
-    );
-  }
+  const handleOpenSpotifyDirect = () => {
+    try {
+      window.location.href = "spotify:";
+    } catch {}
+    window.open("https://open.spotify.com/intl-es", "_blank", "noopener,noreferrer");
+  };
 
   return (
     <ErrorBoundary>
       {d.coachMode ? (
-        <CoachGuidedView d={d} onShowSpotify={() => setShowSpotify(true)} />
+        <CoachGuidedView d={d} onShowSpotify={handleOpenSpotifyDirect} />
       ) : (
-        <ZenDashboardView d={d} onShowSpotify={() => setShowSpotify(true)} />
+        <ZenDashboardView d={d} onShowSpotify={handleOpenSpotifyDirect} />
       )}
     </ErrorBoundary>
   );

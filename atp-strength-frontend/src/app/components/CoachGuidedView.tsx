@@ -333,20 +333,20 @@ export function CoachGuidedView({ d, onShowSpotify }: { d: Dash; onShowSpotify?:
         {/* Header Actions: Mode Toggle & Reset */}
         <div className="flex items-center gap-2">
           {/* Athlete Profile & Data Backup */}
-          {onShowSpotify && (
-            <button
-              type="button"
-              onClick={() => {
-                playTactileClick();
-                onShowSpotify();
-              }}
-              className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-emerald-500/30 bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20 hover:border-emerald-400/50 transition-all text-xs font-mono font-bold cursor-pointer shadow-[0_0_12px_rgba(16,185,129,0.15)]"
-              title="Playlists de Spotify para Entrenar"
-            >
-              <span>🎵</span>
-              <span className="hidden sm:inline">SPOTIFY</span>
-            </button>
-          )}
+          <a
+            href="https://open.spotify.com/intl-es"
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={() => {
+              playTactileClick();
+              try { window.location.href = "spotify:"; } catch {}
+            }}
+            className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-emerald-500/30 bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20 hover:border-emerald-400/50 transition-all text-xs font-mono font-bold cursor-pointer shadow-[0_0_12px_rgba(16,185,129,0.15)]"
+            title="Abrir Spotify directamente"
+          >
+            <span>🎵</span>
+            <span className="hidden sm:inline">SPOTIFY</span>
+          </a>
           <button
             type="button"
             onClick={() => {
