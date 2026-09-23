@@ -92,6 +92,15 @@ export function ZenDashboardView({ d, onShowSpotify }: { d: Dash; onShowSpotify?
                   🎵 SPOTIFY
                 </a>
                 <a
+                  href="/MANUAL_INTERACTIVO.html"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-2.5 py-1 rounded-lg text-[10px] font-mono font-bold bg-amber-500/15 text-amber-400 border border-amber-500/25 hover:bg-amber-500/25 hover:border-amber-400/50 transition-all flex items-center gap-1 shadow-[0_0_12px_rgba(245,158,11,0.15)] cursor-pointer"
+                  title="Abrir Manual Interactivo con todos los videos técnicos en HD"
+                >
+                  📖 MANUAL
+                </a>
+                <a
                   href="/forge"
                   className="px-2.5 py-1 rounded-lg text-[10px] font-mono font-bold bg-amber-500/15 text-amber-400 border border-amber-500/25 hover:bg-amber-500/25 transition-all flex items-center gap-1"
                   title="La Forja de los Guerreros"

@@ -239,8 +239,8 @@ export const EXERCISE_MEDIA_CATALOG = {
       "Glúteos",
       "Serrato"
     ],
-    "videoUrl": "https://www.youtube.com/watch?v=M0u5sm9Xcv4",
-    "youtubeId": "M0u5sm9Xcv4",
+    "videoUrl": "https://www.youtube.com/watch?v=sZxrs3C209k",
+    "youtubeId": "sZxrs3C209k",
     "posterUrl": "https://images.unsplash.com/photo-1566241142559-40e1dab266c6?q=80&w=800&auto=format&fit=crop",
     "formCues": [
       "Apoyo en antebrazos con codos directamente debajo de los hombros.",
@@ -288,8 +288,8 @@ export const EXERCISE_MEDIA_CATALOG = {
       "Braquial Anterior",
       "Braquiorradial"
     ],
-    "videoUrl": "https://www.youtube.com/watch?v=sOcM7gcnQC0",
-    "youtubeId": "sOcM7gcnQC0",
+    "videoUrl": "https://www.youtube.com/watch?v=PpLPrakn0eQ",
+    "youtubeId": "PpLPrakn0eQ",
     "posterUrl": "https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?q=80&w=800&auto=format&fit=crop",
     "formCues": [
       "Agarre en los ángulos de la barra Z que alinean la muñeca de forma anatómica y segura.",
@@ -313,8 +313,8 @@ export const EXERCISE_MEDIA_CATALOG = {
       "Dorsales",
       "Agarre"
     ],
-    "videoUrl": "https://www.youtube.com/watch?v=1QeII_BfQps",
-    "youtubeId": "1QeII_BfQps",
+    "videoUrl": "https://www.youtube.com/watch?v=CaDbc9ft-Ac",
+    "youtubeId": "CaDbc9ft-Ac",
     "posterUrl": "https://images.unsplash.com/photo-1526506118085-60ce8714f8c5?q=80&w=800&auto=format&fit=crop",
     "formCues": [
       "Comenzar colgado en posición hollow con escápulas activas.",
@@ -539,8 +539,8 @@ export const EXERCISE_MEDIA_CATALOG = {
       "Gemelos",
       "Core"
     ],
-    "videoUrl": "https://www.youtube.com/watch?v=z7GAKBpGzws",
-    "youtubeId": "z7GAKBpGzws",
+    "videoUrl": "https://www.youtube.com/watch?v=NF8iXaH8i_E",
+    "youtubeId": "NF8iXaH8i_E",
     "posterUrl": "https://images.unsplash.com/photo-1574680096145-d05b474e2155?q=80&w=800&auto=format&fit=crop",
     "formCues": [
       "Carga ligera (20-30% de 1RM) asegurando la barra firmemente pegada a los trapecios.",
