@@ -19,13 +19,13 @@ export function ExerciseVideoModal({
 }: ExerciseVideoModalProps) {
   const embedUrl = useMemo(() => {
     if (!media) return null;
-    if (media.youtubeId) {
-      return `https://www.youtube-nocookie.com/embed/${media.youtubeId}?autoplay=1&mute=1&loop=1&playlist=${media.youtubeId}&rel=0&modestbranding=1`;
+    let ytId = media.youtubeId;
+    if (!ytId && media.videoUrl) {
+      const match = media.videoUrl.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([\w-]{11})/);
+      if (match && match[1]) ytId = match[1];
     }
-    const url = media.videoUrl || "";
-    const match = url.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([\w-]{11})/);
-    if (match && match[1]) {
-      return `https://www.youtube-nocookie.com/embed/${match[1]}?autoplay=1&mute=1&loop=1&playlist=${match[1]}&rel=0&modestbranding=1`;
+    if (ytId) {
+      return `https://www.youtube.com/embed/${ytId}?autoplay=1&mute=1&enablejsapi=1&rel=0`;
     }
     return null;
   }, [media]);
@@ -72,7 +72,7 @@ export function ExerciseVideoModal({
               title={media.name}
               className="w-full h-full border-0"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-              referrerPolicy="strict-origin-when-cross-origin"
+              
               allowFullScreen
             />
           ) : (
