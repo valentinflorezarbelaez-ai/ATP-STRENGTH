@@ -25,9 +25,17 @@ const ZenDashboardClient = dynamic(
 );
 
 export default function ZenDashboard() {
-  const [showIntro, setShowIntro] = useState(true);
+  const [showIntro, setShowIntro] = useState(() => {
+    if (typeof window !== "undefined") {
+      return localStorage.getItem("hasEnteredTemple") !== "true";
+    }
+    return false;
+  });
 
   const handleEnter = () => {
+    if (typeof window !== "undefined") {
+      localStorage.setItem("hasEnteredTemple", "true");
+    }
     setShowIntro(false);
   };
 

@@ -7,6 +7,7 @@ import { TimerDisplay } from "@/app/components/TimerDisplay";
 import { BarbellPlateVisualizer } from "@/app/components/BarbellPlateVisualizer";
 import { WarmupCalculatorModal } from "@/app/components/WarmupCalculatorModal";
 import { ExerciseVideoModal } from "@/app/components/ExerciseVideoModal";
+import { ExerciseCatalogModal } from "@/app/components/ExerciseCatalogModal";
 import { getExerciseMedia } from "@/lib/exerciseMediaCatalog";
 import { WorkoutLogger } from "@/app/components/WorkoutLogger";
 import {
@@ -24,6 +25,7 @@ type Dash = ReturnType<typeof useZenDashboard>;
 export function ZenDashboardView({ d, onShowSpotify }: { d: Dash; onShowSpotify?: () => void }) {
   const [showWarmupModal, setShowWarmupModal] = React.useState(false);
   const [selectedVideoExercise, setSelectedVideoExercise] = React.useState<string | null>(null);
+  const [showCatalogModal, setShowCatalogModal] = React.useState(false);
   const {
     selectedDayKey, setSelectedDayKey,
     activeExerciseIndex, setActiveExerciseIndex,
@@ -91,15 +93,15 @@ export function ZenDashboardView({ d, onShowSpotify }: { d: Dash; onShowSpotify?
                 >
                   🎵 SPOTIFY
                 </a>
-                <a
-                  href="/MANUAL_INTERACTIVO.html"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="px-2.5 py-1 rounded-lg text-[10px] font-mono font-bold bg-amber-500/15 text-amber-400 border border-amber-500/25 hover:bg-amber-500/25 hover:border-amber-400/50 transition-all flex items-center gap-1 shadow-[0_0_12px_rgba(245,158,11,0.15)] cursor-pointer"
-                  title="Abrir Manual Interactivo con todos los videos técnicos en HD"
+                <button
+                  type="button"
+                  onClick={() => setShowCatalogModal(true)}
+                  className="px-2.5 py-1 rounded-lg text-[10px] font-mono font-bold bg-gradient-to-r from-amber-500/20 to-yellow-500/20 text-amber-300 border border-amber-500/40 hover:bg-amber-500/30 hover:border-amber-400/60 transition-all flex items-center gap-1.5 shadow-[0_0_15px_rgba(245,158,11,0.2)] active:scale-95 cursor-pointer"
+                  title="Abrir Biblioteca Técnica con los 25 videos oficiales en HD"
                 >
-                  📖 MANUAL
-                </a>
+                  <span>🎬</span>
+                  <span>VIDEOS HD (25)</span>
+                </button>
                 <a
                   href="/forge"
                   className="px-2.5 py-1 rounded-lg text-[10px] font-mono font-bold bg-amber-500/15 text-amber-400 border border-amber-500/25 hover:bg-amber-500/25 transition-all flex items-center gap-1"
@@ -1255,6 +1257,13 @@ export function ZenDashboardView({ d, onShowSpotify }: { d: Dash; onShowSpotify?
           handleStartTimer(seconds, title);
         }}
       />
+          {showCatalogModal && (
+        <ExerciseCatalogModal
+          isOpen={showCatalogModal}
+          onClose={() => setShowCatalogModal(false)}
+          initialExerciseName={activeExercise?.name}
+        />
+      )}
     </main>
   );
 
