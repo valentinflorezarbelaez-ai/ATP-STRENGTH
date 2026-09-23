@@ -2,7 +2,7 @@
 
 import React, { useState, useMemo } from "react";
 import {
-  Flame, Sparkles, CheckCircle2, ChevronLeft, ChevronRight,
+  Flame, Sparkles, Calendar, CheckCircle2, ChevronLeft, ChevronRight,
   Play, Pause, RotateCcw, Volume2, Trophy,
   Minus, Plus, Activity, Heart, ArrowRight, Coffee, Eye, Sun, Moon, Laptop, User, Download, Upload, Database, Zap
 } from "lucide-react";
@@ -16,6 +16,9 @@ import { PwaInstallPrompt } from "@/components/PwaInstallPrompt";
 import { AtpEnergyRing } from "@/app/components/AtpEnergyRing";
 import { BarbellPlateVisualizer } from "@/app/components/BarbellPlateVisualizer";
 import { LiveSetCoachModal } from "@/app/components/LiveSetCoachModal";
+import { DailyWorkoutSplitView } from "@/app/components/DailyWorkoutSplitView";
+import { ExerciseVideoModal } from "@/app/components/ExerciseVideoModal";
+import { getExerciseMedia } from "@/lib/exerciseMediaCatalog";
 import { getPrilepinPrescription, SOVIET_WARMUP_PROTOCOL } from "@/lib/prilepinEngine.mjs";
 import { playTactileClick } from "@/lib/zenAudio";
 import { useWakeLock } from "@/app/hooks/useWakeLock";
@@ -34,7 +37,7 @@ type Dash = ReturnType<typeof useZenDashboard>;
 
 export function CoachGuidedView({ d, onShowSpotify }: { d: Dash; onShowSpotify?: () => void }) {
   useWakeLock(d.isRunning || !d.isDayFinished);
-  const sessionStats = useMemo(() => d.calculateSessionStats(), [d.calculateSessionStats]);
+  const sessionStats = useMemo(() => d.calculateSessionStats(), [d]);
 
   const {
     activeDay,
@@ -69,7 +72,6 @@ export function CoachGuidedView({ d, onShowSpotify }: { d: Dash; onShowSpotify?:
     handleResetExercise,
     toggleCoachMode,
     playChime,
-    SCHEDULE_DAYS,
     scheduleDays,
     selectedProgramId,
     handleSelectProgram,
@@ -81,6 +83,8 @@ export function CoachGuidedView({ d, onShowSpotify }: { d: Dash; onShowSpotify?:
   } = d;
 
   const [showDayMenu, setShowDayMenu] = useState(false);
+  const [coachSubView, setCoachSubView] = useState<"WORKOUT" | "SPLIT_PLAN">("WORKOUT");
+  const [selectedVideoExercise, setSelectedVideoExercise] = useState<string | null>(null);
   const [showProfileModal, setShowProfileModal] = useState(false);
   const [isLiveSetOpen, setIsLiveSetOpen] = useState(false);
   const hasSpokenHalfway = React.useRef(false);
@@ -425,6 +429,40 @@ export function CoachGuidedView({ d, onShowSpotify }: { d: Dash; onShowSpotify?:
         </div>
       </header>
 
+      {/* Anatoly Fit / ATP Hybrid View Switcher */}
+      <div data-testid="coach-subview-switcher" className="w-full max-w-2xl flex items-center p-1 rounded-2xl bg-zinc-950/80 border border-zinc-900 mb-5 shadow-sm">
+        <button
+          type="button"
+          onClick={() => {
+            playTactileClick();
+            setCoachSubView("WORKOUT");
+          }}
+          className={`flex-1 py-2 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer ${
+            coachSubView === "WORKOUT"
+              ? "bg-amber-500 text-black shadow-md shadow-amber-500/20"
+              : "text-zinc-400 hover:text-white"
+          }`}
+        >
+          <Zap className="w-3.5 h-3.5 fill-current" />
+          <span>Serie Activa (ATP Timer)</span>
+        </button>
+        <button
+          type="button"
+          onClick={() => {
+            playTactileClick();
+            setCoachSubView("SPLIT_PLAN");
+          }}
+          className={`flex-1 py-2 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer ${
+            coachSubView === "SPLIT_PLAN"
+              ? "bg-amber-500 text-black shadow-md shadow-amber-500/20"
+              : "text-zinc-400 hover:text-white"
+          }`}
+        >
+          <Calendar className="w-3.5 h-3.5" />
+          <span>Plan Semanal & Demos (Anatoly)</span>
+        </button>
+      </div>
+
       {/* PWA Standalone Install Banner */}
       <PwaInstallPrompt />
 
@@ -573,6 +611,20 @@ export function CoachGuidedView({ d, onShowSpotify }: { d: Dash; onShowSpotify?:
 
       {/* 3. Main Guided Card Area */}
       <section className="w-full max-w-2xl flex-1 flex flex-col justify-center my-2">
+        {coachSubView === "SPLIT_PLAN" ? (
+          <DailyWorkoutSplitView
+            scheduleDays={scheduleDays}
+            selectedDayKey={selectedDayKey}
+            onSelectDay={setSelectedDayKey}
+            onSelectExercise={(idx) => {
+              d.setActiveExerciseIndex(idx);
+              setCoachSubView("WORKOUT");
+            }}
+            completedSetsMap={completedSetsMap}
+            onStartDayWorkout={() => setCoachSubView("WORKOUT")}
+          />
+        ) : (
+          <>
         {/* CASE A: DAY FINISHED (VICTORY SCREEN) */}
         {isDayFinished ? (
           <div className="p-6 sm:p-8 rounded-3xl bg-zinc-950 border border-amber-500/40 text-center space-y-5 glow-zen-gold animate-in zoom-in-95">
@@ -728,9 +780,24 @@ export function CoachGuidedView({ d, onShowSpotify }: { d: Dash; onShowSpotify?:
                   })}
                 </div>
               </div>
-              <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
-                {activeExercise.name}
-              </h2>
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
+                  {activeExercise.name}
+                </h2>
+                <button
+                  type="button"
+                  data-testid="watch-exercise-video-btn"
+                  onClick={() => {
+                    playTactileClick();
+                    setSelectedVideoExercise(activeExercise.name);
+                  }}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 border border-amber-500/30 transition-all active:scale-95 cursor-pointer shadow-sm shrink-0 self-start sm:self-auto"
+                  title="Ver video con técnica biomecánica correcta"
+                >
+                  <Play className="w-3.5 h-3.5 fill-amber-400" />
+                  <span>Ver Técnica en Video</span>
+                </button>
+              </div>
             </div>
 
             {/* Audiophile Segmented Progression Rail (F0 -> F4 -> Series) */}
@@ -1098,6 +1165,9 @@ export function CoachGuidedView({ d, onShowSpotify }: { d: Dash; onShowSpotify?:
             )}
           </div>
         )}
+      
+          </>
+        )}
       </section>
 
       {/* 4. Bottom Exercise Navigation Bar */}
@@ -1373,6 +1443,19 @@ export function CoachGuidedView({ d, onShowSpotify }: { d: Dash; onShowSpotify?:
             )}
           </div>
         </div>
+      )}
+
+      {/* Exercise Technical Video Demo Modal */}
+      {selectedVideoExercise && (
+        <ExerciseVideoModal
+          media={getExerciseMedia(selectedVideoExercise)}
+          isOpen={!!selectedVideoExercise}
+          onClose={() => setSelectedVideoExercise(null)}
+          onStartExercise={() => {
+            setSelectedVideoExercise(null);
+            setCoachSubView("WORKOUT");
+          }}
+        />
       )}
 
       {/* Live Set & Cadence Coach Modal */}

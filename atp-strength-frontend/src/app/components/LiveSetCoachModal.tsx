@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
-import { X, Play, Volume2, Check, Zap, Flame, Shield, ArrowUpRight } from "lucide-react";
+import { X, Check } from "lucide-react";
 import { playChime, playTactileClick, playTempoTone, hapticPulse } from "@/lib/zenAudio";
 import { BarbellPlateVisualizer } from "./BarbellPlateVisualizer";
 
@@ -44,15 +44,17 @@ export function LiveSetCoachModal({
 
   // Initialize modal state on open
   useEffect(() => {
+    let initTimer: NodeJS.Timeout | null = null;
     if (isOpen) {
-      setPhase("COUNTDOWN");
-      setCountdownSec(3);
-      setCurrentReps(targetReps);
-      setSelectedRpe(targetRpe);
-      setTempoStep("DESCENT");
-      setTempoProgress(0);
-
-      playTempoTone(440, 150, "sine");
+      initTimer = setTimeout(() => {
+        setPhase("COUNTDOWN");
+        setCountdownSec(3);
+        setCurrentReps(targetReps);
+        setSelectedRpe(targetRpe);
+        setTempoStep("DESCENT");
+        setTempoProgress(0);
+        playTempoTone(440, 150, "sine");
+      }, 0);
 
       countdownIntervalRef.current = setInterval(() => {
         setCountdownSec((prev) => {
@@ -73,6 +75,7 @@ export function LiveSetCoachModal({
     }
 
     return () => {
+      if (initTimer) clearTimeout(initTimer);
       if (countdownIntervalRef.current) clearInterval(countdownIntervalRef.current);
       if (tempoIntervalRef.current) clearInterval(tempoIntervalRef.current);
     };
@@ -161,7 +164,7 @@ export function LiveSetCoachModal({
               {countdownSec}
             </div>
             <p className="text-xs text-zinc-400 max-w-xs mx-auto italic font-mono pt-2">
-              "{cueSummary}"
+              &ldquo;{cueSummary}&rdquo;
             </p>
           </div>
 

@@ -1,5 +1,21 @@
 "use client";
 
+// Deterministic static particle data (Strict React 19 render purity)
+const STATIC_FIRE_PARTICLES = Array.from({ length: 30 }, (_, i) => ({
+  id: `f-${i}`,
+  delay: ((i * 137.5) % 40) / 10,
+  x: (i * 3.33) % 100,
+}));
+
+const STATIC_EMBER_PARTICLES = Array.from({ length: 20 }, (_, i) => ({
+  id: `e-${i}`,
+  delay: ((i * 123.4) % 60) / 10,
+  x: (i * 5.17) % 100,
+  size: 2 + ((i * 71.3) % 40) / 10,
+}));
+
+
+
 import { useEffect, useState, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
 
@@ -462,13 +478,13 @@ export default function ForgeLanding({ onEnterDirect }: ForgeLandingProps) {
       <div className="forge-bg-layer forge-bg-radial" />
       <div className="forge-bg-layer forge-bg-noise" />
 
-      {/* Fire particles from bottom */}
+      {/* Fire particles from bottom (Pure Deterministic Seeds) */}
       <div className="forge-fire-container" aria-hidden="true">
-        {Array.from({ length: 30 }).map((_, i) => (
-          <FireParticle key={`f-${i}`} delay={Math.random() * 4} x={Math.random() * 100} />
+        {STATIC_FIRE_PARTICLES.map((p) => (
+          <FireParticle key={p.id} delay={p.delay} x={p.x} />
         ))}
-        {Array.from({ length: 20 }).map((_, i) => (
-          <EmberParticle key={`e-${i}`} delay={Math.random() * 6} x={Math.random() * 100} size={2 + Math.random() * 4} />
+        {STATIC_EMBER_PARTICLES.map((p) => (
+          <EmberParticle key={p.id} delay={p.delay} x={p.x} size={p.size} />
         ))}
       </div>
 
