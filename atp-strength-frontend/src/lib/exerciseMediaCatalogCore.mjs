@@ -1,8 +1,7 @@
 /**
  * Exercise Media Catalog & Biomechanical Cues (SSOT)
- * Inspired by Anatoly Fit's structured video demos & form guidance.
+ * Features high-definition specific YouTube technical demonstrations from world-class strength coaches.
  */
-
 
 export const EXERCISE_MEDIA_CATALOG = {
   "sentadilla trasera": {
@@ -10,196 +9,212 @@ export const EXERCISE_MEDIA_CATALOG = {
     name: "Sentadilla Trasera",
     category: "Sentadilla",
     targetMuscles: ["Cuádriceps", "Glúteo Mayor", "Erector Espinal", "Core"],
-    videoUrl: "https://assets.mixkit.co/videos/preview/mixkit-man-working-out-with-weights-in-a-gym-44026-large.mp4",
+    videoUrl: "https://www.youtube.com/watch?v=vmNPOjaGrVE",
+    youtubeId: "vmNPOjaGrVE",
     posterUrl: "https://images.unsplash.com/photo-1574680096145-d05b474e2155?q=80&w=800&auto=format&fit=crop",
     formCues: [
-      "Apoyo trípode firme con los pies al ancho de hombros.",
-      "Inspiración profunda y maniobra de Valsalva para compactar el core.",
-      "Desciende controlando rodillas hacia afuera y cadera abajo.",
-      "Empuje violento contra el piso con cadencia concéntrica explosiva."
+      "Apoyo trípode firme con los pies al ancho de hombros y puntas ligeramente abiertas.",
+      "Inspiración diafragmática profunda 360° y maniobra de Valsalva antes de iniciar el descenso.",
+      "Control excéntrico bajando hasta que la cadera rompa el paralelo de las rodillas.",
+      "Empuje concéntrico explosivo manteniendo el pecho orgulloso y rodillas alineadas con los pies."
     ],
     commonMistakes: [
-      "Colapso de rodillas hacia adentro (valgo de rodilla).",
-      "Perder la tensión en la espalda baja en el punto de máxima flexión."
+      "Colapso de rodillas en valgo durante la fase concéntrica.",
+      "Pérdida de rigidez en la columna lumbar (butt-wink excesivo) en el punto más profundo."
     ],
-    tempo: "3-0-X-1"
+    tempo: "3-1-X-1"
   },
+
   "press de banca": {
     id: "bench_press",
-    name: "Press de Banca",
+    name: "Press de Banca Plano",
     category: "Banca",
-    targetMuscles: ["Pectoral Mayor", "Tríceps Braquial", "Deltoides Anterior"],
-    videoUrl: "https://assets.mixkit.co/videos/preview/mixkit-athlete-working-out-with-barbell-on-a-bench-44018-large.mp4",
-    posterUrl: "https://images.unsplash.com/photo-1534367507873-d2d7e24c797f?q=80&w=800&auto=format&fit=crop",
+    targetMuscles: ["Pectoral Mayor", "Tríceps Braquial", "Deltoides Anterior", "Dorsal Ancho"],
+    videoUrl: "https://www.youtube.com/watch?v=vUa1TzR5h9w",
+    youtubeId: "vUa1TzR5h9w",
+    posterUrl: "https://images.unsplash.com/photo-1517838277536-f5f99be501cd?q=80&w=800&auto=format&fit=crop",
     formCues: [
-      "Retracción y depresión escapular completa antes de sacar la barra.",
-      "Pies plantados ejerciendo leg drive continuo contra el suelo.",
-      "Codos a unos 45-60 grados respecto al torso.",
-      "Toca con control la zona esternal media y explota hacia arriba."
+      "Retracción y depresión escapular estricta clavando los omóplatos en el banco.",
+      "Leg drive constante con las plantas de los pies bien pegadas al suelo.",
+      "Descenso controlado llevando la barra a la línea media del esternón (ángulo de codos ~45-75°).",
+      "Pausa sólida sin rebote en el pecho y extensión concéntrica potente."
     ],
     commonMistakes: [
-      "Despegar los glúteos del banco en el esfuerzo.",
-      "Rebotar la barra en el esternón perdiendo control excéntrico."
+      "Codos excesivamente abiertos a 90° generando estrés nocivo en el manguito rotador.",
+      "Despegar los glúteos del banco para forzar repeticiones."
     ],
     tempo: "2-1-X-1"
   },
+
   "peso muerto convencional": {
     id: "deadlift_conv",
     name: "Peso Muerto Convencional",
     category: "Peso Muerto",
-    targetMuscles: ["Isquiosurales", "Glúteo Mayor", "Dorsales", "Trapecios", "Core"],
-    videoUrl: "https://assets.mixkit.co/videos/preview/mixkit-man-deadlifting-heavy-weights-in-a-gym-44024-large.mp4",
-    posterUrl: "https://images.unsplash.com/photo-1517838277536-f5f99be501cd?q=80&w=800&auto=format&fit=crop",
+    targetMuscles: ["Isquiosurales", "Glúteo Mayor", "Dorsales", "Erectores Espinales", "Antebrazo"],
+    videoUrl: "https://www.youtube.com/watch?v=FprOAIe498c",
+    youtubeId: "FprOAIe498c",
+    posterUrl: "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=800&auto=format&fit=crop",
     formCues: [
-      "Tibia a 2-3 cm de la barra, bisagra de cadera profunda.",
-      "Dorsales en máxima tensión cerrando las axilas como exprimiendo limones.",
-      "Empuje el piso con las piernas en lugar de tirar con los brazos.",
-      "Bloqueo firme con glúteos sin hiperextender la zona lumbar."
+      "Barra pegada a la mitad del pie (1 pulgada de la espinilla) con agarre por fuera de las piernas.",
+      "Bisagra de cadera hasta sujetar la barra sin moverla de su posición.",
+      "Espalda neutra apretando los dorsales como si exprimieras naranjas en las axilas.",
+      "Extensión simultánea de rodilla y cadera empujando el suelo con los talones."
     ],
     commonMistakes: [
-      "Curvar la espalda lumbar al despegar el peso del suelo.",
-      "Alejar la barra de las piernas durante el ascenso."
+      "Redondear la columna lumbar al despegar la barra del suelo.",
+      "Alejar la barra del cuerpo aumentando la palanca sobre la espalda baja."
     ],
-    tempo: "X-0-1-0"
+    tempo: "1-1-X-1"
   },
+
   "press militar": {
     id: "overhead_press",
-    name: "Press Militar",
+    name: "Press Militar de Pie",
     category: "Militar",
-    targetMuscles: ["Deltoides Anterior & Lateral", "Tríceps", "Trapecio Superior", "Core"],
-    videoUrl: "https://assets.mixkit.co/videos/preview/mixkit-man-lifting-a-barbell-in-a-gym-44022-large.mp4",
+    targetMuscles: ["Deltoides", "Tríceps", "Trapecio Superior", "Core y Glúteos"],
+    videoUrl: "https://www.youtube.com/watch?v=wol7Hko8RhY",
+    youtubeId: "wol7Hko8RhY",
     posterUrl: "https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?q=80&w=800&auto=format&fit=crop",
     formCues: [
-      "Glúteos y abdomen en contracción de piedra antes de iniciar.",
-      "Codos ligeramente por delante de la barra en la posición de salida.",
-      "Mueve la cabeza ligeramente hacia atrás al iniciar y métete debajo al bloquear.",
-      "Bloqueo firme en la cima encogiendo los trapecios activamente."
+      "Agarre apenas por fuera de los hombros con muñecas rectas sobre los antebrazos.",
+      "Glúteos y cuádriceps apretados al 100% creando una base de soporte rígida como una columna de concreto.",
+      "Trayectoria vertical recta de la barra, esquivando la cabeza hacia atrás brevemente.",
+      "Bloqueo firme con la barra centrada directamente sobre la coronilla y escápulas encogidas arriba."
     ],
     commonMistakes: [
-      "Arquear excesivamente la espalda baja para compensar falta de fuerza.",
-      "Impulsarse con las piernas en una repetición estricta."
+      "Hiperextensión lumbar excesiva inclinando el torso hacia atrás.",
+      "Flexionar las rodillas para rebotar en un movimiento estricto."
     ],
     tempo: "2-0-X-1"
   },
+
   "dominadas lastradas": {
     id: "pullups_weighted",
-    name: "Dominadas Lastradas",
+    name: "Dominadas con Lastre / Estrictas",
     category: "Tracción",
-    targetMuscles: ["Dorsal Ancho", "Bíceps Braquial", "Redondo Mayor", "Romboides"],
-    videoUrl: "https://assets.mixkit.co/videos/preview/mixkit-man-doing-pull-ups-in-a-gym-44031-large.mp4",
-    posterUrl: "https://images.unsplash.com/photo-1598971639058-fab3c3109a00?q=80&w=800&auto=format&fit=crop",
+    targetMuscles: ["Dorsal Ancho", "Bíceps Braquial", "Braquiorradial", "Redondo Mayor"],
+    videoUrl: "https://www.youtube.com/watch?v=JQuhpouR-DQ",
+    youtubeId: "JQuhpouR-DQ",
+    posterUrl: "https://images.unsplash.com/photo-1526506118085-60ce8714f8c5?q=80&w=800&auto=format&fit=crop",
     formCues: [
-      "Agarre prono ligeramente más ancho que los hombros.",
-      "Comienza desde suspensión completa deprimiendo escápulas activamente.",
-      "Tracciona llevando los codos hacia los bolsillos traseros.",
-      "Supera la barra con la barbilla con control total y pausa mínima."
+      "Comenzar desde suspensión muerta con codos bloqueados y escápulas activas.",
+      "Traccionar llevando el pecho hacia la barra en lugar de simplemente pasar la barbilla.",
+      "Codos apuntando hacia los bolsillos laterales en un tirón continuo sin balanceo (kipping).",
+      "Descenso controlado resistiendo la gravedad en todo el rango articular."
     ],
     commonMistakes: [
-      "Hacer kipping o balanceo pélvico en series de fuerza estricta.",
-      "No descender hasta la extensión completa de brazos."
+      "Usar impulso con patadas de piernas perdiendo la tensión pura del dorsal.",
+      "Rango de movimiento incompleto sin descender hasta la elongación completa."
     ],
-    tempo: "2-1-X-1"
+    tempo: "2-0-X-1"
   },
+
   "fondos en paralelas": {
     id: "dips_weighted",
     name: "Fondos en Paralelas",
     category: "Calistenia",
-    targetMuscles: ["Pectoral Inferior", "Tríceps Braquial", "Deltoides Anterior"],
-    videoUrl: "https://assets.mixkit.co/videos/preview/mixkit-man-doing-dips-exercise-on-parallel-bars-44028-large.mp4",
-    posterUrl: "https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?q=80&w=800&auto=format&fit=crop",
+    targetMuscles: ["Tríceps", "Pectoral Menor y Mayor", "Deltoides Anterior"],
+    videoUrl: "https://www.youtube.com/watch?v=2z8JmcrW-As",
+    youtubeId: "2z8JmcrW-As",
+    posterUrl: "https://images.unsplash.com/photo-1598971639058-fab3c3109a00?q=80&w=800&auto=format&fit=crop",
     formCues: [
-      "Agarre neutral firme, torso con ligera inclinación de 15 grados hacia adelante.",
-      "Descenso controlado hasta que los hombros lleguen a la altura del codo (90°).",
-      "Empuje concéntrico extendiendo codos sin bloquear agresivamente.",
-      "Preserva hombros deprimidos sin encogerlos hacia el cuello."
+      "Bloqueo inicial con escápulas deprimidas y hombros alejados de las orejas.",
+      "Ligera inclinación del torso hacia adelante para cargar el pectoral o erguido para tríceps.",
+      "Descender hasta que el hombro alcance al menos la profundidad del codo (90° o más según movilidad).",
+      "Empuje concéntrico limpio con bloqueo estable."
     ],
     commonMistakes: [
-      "Descender demasiado profundo generando pinzamiento acromial.",
-      "Aletear los codos excesivamente hacia afuera."
+      "Hombros encogidos hacia arriba sometiendo a compresión la cápsula anterior.",
+      "Rebote elástico brusco en la parte inferior."
     ],
-    tempo: "3-0-X-1"
+    tempo: "3-1-X-1"
   },
+
   "remo pendlay": {
     id: "pendlay_row",
-    name: "Remo Pendlay",
+    name: "Remo Pendlay con Barra",
     category: "Tracción",
-    targetMuscles: ["Espalda Media", "Dorsales", "Romboides", "Deltoides Posterior"],
-    videoUrl: "https://assets.mixkit.co/videos/preview/mixkit-man-working-out-with-weights-in-a-gym-44026-large.mp4",
+    targetMuscles: ["Dorsales", "Romboides", "Trapecio Medio e Inferior", "Erectores"],
+    videoUrl: "https://www.youtube.com/watch?v=RQU8wZPbioA",
+    youtubeId: "RQU8wZPbioA",
     posterUrl: "https://images.unsplash.com/photo-1541534741688-6078c6bfb5c5?q=80&w=800&auto=format&fit=crop",
     formCues: [
-      "Torso estrictamente paralelo al piso durante todo el movimiento.",
-      "Cada repetición inicia inerte desde el suelo (dead stop).",
-      "Tracción violenta de la barra hacia la base del esternón.",
-      "Pausa breve en contacto con el cuerpo y descenso controlado."
+      "Torso 100% paralelo al suelo con la barra apoyada en el suelo en cada repetición.",
+      "Espalda recta e inmóvil, sin utilizar impulso de cadera o piernas para despegar.",
+      "Tracción explosiva llevando la barra al ombligo/esternón inferior con codos hacia atrás.",
+      "Retorno controlado dejando reposar el peso en el piso para reiniciar la inercia (dead-stop)."
     ],
     commonMistakes: [
-      "Incorporar el torso con impulso lumbar al levantar la barra.",
-      "No apoyar la barra en el piso entre repeticiones."
+      "Elevar el torso a 45° convirtiéndolo en un remo de trampa.",
+      "Rebotar los discos contra el suelo."
     ],
-    tempo: "X-0-1-0"
+    tempo: "1-1-X-1"
   },
+
   "peso muerto rumano": {
-    id: "rdl",
-    name: "Peso Muerto Rumano",
+    id: "rdl_barbell",
+    name: "Peso Muerto Rumano (RDL)",
     category: "Peso Muerto",
-    targetMuscles: ["Isquiosurales", "Glúteo Mayor", "Erectores Espinales"],
-    videoUrl: "https://assets.mixkit.co/videos/preview/mixkit-man-deadlifting-heavy-weights-in-a-gym-44024-large.mp4",
-    posterUrl: "https://images.unsplash.com/photo-1517838277536-f5f99be501cd?q=80&w=800&auto=format&fit=crop",
+    targetMuscles: ["Cadena Posterior", "Isquiosurales", "Glúteo Mayor", "Core"],
+    videoUrl: "https://www.youtube.com/watch?v=cTcUyyq7um8",
+    youtubeId: "cTcUyyq7um8",
+    posterUrl: "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=800&auto=format&fit=crop",
     formCues: [
-      "Rodillas con microflexión fija de 15 grados sin cambiar el ángulo.",
-      "Empuje de la cadera hacia la pared trasera sintiendo el estiramiento en isquios.",
-      "Barra en contacto permanente rozando los muslos y tibias.",
-      "Contracción explosiva de glúteos al regresar a la vertical."
+      "Comenzar de pie con la barra en las manos y rodillas con un desbloqueo muy ligero (15°).",
+      "Empujar la cadera hacia atrás hacia la pared detrás de ti (hip hinge puro).",
+      "Mantener la barra rozando las piernas para mantener el centro de gravedad cercano.",
+      "Descender hasta sentir la tensión elástica máxima en los isquios y contraer glúteos al subir."
     ],
     commonMistakes: [
-      "Doblar las rodillas como en una sentadilla.",
-      "Redondear la espalda al buscar tocar el piso innecesariamente."
+      "Flexionar las rodillas como si fuera una sentadilla.",
+      "Doblar la espalda baja intentando tocar el suelo en lugar de respetar la flexibilidad de los isquios."
     ],
-    tempo: "3-1-X-0"
+    tempo: "3-1-1-1"
   },
+
   "paseo del granjero pesado": {
     id: "farmers_walk",
     name: "Paseo del Granjero Pesado",
     category: "Accesorios",
-    targetMuscles: ["Antebrazos (Agarre)", "Trapecios", "Core Lateral (Oblicuos)", "Glúteos"],
-    videoUrl: "https://assets.mixkit.co/videos/preview/mixkit-man-lifting-a-barbell-in-a-gym-44022-large.mp4",
+    targetMuscles: ["Fuerza de Agarre", "Trapecios", "Core Antilateral", "Antebrazos"],
+    videoUrl: "https://www.youtube.com/watch?v=wtHHiJecbQg",
+    youtubeId: "wtHHiJecbQg",
     posterUrl: "https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?q=80&w=800&auto=format&fit=crop",
     formCues: [
-      "Agarre en pinza trituradora ('crushing grip') en el centro de las mancuernas o barras.",
-      "Torso erecto, pecho abierto y mirada al horizonte.",
-      "Pasos cortos, controlados y rápidos sin bamboleo lateral.",
-      "Respiración rítmica manteniendo la rigidez abdominal intacta."
+      "Despegue seguro de la carga (mancuernas, trap bar o maletas) con espalda recta.",
+      "Pecho inflado, hombros en posición neutra y mirada al frente.",
+      "Pasos cortos, rápidos y calculados evitando oscilaciones laterales de cadera.",
+      "Tensión máxima de la pared abdominal durante todo el recorrido prescrito."
     ],
     commonMistakes: [
-      "Inclinarse hacia un lado o dejar caer los hombros hacia adelante.",
-      "Dar zancadas excesivamente largas perdiendo estabilidad."
+      "Dejar que los hombros se desprendan hacia adelante (postura de cifosis).",
+      "Dar zancadas demasiado largas perdiendo la estabilidad."
     ],
-    tempo: "Constante"
+    tempo: "Continuo"
   },
+
   "planchas isométricas pesadas": {
     id: "plank_weighted",
     name: "Planchas Isométricas Pesadas",
     category: "Accesorios",
-    targetMuscles: ["Recto Abdominal", "Transverso del Abdomen", "Serratos", "Glúteos"],
-    videoUrl: "https://assets.mixkit.co/videos/preview/mixkit-man-working-out-with-weights-in-a-gym-44026-large.mp4",
-    posterUrl: "https://images.unsplash.com/photo-1574680096145-d05b474e2155?q=80&w=800&auto=format&fit=crop",
+    targetMuscles: ["Recto Abdominal", "Transverso del Abdomen", "Glúteos", "Serrato"],
+    videoUrl: "https://www.youtube.com/watch?v=M0u5sm9Xcv4",
+    youtubeId: "M0u5sm9Xcv4",
+    posterUrl: "https://images.unsplash.com/photo-1566241142559-40e1dab266c6?q=80&w=800&auto=format&fit=crop",
     formCues: [
-      "Codos debajo de los hombros, antebrazos paralelos.",
-      "Retroversión pélvica activa (hueso púbico hacia el ombligo).",
-      "Glúteos y cuádriceps en máxima co-contracción isométrica.",
-      "Presión activa de los codos hacia las rodillas como si quisieras unirlos."
+      "Apoyo de antebrazos al ancho de hombros con codos directamente debajo de ellos.",
+      "Retroversión pélvica activa (apretar glúteos fuerte para aplanar la lordosis lumbar).",
+      "Empujar activamente el suelo con los codos para protraer las escápulas.",
+      "Mantener una línea recta indestructible desde los talones hasta la cabeza."
     ],
     commonMistakes: [
-      "Dejar colgar la cadera arqueando la columna lumbar.",
-      "Elevar los glúteos en pirámide para reducir la tensión abdominal."
+      "Dejar caer la cadera hacia el suelo tensionando la columna lumbar.",
+      "Elevar los glúteos en forma de carpa para descansar la pared abdominal."
     ],
     tempo: "Isométrico"
   }
 };
 
-/**
- * Normalizes an exercise name and retrieves its media profile.
- */
 export function getExerciseMedia(rawName) {
   if (!rawName) return getFallbackMedia("Ejercicio de Fuerza");
 
@@ -218,14 +233,15 @@ export function getExerciseMedia(rawName) {
   }
 
   if (clean.includes("sentadilla")) return EXERCISE_MEDIA_CATALOG["sentadilla trasera"];
-  if (clean.includes("banca") || clean.includes("bench")) return EXERCISE_MEDIA_CATALOG["press de banca"];
-  if (clean.includes("muerto") || clean.includes("deadlift")) return EXERCISE_MEDIA_CATALOG["peso muerto convencional"];
-  if (clean.includes("militar") || clean.includes("overhead")) return EXERCISE_MEDIA_CATALOG["press militar"];
+  if (clean.includes("banca") || clean.includes("pecho")) return EXERCISE_MEDIA_CATALOG["press de banca"];
+  if (clean.includes("muerto") && clean.includes("rumano")) return EXERCISE_MEDIA_CATALOG["peso muerto rumano"];
+  if (clean.includes("muerto")) return EXERCISE_MEDIA_CATALOG["peso muerto convencional"];
+  if (clean.includes("militar") || clean.includes("hombro") || clean.includes("overhead")) return EXERCISE_MEDIA_CATALOG["press militar"];
   if (clean.includes("dominada") || clean.includes("pullup")) return EXERCISE_MEDIA_CATALOG["dominadas lastradas"];
   if (clean.includes("fondo") || clean.includes("dip")) return EXERCISE_MEDIA_CATALOG["fondos en paralelas"];
-  if (clean.includes("remo") || clean.includes("row")) return EXERCISE_MEDIA_CATALOG["remo pendlay"];
+  if (clean.includes("remo")) return EXERCISE_MEDIA_CATALOG["remo pendlay"];
   if (clean.includes("granjero") || clean.includes("farmer")) return EXERCISE_MEDIA_CATALOG["paseo del granjero pesado"];
-  if (clean.includes("plancha") || clean.includes("plank")) return EXERCISE_MEDIA_CATALOG["planchas isométricas pesadas"];
+  if (clean.includes("plancha") || clean.includes("core") || clean.includes("abs")) return EXERCISE_MEDIA_CATALOG["planchas isométricas pesadas"];
 
   return getFallbackMedia(rawName);
 }
@@ -236,7 +252,8 @@ function getFallbackMedia(name) {
     name,
     category: "Accesorios",
     targetMuscles: ["Músculos Primarios", "Estabilizadores del Core"],
-    videoUrl: "https://assets.mixkit.co/videos/preview/mixkit-athlete-working-out-with-barbell-on-a-bench-44018-large.mp4",
+    videoUrl: "https://www.youtube.com/watch?v=vmNPOjaGrVE",
+    youtubeId: "vmNPOjaGrVE",
     posterUrl: "https://images.unsplash.com/photo-1517838277536-f5f99be501cd?q=80&w=800&auto=format&fit=crop",
     formCues: [
       "Alineación postural estricta antes de aplicar tensión neuromuscular.",

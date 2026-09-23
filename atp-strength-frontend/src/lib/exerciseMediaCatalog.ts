@@ -14,6 +14,7 @@ export interface ExerciseMedia {
   category: "Sentadilla" | "Banca" | "Peso Muerto" | "Militar" | "Tracción" | "Calistenia" | "Accesorios";
   targetMuscles: string[];
   videoUrl: string;
+  youtubeId?: string;
   posterUrl: string;
   formCues: string[];
   commonMistakes: string[];
