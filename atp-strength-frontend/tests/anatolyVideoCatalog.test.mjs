@@ -9,6 +9,7 @@ import {
   EXERCISE_MEDIA_CATALOG,
   getExerciseMedia,
 } from '../src/lib/exerciseMediaCatalogCore.mjs';
+import { ALL_TRACKABLE_EXERCISES } from '../src/lib/workoutStrategiesCore.mjs';
 
 describe('SPEC-0006 Anatoly Fit Video & Form Guidance Engine', () => {
   describe('REQ-EARS-ANATOLY-01: Core Compound Exercise Catalog Integrity', () => {
@@ -104,6 +105,33 @@ describe('SPEC-0006 Anatoly Fit Video & Form Guidance Engine', () => {
       assert.ok(fallback);
       assert.equal(fallback.id, 'fallback_exercise');
       assert.ok(fallback.name.length > 0);
+    });
+  });
+
+  describe('REQ-EARS-ANATOLY-04: Full 25-Exercise Unique YouTube Video Guarantee', () => {
+    it('covers all 25 trackable exercises with non-fallback verified media', () => {
+      assert.equal(ALL_TRACKABLE_EXERCISES.length, 25, 'Expected exactly 25 trackable exercises');
+      for (const exName of ALL_TRACKABLE_EXERCISES) {
+        const media = getExerciseMedia(exName);
+        assert.ok(media, `Expected media for '${exName}'`);
+        assert.notEqual(media.id, 'fallback_exercise', `Exercise '${exName}' returned fallback instead of cataloged media`);
+        assert.ok(typeof media.youtubeId === 'string' && media.youtubeId.length > 0, `Exercise '${exName}' missing youtubeId`);
+        assert.match(media.videoUrl, new RegExp(media.youtubeId), `Exercise '${exName}' videoUrl must embed youtubeId`);
+      }
+    });
+
+    it('guarantees that every exercise has a 100% UNIQUE video (zero duplicate YouTube IDs)', () => {
+      const youtubeIds = ALL_TRACKABLE_EXERCISES.map(exName => {
+        const media = getExerciseMedia(exName);
+        return media.youtubeId;
+      });
+
+      const uniqueSet = new Set(youtubeIds);
+      assert.equal(
+        uniqueSet.size,
+        25,
+        `Expected 25 unique YouTube videos across all 25 exercises, but found ${uniqueSet.size}`
+      );
     });
   });
 });

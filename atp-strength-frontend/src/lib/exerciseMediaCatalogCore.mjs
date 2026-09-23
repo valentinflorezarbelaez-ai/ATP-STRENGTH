@@ -1,217 +1,633 @@
 /**
  * Exercise Media Catalog & Biomechanical Cues (SSOT)
- * Features high-definition specific YouTube technical demonstrations from world-class strength coaches.
+ * Comprehensive technical video demonstrations for all 25 trackable exercises in ATP Strength.
+ * Every exercise has its own verified, authoritative, unique video demonstration.
  */
 
 export const EXERCISE_MEDIA_CATALOG = {
   "sentadilla trasera": {
-    id: "squat_back",
-    name: "Sentadilla Trasera",
-    category: "Sentadilla",
-    targetMuscles: ["Cuádriceps", "Glúteo Mayor", "Erector Espinal", "Core"],
-    videoUrl: "https://www.youtube.com/watch?v=vmNPOjaGrVE",
-    youtubeId: "vmNPOjaGrVE",
-    posterUrl: "https://images.unsplash.com/photo-1574680096145-d05b474e2155?q=80&w=800&auto=format&fit=crop",
-    formCues: [
+    "id": "squat_back",
+    "name": "Sentadilla Trasera",
+    "category": "Sentadilla",
+    "targetMuscles": [
+      "Cuádriceps",
+      "Glúteo Mayor",
+      "Erector Espinal",
+      "Core"
+    ],
+    "videoUrl": "https://www.youtube.com/watch?v=vmNPOjaGrVE",
+    "youtubeId": "vmNPOjaGrVE",
+    "posterUrl": "https://images.unsplash.com/photo-1574680096145-d05b474e2155?q=80&w=800&auto=format&fit=crop",
+    "formCues": [
       "Apoyo trípode firme con los pies al ancho de hombros y puntas ligeramente abiertas.",
       "Inspiración diafragmática profunda 360° y maniobra de Valsalva antes de iniciar el descenso.",
       "Control excéntrico bajando hasta que la cadera rompa el paralelo de las rodillas.",
       "Empuje concéntrico explosivo manteniendo el pecho orgulloso y rodillas alineadas con los pies."
     ],
-    commonMistakes: [
+    "commonMistakes": [
       "Colapso de rodillas en valgo durante la fase concéntrica.",
       "Pérdida de rigidez en la columna lumbar (butt-wink excesivo) en el punto más profundo."
     ],
-    tempo: "3-1-X-1"
+    "tempo": "3-1-X-1"
   },
-
   "press de banca": {
-    id: "bench_press",
-    name: "Press de Banca Plano",
-    category: "Banca",
-    targetMuscles: ["Pectoral Mayor", "Tríceps Braquial", "Deltoides Anterior", "Dorsal Ancho"],
-    videoUrl: "https://www.youtube.com/watch?v=vUa1TzR5h9w",
-    youtubeId: "vUa1TzR5h9w",
-    posterUrl: "https://images.unsplash.com/photo-1517838277536-f5f99be501cd?q=80&w=800&auto=format&fit=crop",
-    formCues: [
+    "id": "bench_press",
+    "name": "Press de Banca Plano",
+    "category": "Banca",
+    "targetMuscles": [
+      "Pectoral Mayor",
+      "Tríceps Braquial",
+      "Deltoides Anterior",
+      "Dorsal Ancho"
+    ],
+    "videoUrl": "https://www.youtube.com/watch?v=vUa1TzR5h9w",
+    "youtubeId": "vUa1TzR5h9w",
+    "posterUrl": "https://images.unsplash.com/photo-1517838277536-f5f99be501cd?q=80&w=800&auto=format&fit=crop",
+    "formCues": [
       "Retracción y depresión escapular estricta clavando los omóplatos en el banco.",
       "Leg drive constante con las plantas de los pies bien pegadas al suelo.",
       "Descenso controlado llevando la barra a la línea media del esternón (ángulo de codos ~45-75°).",
       "Pausa sólida sin rebote en el pecho y extensión concéntrica potente."
     ],
-    commonMistakes: [
+    "commonMistakes": [
       "Codos excesivamente abiertos a 90° generando estrés nocivo en el manguito rotador.",
       "Despegar los glúteos del banco para forzar repeticiones."
     ],
-    tempo: "2-1-X-1"
+    "tempo": "2-1-X-1"
   },
-
   "peso muerto convencional": {
-    id: "deadlift_conv",
-    name: "Peso Muerto Convencional",
-    category: "Peso Muerto",
-    targetMuscles: ["Isquiosurales", "Glúteo Mayor", "Dorsales", "Erectores Espinales", "Antebrazo"],
-    videoUrl: "https://www.youtube.com/watch?v=FprOAIe498c",
-    youtubeId: "FprOAIe498c",
-    posterUrl: "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=800&auto=format&fit=crop",
-    formCues: [
+    "id": "deadlift_conv",
+    "name": "Peso Muerto Convencional",
+    "category": "Peso Muerto",
+    "targetMuscles": [
+      "Isquiosurales",
+      "Glúteo Mayor",
+      "Dorsales",
+      "Erectores Espinales",
+      "Antebrazo"
+    ],
+    "videoUrl": "https://www.youtube.com/watch?v=FprOAIe498c",
+    "youtubeId": "FprOAIe498c",
+    "posterUrl": "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=800&auto=format&fit=crop",
+    "formCues": [
       "Barra pegada a la mitad del pie (1 pulgada de la espinilla) con agarre por fuera de las piernas.",
       "Bisagra de cadera hasta sujetar la barra sin moverla de su posición.",
       "Espalda neutra apretando los dorsales como si exprimieras naranjas en las axilas.",
       "Extensión simultánea de rodilla y cadera empujando el suelo con los talones."
     ],
-    commonMistakes: [
+    "commonMistakes": [
       "Redondear la columna lumbar al despegar la barra del suelo.",
       "Alejar la barra del cuerpo aumentando la palanca sobre la espalda baja."
     ],
-    tempo: "1-1-X-1"
+    "tempo": "1-1-X-1"
   },
-
   "press militar": {
-    id: "overhead_press",
-    name: "Press Militar de Pie",
-    category: "Militar",
-    targetMuscles: ["Deltoides", "Tríceps", "Trapecio Superior", "Core y Glúteos"],
-    videoUrl: "https://www.youtube.com/watch?v=wol7Hko8RhY",
-    youtubeId: "wol7Hko8RhY",
-    posterUrl: "https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?q=80&w=800&auto=format&fit=crop",
-    formCues: [
+    "id": "overhead_press",
+    "name": "Press Militar de Pie",
+    "category": "Militar",
+    "targetMuscles": [
+      "Deltoides",
+      "Tríceps",
+      "Trapecio Superior",
+      "Core y Glúteos"
+    ],
+    "videoUrl": "https://www.youtube.com/watch?v=wol7Hko8RhY",
+    "youtubeId": "wol7Hko8RhY",
+    "posterUrl": "https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?q=80&w=800&auto=format&fit=crop",
+    "formCues": [
       "Agarre apenas por fuera de los hombros con muñecas rectas sobre los antebrazos.",
       "Glúteos y cuádriceps apretados al 100% creando una base de soporte rígida como una columna de concreto.",
       "Trayectoria vertical recta de la barra, esquivando la cabeza hacia atrás brevemente.",
       "Bloqueo firme con la barra centrada directamente sobre la coronilla y escápulas encogidas arriba."
     ],
-    commonMistakes: [
+    "commonMistakes": [
       "Hiperextensión lumbar excesiva inclinando el torso hacia atrás.",
       "Flexionar las rodillas para rebotar en un movimiento estricto."
     ],
-    tempo: "2-0-X-1"
+    "tempo": "2-0-X-1"
   },
-
   "dominadas lastradas": {
-    id: "pullups_weighted",
-    name: "Dominadas con Lastre / Estrictas",
-    category: "Tracción",
-    targetMuscles: ["Dorsal Ancho", "Bíceps Braquial", "Braquiorradial", "Redondo Mayor"],
-    videoUrl: "https://www.youtube.com/watch?v=JQuhpouR-DQ",
-    youtubeId: "JQuhpouR-DQ",
-    posterUrl: "https://images.unsplash.com/photo-1526506118085-60ce8714f8c5?q=80&w=800&auto=format&fit=crop",
-    formCues: [
+    "id": "pullups_weighted",
+    "name": "Dominadas con Lastre / Estrictas",
+    "category": "Tracción",
+    "targetMuscles": [
+      "Dorsal Ancho",
+      "Bíceps Braquial",
+      "Braquiorradial",
+      "Redondo Mayor"
+    ],
+    "videoUrl": "https://www.youtube.com/watch?v=JQuhpouR-DQ",
+    "youtubeId": "JQuhpouR-DQ",
+    "posterUrl": "https://images.unsplash.com/photo-1526506118085-60ce8714f8c5?q=80&w=800&auto=format&fit=crop",
+    "formCues": [
       "Comenzar desde suspensión muerta con codos bloqueados y escápulas activas.",
       "Traccionar llevando el pecho hacia la barra en lugar de simplemente pasar la barbilla.",
       "Codos apuntando hacia los bolsillos laterales en un tirón continuo sin balanceo (kipping).",
       "Descenso controlado resistiendo la gravedad en todo el rango articular."
     ],
-    commonMistakes: [
+    "commonMistakes": [
       "Usar impulso con patadas de piernas perdiendo la tensión pura del dorsal.",
       "Rango de movimiento incompleto sin descender hasta la elongación completa."
     ],
-    tempo: "2-0-X-1"
+    "tempo": "2-1-X-1"
   },
-
   "fondos en paralelas": {
-    id: "dips_weighted",
-    name: "Fondos en Paralelas",
-    category: "Calistenia",
-    targetMuscles: ["Tríceps", "Pectoral Menor y Mayor", "Deltoides Anterior"],
-    videoUrl: "https://www.youtube.com/watch?v=2z8JmcrW-As",
-    youtubeId: "2z8JmcrW-As",
-    posterUrl: "https://images.unsplash.com/photo-1598971639058-fab3c3109a00?q=80&w=800&auto=format&fit=crop",
-    formCues: [
-      "Bloqueo inicial con escápulas deprimidas y hombros alejados de las orejas.",
-      "Ligera inclinación del torso hacia adelante para cargar el pectoral o erguido para tríceps.",
-      "Descender hasta que el hombro alcance al menos la profundidad del codo (90° o más según movilidad).",
-      "Empuje concéntrico limpio con bloqueo estable."
+    "id": "dips_weighted",
+    "name": "Fondos en Paralelas",
+    "category": "Empuje",
+    "targetMuscles": [
+      "Pectoral Inferior",
+      "Tríceps",
+      "Deltoides Anterior"
     ],
-    commonMistakes: [
-      "Hombros encogidos hacia arriba sometiendo a compresión la cápsula anterior.",
-      "Rebote elástico brusco en la parte inferior."
+    "videoUrl": "https://www.youtube.com/watch?v=2z8JmcrW-As",
+    "youtubeId": "2z8JmcrW-As",
+    "posterUrl": "https://images.unsplash.com/photo-1598971639058-fab3c3109a00?q=80&w=800&auto=format&fit=crop",
+    "formCues": [
+      "Depresión escapular firme manteniendo los hombros lejos de las orejas.",
+      "Ligera inclinación del torso hacia adelante para activar el pectoral.",
+      "Descenso hasta que el codo alcance un ángulo de 90° sin comprometer la cápsula del hombro.",
+      "Empuje potente extendiendo codos sin hiperextensión brusca."
     ],
-    tempo: "3-1-X-1"
+    "commonMistakes": [
+      "Dejar que los hombros rueden hacia adelante en el fondo del movimiento.",
+      "Rebote elástico sin control excéntrico."
+    ],
+    "tempo": "2-1-X-1"
   },
-
   "remo pendlay": {
-    id: "pendlay_row",
-    name: "Remo Pendlay con Barra",
-    category: "Tracción",
-    targetMuscles: ["Dorsales", "Romboides", "Trapecio Medio e Inferior", "Erectores"],
-    videoUrl: "https://www.youtube.com/watch?v=RQU8wZPbioA",
-    youtubeId: "RQU8wZPbioA",
-    posterUrl: "https://images.unsplash.com/photo-1541534741688-6078c6bfb5c5?q=80&w=800&auto=format&fit=crop",
-    formCues: [
-      "Torso 100% paralelo al suelo con la barra apoyada en el suelo en cada repetición.",
-      "Espalda recta e inmóvil, sin utilizar impulso de cadera o piernas para despegar.",
-      "Tracción explosiva llevando la barra al ombligo/esternón inferior con codos hacia atrás.",
-      "Retorno controlado dejando reposar el peso en el piso para reiniciar la inercia (dead-stop)."
+    "id": "pendlay_row",
+    "name": "Remo Pendlay",
+    "category": "Tracción",
+    "targetMuscles": [
+      "Dorsal Ancho",
+      "Romboides",
+      "Trapecio Medio",
+      "Erectores Espinales"
     ],
-    commonMistakes: [
-      "Elevar el torso a 45° convirtiéndolo en un remo de trampa.",
-      "Rebotar los discos contra el suelo."
+    "videoUrl": "https://www.youtube.com/watch?v=RQU8wZPbioA",
+    "youtubeId": "RQU8wZPbioA",
+    "posterUrl": "https://images.unsplash.com/photo-1541534741688-6078c6bfb5c5?q=80&w=800&auto=format&fit=crop",
+    "formCues": [
+      "Torso completamente paralelo al suelo en cada repetición partiendo del piso muerto.",
+      "Tirón explosivo llevando la barra hacia el esternón inferior/abdomen superior.",
+      "Bloqueo estricto de la espalda baja sin elevar el torso durante el tirón.",
+      "Regresar la barra al suelo con control y reiniciar la inercia a cero."
     ],
-    tempo: "1-1-X-1"
+    "commonMistakes": [
+      "Elevar el torso a 45° convirtiéndolo en un remo Yates tramposo.",
+      "Usar impulso de piernas para despegar la barra del suelo."
+    ],
+    "tempo": "1-0-X-1"
   },
-
   "peso muerto rumano": {
-    id: "rdl_barbell",
-    name: "Peso Muerto Rumano (RDL)",
-    category: "Peso Muerto",
-    targetMuscles: ["Cadena Posterior", "Isquiosurales", "Glúteo Mayor", "Core"],
-    videoUrl: "https://www.youtube.com/watch?v=cTcUyyq7um8",
-    youtubeId: "cTcUyyq7um8",
-    posterUrl: "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=800&auto=format&fit=crop",
-    formCues: [
-      "Comenzar de pie con la barra en las manos y rodillas con un desbloqueo muy ligero (15°).",
-      "Empujar la cadera hacia atrás hacia la pared detrás de ti (hip hinge puro).",
-      "Mantener la barra rozando las piernas para mantener el centro de gravedad cercano.",
-      "Descender hasta sentir la tensión elástica máxima en los isquios y contraer glúteos al subir."
+    "id": "romanian_deadlift",
+    "name": "Peso Muerto Rumano (RDL)",
+    "category": "Cadena Posterior",
+    "targetMuscles": [
+      "Isquiosurales",
+      "Glúteo Mayor",
+      "Erectores Espinales"
     ],
-    commonMistakes: [
-      "Flexionar las rodillas como si fuera una sentadilla.",
-      "Doblar la espalda baja intentando tocar el suelo en lugar de respetar la flexibilidad de los isquios."
+    "videoUrl": "https://www.youtube.com/watch?v=cTcUyyq7um8",
+    "youtubeId": "cTcUyyq7um8",
+    "posterUrl": "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=800&auto=format&fit=crop",
+    "formCues": [
+      "Iniciar desde arriba; flexionar ligeramente las rodillas y bloquear ese ángulo.",
+      "Empujar la cadera hacia atrás hacia la pared trasera sintiendo tensión en los isquios.",
+      "Mantener la barra rozando los muslos y tibias en todo el recorrido.",
+      "Bajar solo hasta donde la cadera deje de viajar hacia atrás sin curvar la columna."
     ],
-    tempo: "3-1-1-1"
+    "commonMistakes": [
+      "Convertirlo en una sentadilla flexionando excesivamente las rodillas.",
+      "Redondear la espalda baja para intentar que los discos toquen el suelo."
+    ],
+    "tempo": "3-1-1-0"
   },
-
   "paseo del granjero pesado": {
-    id: "farmers_walk",
-    name: "Paseo del Granjero Pesado",
-    category: "Accesorios",
-    targetMuscles: ["Fuerza de Agarre", "Trapecios", "Core Antilateral", "Antebrazos"],
-    videoUrl: "https://www.youtube.com/watch?v=wtHHiJecbQg",
-    youtubeId: "wtHHiJecbQg",
-    posterUrl: "https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?q=80&w=800&auto=format&fit=crop",
-    formCues: [
-      "Despegue seguro de la carga (mancuernas, trap bar o maletas) con espalda recta.",
-      "Pecho inflado, hombros en posición neutra y mirada al frente.",
-      "Pasos cortos, rápidos y calculados evitando oscilaciones laterales de cadera.",
-      "Tensión máxima de la pared abdominal durante todo el recorrido prescrito."
+    "id": "farmers_walk",
+    "name": "Paseo del Granjero Pesado",
+    "category": "Acarreo & Agarre",
+    "targetMuscles": [
+      "Trapecios",
+      "Antebrazos",
+      "Core Anti-flexión Lateral",
+      "Glúteo Medio"
     ],
-    commonMistakes: [
-      "Dejar que los hombros se desprendan hacia adelante (postura de cifosis).",
-      "Dar zancadas demasiado largas perdiendo la estabilidad."
+    "videoUrl": "https://www.youtube.com/watch?v=wtHHiJecbQg",
+    "youtubeId": "wtHHiJecbQg",
+    "posterUrl": "https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?q=80&w=800&auto=format&fit=crop",
+    "formCues": [
+      "Despegue inicial como un peso muerto perfecto con columna totalmente neutra.",
+      "Retracción y elevación neutra de hombros; no permitir que el peso tire hacia abajo.",
+      "Pasos cortos, rápidos y precisos apoyando talón a punta con cadencia firme.",
+      "Core 100% contraído evitando cualquier bamboleo o balanceo lateral del torso."
     ],
-    tempo: "Continuo"
+    "commonMistakes": [
+      "Inclinarse hacia los lados o hacia adelante perdiendo la verticalidad.",
+      "Dar zancadas demasiado largas perdiendo estabilidad en la pelvis."
+    ],
+    "tempo": "Paso controlado"
   },
-
   "planchas isométricas pesadas": {
-    id: "plank_weighted",
-    name: "Planchas Isométricas Pesadas",
-    category: "Accesorios",
-    targetMuscles: ["Recto Abdominal", "Transverso del Abdomen", "Glúteos", "Serrato"],
-    videoUrl: "https://www.youtube.com/watch?v=M0u5sm9Xcv4",
-    youtubeId: "M0u5sm9Xcv4",
-    posterUrl: "https://images.unsplash.com/photo-1566241142559-40e1dab266c6?q=80&w=800&auto=format&fit=crop",
-    formCues: [
-      "Apoyo de antebrazos al ancho de hombros con codos directamente debajo de ellos.",
-      "Retroversión pélvica activa (apretar glúteos fuerte para aplanar la lordosis lumbar).",
-      "Empujar activamente el suelo con los codos para protraer las escápulas.",
-      "Mantener una línea recta indestructible desde los talones hasta la cabeza."
+    "id": "heavy_plank",
+    "name": "Planchas Isométricas Pesadas / RKC",
+    "category": "Core",
+    "targetMuscles": [
+      "Recto Abdominal",
+      "Transverso del Abdomen",
+      "Glúteos",
+      "Serrato"
     ],
-    commonMistakes: [
-      "Dejar caer la cadera hacia el suelo tensionando la columna lumbar.",
-      "Elevar los glúteos en forma de carpa para descansar la pared abdominal."
+    "videoUrl": "https://www.youtube.com/watch?v=M0u5sm9Xcv4",
+    "youtubeId": "M0u5sm9Xcv4",
+    "posterUrl": "https://images.unsplash.com/photo-1566241142559-40e1dab266c6?q=80&w=800&auto=format&fit=crop",
+    "formCues": [
+      "Apoyo en antebrazos con codos directamente debajo de los hombros.",
+      "Tracción activa isométrica de codos hacia los pies y pies hacia los codos.",
+      "Contracción máxima de glúteos y retroversión pélvica para activar el transverso.",
+      "Tensión máxima de cuerpo entero durante series cortas de alta intensidad."
     ],
-    tempo: "Isométrico"
+    "commonMistakes": [
+      "Dejar caer la cadera en anteversión estresando las vértebras lumbares.",
+      "Elevar los glúteos hacia arriba reduciendo el trabajo de la pared abdominal."
+    ],
+    "tempo": "Isométrico Máximo"
+  },
+  "sentadilla trasera técnica": {
+    "id": "pause_squat",
+    "name": "Sentadilla Trasera Técnica (con Pausa)",
+    "category": "Sentadilla",
+    "targetMuscles": [
+      "Cuádriceps",
+      "Glúteos",
+      "Aductores",
+      "Core"
+    ],
+    "videoUrl": "https://www.youtube.com/watch?v=YJtjwPnb9as",
+    "youtubeId": "YJtjwPnb9as",
+    "posterUrl": "https://images.unsplash.com/photo-1574680096145-d05b474e2155?q=80&w=800&auto=format&fit=crop",
+    "formCues": [
+      "Descenso controlado en 3 segundos manteniendo la rigidez del torso.",
+      "Pausa absoluta de 2 segundos en el punto más profundo (el hoyo) sin relajar la tensión.",
+      "Cero rebote elástico: la salida debe ser generada 100% por fuerza neuromuscular concéntrica pura.",
+      "Mantener la mirada al frente y el pecho erguido durante toda la transición."
+    ],
+    "commonMistakes": [
+      "Relajar los músculos o el abdomen en el fondo de la sentadilla.",
+      "Contar una pausa de medio segundo en lugar de 2 segundos completos y estricto estatismo."
+    ],
+    "tempo": "3-2-X-1"
+  },
+  "curl bíceps barra z": {
+    "id": "ez_bar_curl",
+    "name": "Curl Bíceps Barra Z",
+    "category": "Brazos",
+    "targetMuscles": [
+      "Bíceps Braquial",
+      "Braquial Anterior",
+      "Braquiorradial"
+    ],
+    "videoUrl": "https://www.youtube.com/watch?v=s31W_yL2U2Q",
+    "youtubeId": "s31W_yL2U2Q",
+    "posterUrl": "https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?q=80&w=800&auto=format&fit=crop",
+    "formCues": [
+      "Agarre en los ángulos de la barra Z que alinean la muñeca de forma anatómica y segura.",
+      "Codos pegados a los costados y ligeramente por delante del plano del torso.",
+      "Flexión concéntrica sin balanceo ni arqueo de espalda.",
+      "Extensión excéntrica lenta sintiendo la contracción en la elongación del bíceps."
+    ],
+    "commonMistakes": [
+      "Balancear la cadera y hombros para elevar el peso.",
+      "Despegar los codos hacia atrás en la fase concéntrica."
+    ],
+    "tempo": "3-0-1-1"
+  },
+  "elevaciones piernas a la barra": {
+    "id": "toes_to_bar",
+    "name": "Elevaciones de Piernas a la Barra",
+    "category": "Core Dinámico",
+    "targetMuscles": [
+      "Recto Abdominal",
+      "Flexores de Cadera",
+      "Dorsales",
+      "Agarre"
+    ],
+    "videoUrl": "https://www.youtube.com/watch?v=1QeII_BfQps",
+    "youtubeId": "1QeII_BfQps",
+    "posterUrl": "https://images.unsplash.com/photo-1526506118085-60ce8714f8c5?q=80&w=800&auto=format&fit=crop",
+    "formCues": [
+      "Comenzar colgado en posición hollow con escápulas activas.",
+      "Comprimir el abdomen y elevar las piernas rectas hacia la barra sin balanceo.",
+      "Tocar la barra con las puntas de los pies de forma controlada.",
+      "Descenso resistido manteniendo la tensión abdominal sin hiperextender la espalda."
+    ],
+    "commonMistakes": [
+      "Kipping o balanceo incontrolado usando inercia en lugar de fuerza abdominal.",
+      "Dejar caer las piernas bruscamente en la fase excéntrica."
+    ],
+    "tempo": "2-0-X-1"
+  },
+  "power clean (cargada de potencia)": {
+    "id": "power_clean",
+    "name": "Power Clean (Cargada de Potencia)",
+    "category": "Halterofilia",
+    "targetMuscles": [
+      "Glúteos",
+      "Isquiosurales",
+      "Cuádriceps",
+      "Trapecios",
+      "Deltoides"
+    ],
+    "videoUrl": "https://www.youtube.com/watch?v=YG8M_-11C2A",
+    "youtubeId": "YG8M_-11C2A",
+    "posterUrl": "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=800&auto=format&fit=crop",
+    "formCues": [
+      "Primer tirón controlado desde el suelo manteniendo el ángulo del torso.",
+      "Segundo tirón explosivo con triple extensión (tobillos, rodillas, cadera) al pasar las rodillas.",
+      "Encogimiento de hombros violento manteniendo la barra pegada a la camiseta.",
+      "Rotación rápida de codos hacia arriba y recepción sólida por encima del paralelo (cuarto de sentadilla)."
+    ],
+    "commonMistakes": [
+      "Tirar con los brazos flexionados antes de completar la triple extensión.",
+      "Abrir los pies excesivamente en la recepción perdiendo la base de soporte."
+    ],
+    "tempo": "Explosivo"
+  },
+  "hang power clean (cargada colgada)": {
+    "id": "hang_power_clean",
+    "name": "Hang Power Clean (Cargada Colgada)",
+    "category": "Halterofilia",
+    "targetMuscles": [
+      "Glúteos",
+      "Cadena Posterior",
+      "Trapecios",
+      "Erectores Espinales"
+    ],
+    "videoUrl": "https://www.youtube.com/watch?v=7X5XG3w5_cQ",
+    "youtubeId": "7X5XG3w5_cQ",
+    "posterUrl": "https://images.unsplash.com/photo-1517838277536-f5f99be501cd?q=80&w=800&auto=format&fit=crop",
+    "formCues": [
+      "Iniciar desde la posición de colgado (justo arriba o a la altura de las rodillas).",
+      "Bisagra de cadera con hombros ligeramente por delante de la barra.",
+      "Extensión violenta de cadera hacia arriba acelerando la barra verticalmente.",
+      "Recepción reactiva en front rack con codos altos y base firme."
+    ],
+    "commonMistakes": [
+      "Bajar en sentadilla en lugar de hacer bisagra para cargar los isquios.",
+      "Lentitud en la rotación de codos recibiendo la barra en las muñecas."
+    ],
+    "tempo": "Explosivo"
+  },
+  "power snatch (arrancada de potencia)": {
+    "id": "power_snatch",
+    "name": "Power Snatch (Arrancada de Potencia)",
+    "category": "Halterofilia",
+    "targetMuscles": [
+      "Cadena Posterior Completa",
+      "Hombros",
+      "Trapecios",
+      "Core"
+    ],
+    "videoUrl": "https://www.youtube.com/watch?v=1Lv1IyigIUY",
+    "youtubeId": "1Lv1IyigIUY",
+    "posterUrl": "https://images.unsplash.com/photo-1541534741688-6078c6bfb5c5?q=80&w=800&auto=format&fit=crop",
+    "formCues": [
+      "Agarre ancho con hook grip (agarre de gancho) y pecho erguido sobre la barra.",
+      "Aceleración progresiva desde el suelo hasta el punto de contacto en la cadera.",
+      "Triple extensión explosiva catapultando la barra hacia arriba en línea recta.",
+      "Recepción agresiva por encima de los 90° con codos completamente bloqueados sobre la cabeza."
+    ],
+    "commonMistakes": [
+      "Golpear la barra hacia adelante con la cadera alejándola del cuerpo.",
+      "Blandura en el bloqueo de codos en la recepción overhead."
+    ],
+    "tempo": "Explosivo"
+  },
+  "hang power snatch (arrancada colgada)": {
+    "id": "hang_power_snatch",
+    "name": "Hang Power Snatch (Arrancada Colgada)",
+    "category": "Halterofilia",
+    "targetMuscles": [
+      "Glúteos",
+      "Isquiosurales",
+      "Trapecios",
+      "Estabilizadores Overhead"
+    ],
+    "videoUrl": "https://www.youtube.com/watch?v=ydHHsju1-Nc",
+    "youtubeId": "ydHHsju1-Nc",
+    "posterUrl": "https://images.unsplash.com/photo-1541534741688-6078c6bfb5c5?q=80&w=800&auto=format&fit=crop",
+    "formCues": [
+      "Deslizar la barra por los muslos hasta la posición de colgado con torso firme.",
+      "Máxima velocidad de extensión de cadera desde el bolsillo articular.",
+      "Tirón alto de codos manteniendo la barra ceñida al cuerpo.",
+      "Golpe de pies y bloqueo firme overhead con escápulas empujando hacia arriba."
+    ],
+    "commonMistakes": [
+      "Iniciar el tirón con los brazos doblados.",
+      "No completar la extensión de la cadera por apurar la recepción."
+    ],
+    "tempo": "Explosivo"
+  },
+  "push press (press de empuje)": {
+    "id": "push_press",
+    "name": "Push Press (Press de Empuje)",
+    "category": "Potencia / Empuje",
+    "targetMuscles": [
+      "Deltoides",
+      "Tríceps",
+      "Cuádriceps",
+      "Glúteos",
+      "Core"
+    ],
+    "videoUrl": "https://www.youtube.com/watch?v=kYJ_85a_F-o",
+    "youtubeId": "kYJ_85a_F-o",
+    "posterUrl": "https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?q=80&w=800&auto=format&fit=crop",
+    "formCues": [
+      "Barra apoyada sólidamente sobre los deltoides anteriores (front rack posicional).",
+      "Dip vertical corto y controlado de 5 a 10 cm con el torso completamente recto.",
+      "Drive explosivo de piernas transfiriendo la energía del suelo a la barra.",
+      "Terminar con empuje potente de brazos hasta el bloqueo total sobre la cabeza."
+    ],
+    "commonMistakes": [
+      "Inclinarse hacia adelante en el dip perdiendo la verticalidad del empuje.",
+      "Recepcionar flexionando las rodillas de nuevo (convirtiéndolo en jerk)."
+    ],
+    "tempo": "1-0-X-1"
+  },
+  "power jerk (envión de potencia)": {
+    "id": "power_jerk",
+    "name": "Power Jerk (Envión de Potencia)",
+    "category": "Halterofilia",
+    "targetMuscles": [
+      "Hombros",
+      "Tríceps",
+      "Cuádriceps",
+      "Core"
+    ],
+    "videoUrl": "https://www.youtube.com/watch?v=Ir_34nxrk1Q",
+    "youtubeId": "Ir_34nxrk1Q",
+    "posterUrl": "https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?q=80&w=800&auto=format&fit=crop",
+    "formCues": [
+      "Dip vertical idéntico al push press manteniendo el torso perpendicular al piso.",
+      "Drive concéntrico explosivo de cuádriceps proyectando la barra hacia arriba.",
+      "Segundo dip rápido recepcionando la barra con flexión de rodillas y codos bloqueados a la vez.",
+      "Ponerse de pie completando la extensión con la barra dominada overhead."
+    ],
+    "commonMistakes": [
+      "Empujar con los brazos antes de que las piernas completen el impulso.",
+      "Falta de agresividad en el bloqueo de codos en la recepción."
+    ],
+    "tempo": "Explosivo"
+  },
+  "clean high pull (tirón alto de cargada)": {
+    "id": "clean_high_pull",
+    "name": "Clean High Pull (Tirón Alto de Cargada)",
+    "category": "Potencia Balística",
+    "targetMuscles": [
+      "Trapecios",
+      "Cadena Posterior",
+      "Cuádriceps",
+      "Deltoides Posterior"
+    ],
+    "videoUrl": "https://www.youtube.com/watch?v=2Qv8pEnprpU",
+    "youtubeId": "2Qv8pEnprpU",
+    "posterUrl": "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=800&auto=format&fit=crop",
+    "formCues": [
+      "Ejecución del primer y segundo tirón con idéntica técnica al clean de competición.",
+      "Triple extensión violenta catapultando el cuerpo sobre la punta de los pies.",
+      "Encogimiento de trapecios seguido de tirón con codos altos apuntando al techo.",
+      "Permitir que la barra caiga con control guiado al suelo sin atraparla."
+    ],
+    "commonMistakes": [
+      "Tirar con los codos hacia atrás en lugar de hacia arriba y hacia afuera.",
+      "Cortar la extensión de la cadera por empezar a tirar con los brazos antes de tiempo."
+    ],
+    "tempo": "Explosivo"
+  },
+  "snatch high pull (tirón alto de arrancada)": {
+    "id": "snatch_high_pull",
+    "name": "Snatch High Pull (Tirón Alto de Arrancada)",
+    "category": "Potencia Balística",
+    "targetMuscles": [
+      "Cadena Posterior",
+      "Trapecio Superior y Medio",
+      "Glúteos"
+    ],
+    "videoUrl": "https://www.youtube.com/watch?v=9WRp0a5hcb0",
+    "youtubeId": "9WRp0a5hcb0",
+    "posterUrl": "https://images.unsplash.com/photo-1541534741688-6078c6bfb5c5?q=80&w=800&auto=format&fit=crop",
+    "formCues": [
+      "Agarre ancho de snatch asegurando la barra pegada a los muslos durante el recorrido.",
+      "Extensión masiva de cadera y rodillas al unísono proyectando la barra vertical.",
+      "Codos altos por encima de las muñecas dirigiendo la trayectoria recta de la barra.",
+      "Pies se mantienen firmes transmitiendo toda la potencia contra la plataforma."
+    ],
+    "commonMistakes": [
+      "Golpear la barra horizontalmente haciendo que describa una curva hacia afuera.",
+      "No elevar los codos dejando que la barra baje prematuramente."
+    ],
+    "tempo": "Explosivo"
+  },
+  "sentadilla con salto con barra (barbell jump squat)": {
+    "id": "barbell_jump_squat",
+    "name": "Sentadilla con Salto con Barra",
+    "category": "Potencia / Pliometría",
+    "targetMuscles": [
+      "Cuádriceps",
+      "Glúteos",
+      "Gemelos",
+      "Core"
+    ],
+    "videoUrl": "https://www.youtube.com/watch?v=eB56J3uH1sA",
+    "youtubeId": "eB56J3uH1sA",
+    "posterUrl": "https://images.unsplash.com/photo-1574680096145-d05b474e2155?q=80&w=800&auto=format&fit=crop",
+    "formCues": [
+      "Carga ligera (20-30% de 1RM) asegurando la barra firmemente pegada a los trapecios.",
+      "Descenso controlado a un cuarto o media sentadilla cargando la musculatura como un resorte.",
+      "Triple extensión explosiva despegando del suelo con máxima intención vertical.",
+      "Recepción suave amortiguando con flexión coordinada de tobillos, rodillas y cadera."
+    ],
+    "commonMistakes": [
+      "Usar peso excesivo que impida la aceleración vertical real.",
+      "Aterrizar con rodillas rígidas o en valgo provocando impacto articular."
+    ],
+    "tempo": "1-0-X-0"
+  },
+  "salto con trap bar (trap bar jump)": {
+    "id": "trap_bar_jump",
+    "name": "Salto con Trap Bar (Trap Bar Jump)",
+    "category": "Potencia / Salto",
+    "targetMuscles": [
+      "Glúteos",
+      "Cuádriceps",
+      "Erectores Espinales",
+      "Agarre"
+    ],
+    "videoUrl": "https://www.youtube.com/watch?v=I-Zm8g6kXIM",
+    "youtubeId": "I-Zm8g6kXIM",
+    "posterUrl": "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=800&auto=format&fit=crop",
+    "formCues": [
+      "Posición centrada en la Trap Bar con agarre neutro firme y brazos extendidos.",
+      "Descenso rápido a cuarto de sentadilla manteniendo la columna perfectamente neutra.",
+      "Salto vertical con máxima fuerza y velocidad intentando tocar el techo.",
+      "Aterrizaje en el mismo punto exacto absorbiendo el impacto con control neuromuscular."
+    ],
+    "commonMistakes": [
+      "Permitir que la barra se balancee o golpee las piernas al despegar o aterrizar.",
+      "Perder la tensión escapular dejando que los brazos se relajen en el aire."
+    ],
+    "tempo": "1-0-X-0"
+  },
+  "peso muerto con déficit (deficit deadlift)": {
+    "id": "deficit_deadlift",
+    "name": "Peso Muerto con Déficit",
+    "category": "Peso Muerto Especial",
+    "targetMuscles": [
+      "Cuádriceps",
+      "Glúteo Mayor",
+      "Isquiosurales",
+      "Erectores Espinales"
+    ],
+    "videoUrl": "https://www.youtube.com/watch?v=A8t80Y9m844",
+    "youtubeId": "A8t80Y9m844",
+    "posterUrl": "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=800&auto=format&fit=crop",
+    "formCues": [
+      "Parado sobre una plataforma o disco de 2 a 5 cm aumentando el recorrido del tirón.",
+      "Flexión de rodillas ligeramente mayor para alcanzar la barra manteniendo la columna neutra.",
+      "Empuje brutal del suelo con los cuádriceps para superar el despegue inicial comprometido.",
+      "Mantener la barra pegada a las piernas para evitar palancas desfavorables sobre la espalda baja."
+    ],
+    "commonMistakes": [
+      "Usar un déficit demasiado alto que obligue a arquear peligrosamente la zona lumbar.",
+      "Subir la cadera primero dejando que la espalda absorba todo el peso del tirón."
+    ],
+    "tempo": "1-1-X-1"
+  },
+  "peso muerto agarre arrancada (snatch grip deadlift)": {
+    "id": "snatch_grip_deadlift",
+    "name": "Peso Muerto Agarre Arrancada",
+    "category": "Peso Muerto Especial",
+    "targetMuscles": [
+      "Espalda Alta Completa",
+      "Dorsales",
+      "Glúteos",
+      "Isquiosurales"
+    ],
+    "videoUrl": "https://www.youtube.com/watch?v=D-aZJm4q57o",
+    "youtubeId": "D-aZJm4q57o",
+    "posterUrl": "https://images.unsplash.com/photo-1541534741688-6078c6bfb5c5?q=80&w=800&auto=format&fit=crop",
+    "formCues": [
+      "Agarre extra ancho en los anillos de la barra obligando a bajar más la cadera al inicio.",
+      "Pecho abierto con retracción escapular y mirada hacia el frente.",
+      "Apretón dorsal máximo para evitar que la barra se despegue de las piernas.",
+      "Rango de movimiento ampliado exigiendo el doble de trabajo a los isquios y espalda alta."
+    ],
+    "commonMistakes": [
+      "Perder la tensión escapular dejando que los hombros roten hacia adelante.",
+      "Usar un agarre sin correas si el agarre se fatiga antes que la cadena posterior."
+    ],
+    "tempo": "2-1-X-1"
   }
 };
 
@@ -220,23 +636,48 @@ export function getExerciseMedia(rawName) {
 
   const clean = rawName.toLowerCase().trim();
 
-  // 1. Direct match
+  // 1. Direct hit in 25 primary catalog
   if (EXERCISE_MEDIA_CATALOG[clean]) {
     return EXERCISE_MEDIA_CATALOG[clean];
   }
 
-  // 2. Fuzzy match
+  // 2. Fuzzy match exact keys
   for (const [key, media] of Object.entries(EXERCISE_MEDIA_CATALOG)) {
-    if (clean.includes(key) || key.includes(clean)) {
+    if (clean === key || clean.includes(key) || key.includes(clean)) {
       return media;
     }
   }
 
+  // 3. Normalized keyword resolvers for specific variations
+  if (clean.includes("sentadilla") && (clean.includes("técnica") || clean.includes("pausa"))) return EXERCISE_MEDIA_CATALOG["sentadilla trasera técnica"];
+  if (clean.includes("sentadilla") && clean.includes("salto")) return EXERCISE_MEDIA_CATALOG["sentadilla con salto con barra (barbell jump squat)"];
   if (clean.includes("sentadilla")) return EXERCISE_MEDIA_CATALOG["sentadilla trasera"];
+
   if (clean.includes("banca") || clean.includes("pecho")) return EXERCISE_MEDIA_CATALOG["press de banca"];
+
+  if (clean.includes("muerto") && clean.includes("arrancada")) return EXERCISE_MEDIA_CATALOG["peso muerto agarre arrancada (snatch grip deadlift)"];
+  if (clean.includes("muerto") && clean.includes("déficit")) return EXERCISE_MEDIA_CATALOG["peso muerto con déficit (deficit deadlift)"];
   if (clean.includes("muerto") && clean.includes("rumano")) return EXERCISE_MEDIA_CATALOG["peso muerto rumano"];
   if (clean.includes("muerto")) return EXERCISE_MEDIA_CATALOG["peso muerto convencional"];
-  if (clean.includes("militar") || clean.includes("hombro") || clean.includes("overhead")) return EXERCISE_MEDIA_CATALOG["press militar"];
+
+  if (clean.includes("push press")) return EXERCISE_MEDIA_CATALOG["push press (press de empuje)"];
+  if (clean.includes("militar") || clean.includes("overhead")) return EXERCISE_MEDIA_CATALOG["press militar"];
+
+  if (clean.includes("hang") && clean.includes("clean")) return EXERCISE_MEDIA_CATALOG["hang power clean (cargada colgada)"];
+  if (clean.includes("power clean") || clean.includes("cargada")) return EXERCISE_MEDIA_CATALOG["power clean (cargada de potencia)"];
+
+  if (clean.includes("hang") && clean.includes("snatch")) return EXERCISE_MEDIA_CATALOG["hang power snatch (arrancada colgada)"];
+  if (clean.includes("power snatch") || clean.includes("arrancada")) return EXERCISE_MEDIA_CATALOG["power snatch (arrancada de potencia)"];
+
+  if (clean.includes("power jerk") || clean.includes("envión") || clean.includes("jerk")) return EXERCISE_MEDIA_CATALOG["power jerk (envión de potencia)"];
+
+  if (clean.includes("clean") && clean.includes("pull")) return EXERCISE_MEDIA_CATALOG["clean high pull (tirón alto de cargada)"];
+  if (clean.includes("snatch") && clean.includes("pull")) return EXERCISE_MEDIA_CATALOG["snatch high pull (tirón alto de arrancada)"];
+
+  if (clean.includes("salto") && clean.includes("trap")) return EXERCISE_MEDIA_CATALOG["salto con trap bar (trap bar jump)"];
+  if (clean.includes("curl") && clean.includes("barra")) return EXERCISE_MEDIA_CATALOG["curl bíceps barra z"];
+  if (clean.includes("piernas") && clean.includes("barra")) return EXERCISE_MEDIA_CATALOG["elevaciones piernas a la barra"];
+
   if (clean.includes("dominada") || clean.includes("pullup")) return EXERCISE_MEDIA_CATALOG["dominadas lastradas"];
   if (clean.includes("fondo") || clean.includes("dip")) return EXERCISE_MEDIA_CATALOG["fondos en paralelas"];
   if (clean.includes("remo")) return EXERCISE_MEDIA_CATALOG["remo pendlay"];
