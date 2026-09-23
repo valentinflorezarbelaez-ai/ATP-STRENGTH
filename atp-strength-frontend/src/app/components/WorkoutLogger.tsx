@@ -85,6 +85,16 @@ export function WorkoutLogger({ d }: { d: Dash }) {
                     <div className="flex items-center gap-2 flex-shrink-0">
                       <button
                         type="button"
+                        onClick={() => setShowVideoModal(true)}
+                        className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl border border-amber-500/40 bg-amber-500/10 hover:bg-amber-500/20 text-xs font-mono font-bold text-amber-300 transition-all active:scale-95 cursor-pointer shadow-[0_0_12px_rgba(245,158,11,0.15)]"
+                        title="Ver video técnico biomecánico en HD"
+                      >
+                        <Play className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
+                        <span className="hidden sm:inline">TÉCNICA HD</span>
+                      </button>
+
+                      <button
+                        type="button"
                         onClick={() => setShowWarmupModal(true)}
                         className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl border border-emerald-500/40 bg-emerald-500/10 hover:bg-emerald-500/20 text-xs font-mono font-bold text-emerald-300 transition-all active:scale-95 cursor-pointer shadow-[0_0_12px_rgba(16,185,129,0.15)]"
                         title="Abrir Calculador de Series de Aproximación y Cuidado Articular"
@@ -647,6 +657,15 @@ export function WorkoutLogger({ d }: { d: Dash }) {
                   </div>
                 </div>
               </div>
+
+      {/* Modal de Video Técnico Biomecánico HD */}
+      {showVideoModal && (
+        <ExerciseVideoModal
+          isOpen={showVideoModal}
+          onClose={() => setShowVideoModal(false)}
+          media={getExerciseMedia(activeExercise.name)}
+        />
+      )}
 
       {/* Modal de Calculador de Aproximación y Cuidado Articular */}
       <WarmupCalculatorModal

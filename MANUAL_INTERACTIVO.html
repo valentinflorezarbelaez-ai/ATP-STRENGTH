@@ -733,10 +733,10 @@
         ⚡ Todos (25)
       </button>
       <button class="quiz-btn" onclick="filterVideoCategory('Fuerza Básica', this)" style="padding: 0.4rem 0.8rem; font-size: 0.75rem;">
-        🏋️‍♂️ Fuerza Básica (4)
+        🏋️‍♂️ Fuerza Básica (5)
       </button>
       <button class="quiz-btn" onclick="filterVideoCategory('Tracción & Espalda', this)" style="padding: 0.4rem 0.8rem; font-size: 0.75rem;">
-        🧗 Tracción & Espalda (6)
+        🧗 Tracción & Espalda (5)
       </button>
       <button class="quiz-btn" onclick="filterVideoCategory('Halterofilia & Potencia', this)" style="padding: 0.4rem 0.8rem; font-size: 0.75rem;">
         ⚡ Halterofilia & Potencia (8)
@@ -962,7 +962,7 @@
     "id": "dips_weighted",
     "name": "Fondos en Paralelas",
     "category": "Empuje",
-    "group": "Otros",
+    "group": "Brazos, Core & Accesorios",
     "youtubeId": "2z8JmcrW-As",
     "videoUrl": "https://www.youtube.com/watch?v=2z8JmcrW-As",
     "formCues": [
@@ -994,7 +994,7 @@
     "id": "romanian_deadlift",
     "name": "Peso Muerto Rumano (RDL)",
     "category": "Cadena Posterior",
-    "group": "Otros",
+    "group": "Tracción & Espalda",
     "youtubeId": "cTcUyyq7um8",
     "videoUrl": "https://www.youtube.com/watch?v=cTcUyyq7um8",
     "formCues": [
@@ -1010,7 +1010,7 @@
     "id": "farmers_walk",
     "name": "Paseo del Granjero Pesado",
     "category": "Acarreo & Agarre",
-    "group": "Otros",
+    "group": "Brazos, Core & Accesorios",
     "youtubeId": "wtHHiJecbQg",
     "videoUrl": "https://www.youtube.com/watch?v=wtHHiJecbQg",
     "formCues": [
@@ -1026,7 +1026,7 @@
     "id": "heavy_plank",
     "name": "Planchas Isométricas Pesadas / RKC",
     "category": "Core",
-    "group": "Otros",
+    "group": "Brazos, Core & Accesorios",
     "youtubeId": "M0u5sm9Xcv4",
     "videoUrl": "https://www.youtube.com/watch?v=M0u5sm9Xcv4",
     "formCues": [
@@ -1074,7 +1074,7 @@
     "id": "toes_to_bar",
     "name": "Elevaciones de Piernas a la Barra",
     "category": "Core Dinámico",
-    "group": "Otros",
+    "group": "Brazos, Core & Accesorios",
     "youtubeId": "1QeII_BfQps",
     "videoUrl": "https://www.youtube.com/watch?v=1QeII_BfQps",
     "formCues": [
@@ -1279,6 +1279,14 @@
   }
 ];
   let activeExerciseKey = "press de banca";
+  let currentVideoGroup = "Todos";
+
+  function getCurrentlyFilteredExercises() {
+    if (currentVideoGroup === 'Todos') {
+      return exerciseVideoDatabase;
+    }
+    return exerciseVideoDatabase.filter(e => e.group === currentVideoGroup);
+  }
 
   function renderExerciseButtons(filteredList) {
     const grid = document.getElementById('exerciseButtonGrid');
@@ -1286,18 +1294,25 @@
     grid.innerHTML = '';
     filteredList.forEach(ex => {
       const btn = document.createElement('button');
-      btn.className = 'quiz-btn' + (ex.key === activeExerciseKey ? ' active-ex' : '');
+      const isSelected = ex.key === activeExerciseKey;
+      btn.className = 'quiz-btn' + (isSelected ? ' active-ex' : '');
       btn.style.padding = '0.6rem 0.8rem';
       btn.style.fontSize = '0.8rem';
       btn.style.textAlign = 'left';
       btn.style.display = 'flex';
       btn.style.flexDirection = 'column';
       btn.style.gap = '0.2rem';
-      if (ex.key === activeExerciseKey) {
+      btn.style.cursor = 'pointer';
+      if (isSelected) {
         btn.style.borderColor = 'var(--gold)';
         btn.style.color = '#fff';
         btn.style.background = 'rgba(245, 158, 11, 0.18)';
         btn.style.fontWeight = 'bold';
+        btn.style.boxShadow = '0 0 10px rgba(245, 158, 11, 0.2)';
+      } else {
+        btn.style.borderColor = 'var(--border)';
+        btn.style.color = '#d4d4d8';
+        btn.style.background = '#09090b';
       }
       btn.innerHTML = '<span style="font-size: 0.65rem; color: #a1a1aa; text-transform: uppercase; font-family: monospace;">' + ex.category + '</span><span style="font-weight: 700;">' + ex.name + '</span>';
       btn.onclick = () => selectExerciseVideo(ex.key);
@@ -1306,6 +1321,7 @@
   }
 
   function filterVideoCategory(group, tabBtn) {
+    currentVideoGroup = group;
     const tabs = document.querySelectorAll('#videoCategoryFilters button');
     tabs.forEach(t => {
       t.style.borderColor = 'var(--border)';
@@ -1318,12 +1334,7 @@
     tabBtn.style.background = 'rgba(245, 158, 11, 0.2)';
     tabBtn.style.fontWeight = 'bold';
 
-    if (group === 'Todos') {
-      renderExerciseButtons(exerciseVideoDatabase);
-    } else {
-      const filtered = exerciseVideoDatabase.filter(e => e.group === group);
-      renderExerciseButtons(filtered);
-    }
+    renderExerciseButtons(getCurrentlyFilteredExercises());
   }
 
   function selectExerciseVideo(key) {
@@ -1331,14 +1342,8 @@
     const ex = exerciseVideoDatabase.find(e => e.key === key);
     if (!ex) return;
 
-    // Update buttons in grid
-    document.querySelectorAll('#exerciseButtonGrid button').forEach((b, idx) => {
-      b.style.borderColor = 'var(--border)';
-      b.style.color = '#d4d4d8';
-      b.style.background = '#09090b';
-      b.style.fontWeight = 'normal';
-    });
-    renderExerciseButtons(exerciseVideoDatabase);
+    // Keep active category filter view intact
+    renderExerciseButtons(getCurrentlyFilteredExercises());
 
     // Update player
     const player = document.getElementById('mainVideoPlayer');

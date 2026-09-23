@@ -15,6 +15,9 @@ import {
   Check,
 } from "lucide-react";
 import { BarbellPlateVisualizer } from "./BarbellPlateVisualizer";
+import { ExerciseVideoModal } from "./ExerciseVideoModal";
+import { getExerciseMedia } from "@/lib/exerciseMediaCatalog";
+import { Play } from "lucide-react";
 
 export interface WarmupCalculatorModalProps {
   isOpen: boolean;
@@ -47,6 +50,7 @@ export function WarmupCalculatorModal({
   onApplyWeightToLogger,
   onStartTimer,
 }: WarmupCalculatorModalProps) {
+  const [showVideoModal, setShowVideoModal] = useState(false);
   const [workWeight, setWorkWeight] = useState<number>(
     defaultWorkWeightKg > 0 ? defaultWorkWeightKg : 100
   );
@@ -176,8 +180,9 @@ export function WarmupCalculatorModal({
   };
 
   return (
-    <div
-      onClick={onClose}
+    <>
+      <div
+        onClick={onClose}
       className="fixed inset-0 z-50 bg-black/85 backdrop-blur-xl flex items-center justify-center p-3 sm:p-6 animate-in fade-in duration-200"
     >
       <div
@@ -205,9 +210,22 @@ export function WarmupCalculatorModal({
             <h2 className="text-lg sm:text-xl font-black font-mono text-white tracking-wide mt-1">
               CALCULADOR DE APROXIMACIÓN
             </h2>
-            <p className="text-xs text-zinc-400 font-mono">
-              {exerciseName ? exerciseName.toUpperCase() : "LEVANTAMIENTO DE FUERZA"}
-            </p>
+            <div className="flex items-center gap-3 mt-1">
+              <p className="text-xs text-zinc-400 font-mono">
+                {exerciseName ? exerciseName.toUpperCase() : "LEVANTAMIENTO DE FUERZA"}
+              </p>
+              {exerciseName && (
+                <button
+                  type="button"
+                  onClick={() => setShowVideoModal(true)}
+                  className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg border border-amber-500/40 bg-amber-500/10 hover:bg-amber-500/20 text-[11px] font-mono font-bold text-amber-300 transition-all active:scale-95 cursor-pointer shadow-[0_0_10px_rgba(245,158,11,0.15)]"
+                  title="Ver video técnico biomecánico en HD"
+                >
+                  <Play className="w-3 h-3 fill-amber-400 text-amber-400" />
+                  <span>VER TÉCNICA HD</span>
+                </button>
+              )}
+            </div>
           </div>
         </div>
 
@@ -476,6 +494,14 @@ export function WarmupCalculatorModal({
           </ul>
         </div>
       </div>
-    </div>
+          </div>
+      {showVideoModal && (
+        <ExerciseVideoModal
+          media={getExerciseMedia(exerciseName)}
+          isOpen={showVideoModal}
+          onClose={() => setShowVideoModal(false)}
+        />
+      )}
+    </>
   );
 }

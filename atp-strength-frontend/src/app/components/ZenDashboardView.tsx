@@ -6,8 +6,11 @@ import { TelemetrySyncBadge } from "@/app/components/TelemetrySyncBadge";
 import { TimerDisplay } from "@/app/components/TimerDisplay";
 import { BarbellPlateVisualizer } from "@/app/components/BarbellPlateVisualizer";
 import { WarmupCalculatorModal } from "@/app/components/WarmupCalculatorModal";
+import { ExerciseVideoModal } from "@/app/components/ExerciseVideoModal";
+import { getExerciseMedia } from "@/lib/exerciseMediaCatalog";
 import { WorkoutLogger } from "@/app/components/WorkoutLogger";
 import {
+  Play,
   Flame, Zap, RotateCcw, CheckCircle2, Calendar, Activity,
   ShieldCheck, Lock, Maximize2, Layers, Sparkles,
   TrendingUp, X, Save, Dumbbell, History, Calculator,
@@ -20,6 +23,7 @@ type Dash = ReturnType<typeof useZenDashboard>;
 
 export function ZenDashboardView({ d, onShowSpotify }: { d: Dash; onShowSpotify?: () => void }) {
   const [showWarmupModal, setShowWarmupModal] = React.useState(false);
+  const [selectedVideoExercise, setSelectedVideoExercise] = React.useState<string | null>(null);
   const {
     selectedDayKey, setSelectedDayKey,
     activeExerciseIndex, setActiveExerciseIndex,
@@ -454,13 +458,26 @@ export function ZenDashboardView({ d, onShowSpotify }: { d: Dash; onShowSpotify?
                       </div>
                     </div>
 
-                    <div className="text-right">
-                      <div className="text-sm font-black font-mono text-amber-400">
-                        {exMax.prescriptions.phase_5_work} kg
+                    <div className="flex items-center gap-3">
+                      <div className="text-right">
+                        <div className="text-sm font-black font-mono text-amber-400">
+                          {exMax.prescriptions.phase_5_work} kg
+                        </div>
+                        <div className="text-[10px] font-mono text-zinc-500 mt-0.5">
+                          {doneCount} / {ex.sets} series
+                        </div>
                       </div>
-                      <div className="text-[10px] font-mono text-zinc-500 mt-0.5">
-                        {doneCount} / {ex.sets} series
-                      </div>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setSelectedVideoExercise(ex.name);
+                        }}
+                        className="p-2 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 text-amber-400 transition-all active:scale-95 cursor-pointer"
+                        title="Ver video técnico en HD"
+                      >
+                        <Play className="w-3.5 h-3.5 fill-amber-400" />
+                      </button>
                     </div>
                   </button>
                 );
@@ -475,6 +492,15 @@ export function ZenDashboardView({ d, onShowSpotify }: { d: Dash; onShowSpotify?
               <span className="text-zinc-300 font-bold uppercase flex items-center gap-2">
                 <Layers className="w-4 h-4 text-amber-400" /> GUÍA DE ACLIMATACIÓN SNC • {activeExercise.name.toUpperCase()}
               </span>
+              <button
+                type="button"
+                onClick={() => setSelectedVideoExercise(activeExercise.name)}
+                className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg border border-amber-500/40 bg-amber-500/10 hover:bg-amber-500/20 text-xs font-mono font-bold text-amber-300 transition-all active:scale-95 cursor-pointer shadow-[0_0_10px_rgba(245,158,11,0.15)]"
+                title="Ver video técnico biomecánico en HD"
+              >
+                <Play className="w-3 h-3 fill-amber-400 text-amber-400" />
+                <span>TÉCNICA HD</span>
+              </button>
               <div className="flex items-center gap-3">
                 <button
                   type="button"
@@ -646,6 +672,21 @@ export function ZenDashboardView({ d, onShowSpotify }: { d: Dash; onShowSpotify?
                     </button>
                   );
                 })}
+              </div>
+
+              <div className="flex items-center justify-between p-3 rounded-xl bg-zinc-950 border border-zinc-800">
+                <div className="text-xs font-mono text-zinc-400">
+                  Ejercicio: <span className="font-bold text-amber-400">{selectedProgressEx}</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setSelectedVideoExercise(selectedProgressEx)}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-amber-500/40 bg-amber-500/10 hover:bg-amber-500/20 text-xs font-mono font-bold text-amber-300 transition-all active:scale-95 cursor-pointer shadow-[0_0_10px_rgba(245,158,11,0.15)]"
+                  title="Ver video técnico en HD"
+                >
+                  <Play className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
+                  <span>VER TÉCNICA HD</span>
+                </button>
               </div>
 
               {/* 3 Tarjetas de Resumen Biomecánico */}
@@ -1178,7 +1219,16 @@ export function ZenDashboardView({ d, onShowSpotify }: { d: Dash; onShowSpotify?
           <Maximize2 className="w-4 h-4 text-amber-400" />
         </button>
       </div>
-          {/* Modal de Calculador de Aproximación & Cuidado Articular */}
+          {/* Modal de Video Técnico Biomecánico HD */}
+      {selectedVideoExercise && (
+        <ExerciseVideoModal
+          isOpen={!!selectedVideoExercise}
+          onClose={() => setSelectedVideoExercise(null)}
+          media={getExerciseMedia(selectedVideoExercise)}
+        />
+      )}
+
+      {/* Modal de Calculador de Aproximación & Cuidado Articular */}
       <WarmupCalculatorModal
         isOpen={showWarmupModal}
         onClose={() => setShowWarmupModal(false)}
