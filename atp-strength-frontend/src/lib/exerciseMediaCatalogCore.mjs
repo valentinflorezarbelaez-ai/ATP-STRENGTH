@@ -15,8 +15,8 @@ export const EXERCISE_MEDIA_CATALOG = {
       "Erector Espinal",
       "Core"
     ],
-    "videoUrl": "https://www.youtube.com/watch?v=vmNPOjaGrVE",
-    "youtubeId": "vmNPOjaGrVE",
+    "videoUrl": "https://www.youtube.com/watch?v=ultWZbUMPL8",
+    "youtubeId": "ultWZbUMPL8",
     "posterUrl": "https://images.unsplash.com/photo-1574680096145-d05b474e2155?q=80&w=800&auto=format&fit=crop",
     "formCues": [
       "Apoyo trípode firme con los pies al ancho de hombros y puntas ligeramente abiertas.",
@@ -40,8 +40,8 @@ export const EXERCISE_MEDIA_CATALOG = {
       "Deltoides Anterior",
       "Dorsal Ancho"
     ],
-    "videoUrl": "https://www.youtube.com/watch?v=BYKScL2sgCs",
-    "youtubeId": "BYKScL2sgCs",
+    "videoUrl": "https://www.youtube.com/watch?v=wzq57DB5Ppg",
+    "youtubeId": "wzq57DB5Ppg",
     "posterUrl": "https://images.unsplash.com/photo-1517838277536-f5f99be501cd?q=80&w=800&auto=format&fit=crop",
     "formCues": [
       "Retracción y depresión escapular estricta clavando los omóplatos en el banco.",
@@ -66,8 +66,8 @@ export const EXERCISE_MEDIA_CATALOG = {
       "Erectores Espinales",
       "Antebrazo"
     ],
-    "videoUrl": "https://www.youtube.com/watch?v=wYREQkVtvEc",
-    "youtubeId": "wYREQkVtvEc",
+    "videoUrl": "https://www.youtube.com/watch?v=1nvAUJVmFZY",
+    "youtubeId": "1nvAUJVmFZY",
     "posterUrl": "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=800&auto=format&fit=crop",
     "formCues": [
       "Barra pegada a la mitad del pie (1 pulgada de la espinilla) con agarre por fuera de las piernas.",
@@ -91,8 +91,8 @@ export const EXERCISE_MEDIA_CATALOG = {
       "Trapecio Superior",
       "Core y Glúteos"
     ],
-    "videoUrl": "https://www.youtube.com/watch?v=wol7Hko8RhY",
-    "youtubeId": "wol7Hko8RhY",
+    "videoUrl": "https://www.youtube.com/watch?v=5yWaNOvgFCM",
+    "youtubeId": "5yWaNOvgFCM",
     "posterUrl": "https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?q=80&w=800&auto=format&fit=crop",
     "formCues": [
       "Agarre apenas por fuera de los hombros con muñecas rectas sobre los antebrazos.",
@@ -165,8 +165,8 @@ export const EXERCISE_MEDIA_CATALOG = {
       "Trapecio Medio",
       "Erectores Espinales"
     ],
-    "videoUrl": "https://www.youtube.com/watch?v=RQU8wZPbioA",
-    "youtubeId": "RQU8wZPbioA",
+    "videoUrl": "https://www.youtube.com/watch?v=C_p-s66KBpg",
+    "youtubeId": "C_p-s66KBpg",
     "posterUrl": "https://images.unsplash.com/photo-1541534741688-6078c6bfb5c5?q=80&w=800&auto=format&fit=crop",
     "formCues": [
       "Torso completamente paralelo al suelo en cada repetición partiendo del piso muerto.",
@@ -189,8 +189,8 @@ export const EXERCISE_MEDIA_CATALOG = {
       "Glúteo Mayor",
       "Erectores Espinales"
     ],
-    "videoUrl": "https://www.youtube.com/watch?v=cTcUyyq7um8",
-    "youtubeId": "cTcUyyq7um8",
+    "videoUrl": "https://www.youtube.com/watch?v=GZAKFRNtxLY",
+    "youtubeId": "GZAKFRNtxLY",
     "posterUrl": "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=800&auto=format&fit=crop",
     "formCues": [
       "Iniciar desde arriba; flexionar ligeramente las rodillas y bloquear ese ángulo.",
@@ -264,8 +264,8 @@ export const EXERCISE_MEDIA_CATALOG = {
       "Aductores",
       "Core"
     ],
-    "videoUrl": "https://www.youtube.com/watch?v=YJtjwPnb9as",
-    "youtubeId": "YJtjwPnb9as",
+    "videoUrl": "https://www.youtube.com/watch?v=MvZsHEroKPE",
+    "youtubeId": "MvZsHEroKPE",
     "posterUrl": "https://images.unsplash.com/photo-1574680096145-d05b474e2155?q=80&w=800&auto=format&fit=crop",
     "formCues": [
       "Descenso controlado en 3 segundos manteniendo la rigidez del torso.",
@@ -589,8 +589,8 @@ export const EXERCISE_MEDIA_CATALOG = {
       "Isquiosurales",
       "Erectores Espinales"
     ],
-    "videoUrl": "https://www.youtube.com/watch?v=XuJ9SYsJms4",
-    "youtubeId": "XuJ9SYsJms4",
+    "videoUrl": "https://www.youtube.com/watch?v=CpWsUsqBtN8",
+    "youtubeId": "CpWsUsqBtN8",
     "posterUrl": "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=800&auto=format&fit=crop",
     "formCues": [
       "Parado sobre una plataforma o disco de 2 a 5 cm aumentando el recorrido del tirón.",
@@ -754,8 +754,8 @@ function getFallbackMedia(name) {
     name,
     category: "Accesorios",
     targetMuscles: ["Músculos Primarios", "Estabilizadores del Core"],
-    videoUrl: "https://www.youtube.com/watch?v=vmNPOjaGrVE",
-    youtubeId: "vmNPOjaGrVE",
+    videoUrl: "https://www.youtube.com/watch?v=ultWZbUMPL8",
+    youtubeId: "ultWZbUMPL8",
     posterUrl: "https://images.unsplash.com/photo-1517838277536-f5f99be501cd?q=80&w=800&auto=format&fit=crop",
     formCues: [
       "Alineación postural estricta antes de aplicar tensión neuromuscular.",

@@ -203,17 +203,17 @@ Para garantizar la pureza del surco motriz y evitar el desgaste articular, cada 
 
 | # | Ejercicio Oficial | Categoría | Tempo | Video HD (YouTube) | Clave Biomecánica Principal |
 |---|---|---|---|---|---|
-| 1 | **Sentadilla Trasera** | Sentadilla | `3-1-X-1` | [▶ Ver Video](https://www.youtube.com/watch?v=vmNPOjaGrVE) | Apoyo trípode firme con los pies al ancho de hombros y puntas ligeramente abiertas. |
-| 2 | **Press de Banca Plano** | Banca | `2-1-X-1` | [▶ Ver Video](https://www.youtube.com/watch?v=BYKScL2sgCs) | Retracción y depresión escapular estricta clavando los omóplatos en el banco. |
-| 3 | **Peso Muerto Convencional** | Peso Muerto | `1-1-X-1` | [▶ Ver Video](https://www.youtube.com/watch?v=wYREQkVtvEc) | Barra pegada a la mitad del pie (1 pulgada de la espinilla) con agarre por fuera de las piernas. |
-| 4 | **Press Militar de Pie** | Militar | `2-0-X-1` | [▶ Ver Video](https://www.youtube.com/watch?v=wol7Hko8RhY) | Agarre apenas por fuera de los hombros con muñecas rectas sobre los antebrazos. |
+| 1 | **Sentadilla Trasera** | Sentadilla | `3-1-X-1` | [▶ Ver Video](https://www.youtube.com/watch?v=ultWZbUMPL8) | Apoyo trípode firme con los pies al ancho de hombros y puntas ligeramente abiertas. |
+| 2 | **Press de Banca Plano** | Banca | `2-1-X-1` | [▶ Ver Video](https://www.youtube.com/watch?v=wzq57DB5Ppg) | Retracción y depresión escapular estricta clavando los omóplatos en el banco. |
+| 3 | **Peso Muerto Convencional** | Peso Muerto | `1-1-X-1` | [▶ Ver Video](https://www.youtube.com/watch?v=1nvAUJVmFZY) | Barra pegada a la mitad del pie (1 pulgada de la espinilla) con agarre por fuera de las piernas. |
+| 4 | **Press Militar de Pie** | Militar | `2-0-X-1` | [▶ Ver Video](https://www.youtube.com/watch?v=5yWaNOvgFCM) | Agarre apenas por fuera de los hombros con muñecas rectas sobre los antebrazos. |
 | 5 | **Dominadas con Lastre / Estrictas** | Tracción | `2-1-X-1` | [▶ Ver Video](https://www.youtube.com/watch?v=eGo4IYlbE5g) | Comenzar desde suspensión muerta con codos bloqueados y escápulas activas. |
 | 6 | **Fondos en Paralelas** | Empuje | `2-1-X-1` | [▶ Ver Video](https://www.youtube.com/watch?v=2z8JmcrW-As) | Depresión escapular firme manteniendo los hombros lejos de las orejas. |
-| 7 | **Remo Pendlay** | Tracción | `1-0-X-1` | [▶ Ver Video](https://www.youtube.com/watch?v=RQU8wZPbioA) | Torso completamente paralelo al suelo en cada repetición partiendo del piso muerto. |
-| 8 | **Peso Muerto Rumano (RDL)** | Cadena Posterior | `3-1-1-0` | [▶ Ver Video](https://www.youtube.com/watch?v=cTcUyyq7um8) | Iniciar desde arriba; flexionar ligeramente las rodillas y bloquear ese ángulo. |
+| 7 | **Remo Pendlay** | Tracción | `1-0-X-1` | [▶ Ver Video](https://www.youtube.com/watch?v=C_p-s66KBpg) | Torso completamente paralelo al suelo en cada repetición partiendo del piso muerto. |
+| 8 | **Peso Muerto Rumano (RDL)** | Cadena Posterior | `3-1-1-0` | [▶ Ver Video](https://www.youtube.com/watch?v=GZAKFRNtxLY) | Iniciar desde arriba; flexionar ligeramente las rodillas y bloquear ese ángulo. |
 | 9 | **Paseo del Granjero Pesado** | Acarreo & Agarre | `Paso controlado` | [▶ Ver Video](https://www.youtube.com/watch?v=wtHHiJecbQg) | Despegue inicial como un peso muerto perfecto con columna totalmente neutra. |
 | 10 | **Planchas Isométricas Pesadas / RKC** | Core | `Isométrico Máximo` | [▶ Ver Video](https://www.youtube.com/watch?v=M0u5sm9Xcv4) | Apoyo en antebrazos con codos directamente debajo de los hombros. |
-| 11 | **Sentadilla Trasera Técnica (con Pausa)** | Sentadilla | `3-2-X-1` | [▶ Ver Video](https://www.youtube.com/watch?v=YJtjwPnb9as) | Descenso controlado en 3 segundos manteniendo la rigidez del torso. |
+| 11 | **Sentadilla Trasera Técnica (con Pausa)** | Sentadilla | `3-2-X-1` | [▶ Ver Video](https://www.youtube.com/watch?v=MvZsHEroKPE) | Descenso controlado en 3 segundos manteniendo la rigidez del torso. |
 | 12 | **Curl Bíceps Barra Z** | Brazos | `3-0-1-1` | [▶ Ver Video](https://www.youtube.com/watch?v=sOcM7gcnQC0) | Agarre en los ángulos de la barra Z que alinean la muñeca de forma anatómica y segura. |
 | 13 | **Elevaciones de Piernas a la Barra** | Core Dinámico | `2-0-X-1` | [▶ Ver Video](https://www.youtube.com/watch?v=1QeII_BfQps) | Comenzar colgado en posición hollow con escápulas activas. |
 | 14 | **Power Clean (Cargada de Potencia)** | Halterofilia | `Explosivo` | [▶ Ver Video](https://www.youtube.com/watch?v=YG8M_-11C2A) | Primer tirón controlado desde el suelo manteniendo el ángulo del torso. |
@@ -226,7 +226,7 @@ Para garantizar la pureza del surco motriz y evitar el desgaste articular, cada 
 | 21 | **Snatch High Pull (Tirón Alto de Arrancada)** | Potencia Balística | `Explosivo` | [▶ Ver Video](https://www.youtube.com/watch?v=9WRp0a5hcb0) | Agarre ancho de snatch asegurando la barra pegada a los muslos durante el recorrido. |
 | 22 | **Sentadilla con Salto con Barra** | Potencia / Pliometría | `1-0-X-0` | [▶ Ver Video](https://www.youtube.com/watch?v=z7GAKBpGzws) | Carga ligera (20-30% de 1RM) asegurando la barra firmemente pegada a los trapecios. |
 | 23 | **Salto con Trap Bar (Trap Bar Jump)** | Potencia / Salto | `1-0-X-0` | [▶ Ver Video](https://www.youtube.com/watch?v=I-Zm8g6kXIM) | Posición centrada en la Trap Bar con agarre neutro firme y brazos extendidos. |
-| 24 | **Peso Muerto con Déficit** | Peso Muerto Especial | `1-1-X-1` | [▶ Ver Video](https://www.youtube.com/watch?v=XuJ9SYsJms4) | Parado sobre una plataforma o disco de 2 a 5 cm aumentando el recorrido del tirón. |
+| 24 | **Peso Muerto con Déficit** | Peso Muerto Especial | `1-1-X-1` | [▶ Ver Video](https://www.youtube.com/watch?v=CpWsUsqBtN8) | Parado sobre una plataforma o disco de 2 a 5 cm aumentando el recorrido del tirón. |
 | 25 | **Peso Muerto Agarre Arrancada** | Peso Muerto Especial | `2-1-X-1` | [▶ Ver Video](https://www.youtube.com/watch?v=mp9gtX-JqB0) | Agarre extra ancho en los anillos de la barra obligando a bajar más la cadera al inicio. |
 
 > **Nota:** Todos los videos pueden reproducirse directamente dentro de la aplicación (en el Registrador de Series, el Calculador de Aproximación y el Dashboard Zen) sin necesidad de salir al navegador.
