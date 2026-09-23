@@ -7,8 +7,8 @@ interface SpotifyTrainingViewProps {
   onBack: () => void;
 }
 
-const SPOTIFY_WEB_URL = "https://open.spotify.com/playlist/4Gn8FuTCHfTrQOhQOvkBjJ?si=pAz-qBSVQyC5G_xyyLDG8w";
-const SPOTIFY_URI = "spotify:playlist:4Gn8FuTCHfTrQOhQOvkBjJ";
+const SPOTIFY_WEB_URL = "https://open.spotify.com/intl-es";
+const SPOTIFY_URI = "spotify:";
 
 export function SpotifyTrainingView({ onBack }: SpotifyTrainingViewProps) {
   const handleOpenSpotify = () => {
@@ -55,7 +55,7 @@ export function SpotifyTrainingView({ onBack }: SpotifyTrainingViewProps) {
                 TEMPLO DEL HIERRO
               </h1>
               <p className="text-xs text-zinc-400 font-mono">
-                Forja & Máximo Poder • Hipertrofia & Fuerza
+                Tu Cuenta de Spotify • Música & Entrenamiento
               </p>
             </div>
 
