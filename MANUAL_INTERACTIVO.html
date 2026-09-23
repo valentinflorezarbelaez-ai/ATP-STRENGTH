@@ -780,10 +780,11 @@
       <div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;">
         <iframe
           id="mainVideoPlayer"
-          src="https://www.youtube.com/embed/wzq57DB5Ppg?autoplay=1&mute=1&enablejsapi=1&rel=0"
+          src="https://www.youtube.com/embed/wzq57DB5Ppg?autoplay=1&mute=1&rel=0"
           title="Video Demostración Técnica"
           style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0;"
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+          referrerpolicy="strict-origin-when-cross-origin"
           allowfullscreen
         ></iframe>
       </div>
@@ -1367,7 +1368,7 @@
 
     // Update player
     const player = document.getElementById('mainVideoPlayer');
-    player.src = 'https://www.youtube.com/embed/' + ex.youtubeId + '?autoplay=1&mute=1&enablejsapi=1&rel=0';
+    player.src = 'https://www.youtube.com/embed/' + ex.youtubeId + '?autoplay=1&mute=1&rel=0' + (window.location.protocol.startsWith('http') ? '&origin=' + encodeURIComponent(window.location.origin) : '');
 
     // Update details
     document.getElementById('videoCategoryBadge').innerText = ex.category + ' • ' + ex.group;

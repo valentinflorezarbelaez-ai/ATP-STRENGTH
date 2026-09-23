@@ -25,7 +25,10 @@ export function ExerciseVideoModal({
       if (match && match[1]) ytId = match[1];
     }
     if (ytId) {
-      return `https://www.youtube.com/embed/${ytId}?autoplay=1&mute=1&enablejsapi=1&rel=0`;
+      const originParam = typeof window !== "undefined" && window.location.origin && window.location.origin.startsWith("http")
+        ? `&origin=${encodeURIComponent(window.location.origin)}`
+        : "";
+      return `https://www.youtube.com/embed/${ytId}?autoplay=1&mute=1&rel=0${originParam}`;
     }
     return null;
   }, [media]);
@@ -72,6 +75,7 @@ export function ExerciseVideoModal({
               title={media.name}
               className="w-full h-full border-0"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              referrerPolicy="strict-origin-when-cross-origin"
               
               allowFullScreen
             />
