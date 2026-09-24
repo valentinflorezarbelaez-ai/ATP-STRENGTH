@@ -116,8 +116,8 @@ export const EXERCISE_MEDIA_CATALOG = {
       "Braquiorradial",
       "Redondo Mayor"
     ],
-    "videoUrl": "https://www.youtube.com/watch?v=eGo4IYlbE5g",
-    "youtubeId": "eGo4IYlbE5g",
+    "videoUrl": "https://www.youtube.com/watch?v=HRV5YKKaeVw",
+    "youtubeId": "HRV5YKKaeVw",
     "posterUrl": "https://images.unsplash.com/photo-1526506118085-60ce8714f8c5?q=80&w=800&auto=format&fit=crop",
     "formCues": [
       "Comenzar desde suspensión muerta con codos bloqueados y escápulas activas.",
@@ -614,8 +614,8 @@ export const EXERCISE_MEDIA_CATALOG = {
       "Glúteos",
       "Isquiosurales"
     ],
-    "videoUrl": "https://www.youtube.com/watch?v=a4-MC4W1_4Y",
-    "youtubeId": "a4-MC4W1_4Y",
+    "videoUrl": "https://www.youtube.com/watch?v=E42_MZOKktU",
+    "youtubeId": "E42_MZOKktU",
     "posterUrl": "https://images.unsplash.com/photo-1541534741688-6078c6bfb5c5?q=80&w=800&auto=format&fit=crop",
     "formCues": [
       "Agarre extra ancho en los anillos de la barra obligando a bajar más la cadera al inicio.",
