@@ -614,8 +614,8 @@ export const EXERCISE_MEDIA_CATALOG = {
       "Glúteos",
       "Isquiosurales"
     ],
-    "videoUrl": "https://www.youtube.com/watch?v=mp9gtX-JqB0",
-    "youtubeId": "mp9gtX-JqB0",
+    "videoUrl": "https://www.youtube.com/watch?v=a4-MC4W1_4Y",
+    "youtubeId": "a4-MC4W1_4Y",
     "posterUrl": "https://images.unsplash.com/photo-1541534741688-6078c6bfb5c5?q=80&w=800&auto=format&fit=crop",
     "formCues": [
       "Agarre extra ancho en los anillos de la barra obligando a bajar más la cadera al inicio.",
