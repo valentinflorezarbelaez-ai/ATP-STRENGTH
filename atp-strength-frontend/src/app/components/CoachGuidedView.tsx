@@ -16,6 +16,7 @@ import { PwaInstallPrompt } from "@/components/PwaInstallPrompt";
 import { AtpEnergyRing } from "@/app/components/AtpEnergyRing";
 import { BarbellPlateVisualizer } from "@/app/components/BarbellPlateVisualizer";
 import { LiveSetCoachModal } from "@/app/components/LiveSetCoachModal";
+import { UniversalProtocolModal } from "@/app/components/UniversalProtocolModal";
 import { DailyWorkoutSplitView } from "@/app/components/DailyWorkoutSplitView";
 import { ExerciseVideoModal } from "@/app/components/ExerciseVideoModal";
 import { getExerciseMedia } from "@/lib/exerciseMediaCatalog";
@@ -94,6 +95,7 @@ export function CoachGuidedView({ d, onShowSpotify }: { d: Dash; onShowSpotify?:
   const [athleteNameInput, setAthleteNameInput] = useState(() => getAthleteProfile().name);
   const [backupMsg, setBackupMsg] = useState<string | null>(null);
   const [showResetConfirm, setShowResetConfirm] = useState(false);
+  const [showUniversalProtocol, setShowUniversalProtocol] = useState(false);
   const [audioPrefs, setAudioPrefs] = useState<CoachAudioPreferences>(() => getAudioPreferences());
   const hasSpoken10sWarning = React.useRef(false);
   const hasSpokenVictory = React.useRef(false);
@@ -333,6 +335,18 @@ export function CoachGuidedView({ d, onShowSpotify }: { d: Dash; onShowSpotify?:
         {/* Header Actions: Mode Toggle & Reset */}
         <div className="flex items-center gap-2">
           {/* Athlete Profile & Data Backup */}
+          <button
+            type="button"
+            onClick={() => {
+              playTactileClick();
+              setShowUniversalProtocol(true);
+            }}
+            className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-amber-500/30 bg-amber-500/10 text-amber-300 hover:bg-amber-500/20 hover:border-amber-400/50 transition-all text-xs font-mono font-bold cursor-pointer shadow-[0_0_12px_rgba(245,158,11,0.15)]"
+            title="Calculadora Universal: Ingresá cualquier ejercicio o máquina y tu PR"
+          >
+            <span>⚡</span>
+            <span className="hidden sm:inline">PROTOCOLO PR</span>
+          </button>
           <a
             href="https://open.spotify.com/intl-es"
             target="_blank"
@@ -1471,7 +1485,14 @@ export function CoachGuidedView({ d, onShowSpotify }: { d: Dash; onShowSpotify?:
         cueSummary={activeExercise.cue || "Postura firme, aire al abdomen y empuje explosivo"}
         onCompleteSet={onExecuteSetComplete}
       />
-    </main>
+      <UniversalProtocolModal
+          isOpen={showUniversalProtocol}
+          onClose={() => setShowUniversalProtocol(false)}
+          onStartTimer={(seconds, title) => {
+            handleStartTimer(seconds, title);
+          }}
+        />
+      </main>
 
   );
 }

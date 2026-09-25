@@ -6,6 +6,7 @@ import { TelemetrySyncBadge } from "@/app/components/TelemetrySyncBadge";
 import { TimerDisplay } from "@/app/components/TimerDisplay";
 import { BarbellPlateVisualizer } from "@/app/components/BarbellPlateVisualizer";
 import { WarmupCalculatorModal } from "@/app/components/WarmupCalculatorModal";
+import { UniversalProtocolModal } from "@/app/components/UniversalProtocolModal";
 import { ExerciseVideoModal } from "@/app/components/ExerciseVideoModal";
 import { ExerciseCatalogModal } from "@/app/components/ExerciseCatalogModal";
 import { getExerciseMedia } from "@/lib/exerciseMediaCatalog";
@@ -24,6 +25,7 @@ type Dash = ReturnType<typeof useZenDashboard>;
 
 export function ZenDashboardView({ d, onShowSpotify }: { d: Dash; onShowSpotify?: () => void }) {
   const [showWarmupModal, setShowWarmupModal] = React.useState(false);
+  const [showUniversalProtocol, setShowUniversalProtocol] = React.useState(false);
   const [selectedVideoExercise, setSelectedVideoExercise] = React.useState<string | null>(null);
   const [showCatalogModal, setShowCatalogModal] = React.useState(false);
   const {
@@ -1264,6 +1266,13 @@ export function ZenDashboardView({ d, onShowSpotify }: { d: Dash; onShowSpotify?
           initialExerciseName={activeExercise?.name}
         />
       )}
+      <UniversalProtocolModal
+        isOpen={showUniversalProtocol}
+        onClose={() => setShowUniversalProtocol(false)}
+        onStartTimer={(seconds, title) => {
+          handleStartTimer(seconds, title);
+        }}
+      />
     </main>
   );
 
