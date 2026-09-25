@@ -1,10 +1,9 @@
 "use client";
 
 import React, { useState } from "react";
-import Image from "next/image";
 import {
-  Calendar, Play, Dumbbell, Timer, CheckCircle2, ChevronRight, Zap,
-  Home, Building2, Sparkles
+  Calendar, Play, Dumbbell, Timer, Flame, CheckCircle2, ChevronRight,
+  Sparkles, Coffee, ArrowRight, Zap
 } from "lucide-react";
 import type { RoutineDay, Exercise } from "@/lib/workoutStrategies";
 import { getExerciseMedia, type ExerciseMedia } from "@/lib/exerciseMediaCatalog";
@@ -30,7 +29,6 @@ export function DailyWorkoutSplitView({
   const [selectedMedia, setSelectedMedia] = useState<ExerciseMedia | null>(null);
   const [isVideoModalOpen, setIsVideoModalOpen] = useState(false);
   const [targetExerciseIndex, setTargetExerciseIndex] = useState<number | null>(null);
-  const [workoutEnvironment, setWorkoutEnvironment] = useState<"GYM" | "HOME">("GYM");
 
   const activeDay = scheduleDays.find((d) => d.key === selectedDayKey) || scheduleDays[0];
 
@@ -49,69 +47,16 @@ export function DailyWorkoutSplitView({
   };
 
   return (
-    <div className="w-full space-y-5 animate-fade-in text-zinc-100">
-      {/* ── CINEMATIC SPLIT BANNER (ANATOLY STYLE) ── */}
-      <div className="relative overflow-hidden rounded-2xl border border-zinc-800/80 bg-zinc-950 shadow-2xl">
-        <div className="relative h-36 sm:h-44 w-full">
-          <Image
-            src="/anatoly/anatoly_split_banner.jpg"
-            alt="The Foundry Strength & Conditioning Session"
-            fill
-            className="object-cover opacity-65 mix-blend-luminosity hover:opacity-80 transition-opacity duration-500"
-            priority
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent" />
-          <div className="absolute inset-0 bg-gradient-to-r from-black via-black/40 to-transparent" />
-        </div>
-
-        <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-end justify-between gap-3">
-          <div>
-            <div className="flex items-center gap-2 text-amber-400 text-[10px] font-black tracking-widest uppercase mb-1">
-              <Sparkles className="w-3 h-3 text-amber-500" />
-              <span>APS Power Training Architecture</span>
-            </div>
-            <h2 className="text-base sm:text-xl font-black tracking-tight text-white uppercase">
-              SPLIT SEMANAL & SOBRECARGA PROGRESIVA
-            </h2>
-          </div>
-
-          {/* Environment Switcher: Gym vs Home */}
-          <div className="flex items-center gap-1.5 p-1 rounded-xl bg-black/80 border border-zinc-800 backdrop-blur-md">
-            <button
-              onClick={() => setWorkoutEnvironment("GYM")}
-              className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold transition-all ${
-                workoutEnvironment === "GYM"
-                  ? "bg-amber-500 text-black shadow-md shadow-amber-500/20"
-                  : "text-zinc-400 hover:text-white"
-              }`}
-            >
-              <Building2 className="w-3.5 h-3.5" />
-              <span>Gimnasio</span>
-            </button>
-            <button
-              onClick={() => setWorkoutEnvironment("HOME")}
-              className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold transition-all ${
-                workoutEnvironment === "HOME"
-                  ? "bg-amber-500 text-black shadow-md shadow-amber-500/20"
-                  : "text-zinc-400 hover:text-white"
-              }`}
-            >
-              <Home className="w-3.5 h-3.5" />
-              <span>Casa / Calistenia</span>
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {/* ── 1. ANATOLY-STYLE HORIZONTAL DAYS STRIP ── */}
+    <div className="w-full space-y-5 animate-fade-in">
+      {/* 1. Anatoly-Style Horizontal Days Strip */}
       <div className="space-y-2">
         <div className="flex items-center justify-between px-1">
           <div className="flex items-center gap-1.5 text-xs font-semibold text-zinc-400">
             <Calendar className="w-3.5 h-3.5 text-amber-400" />
-            <span>Selección de Jornada</span>
+            <span>Split Semanal de Entrenamiento</span>
           </div>
-          <span className="text-[10px] font-mono text-amber-400/90 bg-amber-400/10 px-2 py-0.5 rounded-full border border-amber-400/20">
-            {scheduleDays.filter((d) => !d.isRest).length} Días de Fuerza Activa
+          <span className="text-[10px] font-mono text-amber-400/80 bg-amber-400/10 px-2 py-0.5 rounded-full border border-amber-400/20">
+            {scheduleDays.filter(d => !d.isRest).length} Días de Fuerza
           </span>
         </div>
 
@@ -127,9 +72,9 @@ export function DailyWorkoutSplitView({
               <button
                 key={day.key}
                 onClick={() => onSelectDay(day.key)}
-                className={`flex-shrink-0 px-4 py-3 rounded-2xl border text-left transition-all duration-200 min-w-[130px] ${
+                className={`flex-shrink-0 px-4 py-3 rounded-2xl border text-left transition-all duration-200 min-w-[125px] ${
                   isSelected
-                    ? "bg-gradient-to-b from-amber-500/20 to-amber-500/5 border-amber-500/70 shadow-lg shadow-amber-500/10"
+                    ? "bg-gradient-to-b from-amber-500/20 to-amber-500/5 border-amber-500/60 shadow-lg shadow-amber-500/10"
                     : "bg-zinc-950/70 border-zinc-900 hover:border-zinc-800 text-zinc-400"
                 }`}
               >
@@ -146,7 +91,7 @@ export function DailyWorkoutSplitView({
                   )}
                 </div>
 
-                <div className="text-[10px] text-zinc-400 truncate max-w-[110px]">
+                <div className="text-[10px] text-zinc-400 truncate max-w-[105px]">
                   {day.isRest ? "Descanso" : day.focus.split("&")[0].trim()}
                 </div>
 
@@ -161,7 +106,7 @@ export function DailyWorkoutSplitView({
         </div>
       </div>
 
-      {/* ── 2. ACTIVE DAY HERO CARD ── */}
+      {/* 2. Active Day Hero Card */}
       <div className="relative overflow-hidden rounded-3xl border border-zinc-800 bg-gradient-to-br from-zinc-950 via-[#0a0a0c] to-black p-5 shadow-xl">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="space-y-1">
@@ -179,8 +124,6 @@ export function DailyWorkoutSplitView({
             <p className="text-xs text-zinc-400 max-w-md">
               {activeDay.isRest
                 ? activeDay.restMessage || "Descanso para supercompensación del SNC."
-                : workoutEnvironment === "HOME"
-                ? "Adaptación a calistenia pesada y mancuernas. Mantén la cadencia y tiempo bajo tensión estricto."
                 : "Ejecución de fuerza máxima con temporización de resíntesis ATP-PCr y sobrecarga progresiva."}
             </p>
           </div>
@@ -197,7 +140,7 @@ export function DailyWorkoutSplitView({
         </div>
       </div>
 
-      {/* ── 3. DAILY EXERCISE SEQUENCE ── */}
+      {/* 3. Daily Exercise Sequence (Anatoly Fit Card Style) */}
       {!activeDay.isRest && (
         <div className="space-y-3">
           <div className="flex items-center justify-between px-1">
@@ -267,9 +210,6 @@ export function DailyWorkoutSplitView({
                         <span className="flex items-center gap-1 text-zinc-500 font-mono text-[11px]">
                           <Timer className="w-3 h-3" />
                           {Math.round(ex.restSeconds / 60)} min rest
-                        </span>
-                        <span className="px-1.5 py-0.5 rounded text-[9px] font-mono font-bold bg-zinc-800 text-amber-400/90">
-                          Tempo: {media.tempo}
                         </span>
                       </div>
 

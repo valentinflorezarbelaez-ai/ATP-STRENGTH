@@ -19,7 +19,8 @@ import {
   Save,
   Copy,
   Search,
-  Filter
+  Filter,
+  Shield
 } from "lucide-react";
 import { BarbellPlateVisualizer } from "./BarbellPlateVisualizer";
 import { playChime, playTactileClick } from "@/lib/zenAudio";
@@ -58,7 +59,7 @@ interface ExerciseItem {
 }
 
 interface ExerciseCategoryGroup {
-  id: "all" | "potencia" | "fuerza" | "maquinas";
+  id: "all" | "banca" | "potencia" | "fuerza" | "maquinas";
   name: string;
   icon: string;
   badgeColor: string;
@@ -67,6 +68,34 @@ interface ExerciseCategoryGroup {
 
 const CATEGORIZED_EXERCISES: ExerciseCategoryGroup[] = [
   {
+    id: "banca",
+    name: "ARSENAL DE BANCA",
+    icon: "🛡️",
+    badgeColor: "border-red-500/40 bg-red-500/10 text-red-300",
+    exercises: [
+      { name: "Press de Banca Plano", shortName: "Banca Plano", defaultPr: 100, equipment: "barbell", description: "El estándar absoluto de fuerza horizontal de empuje." },
+      { name: "Press de Banca con Agarre Estrecho", shortName: "Banca Estrecha", defaultPr: 85, equipment: "barbell", description: "Máxima sobrecarga en tríceps y fuerza terminal de bloqueo." },
+      { name: "Spoto Press (Pausa en el Aire 2cm)", shortName: "Spoto Press", defaultPr: 90, equipment: "barbell", description: "Pausa isométrica estricta sin tocar el pecho. Tensión barométrica pura." },
+      { name: "Floor Press con Barra (Press de Piso)", shortName: "Floor Press", defaultPr: 95, equipment: "barbell", description: "Elimina el rebote de piernas (leg drive); aísla empuje puro de tríceps y pectoral." },
+      { name: "Pin Press en Jaula (Anderson Press)", shortName: "Pin Press", defaultPr: 105, equipment: "barbell", description: "Salida concéntrica muerta desde los soportes; anula ciclo estiramiento-acortamiento." },
+      { name: "Larsen Press (Banca sin Leg Drive)", shortName: "Larsen Press", defaultPr: 90, equipment: "barbell", description: "Piernas extendidas en el aire; erradica el leg drive y maximiza estabilización torácica." },
+      { name: "Board Press (Press con Tabla 2-Board)", shortName: "Board Press", defaultPr: 110, equipment: "barbell", description: "Sobrecarga supra-máxima en el rango terminal de bloqueo de tríceps." },
+      { name: "Slingshot Bench Press (Sobrecarga)", shortName: "Slingshot Bench", defaultPr: 115, equipment: "barbell", description: "Asistencia elástica en el pecho que permite mover 10-15% más de carga real." },
+      { name: "Press de Banca con Pausa Larga (3 Segundos)", shortName: "Banca Pausa 3s", defaultPr: 92.5, equipment: "barbell", description: "3 segundos inmóviles sobre el esternón; erradica el reflejo elástico miotático." },
+      { name: "JM Press con Barra (Fuerza de Tríceps)", shortName: "JM Press", defaultPr: 70, equipment: "barbell", description: "Híbrido legendario press/extensión de Westside Barbell para fuerza bruta de tríceps." },
+      { name: "Press de Banca Dinámico / Speed Bench", shortName: "Speed Bench", defaultPr: 60, equipment: "barbell", isOlympic: true, description: "Velocidad explosiva sub-máxima con máxima aceleración compensatoria." },
+      { name: "Press de Banca Inclinado con Barra", shortName: "Banca Inclinada", defaultPr: 80, equipment: "barbell", description: "Énfasis masivo en haz clavicular y deltoides anterior." },
+      { name: "Press de Banca con Agarre Ancho", shortName: "Banca Ancha", defaultPr: 95, equipment: "barbell", description: "ROM acortado con máximo estiramiento y reclutamiento pectoral." },
+      { name: "Press de Banca Declinado con Barra", shortName: "Banca Declinada", defaultPr: 105, equipment: "barbell", description: "Vector descendente que permite máxima carga en pectoral inferior." },
+      { name: "Press de Banca con Agarre Invertido", shortName: "Banca Invertida", defaultPr: 75, equipment: "barbell", description: "Menor estrés glenohumeral con brutal activación clavicular." },
+      { name: "Press con Barra Camber / Arqueada", shortName: "Cambered Bench", defaultPr: 85, equipment: "barbell", description: "Rango de recorrido extendido por debajo del plano torácico." },
+      { name: "Swiss Bar / Multi-Grip Bar Press", shortName: "Swiss Bar Bench", defaultPr: 90, equipment: "barbell", description: "Agarre neutro ergonómico para sobrecarga en tríceps y protección del manguito." },
+      { name: "Press Plano con Mancuernas Pesadas", shortName: "Banca Mancuernas", defaultPr: 40, equipment: "dumbbell", description: "Convergencia natural y activación estabilizadora de hombro." },
+      { name: "Press Inclinado con Mancuernas", shortName: "Inc. Mancuernas", defaultPr: 36, equipment: "dumbbell", description: "Recorrido libre de muñeca con alta tensión clavicular." },
+      { name: "Press Declinado con Mancuernas", shortName: "Dec. Mancuernas", defaultPr: 38, equipment: "dumbbell", description: "Aislamiento denso del haz costal sin bloqueo axial." },
+    ]
+  },
+  {
     id: "potencia",
     name: "POTENCIA & OLÍMPICO",
     icon: "⚡",
@@ -74,14 +103,24 @@ const CATEGORIZED_EXERCISES: ExerciseCategoryGroup[] = [
     exercises: [
       { name: "Power Clean (Cargada de Potencia)", shortName: "Power Clean", defaultPr: 85, equipment: "barbell", isOlympic: true, description: "Potencia triple extensión y velocidad de recepción." },
       { name: "Hang Power Clean (Cargada Colgada)", shortName: "Hang Clean", defaultPr: 80, equipment: "barbell", isOlympic: true, description: "Explosión desde rodillas con aceleración violenta." },
+      { name: "Muscle Clean (Cargada de Fuerza Estricta)", shortName: "Muscle Clean", defaultPr: 70, equipment: "barbell", isOlympic: true, description: "Tirón vertical puro sin flexión articular de amortiguación." },
+      { name: "Clean & Jerk Completo (Dos Tiempos)", shortName: "Clean & Jerk", defaultPr: 95, equipment: "barbell", isOlympic: true, description: "El levantamiento rey de la potencia olímpica global." },
       { name: "Power Snatch (Arrancada de Potencia)", shortName: "Power Snatch", defaultPr: 65, equipment: "barbell", isOlympic: true, description: "Tasa máxima de desarrollo de fuerza (RFD)." },
       { name: "Hang Power Snatch (Arrancada Colgada)", shortName: "Hang Snatch", defaultPr: 60, equipment: "barbell", isOlympic: true, description: "Velocidad pura y posicionamiento articular óptimo." },
-      { name: "Push Press (Press de Empuje)", shortName: "Push Press", defaultPr: 75, equipment: "barbell", isOlympic: true, description: "Transferencia de piernas a tren superior en 0.4s." },
-      { name: "Power Jerk (Envión de Potencia)", shortName: "Power Jerk", defaultPr: 80, equipment: "barbell", isOlympic: true, description: "Bloqueo cenital violento con resíntesis anaeróbica." },
-      { name: "Clean High Pull (Tirón Alto de Cargada)", shortName: "Clean High Pull", defaultPr: 100, equipment: "barbell", isOlympic: true, description: "Sobrecarga supra-máxima de potencia en cadena posterior." },
-      { name: "Snatch High Pull (Tirón Alto de Arrancada)", shortName: "Snatch High Pull", defaultPr: 80, equipment: "barbell", isOlympic: true, description: "Tirón vertical agresivo sin recepción articular." },
-      { name: "Sentadilla con Salto con Barra (Barbell Jump Squat)", shortName: "Jump Squat Barra", defaultPr: 45, equipment: "barbell", isOlympic: true, description: "Balística pura con aceleración continua." },
+      { name: "Muscle Snatch (Arrancada de Fuerza)", shortName: "Muscle Snatch", defaultPr: 50, equipment: "barbell", isOlympic: true, description: "Aceleración vertical estricta sin meterse debajo de la barra." },
+      { name: "Snatch Completo (Arrancada Olímpica)", shortName: "Snatch Completo", defaultPr: 70, equipment: "barbell", isOlympic: true, description: "La máxima expresión de velocidad, movilidad y fuerza vertical." },
+      { name: "Push Press (Press de Empuje)", shortName: "Push Press", defaultPr: 80, equipment: "barbell", isOlympic: true, description: "Transferencia de piernas a tren superior en 0.4s." },
+      { name: "Power Jerk (Envión de Potencia)", shortName: "Power Jerk", defaultPr: 85, equipment: "barbell", isOlympic: true, description: "Bloqueo cenital violento con resíntesis anaeróbica." },
+      { name: "Split Jerk (Envión en Tijera)", shortName: "Split Jerk", defaultPr: 90, equipment: "barbell", isOlympic: true, description: "Recepción olímpica profunda bajo la barra con estabilidad." },
+      { name: "Push Jerk / Squat Jerk", shortName: "Squat Jerk", defaultPr: 85, equipment: "barbell", isOlympic: true, description: "Recepción de envión en flexión profunda de rodillas." },
+      { name: "Clean High Pull (Tirón Alto de Cargada)", shortName: "Clean High Pull", defaultPr: 105, equipment: "barbell", isOlympic: true, description: "Sobrecarga supra-máxima de potencia en cadena posterior." },
+      { name: "Snatch High Pull (Tirón Alto de Arrancada)", shortName: "Snatch High Pull", defaultPr: 85, equipment: "barbell", isOlympic: true, description: "Tirón vertical agresivo sin recepción articular." },
+      { name: "Clean Pull desde Bloques", shortName: "Clean Pull Bloques", defaultPr: 115, equipment: "barbell", isOlympic: true, description: "Sobrecarga de triple extensión concéntrica desde altura de rodilla." },
+      { name: "Snatch Pull desde Bloques", shortName: "Snatch Pull Bloques", defaultPr: 95, equipment: "barbell", isOlympic: true, description: "Aceleración terminal del tirón de arrancada." },
+      { name: "Sentadilla con Salto con Barra (Barbell Jump)", shortName: "Jump Squat Barra", defaultPr: 45, equipment: "barbell", isOlympic: true, description: "Balística pura con aceleración continua en fase de despegue." },
       { name: "Salto con Trap Bar (Trap Bar Jump)", shortName: "Trap Bar Jump", defaultPr: 55, equipment: "barbell", isOlympic: true, description: "Pico de vatios (watts) en despegue vertical neutro." },
+      { name: "Kettlebell Swing Pesado de Potencia", shortName: "KB Swing Pesado", defaultPr: 40, equipment: "dumbbell", isOlympic: true, description: "Bisagra balística de cadera con máxima contracción glútea." },
+      { name: "Slam Ball Balístico con Balón Medicinal", shortName: "Slam Ball", defaultPr: 25, equipment: "dumbbell", isOlympic: true, description: "Fuerza explosiva de flexión de tronco sin deceleración terminal." },
     ]
   },
   {
@@ -90,18 +129,29 @@ const CATEGORIZED_EXERCISES: ExerciseCategoryGroup[] = [
     icon: "🏋️",
     badgeColor: "border-emerald-500/40 bg-emerald-500/10 text-emerald-300",
     exercises: [
-      { name: "Sentadilla Trasera", shortName: "Sentadilla Trasera", defaultPr: 120, equipment: "barbell", description: "El rey indiscutible de la fuerza absoluta de piernas." },
-      { name: "Press de Banca", shortName: "Press de Banca", defaultPr: 95, equipment: "barbell", description: "Tensión horizontal máxima en pectoral y tríceps." },
-      { name: "Peso Muerto Convencional", shortName: "Peso Muerto", defaultPr: 150, equipment: "barbell", description: "Reclutamiento total del sistema nervioso central." },
-      { name: "Press Militar", shortName: "Press Militar", defaultPr: 60, equipment: "barbell", description: "Fuerza vertical estricta sin impulso de cadera." },
-      { name: "Fondos en Paralelas", shortName: "Fondos Lastrados", defaultPr: 90, equipment: "barbell", description: "Potente empuje declinado con peso corporal o lastre." },
-      { name: "Dominadas Lastradas", shortName: "Dominadas Lastradas", defaultPr: 90, equipment: "barbell", description: "Tracción vertical con reclutamiento dorsal puro." },
-      { name: "Remo Pendlay", shortName: "Remo Pendlay", defaultPr: 80, equipment: "barbell", description: "Desde el piso en cada rep, cero rebote técnico." },
-      { name: "Peso Muerto Rumano", shortName: "Peso Muerto Rumano", defaultPr: 105, equipment: "barbell", description: "Tensión excéntrica profunda en isquios y glúteos." },
-      { name: "Peso Muerto con Déficit (Deficit Deadlift)", shortName: "Deadlift Déficit", defaultPr: 135, equipment: "barbell", description: "Rango extendido para mejorar despegue inicial." },
-      { name: "Peso Muerto Agarre Arrancada (Snatch Grip Deadlift)", shortName: "Snatch Deadlift", defaultPr: 120, equipment: "barbell", description: "Recorrido hiper-largo con alta activación de espalda alta." },
-      { name: "Sentadilla Trasera Técnica", shortName: "Sentadilla Técnica", defaultPr: 100, equipment: "barbell", description: "Pausa en el pozo para anular rebote miotático." },
-      { name: "Paseo del Granjero Pesado", shortName: "Farmer Walk", defaultPr: 70, equipment: "dumbbell", description: "Estabilidad de core y agarre bajo carga continua." },
+      { name: "Sentadilla Trasera", shortName: "Sentadilla Trasera", defaultPr: 130, equipment: "barbell", description: "El rey indiscutible de la fuerza absoluta de piernas." },
+      { name: "Sentadilla con Pausa (3s en el Pozo)", shortName: "Sentadilla Pausa", defaultPr: 115, equipment: "barbell", description: "Anula el reflejo miotático; genera fuerza concéntrica pura desde la inmovilidad." },
+      { name: "Sentadilla Frontal (Front Squat)", shortName: "Sentadilla Frontal", defaultPr: 100, equipment: "barbell", description: "Torso vertical estricto con brutal reclutamiento de cuádriceps y core." },
+      { name: "Box Squat (Sentadilla a Cajón)", shortName: "Box Squat", defaultPr: 125, equipment: "barbell", description: "Rotura de la energía elástica miotática; arranque concéntrico puro de cadera." },
+      { name: "Pin Squat (Anderson Squat desde Soportes)", shortName: "Pin Squat", defaultPr: 115, equipment: "barbell", description: "Salida concéntrica sin rebote excéntrico desde el punto más bajo." },
+      { name: "Sentadilla Zercher (En el Pliegue del Codo)", shortName: "Sentadilla Zercher", defaultPr: 95, equipment: "barbell", description: "Fuerza salvaje de pared abdominal, romboides y flexores de cadera." },
+      { name: "Safety Squat Bar (Barra SSB)", shortName: "SSB Squat", defaultPr: 120, equipment: "barbell", description: "Sobrecarga en extensores torácicos protegiendo hombros y codos." },
+      { name: "Peso Muerto Convencional", shortName: "Peso Muerto", defaultPr: 160, equipment: "barbell", description: "Reclutamiento total del sistema nervioso central." },
+      { name: "Peso Muerto Sumo", shortName: "Deadlift Sumo", defaultPr: 155, equipment: "barbell", description: "Postura ancha, menor brazo de momento lumbar y alto empuje de cadera." },
+      { name: "Trap Bar Deadlift Pesado (Hex Bar)", shortName: "Trap Bar Deadlift", defaultPr: 170, equipment: "barbell", description: "Vector neutro de empuje con máxima capacidad de carga y menor estrés de cizalla." },
+      { name: "Rack Pulls / Block Pulls (Desde Bloques)", shortName: "Rack Pulls", defaultPr: 180, equipment: "barbell", description: "Sobrecarga supra-máxima en la fase final de bloqueo y espalda alta." },
+      { name: "Peso Muerto con Déficit (Deficit Deadlift)", shortName: "Deadlift Déficit", defaultPr: 140, equipment: "barbell", description: "Rango extendido para erradicar puntos de estancamiento en el despegue." },
+      { name: "Peso Muerto Snatch Grip (Agarre Ancho)", shortName: "Deadlift Snatch Grip", defaultPr: 135, equipment: "barbell", description: "Recorrido colosal con activación masiva de trapecios, romboides e isquios." },
+      { name: "Peso Muerto Rumano Pesado", shortName: "Peso Muerto Rumano", defaultPr: 115, equipment: "barbell", description: "Tensión excéntrica profunda en isquios y glúteos." },
+      { name: "Good Mornings Pesados con Barra", shortName: "Good Mornings", defaultPr: 80, equipment: "barbell", description: "Fuerza isométrica y dinámica de los erectores espinales y cadena posterior." },
+      { name: "Press Militar Estricto (OHP)", shortName: "Press Militar", defaultPr: 65, equipment: "barbell", description: "Fuerza vertical estricta sin impulso de cadera." },
+      { name: "Z-Press con Barra en Suelo", shortName: "Z-Press Barra", defaultPr: 55, equipment: "barbell", description: "Sentado en el suelo sin respaldo; estabilidad de core a prueba de balas." },
+      { name: "Remo Pendlay", shortName: "Remo Pendlay", defaultPr: 85, equipment: "barbell", description: "Desde el piso en cada repetición con torso paralelo al piso." },
+      { name: "Remo con Barra Pesado (45 Grados)", shortName: "Remo Barra 45°", defaultPr: 95, equipment: "barbell", description: "Sobrecarga de tracción horizontal para densidad dorsal y estabilidad lumbar." },
+      { name: "Fondos en Paralelas Lastrados", shortName: "Fondos Lastrados", defaultPr: 90, equipment: "barbell", description: "Potente empuje declinado con peso corporal más disco lastrado." },
+      { name: "Dominadas Lastradas", shortName: "Dominadas Lastradas", defaultPr: 90, equipment: "barbell", description: "Tracción vertical con reclutamiento dorsal absoluto." },
+      { name: "Hip Thrust Pesado con Barra", shortName: "Hip Thrust", defaultPr: 170, equipment: "barbell", description: "Extensión terminal de cadera con carga masiva de glúteos." },
+      { name: "Paseo del Granjero Pesado (Farmer's Walk)", shortName: "Farmer's Walk", defaultPr: 80, equipment: "dumbbell", description: "Fuerza de agarre descomunal, trapecios e integridad postural dinámica." },
     ]
   },
   {
@@ -110,14 +160,15 @@ const CATEGORIZED_EXERCISES: ExerciseCategoryGroup[] = [
     icon: "⚙️",
     badgeColor: "border-purple-500/40 bg-purple-500/10 text-purple-300",
     exercises: [
-      { name: "Prensa 45°", shortName: "Prensa 45°", defaultPr: 200, equipment: "machine", description: "Sobrecarga masiva de cuádriceps sin fatiga axial en columna." },
-      { name: "Hack Squat", shortName: "Hack Squat", defaultPr: 130, equipment: "machine", description: "Flexión profunda de rodilla con estabilidad guiada." },
-      { name: "Jalón al Pecho", shortName: "Jalón al Pecho", defaultPr: 80, equipment: "machine", description: "Tracción en polea con vector regulado y bloqueo de fémur." },
-      { name: "Remo en Polea Baja", shortName: "Remo Polea Baja", defaultPr: 75, equipment: "machine", description: "Retracción escapular sostenida con tensión constante." },
-      { name: "Curl Bíceps Barra Z", shortName: "Curl Barra Z", defaultPr: 40, equipment: "barbell", description: "Sobrecarga progresiva en flexores de codo." },
-      { name: "Press Inclinado con Mancuernas", shortName: "Press Inc. Manc.", defaultPr: 34, equipment: "dumbbell", description: "Haz clavicular con recorrido libre de muñeca." },
-      { name: "Extensiones de Cuádriceps", shortName: "Ext. Cuádriceps", defaultPr: 70, equipment: "machine", description: "Tensión en el punto de máximo acortamiento del recto femoral." },
-      { name: "Curl Femoral Tumbado", shortName: "Curl Femoral", defaultPr: 60, equipment: "machine", description: "Flexión activa de rodilla con aislamiento puro de isquiosurales." },
+      { name: "Prensa 45° Pesada", shortName: "Prensa 45°", defaultPr: 240, equipment: "machine", description: "Sobrecarga masiva de cuádriceps sin fatiga axial en columna." },
+      { name: "Hack Squat Pesada", shortName: "Hack Squat", defaultPr: 150, equipment: "machine", description: "Flexión profunda de rodilla con estabilidad guiada." },
+      { name: "Press de Pecho en Máquina Convergente", shortName: "Press Máquina", defaultPr: 100, equipment: "machine", description: "Tensión mecánica pura en pectoral sin demanda estabilizadora." },
+      { name: "Jalón al Pecho Pesado", shortName: "Jalón al Pecho", defaultPr: 85, equipment: "machine", description: "Tracción en polea con vector regulado y bloqueo de fémur." },
+      { name: "Remo en Polea Baja", shortName: "Remo Polea Baja", defaultPr: 85, equipment: "machine", description: "Retracción escapular sostenida con tensión constante." },
+      { name: "Extensiones de Cuádriceps Pesadas", shortName: "Ext. Cuádriceps", defaultPr: 80, equipment: "machine", description: "Tensión en el punto de máximo acortamiento del recto femoral." },
+      { name: "Curl Femoral Tumbado", shortName: "Curl Femoral", defaultPr: 70, equipment: "machine", description: "Flexión activa de rodilla con aislamiento puro de isquiosurales." },
+      { name: "Curl Bíceps Barra Z Pesado", shortName: "Curl Barra Z", defaultPr: 42.5, equipment: "barbell", description: "Sobrecarga progresiva en flexores de codo con muñeca protegida." },
+      { name: "Elevaciones Laterales Pesadas", shortName: "Elev. Laterales", defaultPr: 16, equipment: "dumbbell", description: "Aislamiento del deltoides medial con sobrecarga progresiva." },
     ]
   }
 ];
@@ -127,11 +178,11 @@ export function UniversalProtocolModal({
   onClose,
   onStartTimer,
 }: UniversalProtocolModalProps) {
-  const [exerciseName, setExerciseName] = useState<string>("Power Clean (Cargada de Potencia)");
-  const [prWeight, setPrWeight] = useState<number>(85);
+  const [exerciseName, setExerciseName] = useState<string>("Press de Banca Plano");
+  const [prWeight, setPrWeight] = useState<number>(100);
   const [equipment, setEquipment] = useState<EquipmentType>("barbell");
   const [goal, setGoal] = useState<GoalType>("strength");
-  const [selectedCategoryTab, setSelectedCategoryTab] = useState<"all" | "potencia" | "fuerza" | "maquinas">("potencia");
+  const [selectedCategoryTab, setSelectedCategoryTab] = useState<"all" | "banca" | "potencia" | "fuerza" | "maquinas">("banca");
   const [barWeight, setBarWeight] = useState<number>(20);
   const [activeStepId, setActiveStepId] = useState<string | null>(null);
   const [completedSteps, setCompletedSteps] = useState<Record<string, boolean>>({});
@@ -156,12 +207,27 @@ export function UniversalProtocolModal({
     return cat ? cat.exercises : allExercises;
   }, [selectedCategoryTab, allExercises]);
 
-  // Is current exercise an Olympic lift?
+  // Is current exercise an Olympic / Explosive lift?
   const isCurrentOlympic = useMemo(() => {
-    const found = allExercises.find((ex) => ex.name.toLowerCase() === exerciseName.toLowerCase() || ex.shortName.toLowerCase() === exerciseName.toLowerCase());
+    const found = allExercises.find(
+      (ex) => ex.name.toLowerCase() === exerciseName.toLowerCase() || ex.shortName.toLowerCase() === exerciseName.toLowerCase()
+    );
     if (found?.isOlympic) return true;
     const lower = exerciseName.toLowerCase();
-    return lower.includes("clean") || lower.includes("snatch") || lower.includes("jerk") || lower.includes("cargada") || lower.includes("arrancada") || lower.includes("salto");
+    return (
+      lower.includes("clean") ||
+      lower.includes("snatch") ||
+      lower.includes("jerk") ||
+      lower.includes("cargada") ||
+      lower.includes("arrancada") ||
+      lower.includes("salto") ||
+      lower.includes("swing") ||
+      lower.includes("high pull") ||
+      lower.includes("slam") ||
+      lower.includes("speed") ||
+      lower.includes("dinámico") ||
+      lower.includes("push press")
+    );
   }, [exerciseName, allExercises]);
 
   // Look up saved PR from localStorage if available
@@ -237,37 +303,39 @@ export function UniversalProtocolModal({
     return Math.round(clamped / 5) * 5;
   };
 
-  // Build the protocol calculations dynamically
-  const protocol = useMemo(() => {
+  // Build the neuro-activation and loading protocol steps
+  const protocol = useMemo<ProtocolStep[]>(() => {
     const pr = Math.max(10, prWeight);
     const steps: ProtocolStep[] = [];
 
-    // FASE 1: CALENTAMIENTO Y FLUJO SINOVIAL (3 Sets)
+    // FASE 1: CALENTAMIENTO GENERAL & PROGRESIVO (3 Sets)
     steps.push({
       id: "w1",
       phase: "warmup",
-      title: "Calentamiento 1: Flujo Sinovial",
+      title: equipment === "barbell" ? "Calentamiento 1: Barra Sola (Flow & Articular)" : "Calentamiento 1: Carga Mínima de Activación",
       badge: "CALENTAMIENTO",
       badgeColor: "bg-blue-500/20 text-blue-400 border-blue-500/30",
-      description: equipment === "barbell" ? "Barra vacía para engrasar bisagra articular y memorizar técnica." : "35% de la carga para activar circulación articular sin fatiga.",
-      percent: Math.round(((equipment === "barbell" ? barWeight : roundWeight(pr * 0.35)) / pr) * 100),
-      weightKg: equipment === "barbell" ? barWeight : roundWeight(pr * 0.35),
-      reps: isCurrentOlympic ? 5 : 12,
-      repsLabel: isCurrentOlympic ? "5 reps de técnica fluida" : "12 reps controladas",
-      restSeconds: 60,
+      description: equipment === "barbell"
+        ? "Barra sin discos (20kg). Calibración del arco torácico, escápulas y velocidad de codos."
+        : "Peso mínimo. Lubricación del líquido sinovial y fijación de la trayectoria.",
+      percent: Math.round((barWeight / pr) * 100),
+      weightKg: equipment === "barbell" ? barWeight : roundWeight(pr * 0.3),
+      reps: isCurrentOlympic ? 5 : 8,
+      repsLabel: isCurrentOlympic ? "5 reps técnicas lentas" : "8 reps controladas",
+      restSeconds: 45,
     });
 
     steps.push({
       id: "w2",
       phase: "warmup",
-      title: "Calentamiento 2: Reclutamiento Progresivo",
+      title: "Calentamiento 2: Reclutamiento Fásico",
       badge: "CALENTAMIENTO",
       badgeColor: "bg-blue-500/20 text-blue-400 border-blue-500/30",
-      description: "50% de la carga. Reclutamiento de unidades motoras intermedias con velocidad sostenida.",
+      description: "50% de tu PR. Despertar coordinativo sin fatiga periférica.",
       percent: 50,
       weightKg: roundWeight(pr * 0.5),
-      reps: isCurrentOlympic ? 3 : 8,
-      repsLabel: isCurrentOlympic ? "3 reps fluidas" : "8 reps",
+      reps: isCurrentOlympic ? 3 : 5,
+      repsLabel: isCurrentOlympic ? "3 reps aceleradas" : "5 reps dinámicas",
       restSeconds: 60,
     });
 
@@ -481,7 +549,7 @@ export function UniversalProtocolModal({
               </span>
             </div>
             <p className="text-xs sm:text-sm text-zinc-400 font-mono mt-1">
-              Catálogo completo de ejercicios de Potencia Olímpica, Fuerza Pura y Máquinas con cálculo instantáneo de calentamiento, activación y series de trabajo.
+              Arsenal ampliado de Press de Banca, Fuerza Máxima y Potencia Balística/Olímpica. Elegí el movimiento, ingresá tu PR y obtené de inmediato tus series de aproximación, potenciación PAP y series efectivas.
             </p>
           </div>
         </div>
@@ -559,6 +627,16 @@ export function UniversalProtocolModal({
               </span>
               <div className="flex gap-1.5 flex-wrap">
                 <button
+                  onClick={() => setSelectedCategoryTab("banca")}
+                  className={`px-2.5 py-1 rounded-lg text-xs font-mono font-bold transition-all cursor-pointer ${
+                    selectedCategoryTab === "banca"
+                      ? "bg-red-500/20 text-red-300 border border-red-500/50 shadow-[0_0_10px_rgba(239,68,68,0.2)]"
+                      : "bg-zinc-900/80 text-zinc-400 hover:text-zinc-200 border border-zinc-800"
+                  }`}
+                >
+                  🛡️ Variantes de Banca ({CATEGORIZED_EXERCISES[0].exercises.length})
+                </button>
+                <button
                   onClick={() => setSelectedCategoryTab("potencia")}
                   className={`px-2.5 py-1 rounded-lg text-xs font-mono font-bold transition-all cursor-pointer ${
                     selectedCategoryTab === "potencia"
@@ -566,7 +644,7 @@ export function UniversalProtocolModal({
                       : "bg-zinc-900/80 text-zinc-400 hover:text-zinc-200 border border-zinc-800"
                   }`}
                 >
-                  ⚡ Potencia & Olímpico ({CATEGORIZED_EXERCISES[0].exercises.length})
+                  ⚡ Potencia & Balística ({CATEGORIZED_EXERCISES[1].exercises.length})
                 </button>
                 <button
                   onClick={() => setSelectedCategoryTab("fuerza")}
@@ -576,7 +654,7 @@ export function UniversalProtocolModal({
                       : "bg-zinc-900/80 text-zinc-400 hover:text-zinc-200 border border-zinc-800"
                   }`}
                 >
-                  🏋️ Fuerza Pura ({CATEGORIZED_EXERCISES[1].exercises.length})
+                  🏋️ Fuerza Máxima ({CATEGORIZED_EXERCISES[2].exercises.length})
                 </button>
                 <button
                   onClick={() => setSelectedCategoryTab("maquinas")}
@@ -586,7 +664,7 @@ export function UniversalProtocolModal({
                       : "bg-zinc-900/80 text-zinc-400 hover:text-zinc-200 border border-zinc-800"
                   }`}
                 >
-                  ⚙️ Máquinas ({CATEGORIZED_EXERCISES[2].exercises.length})
+                  ⚙️ Máquinas ({CATEGORIZED_EXERCISES[3].exercises.length})
                 </button>
                 <button
                   onClick={() => setSelectedCategoryTab("all")}
@@ -602,7 +680,7 @@ export function UniversalProtocolModal({
             </div>
 
             {/* Chips de la categoría activa */}
-            <div className="flex flex-wrap gap-1.5 max-h-36 overflow-y-auto p-1.5 rounded-xl bg-zinc-900/40 border border-zinc-800/60">
+            <div className="flex flex-wrap gap-1.5 max-h-48 overflow-y-auto p-1.5 rounded-xl bg-zinc-900/40 border border-zinc-800/60">
               {visibleExercises.map((ex) => {
                 const isSelected = exerciseName === ex.name || exerciseName === ex.shortName;
                 return (
@@ -615,7 +693,7 @@ export function UniversalProtocolModal({
                         : "bg-zinc-900/90 hover:bg-zinc-800 text-zinc-300 hover:text-white border border-zinc-800"
                     }`}
                   >
-                    <span>{ex.isOlympic ? "⚡" : ex.equipment === "machine" ? "⚙️" : "🏋️"}</span>
+                    <span>{ex.isOlympic ? "⚡" : ex.equipment === "machine" ? "⚙️" : ex.name.includes("Banca") || ex.name.includes("Press") ? "🛡️" : "🏋️"}</span>
                     <span>{ex.shortName}</span>
                     <span className="text-[10px] text-zinc-500 font-mono">({ex.defaultPr}k)</span>
                   </button>

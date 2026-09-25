@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useMemo } from "react";
-import { X, Play, CheckCircle2, AlertTriangle, Dumbbell, ShieldCheck, Zap, ExternalLink } from "lucide-react";
+import React from "react";
+import { X, Play, CheckCircle2, AlertTriangle, Dumbbell, ShieldCheck, Zap } from "lucide-react";
 import { type ExerciseMedia } from "@/lib/exerciseMediaCatalog";
 
 interface ExerciseVideoModalProps {
@@ -17,22 +17,6 @@ export function ExerciseVideoModal({
   onClose,
   onStartExercise,
 }: ExerciseVideoModalProps) {
-  const embedUrl = useMemo(() => {
-    if (!media) return null;
-    let ytId = media.youtubeId;
-    if (!ytId && media.videoUrl) {
-      const match = media.videoUrl.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([\w-]{11})/);
-      if (match && match[1]) ytId = match[1];
-    }
-    if (ytId) {
-      const originParam = typeof window !== "undefined" && window.location.origin && window.location.origin.startsWith("http")
-        ? `&origin=${encodeURIComponent(window.location.origin)}`
-        : "";
-      return `https://www.youtube.com/embed/${ytId}?autoplay=1&mute=1&rel=0${originParam}`;
-    }
-    return null;
-  }, [media]);
-
   if (!isOpen) return null;
 
   return (
@@ -51,7 +35,7 @@ export function ExerciseVideoModal({
             </span>
             <div>
               <span className="text-[10px] font-bold uppercase tracking-wider text-amber-500/90">
-                {media.category} • Demo Técnica HD
+                {media.category} • Demo Técnica
               </span>
               <h3 id="video-modal-title" className="text-base font-bold text-white tracking-tight">
                 {media.name}
@@ -69,47 +53,22 @@ export function ExerciseVideoModal({
 
         {/* Video Player Container */}
         <div className="relative w-full bg-black aspect-video overflow-hidden border-b border-zinc-900 group">
-          {embedUrl ? (
-            <iframe
-              src={embedUrl}
-              title={media.name}
-              className="w-full h-full border-0"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-              referrerPolicy="strict-origin-when-cross-origin"
-              
-              allowFullScreen
-            />
-          ) : (
-            <video
-              src={media.videoUrl}
-              poster={media.posterUrl}
-              autoPlay
-              loop
-              muted
-              playsInline
-              controls
-              className="w-full h-full object-cover"
-            >
-              Tu navegador no soporta reproducción de video HTML5.
-            </video>
-          )}
-
-          <div className="absolute top-2.5 right-2.5 flex items-center gap-2 opacity-85 group-hover:opacity-100 transition-opacity">
-            <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-black/80 text-amber-400 border border-amber-400/30 backdrop-blur-sm">
+          <video
+            src={media.videoUrl}
+            poster={media.posterUrl}
+            autoPlay
+            loop
+            muted
+            playsInline
+            controls
+            className="w-full h-full object-cover"
+          >
+            Tu navegador no soporta reproducción de video HTML5.
+          </video>
+          <div className="absolute top-2.5 right-2.5 pointer-events-none opacity-80 group-hover:opacity-100 transition-opacity">
+            <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-black/70 text-amber-400 border border-amber-400/30 backdrop-blur-sm">
               Tempo {media.tempo}
             </span>
-            {media.videoUrl.includes("youtube") && (
-              <a
-                href={media.videoUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-red-600/80 hover:bg-red-600 text-white flex items-center gap-1 backdrop-blur-sm transition-colors"
-                title="Abrir en YouTube"
-              >
-                <span>YouTube</span>
-                <ExternalLink className="w-2.5 h-2.5" />
-              </a>
-            )}
           </div>
         </div>
 
@@ -137,7 +96,7 @@ export function ExerciseVideoModal({
           <div>
             <div className="flex items-center gap-1.5 text-zinc-400 font-semibold mb-2 text-[11px]">
               <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
-              <span>Claves de Ejecución Técnica (Form Cues)</span>
+              <span>Claves de Ejecución (Form Cues)</span>
             </div>
             <ul className="space-y-1.5">
               {media.formCues.map((cue, idx) => (
