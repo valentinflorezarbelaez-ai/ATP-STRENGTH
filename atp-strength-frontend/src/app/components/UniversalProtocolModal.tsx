@@ -13,15 +13,15 @@ import {
   Play,
   Pause,
   ChevronRight,
-  ShieldAlert,
   Flame,
   Activity,
   Layers,
   Save,
-  Copy
+  Copy,
+  Search,
+  Filter
 } from "lucide-react";
 import { BarbellPlateVisualizer } from "./BarbellPlateVisualizer";
-import { ALL_TRACKABLE_EXERCISES } from "@/lib/workoutStrategies";
 import { playChime, playTactileClick } from "@/lib/zenAudio";
 
 export interface UniversalProtocolModalProps {
@@ -48,19 +48,78 @@ interface ProtocolStep {
   isEffective?: boolean;
 }
 
-const COMMON_QUICK_EXERCISES = [
-  "Sentadilla Trasera",
-  "Press de Banca",
-  "Peso Muerto",
-  "Press Militar",
-  "Prensa 45°",
-  "Hack Squat",
-  "Jalón al Pecho",
-  "Remo con Barra",
-  "Fondos Lastrados",
-  "Dominadas Lastradas",
-  "Curl de Bíceps",
-  "Elevaciones Laterales"
+interface ExerciseItem {
+  name: string;
+  shortName: string;
+  defaultPr: number;
+  equipment: EquipmentType;
+  isOlympic?: boolean;
+  description?: string;
+}
+
+interface ExerciseCategoryGroup {
+  id: "all" | "potencia" | "fuerza" | "maquinas";
+  name: string;
+  icon: string;
+  badgeColor: string;
+  exercises: ExerciseItem[];
+}
+
+const CATEGORIZED_EXERCISES: ExerciseCategoryGroup[] = [
+  {
+    id: "potencia",
+    name: "POTENCIA & OLÍMPICO",
+    icon: "⚡",
+    badgeColor: "border-amber-500/40 bg-amber-500/10 text-amber-300",
+    exercises: [
+      { name: "Power Clean (Cargada de Potencia)", shortName: "Power Clean", defaultPr: 85, equipment: "barbell", isOlympic: true, description: "Potencia triple extensión y velocidad de recepción." },
+      { name: "Hang Power Clean (Cargada Colgada)", shortName: "Hang Clean", defaultPr: 80, equipment: "barbell", isOlympic: true, description: "Explosión desde rodillas con aceleración violenta." },
+      { name: "Power Snatch (Arrancada de Potencia)", shortName: "Power Snatch", defaultPr: 65, equipment: "barbell", isOlympic: true, description: "Tasa máxima de desarrollo de fuerza (RFD)." },
+      { name: "Hang Power Snatch (Arrancada Colgada)", shortName: "Hang Snatch", defaultPr: 60, equipment: "barbell", isOlympic: true, description: "Velocidad pura y posicionamiento articular óptimo." },
+      { name: "Push Press (Press de Empuje)", shortName: "Push Press", defaultPr: 75, equipment: "barbell", isOlympic: true, description: "Transferencia de piernas a tren superior en 0.4s." },
+      { name: "Power Jerk (Envión de Potencia)", shortName: "Power Jerk", defaultPr: 80, equipment: "barbell", isOlympic: true, description: "Bloqueo cenital violento con resíntesis anaeróbica." },
+      { name: "Clean High Pull (Tirón Alto de Cargada)", shortName: "Clean High Pull", defaultPr: 100, equipment: "barbell", isOlympic: true, description: "Sobrecarga supra-máxima de potencia en cadena posterior." },
+      { name: "Snatch High Pull (Tirón Alto de Arrancada)", shortName: "Snatch High Pull", defaultPr: 80, equipment: "barbell", isOlympic: true, description: "Tirón vertical agresivo sin recepción articular." },
+      { name: "Sentadilla con Salto con Barra (Barbell Jump Squat)", shortName: "Jump Squat Barra", defaultPr: 45, equipment: "barbell", isOlympic: true, description: "Balística pura con aceleración continua." },
+      { name: "Salto con Trap Bar (Trap Bar Jump)", shortName: "Trap Bar Jump", defaultPr: 55, equipment: "barbell", isOlympic: true, description: "Pico de vatios (watts) en despegue vertical neutro." },
+    ]
+  },
+  {
+    id: "fuerza",
+    name: "FUERZA PURA & BÁSICOS",
+    icon: "🏋️",
+    badgeColor: "border-emerald-500/40 bg-emerald-500/10 text-emerald-300",
+    exercises: [
+      { name: "Sentadilla Trasera", shortName: "Sentadilla Trasera", defaultPr: 120, equipment: "barbell", description: "El rey indiscutible de la fuerza absoluta de piernas." },
+      { name: "Press de Banca", shortName: "Press de Banca", defaultPr: 95, equipment: "barbell", description: "Tensión horizontal máxima en pectoral y tríceps." },
+      { name: "Peso Muerto Convencional", shortName: "Peso Muerto", defaultPr: 150, equipment: "barbell", description: "Reclutamiento total del sistema nervioso central." },
+      { name: "Press Militar", shortName: "Press Militar", defaultPr: 60, equipment: "barbell", description: "Fuerza vertical estricta sin impulso de cadera." },
+      { name: "Fondos en Paralelas", shortName: "Fondos Lastrados", defaultPr: 90, equipment: "barbell", description: "Potente empuje declinado con peso corporal o lastre." },
+      { name: "Dominadas Lastradas", shortName: "Dominadas Lastradas", defaultPr: 90, equipment: "barbell", description: "Tracción vertical con reclutamiento dorsal puro." },
+      { name: "Remo Pendlay", shortName: "Remo Pendlay", defaultPr: 80, equipment: "barbell", description: "Desde el piso en cada rep, cero rebote técnico." },
+      { name: "Peso Muerto Rumano", shortName: "Peso Muerto Rumano", defaultPr: 105, equipment: "barbell", description: "Tensión excéntrica profunda en isquios y glúteos." },
+      { name: "Peso Muerto con Déficit (Deficit Deadlift)", shortName: "Deadlift Déficit", defaultPr: 135, equipment: "barbell", description: "Rango extendido para mejorar despegue inicial." },
+      { name: "Peso Muerto Agarre Arrancada (Snatch Grip Deadlift)", shortName: "Snatch Deadlift", defaultPr: 120, equipment: "barbell", description: "Recorrido hiper-largo con alta activación de espalda alta." },
+      { name: "Sentadilla Trasera Técnica", shortName: "Sentadilla Técnica", defaultPr: 100, equipment: "barbell", description: "Pausa en el pozo para anular rebote miotático." },
+      { name: "Paseo del Granjero Pesado", shortName: "Farmer Walk", defaultPr: 70, equipment: "dumbbell", description: "Estabilidad de core y agarre bajo carga continua." },
+    ]
+  },
+  {
+    id: "maquinas",
+    name: "MÁQUINAS & GIMNASIO",
+    icon: "⚙️",
+    badgeColor: "border-purple-500/40 bg-purple-500/10 text-purple-300",
+    exercises: [
+      { name: "Prensa 45°", shortName: "Prensa 45°", defaultPr: 200, equipment: "machine", description: "Sobrecarga masiva de cuádriceps sin fatiga axial en columna." },
+      { name: "Hack Squat", shortName: "Hack Squat", defaultPr: 130, equipment: "machine", description: "Flexión profunda de rodilla con estabilidad guiada." },
+      { name: "Jalón al Pecho", shortName: "Jalón al Pecho", defaultPr: 80, equipment: "machine", description: "Tracción en polea con vector regulado y bloqueo de fémur." },
+      { name: "Remo en Polea Baja", shortName: "Remo Polea Baja", defaultPr: 75, equipment: "machine", description: "Retracción escapular sostenida con tensión constante." },
+      { name: "Curl Bíceps Barra Z", shortName: "Curl Barra Z", defaultPr: 40, equipment: "barbell", description: "Sobrecarga progresiva en flexores de codo." },
+      { name: "Press Inclinado con Mancuernas", shortName: "Press Inc. Manc.", defaultPr: 34, equipment: "dumbbell", description: "Haz clavicular con recorrido libre de muñeca." },
+      { name: "Extensiones de Cuádriceps", shortName: "Ext. Cuádriceps", defaultPr: 70, equipment: "machine", description: "Tensión en el punto de máximo acortamiento del recto femoral." },
+      { name: "Curl Femoral Tumbado", shortName: "Curl Femoral", defaultPr: 60, equipment: "machine", description: "Flexión activa de rodilla con aislamiento puro de isquiosurales." },
+    ]
+  }
 ];
 
 export function UniversalProtocolModal({
@@ -68,10 +127,11 @@ export function UniversalProtocolModal({
   onClose,
   onStartTimer,
 }: UniversalProtocolModalProps) {
-  const [exerciseName, setExerciseName] = useState<string>("Sentadilla Trasera");
-  const [prWeight, setPrWeight] = useState<number>(100);
+  const [exerciseName, setExerciseName] = useState<string>("Power Clean (Cargada de Potencia)");
+  const [prWeight, setPrWeight] = useState<number>(85);
   const [equipment, setEquipment] = useState<EquipmentType>("barbell");
   const [goal, setGoal] = useState<GoalType>("strength");
+  const [selectedCategoryTab, setSelectedCategoryTab] = useState<"all" | "potencia" | "fuerza" | "maquinas">("potencia");
   const [barWeight, setBarWeight] = useState<number>(20);
   const [activeStepId, setActiveStepId] = useState<string | null>(null);
   const [completedSteps, setCompletedSteps] = useState<Record<string, boolean>>({});
@@ -83,6 +143,26 @@ export function UniversalProtocolModal({
   const [timerRemaining, setTimerRemaining] = useState<number>(0);
   const [timerTotal, setTimerTotal] = useState<number>(0);
   const [timerLabel, setTimerLabel] = useState<string>("");
+
+  // Flattened list for suggestions and search
+  const allExercises = useMemo(() => {
+    return CATEGORIZED_EXERCISES.flatMap((cat) => cat.exercises);
+  }, []);
+
+  // Filtered exercises for the chips
+  const visibleExercises = useMemo(() => {
+    if (selectedCategoryTab === "all") return allExercises;
+    const cat = CATEGORIZED_EXERCISES.find((c) => c.id === selectedCategoryTab);
+    return cat ? cat.exercises : allExercises;
+  }, [selectedCategoryTab, allExercises]);
+
+  // Is current exercise an Olympic lift?
+  const isCurrentOlympic = useMemo(() => {
+    const found = allExercises.find((ex) => ex.name.toLowerCase() === exerciseName.toLowerCase() || ex.shortName.toLowerCase() === exerciseName.toLowerCase());
+    if (found?.isOlympic) return true;
+    const lower = exerciseName.toLowerCase();
+    return lower.includes("clean") || lower.includes("snatch") || lower.includes("jerk") || lower.includes("cargada") || lower.includes("arrancada") || lower.includes("salto");
+  }, [exerciseName, allExercises]);
 
   // Look up saved PR from localStorage if available
   useEffect(() => {
@@ -117,6 +197,31 @@ export function UniversalProtocolModal({
     return () => clearInterval(interval);
   }, [timerRunning, timerRemaining]);
 
+  // Handle clicking an exercise chip
+  const handleSelectExercise = (item: ExerciseItem) => {
+    playTactileClick();
+    setExerciseName(item.name);
+    setEquipment(item.equipment);
+    if (item.isOlympic) {
+      setGoal("strength");
+    }
+
+    // Check if user already has a saved 1RM for this exercise
+    let foundPr = item.defaultPr;
+    if (typeof window !== "undefined") {
+      try {
+        const savedMaxes = localStorage.getItem("neuro_strength_maxes");
+        if (savedMaxes) {
+          const parsed = JSON.parse(savedMaxes);
+          if (parsed[item.name]?.one_rep_max) {
+            foundPr = parsed[item.name].one_rep_max;
+          }
+        }
+      } catch {}
+    }
+    setPrWeight(foundPr);
+  };
+
   // Rounding helper
   const roundWeight = (rawWeight: number): number => {
     if (equipment === "barbell") {
@@ -127,7 +232,7 @@ export function UniversalProtocolModal({
       const clamped = Math.max(2, rawWeight);
       return Math.round(clamped / 2.5) * 2.5;
     }
-    // machine: usually 5kg increments
+    // machine: 5kg increments
     const clamped = Math.max(5, rawWeight);
     return Math.round(clamped / 5) * 5;
   };
@@ -147,8 +252,8 @@ export function UniversalProtocolModal({
       description: equipment === "barbell" ? "Barra vacía para engrasar bisagra articular y memorizar técnica." : "35% de la carga para activar circulación articular sin fatiga.",
       percent: Math.round(((equipment === "barbell" ? barWeight : roundWeight(pr * 0.35)) / pr) * 100),
       weightKg: equipment === "barbell" ? barWeight : roundWeight(pr * 0.35),
-      reps: 12,
-      repsLabel: "12 reps controladas",
+      reps: isCurrentOlympic ? 5 : 12,
+      repsLabel: isCurrentOlympic ? "5 reps de técnica fluida" : "12 reps controladas",
       restSeconds: 60,
     });
 
@@ -161,8 +266,8 @@ export function UniversalProtocolModal({
       description: "50% de la carga. Reclutamiento de unidades motoras intermedias con velocidad sostenida.",
       percent: 50,
       weightKg: roundWeight(pr * 0.5),
-      reps: 8,
-      repsLabel: "8 reps fluidas",
+      reps: isCurrentOlympic ? 3 : 8,
+      repsLabel: isCurrentOlympic ? "3 reps fluidas" : "8 reps",
       restSeconds: 60,
     });
 
@@ -175,8 +280,8 @@ export function UniversalProtocolModal({
       description: "65% de la carga. Activación de presión intra-abdominal y tensión en tendones.",
       percent: 65,
       weightKg: roundWeight(pr * 0.65),
-      reps: 4,
-      repsLabel: "4 reps con intención",
+      reps: isCurrentOlympic ? 2 : 4,
+      repsLabel: isCurrentOlympic ? "2 reps con intención veloz" : "4 reps con intención",
       restSeconds: 75,
     });
 
@@ -187,10 +292,10 @@ export function UniversalProtocolModal({
       title: "Activación 1: Transición Neuronal",
       badge: "ACTIVACIÓN",
       badgeColor: "bg-amber-500/20 text-amber-400 border-amber-500/30",
-      description: "75% de la carga. Preparación de motoneuronas rápidas tipo IIb con fatiga nula.",
+      description: "75% de la carga. Preparación de motoneuronas rápidas tipo IIb con fatiga glucolítica nula.",
       percent: 75,
       weightKg: roundWeight(pr * 0.75),
-      reps: 2,
+      reps: isCurrentOlympic ? 2 : 2,
       repsLabel: "2 reps explosivas",
       restSeconds: 90,
     });
@@ -210,21 +315,27 @@ export function UniversalProtocolModal({
     });
 
     // FASE 3: SERIES EFECTIVAS DE TRABAJO
-    if (goal === "strength") {
-      const effectiveWeight = roundWeight(pr * 0.85);
+    if (isCurrentOlympic || goal === "strength") {
+      const effectiveWeight = roundWeight(pr * (isCurrentOlympic ? 0.82 : 0.85));
+      const targetReps = isCurrentOlympic ? 3 : 5;
+      const repsDesc = isCurrentOlympic ? "3 reps (Potencia máxima Prilepin)" : "5 reps RPE 8.5 (Fuerza Pura)";
+      const restSec = isCurrentOlympic ? 180 : 180;
+
       for (let i = 1; i <= 3; i++) {
         steps.push({
           id: `eff_${i}`,
           phase: "effective",
-          title: `Serie Efectiva ${i} de 3: Fuerza Máxima`,
-          badge: "EFECTIVA",
-          badgeColor: "bg-emerald-500/20 text-emerald-400 border-emerald-500/30",
-          description: "85% 1RM. Máxima tasa de desarrollo de fuerza (RFD). Descanso amplio para resíntesis total de ATP-PCr.",
-          percent: 85,
+          title: `Serie Efectiva ${i} de 3: ${isCurrentOlympic ? "Potencia RFD" : "Fuerza Máxima"}`,
+          badge: isCurrentOlympic ? "POTENCIA" : "EFECTIVA",
+          badgeColor: isCurrentOlympic ? "bg-amber-500/20 text-amber-400 border-amber-500/30" : "bg-emerald-500/20 text-emerald-400 border-emerald-500/30",
+          description: isCurrentOlympic
+            ? "82% 1RM. Máxima velocidad concéntrica sin degradación técnica ni acúmulo de lactato."
+            : "85% 1RM. Máxima tasa de desarrollo de fuerza (RFD). Descanso amplio para resíntesis total de ATP-PCr.",
+          percent: isCurrentOlympic ? 82 : 85,
           weightKg: effectiveWeight,
-          reps: 5,
-          repsLabel: "5 reps RPE 8.5",
-          restSeconds: 180,
+          reps: targetReps,
+          repsLabel: repsDesc,
+          restSeconds: restSec,
           isEffective: true,
         });
       }
@@ -267,7 +378,7 @@ export function UniversalProtocolModal({
     }
 
     return steps;
-  }, [prWeight, equipment, goal, barWeight]);
+  }, [prWeight, equipment, goal, barWeight, isCurrentOlympic]);
 
   if (!isOpen) return null;
 
@@ -276,7 +387,6 @@ export function UniversalProtocolModal({
     if (onStartTimer) {
       onStartTimer(step.restSeconds, `${exerciseName} - ${step.title}`);
     }
-    // Also run modal internal timer
     setTimerTotal(step.restSeconds);
     setTimerRemaining(step.restSeconds);
     setTimerLabel(step.title);
@@ -310,7 +420,7 @@ export function UniversalProtocolModal({
     playTactileClick();
     const summary = [
       `🏋️ PROTOCOLO UNIVERSAL: ${exerciseName.toUpperCase()}`,
-      `🎯 PR / 1RM: ${prWeight} kg | Equipo: ${equipment} | Enfoque: ${goal}`,
+      `🎯 PR / 1RM: ${prWeight} kg | Equipo: ${equipment} | Enfoque: ${isCurrentOlympic ? "POTENCIA OLÍMPICA" : goal.toUpperCase()}`,
       `--------------------------------------------------`,
       ...protocol.map(
         (s) => `[${s.badge}] ${s.title}: ${s.weightKg}kg x ${s.repsLabel} (Descanso: ${s.restSeconds}s)`
@@ -337,6 +447,13 @@ export function UniversalProtocolModal({
       onClick={onClose}
       className="fixed inset-0 z-50 bg-black/90 backdrop-blur-xl flex items-center justify-center p-2 sm:p-4 animate-in fade-in duration-200"
     >
+      {/* Suggestions datalist */}
+      <datalist id="all-exercises-suggestions">
+        {allExercises.map((ex) => (
+          <option key={ex.name} value={ex.name} />
+        ))}
+      </datalist>
+
       <div
         onClick={(e) => e.stopPropagation()}
         className="relative max-w-3xl w-full rounded-3xl bg-[#07070b] border border-zinc-800 p-4 sm:p-7 shadow-[0_0_80px_rgba(245,158,11,0.2)] text-left flex flex-col max-h-[94vh] overflow-y-auto font-sans"
@@ -350,185 +467,237 @@ export function UniversalProtocolModal({
         </button>
 
         {/* Hero Header */}
-        <div className="flex items-start gap-3 sm:gap-4 border-b border-zinc-900 pb-5 mb-5">
+        <div className="flex items-start gap-3 sm:gap-4 border-b border-zinc-900 pb-4 mb-4">
           <div className="p-3 sm:p-3.5 rounded-2xl bg-gradient-to-br from-amber-500/20 to-orange-500/10 border border-amber-500/30 text-amber-400 shadow-lg shadow-amber-500/10">
             <Zap className="w-6 h-6 sm:w-7 sm:h-7" />
           </div>
           <div className="flex-1 pr-8">
             <div className="flex items-center gap-2">
               <h2 className="text-lg sm:text-xl font-black tracking-wider text-white uppercase">
-                PROTOCOLO UNIVERSAL DE FUERZA
+                PROTOCOLO UNIVERSAL DE FUERZA & POTENCIA
               </h2>
               <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30">
                 1RM / PR
               </span>
             </div>
             <p className="text-xs sm:text-sm text-zinc-400 font-mono mt-1">
-              Ingresá cualquier ejercicio o máquina y tu PR. La app calcula fases de calentamiento, activación y series efectivas exactas.
+              Catálogo completo de ejercicios de Potencia Olímpica, Fuerza Pura y Máquinas con cálculo instantáneo de calentamiento, activación y series de trabajo.
             </p>
           </div>
         </div>
 
         {/* CONTROLES DE ENTRADA: Ejercicio, PR, Equipamiento y Objetivo */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-zinc-950/70 border border-zinc-800/80 rounded-2xl p-4 sm:p-5 mb-5 shadow-inner">
-          {/* Campo Ejercicio */}
-          <div className="space-y-2">
-            <label className="text-xs font-mono font-bold text-zinc-400 flex items-center justify-between">
-              <span>EJERCICIO O MÁQUINA</span>
-              <span className="text-[10px] text-zinc-500">Texto libre o selector</span>
-            </label>
-            <input
-              type="text"
-              value={exerciseName}
-              onChange={(e) => setExerciseName(e.target.value)}
-              placeholder="Ej: Sentadilla Trasera, Prensa, Hack, Remo..."
-              className="w-full bg-zinc-900 border border-zinc-700/80 rounded-xl px-3.5 py-2.5 text-sm font-semibold text-zinc-100 focus:outline-none focus:border-amber-400 transition-all placeholder:text-zinc-600"
-            />
-            {/* Quick chips */}
-            <div className="flex flex-wrap gap-1.5 pt-1">
-              {COMMON_QUICK_EXERCISES.slice(0, 6).map((ex) => (
+        <div className="space-y-4 bg-zinc-950/70 border border-zinc-800/80 rounded-2xl p-4 sm:p-5 mb-5 shadow-inner">
+          {/* Fila 1: Input Ejercicio + Input PR */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Campo Ejercicio con Autocomplete */}
+            <div className="space-y-2">
+              <label className="text-xs font-mono font-bold text-zinc-400 flex items-center justify-between">
+                <span>EJERCICIO SELECCIONADO</span>
+                <span className="text-[10px] text-zinc-500">Búsqueda libre o catálogo</span>
+              </label>
+              <div className="relative">
+                <input
+                  type="text"
+                  list="all-exercises-suggestions"
+                  value={exerciseName}
+                  onChange={(e) => setExerciseName(e.target.value)}
+                  placeholder="Buscá o escribí cualquier ejercicio..."
+                  className="w-full bg-zinc-900 border border-zinc-700/80 rounded-xl px-3.5 py-2.5 text-sm font-semibold text-zinc-100 focus:outline-none focus:border-amber-400 transition-all placeholder:text-zinc-600 font-sans"
+                />
+              </div>
+            </div>
+
+            {/* Campo PR / 1RM */}
+            <div className="space-y-2">
+              <label className="text-xs font-mono font-bold text-zinc-400 flex items-center justify-between">
+                <span>¿CUÁL ES TU PR / 1RM? (KG)</span>
                 <button
-                  key={ex}
-                  onClick={() => setExerciseName(ex)}
-                  className={`px-2 py-1 rounded-lg text-[10px] font-mono transition-all cursor-pointer ${
-                    exerciseName === ex
-                      ? "bg-amber-500/30 text-amber-300 border border-amber-500/50"
+                  onClick={handleSavePrToStorage}
+                  className="text-[10px] font-mono text-amber-400 hover:text-amber-300 flex items-center gap-1 cursor-pointer"
+                  title="Guardar este PR en la memoria de la aplicación"
+                >
+                  <Save className="w-3 h-3" />
+                  <span>{savedNotification ? "¡GUARDADO!" : "GUARDAR PR"}</span>
+                </button>
+              </label>
+              <div className="flex items-center gap-2">
+                <input
+                  type="number"
+                  min="10"
+                  max="500"
+                  step="2.5"
+                  value={prWeight}
+                  onChange={(e) => setPrWeight(parseFloat(e.target.value) || 0)}
+                  className="flex-1 bg-zinc-900 border border-zinc-700/80 rounded-xl px-3.5 py-2.5 text-lg font-black text-amber-400 text-center focus:outline-none focus:border-amber-400 transition-all font-mono"
+                />
+                <div className="flex gap-1">
+                  <button
+                    onClick={() => setPrWeight((w) => Math.max(10, w - 5))}
+                    className="px-2.5 py-2.5 rounded-xl bg-zinc-900 border border-zinc-800 text-zinc-300 font-mono text-xs hover:border-zinc-700 active:scale-95 cursor-pointer"
+                  >
+                    -5
+                  </button>
+                  <button
+                    onClick={() => setPrWeight((w) => w + 5)}
+                    className="px-2.5 py-2.5 rounded-xl bg-zinc-900 border border-zinc-800 text-zinc-300 font-mono text-xs hover:border-zinc-700 active:scale-95 cursor-pointer"
+                  >
+                    +5
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Fila 2: CATÁLOGO CATEGORIZADO DE EJERCICIOS */}
+          <div className="space-y-2 pt-2 border-t border-zinc-900">
+            {/* Pestañas de Categoría */}
+            <div className="flex items-center justify-between flex-wrap gap-2">
+              <span className="text-xs font-mono font-bold text-zinc-400 flex items-center gap-1.5">
+                <Filter className="w-3.5 h-3.5 text-amber-400" />
+                <span>CATÁLOGO DE MOVIMIENTOS ({allExercises.length})</span>
+              </span>
+              <div className="flex gap-1.5 flex-wrap">
+                <button
+                  onClick={() => setSelectedCategoryTab("potencia")}
+                  className={`px-2.5 py-1 rounded-lg text-xs font-mono font-bold transition-all cursor-pointer ${
+                    selectedCategoryTab === "potencia"
+                      ? "bg-amber-500/20 text-amber-300 border border-amber-500/50 shadow-[0_0_10px_rgba(245,158,11,0.2)]"
                       : "bg-zinc-900/80 text-zinc-400 hover:text-zinc-200 border border-zinc-800"
                   }`}
                 >
-                  {ex}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Campo PR / 1RM */}
-          <div className="space-y-2">
-            <label className="text-xs font-mono font-bold text-zinc-400 flex items-center justify-between">
-              <span>¿CUÁL ES TU PR / 1RM? (KG)</span>
-              <button
-                onClick={handleSavePrToStorage}
-                className="text-[10px] font-mono text-amber-400 hover:text-amber-300 flex items-center gap-1 cursor-pointer"
-                title="Guardar este PR en la memoria de la aplicación"
-              >
-                <Save className="w-3 h-3" />
-                <span>{savedNotification ? "¡GUARDADO!" : "GUARDAR PR"}</span>
-              </button>
-            </label>
-            <div className="flex items-center gap-2">
-              <input
-                type="number"
-                min="10"
-                max="500"
-                step="2.5"
-                value={prWeight}
-                onChange={(e) => setPrWeight(parseFloat(e.target.value) || 0)}
-                className="flex-1 bg-zinc-900 border border-zinc-700/80 rounded-xl px-3.5 py-2.5 text-lg font-black text-amber-400 text-center focus:outline-none focus:border-amber-400 transition-all font-mono"
-              />
-              <div className="flex gap-1">
-                <button
-                  onClick={() => setPrWeight((w) => Math.max(10, w - 5))}
-                  className="px-2.5 py-2.5 rounded-xl bg-zinc-900 border border-zinc-800 text-zinc-300 font-mono text-xs hover:border-zinc-700 active:scale-95"
-                >
-                  -5
+                  ⚡ Potencia & Olímpico ({CATEGORIZED_EXERCISES[0].exercises.length})
                 </button>
                 <button
-                  onClick={() => setPrWeight((w) => w + 5)}
-                  className="px-2.5 py-2.5 rounded-xl bg-zinc-900 border border-zinc-800 text-zinc-300 font-mono text-xs hover:border-zinc-700 active:scale-95"
+                  onClick={() => setSelectedCategoryTab("fuerza")}
+                  className={`px-2.5 py-1 rounded-lg text-xs font-mono font-bold transition-all cursor-pointer ${
+                    selectedCategoryTab === "fuerza"
+                      ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/50 shadow-[0_0_10px_rgba(16,185,129,0.2)]"
+                      : "bg-zinc-900/80 text-zinc-400 hover:text-zinc-200 border border-zinc-800"
+                  }`}
                 >
-                  +5
+                  🏋️ Fuerza Pura ({CATEGORIZED_EXERCISES[1].exercises.length})
+                </button>
+                <button
+                  onClick={() => setSelectedCategoryTab("maquinas")}
+                  className={`px-2.5 py-1 rounded-lg text-xs font-mono font-bold transition-all cursor-pointer ${
+                    selectedCategoryTab === "maquinas"
+                      ? "bg-purple-500/20 text-purple-300 border border-purple-500/50 shadow-[0_0_10px_rgba(168,85,247,0.2)]"
+                      : "bg-zinc-900/80 text-zinc-400 hover:text-zinc-200 border border-zinc-800"
+                  }`}
+                >
+                  ⚙️ Máquinas ({CATEGORIZED_EXERCISES[2].exercises.length})
+                </button>
+                <button
+                  onClick={() => setSelectedCategoryTab("all")}
+                  className={`px-2.5 py-1 rounded-lg text-xs font-mono transition-all cursor-pointer ${
+                    selectedCategoryTab === "all"
+                      ? "bg-zinc-700 text-white border border-zinc-500"
+                      : "bg-zinc-900/80 text-zinc-500 hover:text-zinc-300 border border-zinc-800"
+                  }`}
+                >
+                  Todos ({allExercises.length})
                 </button>
               </div>
             </div>
 
-            {/* Quick offset chips */}
-            <div className="flex items-center justify-between pt-1 text-[11px] font-mono text-zinc-500">
-              <span>Ajustes rápidos:</span>
-              <div className="flex gap-1.5">
-                {[50, 80, 100, 120, 140, 160].map((val) => (
+            {/* Chips de la categoría activa */}
+            <div className="flex flex-wrap gap-1.5 max-h-36 overflow-y-auto p-1.5 rounded-xl bg-zinc-900/40 border border-zinc-800/60">
+              {visibleExercises.map((ex) => {
+                const isSelected = exerciseName === ex.name || exerciseName === ex.shortName;
+                return (
                   <button
-                    key={val}
-                    onClick={() => setPrWeight(val)}
-                    className="px-1.5 py-0.5 rounded bg-zinc-900 hover:bg-zinc-800 text-zinc-400 text-[10px]"
+                    key={ex.name}
+                    onClick={() => handleSelectExercise(ex)}
+                    className={`px-2.5 py-1.5 rounded-xl text-xs font-mono font-medium transition-all text-left flex items-center gap-1.5 cursor-pointer ${
+                      isSelected
+                        ? "bg-gradient-to-r from-amber-500/30 to-orange-500/20 text-amber-300 border border-amber-500/60 shadow-[0_0_12px_rgba(245,158,11,0.25)] scale-[1.02]"
+                        : "bg-zinc-900/90 hover:bg-zinc-800 text-zinc-300 hover:text-white border border-zinc-800"
+                    }`}
                   >
-                    {val}k
+                    <span>{ex.isOlympic ? "⚡" : ex.equipment === "machine" ? "⚙️" : "🏋️"}</span>
+                    <span>{ex.shortName}</span>
+                    <span className="text-[10px] text-zinc-500 font-mono">({ex.defaultPr}k)</span>
                   </button>
-                ))}
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Fila 3: Selector de Implemento + Enfoque */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2 border-t border-zinc-900">
+            {/* Implemento */}
+            <div className="space-y-1.5">
+              <span className="text-xs font-mono font-bold text-zinc-400">TIPO DE IMPLEMENTO</span>
+              <div className="grid grid-cols-3 gap-2">
+                <button
+                  onClick={() => setEquipment("barbell")}
+                  className={`py-2 px-2 rounded-xl text-xs font-mono font-bold border transition-all text-center cursor-pointer ${
+                    equipment === "barbell"
+                      ? "bg-amber-500/20 border-amber-500/50 text-amber-300"
+                      : "bg-zinc-900 border-zinc-800 text-zinc-400 hover:bg-zinc-800"
+                  }`}
+                >
+                  🏋️ Barra (20k)
+                </button>
+                <button
+                  onClick={() => setEquipment("dumbbell")}
+                  className={`py-2 px-2 rounded-xl text-xs font-mono font-bold border transition-all text-center cursor-pointer ${
+                    equipment === "dumbbell"
+                      ? "bg-amber-500/20 border-amber-500/50 text-amber-300"
+                      : "bg-zinc-900 border-zinc-800 text-zinc-400 hover:bg-zinc-800"
+                  }`}
+                >
+                  💪 Mancuerna
+                </button>
+                <button
+                  onClick={() => setEquipment("machine")}
+                  className={`py-2 px-2 rounded-xl text-xs font-mono font-bold border transition-all text-center cursor-pointer ${
+                    equipment === "machine"
+                      ? "bg-amber-500/20 border-amber-500/50 text-amber-300"
+                      : "bg-zinc-900 border-zinc-800 text-zinc-400 hover:bg-zinc-800"
+                  }`}
+                >
+                  ⚙️ Máquina/Polea
+                </button>
               </div>
             </div>
-          </div>
 
-          {/* Selector de Implemento / Máquina */}
-          <div className="space-y-1.5">
-            <span className="text-xs font-mono font-bold text-zinc-400">TIPO DE IMPLEMENTO</span>
-            <div className="grid grid-cols-3 gap-2">
-              <button
-                onClick={() => setEquipment("barbell")}
-                className={`py-2 px-2.5 rounded-xl text-xs font-mono font-bold border transition-all text-center cursor-pointer ${
-                  equipment === "barbell"
-                    ? "bg-amber-500/20 border-amber-500/50 text-amber-300"
-                    : "bg-zinc-900 border-zinc-800 text-zinc-400 hover:bg-zinc-800"
-                }`}
-              >
-                🏋️ Barra (20k)
-              </button>
-              <button
-                onClick={() => setEquipment("dumbbell")}
-                className={`py-2 px-2.5 rounded-xl text-xs font-mono font-bold border transition-all text-center cursor-pointer ${
-                  equipment === "dumbbell"
-                    ? "bg-amber-500/20 border-amber-500/50 text-amber-300"
-                    : "bg-zinc-900 border-zinc-800 text-zinc-400 hover:bg-zinc-800"
-                }`}
-              >
-                💪 Mancuerna
-              </button>
-              <button
-                onClick={() => setEquipment("machine")}
-                className={`py-2 px-2.5 rounded-xl text-xs font-mono font-bold border transition-all text-center cursor-pointer ${
-                  equipment === "machine"
-                    ? "bg-amber-500/20 border-amber-500/50 text-amber-300"
-                    : "bg-zinc-900 border-zinc-800 text-zinc-400 hover:bg-zinc-800"
-                }`}
-              >
-                ⚙️ Máquina/Polea
-              </button>
-            </div>
-          </div>
-
-          {/* Selector de Objetivo de Sesión */}
-          <div className="space-y-1.5">
-            <span className="text-xs font-mono font-bold text-zinc-400">ENFOQUE DE LA SESIÓN</span>
-            <div className="grid grid-cols-3 gap-2">
-              <button
-                onClick={() => setGoal("strength")}
-                className={`py-2 px-2.5 rounded-xl text-xs font-mono font-bold border transition-all text-center cursor-pointer ${
-                  goal === "strength"
-                    ? "bg-emerald-500/20 border-emerald-500/50 text-emerald-300"
-                    : "bg-zinc-900 border-zinc-800 text-zinc-400 hover:bg-zinc-800"
-                }`}
-              >
-                ⚡ Fuerza (85%)
-              </button>
-              <button
-                onClick={() => setGoal("hypertrophy")}
-                className={`py-2 px-2.5 rounded-xl text-xs font-mono font-bold border transition-all text-center cursor-pointer ${
-                  goal === "hypertrophy"
-                    ? "bg-purple-500/20 border-purple-500/50 text-purple-300"
-                    : "bg-zinc-900 border-zinc-800 text-zinc-400 hover:bg-zinc-800"
-                }`}
-              >
-                🧬 Hipertrofia (76%)
-              </button>
-              <button
-                onClick={() => setGoal("volume")}
-                className={`py-2 px-2.5 rounded-xl text-xs font-mono font-bold border transition-all text-center cursor-pointer ${
-                  goal === "volume"
-                    ? "bg-blue-500/20 border-blue-500/50 text-blue-300"
-                    : "bg-zinc-900 border-zinc-800 text-zinc-400 hover:bg-zinc-800"
-                }`}
-              >
-                🩸 Volumen (65%)
-              </button>
+            {/* Objetivo / Enfoque */}
+            <div className="space-y-1.5">
+              <span className="text-xs font-mono font-bold text-zinc-400">ENFOQUE DE LA SESIÓN</span>
+              <div className="grid grid-cols-3 gap-2">
+                <button
+                  onClick={() => setGoal("strength")}
+                  className={`py-2 px-2 rounded-xl text-xs font-mono font-bold border transition-all text-center cursor-pointer ${
+                    goal === "strength"
+                      ? "bg-emerald-500/20 border-emerald-500/50 text-emerald-300"
+                      : "bg-zinc-900 border-zinc-800 text-zinc-400 hover:bg-zinc-800"
+                  }`}
+                >
+                  ⚡ {isCurrentOlympic ? "Potencia (82%)" : "Fuerza (85%)"}
+                </button>
+                <button
+                  onClick={() => setGoal("hypertrophy")}
+                  className={`py-2 px-2 rounded-xl text-xs font-mono font-bold border transition-all text-center cursor-pointer ${
+                    goal === "hypertrophy"
+                      ? "bg-purple-500/20 border-purple-500/50 text-purple-300"
+                      : "bg-zinc-900 border-zinc-800 text-zinc-400 hover:bg-zinc-800"
+                  }`}
+                >
+                  🧬 Hipertrofia (76%)
+                </button>
+                <button
+                  onClick={() => setGoal("volume")}
+                  className={`py-2 px-2 rounded-xl text-xs font-mono font-bold border transition-all text-center cursor-pointer ${
+                    goal === "volume"
+                      ? "bg-blue-500/20 border-blue-500/50 text-blue-300"
+                      : "bg-zinc-900 border-zinc-800 text-zinc-400 hover:bg-zinc-800"
+                  }`}
+                >
+                  🩸 Volumen (65%)
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -576,7 +745,7 @@ export function UniversalProtocolModal({
           </div>
 
           <div className="space-y-2.5">
-            {protocol.map((step, idx) => {
+            {protocol.map((step) => {
               const isCompleted = !!completedSteps[step.id];
               const isTargetingBarbell = equipment === "barbell" && step.weightKg >= barWeight;
 
@@ -585,7 +754,9 @@ export function UniversalProtocolModal({
                   key={step.id}
                   className={`rounded-2xl border p-3.5 sm:p-4 transition-all ${
                     step.isEffective
-                      ? "bg-gradient-to-r from-emerald-950/20 via-zinc-950 to-zinc-950 border-emerald-500/30 shadow-[0_0_25px_rgba(16,185,129,0.05)]"
+                      ? isCurrentOlympic
+                        ? "bg-gradient-to-r from-amber-950/20 via-zinc-950 to-zinc-950 border-amber-500/40 shadow-[0_0_25px_rgba(245,158,11,0.08)]"
+                        : "bg-gradient-to-r from-emerald-950/20 via-zinc-950 to-zinc-950 border-emerald-500/30 shadow-[0_0_25px_rgba(16,185,129,0.05)]"
                       : step.phase === "activation"
                       ? "bg-gradient-to-r from-purple-950/20 via-zinc-950 to-zinc-950 border-purple-500/30"
                       : "bg-zinc-950/70 border-zinc-800/80"
@@ -665,7 +836,7 @@ export function UniversalProtocolModal({
         <div className="mt-auto pt-3 border-t border-zinc-900 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs font-mono text-zinc-500">
           <div className="flex items-center gap-2">
             <Sparkles className="w-4 h-4 text-amber-400 flex-shrink-0" />
-            <span>Resíntesis de ATP completa: 95% a los 3 minutos de pausa pasiva.</span>
+            <span>Fuerza & Potencia RFD: Protocolo calibrado con doctrina soviética Prilepin y resíntesis ATP-PCr.</span>
           </div>
           <button
             onClick={onClose}
