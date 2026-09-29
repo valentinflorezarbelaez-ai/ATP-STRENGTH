@@ -7,6 +7,7 @@ import { TimerDisplay } from "@/app/components/TimerDisplay";
 import { BarbellPlateVisualizer } from "@/app/components/BarbellPlateVisualizer";
 import { WarmupCalculatorModal } from "@/app/components/WarmupCalculatorModal";
 import { UniversalProtocolModal } from "@/app/components/UniversalProtocolModal";
+import { UniversalStrengthCalcModal } from "@/app/components/UniversalStrengthCalcModal";
 import { ExerciseVideoModal } from "@/app/components/ExerciseVideoModal";
 import { ExerciseCatalogModal } from "@/app/components/ExerciseCatalogModal";
 import { getExerciseMedia } from "@/lib/exerciseMediaCatalog";
@@ -15,7 +16,7 @@ import {
   Play,
   Flame, Zap, RotateCcw, CheckCircle2, Calendar, Activity,
   ShieldCheck, Lock, Maximize2, Layers, Sparkles,
-  TrendingUp, X, Save, Dumbbell, History, Calculator,
+  TrendingUp, X, Save, Dumbbell, History, Calculator, BarChart3,
   AlertTriangle, Trophy, Sun, Moon, Laptop,
 } from "lucide-react";
 import { computeMetrics } from "@/lib/workoutStrategies";
@@ -28,6 +29,7 @@ export function ZenDashboardView({ d, onShowSpotify }: { d: Dash; onShowSpotify?
   const [showUniversalProtocol, setShowUniversalProtocol] = React.useState(false);
   const [selectedVideoExercise, setSelectedVideoExercise] = React.useState<string | null>(null);
   const [showCatalogModal, setShowCatalogModal] = React.useState(false);
+  const [showUniversalCalc, setShowUniversalCalc] = React.useState(false);
   const {
     selectedDayKey, setSelectedDayKey,
     activeExerciseIndex, setActiveExerciseIndex,
@@ -103,6 +105,15 @@ export function ZenDashboardView({ d, onShowSpotify }: { d: Dash; onShowSpotify?
                 >
                   <span>🎬</span>
                   <span>VIDEOS HD (25)</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowUniversalCalc(true)}
+                  className="px-2.5 py-1 rounded-lg text-[10px] font-mono font-bold bg-gradient-to-r from-cyan-500/20 to-amber-500/20 text-cyan-300 border border-cyan-500/40 hover:bg-cyan-500/30 hover:border-cyan-400/60 transition-all flex items-center gap-1.5 shadow-[0_0_15px_rgba(6,182,212,0.15)] active:scale-95 cursor-pointer"
+                  title="Universal Phase Calculator — Any Exercise"
+                >
+                  <BarChart3 className="w-3 h-3" />
+                  <span>PHASE CALC</span>
                 </button>
                 <a
                   href="/forge"
@@ -1269,6 +1280,13 @@ export function ZenDashboardView({ d, onShowSpotify }: { d: Dash; onShowSpotify?
       <UniversalProtocolModal
         isOpen={showUniversalProtocol}
         onClose={() => setShowUniversalProtocol(false)}
+        onStartTimer={(seconds, title) => {
+          handleStartTimer(seconds, title);
+        }}
+      />
+      <UniversalStrengthCalcModal
+        isOpen={showUniversalCalc}
+        onClose={() => setShowUniversalCalc(false)}
         onStartTimer={(seconds, title) => {
           handleStartTimer(seconds, title);
         }}

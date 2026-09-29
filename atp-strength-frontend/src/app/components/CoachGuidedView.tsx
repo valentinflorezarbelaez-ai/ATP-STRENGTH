@@ -4,7 +4,7 @@ import React, { useState, useMemo } from "react";
 import {
   Flame, Sparkles, Calendar, CheckCircle2, ChevronLeft, ChevronRight,
   Play, Pause, RotateCcw, Volume2, Trophy,
-  Minus, Plus, Activity, Heart, ArrowRight, Coffee, Eye, Sun, Moon, Laptop, User, Download, Upload, Database, Zap
+  Minus, Plus, Activity, Heart, ArrowRight, Coffee, Eye, Sun, Moon, Laptop, User, Download, Upload, Database, Zap, BarChart3
 } from "lucide-react";
 import {
   computeEstimated1Rm,
@@ -17,6 +17,7 @@ import { AtpEnergyRing } from "@/app/components/AtpEnergyRing";
 import { BarbellPlateVisualizer } from "@/app/components/BarbellPlateVisualizer";
 import { LiveSetCoachModal } from "@/app/components/LiveSetCoachModal";
 import { UniversalProtocolModal } from "@/app/components/UniversalProtocolModal";
+import { UniversalStrengthCalcModal } from "@/app/components/UniversalStrengthCalcModal";
 import { DailyWorkoutSplitView } from "@/app/components/DailyWorkoutSplitView";
 import { ExerciseVideoModal } from "@/app/components/ExerciseVideoModal";
 import { getExerciseMedia } from "@/lib/exerciseMediaCatalog";
@@ -96,6 +97,7 @@ export function CoachGuidedView({ d, onShowSpotify }: { d: Dash; onShowSpotify?:
   const [backupMsg, setBackupMsg] = useState<string | null>(null);
   const [showResetConfirm, setShowResetConfirm] = useState(false);
   const [showUniversalProtocol, setShowUniversalProtocol] = useState(false);
+  const [showUniversalCalc, setShowUniversalCalc] = useState(false);
   const [audioPrefs, setAudioPrefs] = useState<CoachAudioPreferences>(() => getAudioPreferences());
   const hasSpoken10sWarning = React.useRef(false);
   const hasSpokenVictory = React.useRef(false);
@@ -346,6 +348,18 @@ export function CoachGuidedView({ d, onShowSpotify }: { d: Dash; onShowSpotify?:
           >
             <span>⚡</span>
             <span className="hidden sm:inline">PROTOCOLO PR</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              playTactileClick();
+              setShowUniversalCalc(true);
+            }}
+            className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-cyan-500/30 bg-gradient-to-r from-cyan-500/10 to-amber-500/10 text-cyan-300 hover:bg-cyan-500/20 hover:border-cyan-400/50 transition-all text-xs font-mono font-bold cursor-pointer shadow-[0_0_12px_rgba(6,182,212,0.15)]"
+            title="Universal Phase Calculator — Any Exercise"
+          >
+            <BarChart3 className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">PHASE CALC</span>
           </button>
           <a
             href="https://open.spotify.com/intl-es"
@@ -1488,6 +1502,13 @@ export function CoachGuidedView({ d, onShowSpotify }: { d: Dash; onShowSpotify?:
       <UniversalProtocolModal
           isOpen={showUniversalProtocol}
           onClose={() => setShowUniversalProtocol(false)}
+          onStartTimer={(seconds, title) => {
+            handleStartTimer(seconds, title);
+          }}
+        />
+      <UniversalStrengthCalcModal
+          isOpen={showUniversalCalc}
+          onClose={() => setShowUniversalCalc(false)}
           onStartTimer={(seconds, title) => {
             handleStartTimer(seconds, title);
           }}
