@@ -18,10 +18,7 @@ import { createWorkoutHandlers } from "@/app/hooks/createWorkoutHandlers";
 import {
   SCHEDULE_DAYS,
   ALL_TRACKABLE_EXERCISES,
-  TRAINING_PROGRAMS,
   getTrainingProgram,
-  getProgramDays,
-  type TrainingProgram,
   computeMetrics,
   getSavedSession,
   getInitialMaxes,

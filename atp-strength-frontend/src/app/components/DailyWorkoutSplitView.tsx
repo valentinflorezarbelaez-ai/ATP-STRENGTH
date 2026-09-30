@@ -2,8 +2,8 @@
 
 import React, { useState } from "react";
 import {
-  Calendar, Play, Dumbbell, Timer, Flame, CheckCircle2, ChevronRight,
-  Sparkles, Coffee, ArrowRight, Zap
+  Calendar, Play, Dumbbell, Timer, CheckCircle2, ChevronRight,
+  Sparkles, Zap
 } from "lucide-react";
 import type { RoutineDay, Exercise } from "@/lib/workoutStrategies";
 import { getExerciseMedia, type ExerciseMedia } from "@/lib/exerciseMediaCatalog";

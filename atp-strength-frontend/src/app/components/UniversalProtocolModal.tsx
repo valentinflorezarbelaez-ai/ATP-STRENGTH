@@ -1,26 +1,16 @@
 "use client";
 
-import React, { useState, useMemo, useEffect } from "react";
+import React, { useState, useMemo, useEffect, useCallback } from "react";
 import {
   Zap,
-  Dumbbell,
   Clock,
   Check,
-  RotateCcw,
   Sparkles,
-  Info,
   X,
-  Play,
-  Pause,
-  ChevronRight,
-  Flame,
-  Activity,
   Layers,
   Save,
   Copy,
-  Search,
   Filter,
-  Shield
 } from "lucide-react";
 import { BarbellPlateVisualizer } from "./BarbellPlateVisualizer";
 import { playChime, playTactileClick } from "@/lib/zenAudio";
@@ -64,6 +54,20 @@ interface ExerciseCategoryGroup {
   icon: string;
   badgeColor: string;
   exercises: ExerciseItem[];
+}
+
+function getSavedExercisePr(name: string, fallback = 100): number {
+  if (typeof window === "undefined" || !name) return fallback;
+  try {
+    const savedMaxes = localStorage.getItem("neuro_strength_maxes");
+    if (savedMaxes) {
+      const parsed = JSON.parse(savedMaxes);
+      if (parsed[name]?.one_rep_max) {
+        return parsed[name].one_rep_max;
+      }
+    }
+  } catch {}
+  return fallback;
 }
 
 const CATEGORIZED_EXERCISES: ExerciseCategoryGroup[] = [
@@ -179,14 +183,13 @@ export function UniversalProtocolModal({
   onStartTimer,
 }: UniversalProtocolModalProps) {
   const [exerciseName, setExerciseName] = useState<string>("Press de Banca Plano");
-  const [prWeight, setPrWeight] = useState<number>(100);
+  const [prWeight, setPrWeight] = useState<number>(() => getSavedExercisePr("Press de Banca Plano", 100));
   const [equipment, setEquipment] = useState<EquipmentType>("barbell");
   const [goal, setGoal] = useState<GoalType>("strength");
   const [selectedCategoryTab, setSelectedCategoryTab] = useState<"all" | "banca" | "potencia" | "fuerza" | "maquinas" | "otro">("banca");
   const [customExerciseName, setCustomExerciseName] = useState<string>("");
   const [customPrWeight, setCustomPrWeight] = useState<number>(0);
-  const [barWeight, setBarWeight] = useState<number>(20);
-  const [activeStepId, setActiveStepId] = useState<string | null>(null);
+  const barWeight = 20;
   const [completedSteps, setCompletedSteps] = useState<Record<string, boolean>>({});
   const [copiedNotification, setCopiedNotification] = useState<boolean>(false);
   const [savedNotification, setSavedNotification] = useState<boolean>(false);
@@ -194,7 +197,6 @@ export function UniversalProtocolModal({
   // Local rest timer state
   const [timerRunning, setTimerRunning] = useState<boolean>(false);
   const [timerRemaining, setTimerRemaining] = useState<number>(0);
-  const [timerTotal, setTimerTotal] = useState<number>(0);
   const [timerLabel, setTimerLabel] = useState<string>("");
 
   // Flattened list for suggestions and search
@@ -232,19 +234,7 @@ export function UniversalProtocolModal({
     );
   }, [exerciseName, allExercises]);
 
-  // Look up saved PR from localStorage if available
-  useEffect(() => {
-    if (typeof window === "undefined" || !exerciseName) return;
-    try {
-      const savedMaxes = localStorage.getItem("neuro_strength_maxes");
-      if (savedMaxes) {
-        const parsed = JSON.parse(savedMaxes);
-        if (parsed[exerciseName]?.one_rep_max) {
-          setPrWeight(parsed[exerciseName].one_rep_max);
-        }
-      }
-    } catch {}
-  }, [exerciseName]);
+
 
   // Timer countdown effect
   useEffect(() => {
@@ -291,7 +281,7 @@ export function UniversalProtocolModal({
   };
 
   // Rounding helper
-  const roundWeight = (rawWeight: number): number => {
+  const roundWeight = useCallback((rawWeight: number): number => {
     if (equipment === "barbell") {
       const clamped = Math.max(barWeight, rawWeight);
       return Math.round(clamped / 2.5) * 2.5;
@@ -303,7 +293,7 @@ export function UniversalProtocolModal({
     // machine: 5kg increments
     const clamped = Math.max(5, rawWeight);
     return Math.round(clamped / 5) * 5;
-  };
+  }, [equipment, barWeight]);
 
   // Build the neuro-activation and loading protocol steps
   const protocol = useMemo<ProtocolStep[]>(() => {
@@ -448,7 +438,7 @@ export function UniversalProtocolModal({
     }
 
     return steps;
-  }, [prWeight, equipment, goal, barWeight, isCurrentOlympic]);
+  }, [prWeight, equipment, goal, barWeight, isCurrentOlympic, roundWeight]);
 
   if (!isOpen) return null;
 
@@ -457,11 +447,9 @@ export function UniversalProtocolModal({
     if (onStartTimer) {
       onStartTimer(step.restSeconds, `${exerciseName} - ${step.title}`);
     }
-    setTimerTotal(step.restSeconds);
     setTimerRemaining(step.restSeconds);
     setTimerLabel(step.title);
     setTimerRunning(true);
-    setActiveStepId(step.id);
   };
 
   const toggleSetComplete = (id: string) => {

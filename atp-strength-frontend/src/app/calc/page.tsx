@@ -1,12 +1,13 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import Link from "next/link";
-import { ArrowLeft, BarChart3, Zap, Shield, Sparkles } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { ArrowLeft } from "lucide-react";
 import { UniversalStrengthCalcModal } from "@/app/components/UniversalStrengthCalcModal";
 
 export default function UniversalCalcPage() {
-  const [modalOpen, setModalOpen] = useState(true);
+  const router = useRouter();
 
   return (
     <main className="min-h-screen bg-black text-zinc-100 flex flex-col justify-between p-4 sm:p-8">
@@ -35,9 +36,7 @@ export default function UniversalCalcPage() {
         <UniversalStrengthCalcModal
           isOpen={true}
           onClose={() => {
-            if (typeof window !== "undefined") {
-              window.location.href = "/";
-            }
+            router.push("/");
           }}
           onStartTimer={(sec, title) => {
             console.log("Temporizador solicitado:", sec, title);

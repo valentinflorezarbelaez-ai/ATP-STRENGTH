@@ -4,7 +4,6 @@ import React from "react";
 import { PwaInstallPrompt } from "@/components/PwaInstallPrompt";
 import { TelemetrySyncBadge } from "@/app/components/TelemetrySyncBadge";
 import { TimerDisplay } from "@/app/components/TimerDisplay";
-import { BarbellPlateVisualizer } from "@/app/components/BarbellPlateVisualizer";
 import { WarmupCalculatorModal } from "@/app/components/WarmupCalculatorModal";
 import { UniversalProtocolModal } from "@/app/components/UniversalProtocolModal";
 import { UniversalStrengthCalcModal } from "@/app/components/UniversalStrengthCalcModal";
@@ -12,24 +11,22 @@ import { ExerciseVideoModal } from "@/app/components/ExerciseVideoModal";
 import { ExerciseCatalogModal } from "@/app/components/ExerciseCatalogModal";
 import { UniversalProtocolCockpit } from "@/app/components/UniversalProtocolCockpit";
 import { getExerciseMedia } from "@/lib/exerciseMediaCatalog";
-import { WorkoutLogger } from "@/app/components/WorkoutLogger";
 import { NeuromuscularRadarChart } from "@/app/components/NeuromuscularRadarChart";
 import { exportBackupJson, exportHistoryCsv, importBackupJsonFile } from "@/lib/dataPortability";
 import { playTactileClick } from "@/lib/zenAudio";
 import {
   Play,
-  Flame, Zap, RotateCcw, CheckCircle2, Calendar, Activity,
-  ShieldCheck, Lock, Maximize2, Layers, Sparkles,
-  TrendingUp, X, Save, Dumbbell, History, Calculator, BarChart3, Target,
+  Flame, Zap, RotateCcw, CheckCircle2,
+  ShieldCheck, Maximize2, Layers, Sparkles,
+  TrendingUp, X, Save, Dumbbell, History, Calculator,
   AlertTriangle, Trophy, Sun, Moon, Laptop,
   Download, Upload, Database, HardDrive, Timer,
 } from "lucide-react";
-import { computeMetrics } from "@/lib/workoutStrategies";
 import type { useZenDashboard } from "@/app/hooks/useZenDashboard";
 
 type Dash = ReturnType<typeof useZenDashboard>;
 
-export function ZenDashboardView({ d, onShowSpotify }: { d: Dash; onShowSpotify?: () => void }) {
+export function ZenDashboardView({ d }: { d: Dash; onShowSpotify?: () => void }) {
   const [showWarmupModal, setShowWarmupModal] = React.useState(false);
   const [showUniversalProtocol, setShowUniversalProtocol] = React.useState(false);
   const [selectedVideoExercise, setSelectedVideoExercise] = React.useState<string | null>(null);
@@ -37,15 +34,11 @@ export function ZenDashboardView({ d, onShowSpotify }: { d: Dash; onShowSpotify?
   const [showUniversalCalc, setShowUniversalCalc] = React.useState(false);
   const [backupStatusMsg, setBackupStatusMsg] = React.useState<string | null>(null);
   const {
-    selectedDayKey, setSelectedDayKey,
-    activeExerciseIndex, setActiveExerciseIndex,
-    currentSet, setCurrentSet,
+    currentSet,
     activePhaseStep, setActivePhaseStep,
-    completedSetsMap, completedWarmupMap,
-    persistSessionProgress,
+    completedSetsMap,
     backendOnline, pendingWalCount,
     zenFocusMode, setZenFocusMode,
-    showPrepProtocol, setShowPrepProtocol,
     showProgressModal, setShowProgressModal,
     showResetModal, setShowResetModal,
     showVictoryModal, setShowVictoryModal,
@@ -57,13 +50,12 @@ export function ZenDashboardView({ d, onShowSpotify }: { d: Dash; onShowSpotify?
     activeDay, activeExercise, activeExMax,
     liveCalc, currentExMax,
     atpSaturationPercent,
-    totalDaySets, completedDaySets, dayProgressPercent, isDayFinished,
+    totalDaySets,
     handleStartTimer, togglePlayPause, handleResetTimer, skipRest,
     handleResetExercise, handleResetDay,
     handleSaveMax,
     formatTime, playChime, calculateSessionStats,
-    SCHEDULE_DAYS, ALL_TRACKABLE_EXERCISES,
-    scheduleDays, selectedProgramId, handleSelectProgram, currentProgram, availablePrograms,
+    ALL_TRACKABLE_EXERCISES,
   } = d;
 
   const sessionStats = React.useMemo(() => calculateSessionStats(), [calculateSessionStats]);

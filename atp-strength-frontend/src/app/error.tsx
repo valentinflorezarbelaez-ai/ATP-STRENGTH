@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect } from "react";
+import Link from "next/link";
 import { ShieldAlert, RefreshCw, Home, Database } from "lucide-react";
 
 export default function GlobalErrorBoundary({
@@ -77,18 +78,13 @@ export default function GlobalErrorBoundary({
             <span>Recargar Aplicación Completa</span>
           </button>
 
-          <button
-            type="button"
-            onClick={() => {
-              if (typeof window !== "undefined") {
-                window.location.href = "/";
-              }
-            }}
+          <Link
+            href="/"
             className="w-full py-2.5 px-4 text-xs font-mono text-zinc-400 hover:text-zinc-300 flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
           >
             <Home className="w-3.5 h-3.5" />
             <span>Volver al Templo Principal</span>
-          </button>
+          </Link>
         </div>
 
         {/* Footer Guarantee */}

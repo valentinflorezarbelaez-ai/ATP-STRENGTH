@@ -9,7 +9,6 @@ import {
   calculateBmr,
   calculateTdee,
   calculateApsNutrition,
-  ANATOLY_GOALS,
   ACTIVITY_MULTIPLIERS,
   ANATOLY_SUPPLEMENT_STACK,
 } from '../src/lib/anatolyNutritionCore.mjs';

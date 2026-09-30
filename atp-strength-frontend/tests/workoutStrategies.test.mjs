@@ -5,10 +5,6 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  SCHEDULE_DAYS,
-  CLASSIC_DAYS,
-  OLYMPIC_DAYS,
-  HYBRID_DAYS,
   TRAINING_PROGRAMS,
   getTrainingProgram,
   getProgramDays,
@@ -16,8 +12,6 @@ import {
   DEFAULT_BASE_MAXES,
   getExerciseCategory,
   computeNeuromuscularRamp,
-  computeOneRm,
-  computeMetrics,
   getBaselineMaxes,
   calculateSessionStats,
   resolvePhaseInstruction,

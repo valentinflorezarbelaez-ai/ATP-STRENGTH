@@ -1,10 +1,10 @@
 "use client";
 
 import React from "react";
+import Link from "next/link";
 import { ShieldAlert, RefreshCw, Home } from "lucide-react";
 
 export default function GlobalError({
-  error,
   reset,
 }: {
   error: Error & { digest?: string };
@@ -34,18 +34,13 @@ export default function GlobalError({
             <RefreshCw className="w-4 h-4" />
             <span>Reintentar</span>
           </button>
-          <button
-            type="button"
-            onClick={() => {
-              if (typeof window !== "undefined") {
-                window.location.href = "/";
-              }
-            }}
+          <Link
+            href="/"
             className="w-full py-2.5 px-4 text-xs font-mono text-zinc-400 hover:text-white flex items-center justify-center gap-1.5 cursor-pointer"
           >
             <Home className="w-3.5 h-3.5" />
             <span>Volver al Inicio</span>
-          </button>
+          </Link>
         </div>
       </body>
     </html>

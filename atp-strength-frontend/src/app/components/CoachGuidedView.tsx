@@ -1,10 +1,10 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
+import React, { useState } from "react";
 import {
-  Flame, Sparkles, ChevronLeft, ChevronRight,
-  Play, Pause, RotateCcw, Volume2, Trophy,
-  Activity, Heart, ArrowRight, Coffee, Eye, Sun, Moon, Laptop, User, Download, Upload, Database, Zap, BarChart3, Clock
+  Flame, Sparkles,
+  Play, Pause, RotateCcw, Volume2,
+  Heart, ArrowRight, Coffee, Eye, Sun, Moon, Laptop, User, Download, Upload, Database, BarChart3, Clock
 } from "lucide-react";
 import { PwaInstallPrompt } from "@/components/PwaInstallPrompt";
 import { AtpEnergyRing } from "@/app/components/AtpEnergyRing";
@@ -27,7 +27,7 @@ import {
 
 type Dash = ReturnType<typeof useZenDashboard>;
 
-export function CoachGuidedView({ d, onShowSpotify }: { d: Dash; onShowSpotify?: () => void }) {
+export function CoachGuidedView({ d }: { d: Dash; onShowSpotify?: () => void }) {
   useWakeLock(d.isRunning);
 
   const {

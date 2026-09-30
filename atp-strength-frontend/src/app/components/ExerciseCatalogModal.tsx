@@ -11,7 +11,6 @@ import {
   ExternalLink,
   Flame,
   CheckCircle2,
-  Sparkles,
   Zap,
   Compass,
 } from "lucide-react";
@@ -43,7 +42,16 @@ export function ExerciseCatalogModal({
   const allExercises = useMemo(() => Object.values(EXERCISE_MEDIA_CATALOG), []);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
-  const [activeExercise, setActiveExercise] = useState<ExerciseMedia>(() => {
+  const [selectedExercise, setSelectedExercise] = useState<ExerciseMedia | null>(null);
+  const [prevInitial, setPrevInitial] = useState(initialExerciseName);
+
+  if (initialExerciseName !== prevInitial) {
+    setPrevInitial(initialExerciseName);
+    setSelectedExercise(null);
+  }
+
+  const activeExercise: ExerciseMedia = useMemo(() => {
+    if (selectedExercise) return selectedExercise;
     if (initialExerciseName) {
       const match = allExercises.find(
         (ex) => ex.name.toLowerCase() === initialExerciseName.toLowerCase()
@@ -51,18 +59,9 @@ export function ExerciseCatalogModal({
       if (match) return match;
     }
     return allExercises[0];
-  });
-  const [viewMode, setViewMode] = useState<"video" | "blueprint">("video");
+  }, [selectedExercise, initialExerciseName, allExercises]);
 
-  // Sync initial exercise if changed
-  useEffect(() => {
-    if (initialExerciseName) {
-      const match = allExercises.find(
-        (ex) => ex.name.toLowerCase() === initialExerciseName.toLowerCase()
-      );
-      if (match) setActiveExercise(match);
-    }
-  }, [initialExerciseName, allExercises]);
+  const [viewMode, setViewMode] = useState<"video" | "blueprint">("video");
 
   // Handle escape key
   useEffect(() => {
@@ -374,7 +373,7 @@ export function ExerciseCatalogModal({
                 return (
                   <button
                     key={ex.id}
-                    onClick={() => setActiveExercise(ex)}
+                    onClick={() => setSelectedExercise(ex)}
                     className={`w-full text-left p-3 rounded-2xl border transition-all cursor-pointer flex items-center justify-between gap-3 ${
                       isActive
                         ? "bg-amber-500/10 border-amber-500/50 shadow-[0_0_15px_rgba(245,158,11,0.15)]"

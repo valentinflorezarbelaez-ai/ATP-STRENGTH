@@ -317,7 +317,7 @@ export function UniversalStrengthCalcModal({
             <div>
               <div className="flex items-center gap-1.5 sm:gap-2">
                 <h2 className="text-xs sm:text-sm font-mono font-bold tracking-widest text-zinc-100 uppercase">
-                  NEURO<span className="text-amber-400">//</span>STRENGTH
+                  NEURO<span className="text-amber-400">{"//"}</span>STRENGTH
                 </h2>
                 <span className="text-[8px] sm:text-[9px] font-mono px-1.5 sm:px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/30 font-bold">
                   UNIVERSAL

@@ -2,7 +2,6 @@
 
 import React, { useState, useMemo, useEffect } from "react";
 import {
-  Zap,
   Target,
   Flame,
   Activity,
@@ -12,30 +11,18 @@ import {
   CheckCircle2,
   RotateCcw,
   Sparkles,
-  ChevronDown,
-  ChevronUp,
   Dumbbell,
   Award,
   Play,
-  Plus,
-  Minus,
   ShieldCheck,
   AlertTriangle,
-  Info,
-  Check,
   Timer,
-  Volume2,
-  VolumeX,
 } from "lucide-react";
 import { playTactileClick, playChime } from "@/lib/zenAudio";
 import { getExerciseMedia } from "@/lib/exerciseMediaCatalog";
 import { BarbellPlateVisualizer } from "@/app/components/BarbellPlateVisualizer";
-import {
-  computeAutoregulatedAdjustment,
-  computeEstimated1Rm,
-  roundToImplementStep,
-} from "@/lib/rpeEngine.mjs";
-import { evaluateSessionInol, calculateInol } from "@/lib/prilepinEngine.mjs";
+import { computeAutoregulatedAdjustment } from "@/lib/rpeEngine.mjs";
+import { evaluateSessionInol } from "@/lib/prilepinEngine.mjs";
 
 export interface UniversalProtocolCockpitProps {
   onStartTimer: (seconds: number, title: string) => void;
@@ -64,17 +51,53 @@ function roundWeight(weight: number): number {
   return Math.max(5, Math.round(weight / 0.5) * 0.5);
 }
 
+interface CockpitSavedState {
+  exerciseName: string;
+  prWeight: number;
+  useTrainingMax: boolean;
+  selectedBarWeight: number;
+}
+
+function loadInitialCockpitState(): CockpitSavedState {
+  if (typeof window === "undefined") {
+    return {
+      exerciseName: "Press de Banca Plano",
+      prWeight: 100,
+      useTrainingMax: true,
+      selectedBarWeight: 20,
+    };
+  }
+  try {
+    const saved = localStorage.getItem("atp_universal_cockpit_state_v2");
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      return {
+        exerciseName: parsed.exerciseName || "Press de Banca Plano",
+        prWeight: typeof parsed.prWeight === "number" ? parsed.prWeight : 100,
+        useTrainingMax: parsed.useTrainingMax !== undefined ? Boolean(parsed.useTrainingMax) : true,
+        selectedBarWeight: typeof parsed.selectedBarWeight === "number" ? parsed.selectedBarWeight : 20,
+      };
+    }
+  } catch {}
+  return {
+    exerciseName: "Press de Banca Plano",
+    prWeight: 100,
+    useTrainingMax: true,
+    selectedBarWeight: 20,
+  };
+}
+
 export function UniversalProtocolCockpit({
   onStartTimer,
   onOpenVideo,
 }: UniversalProtocolCockpitProps) {
-  const [exerciseName, setExerciseName] = useState<string>("Press de Banca Plano");
+  const [exerciseName, setExerciseName] = useState<string>(() => loadInitialCockpitState().exerciseName);
   const [customExercise, setCustomExercise] = useState<string>("");
   const [isCustom, setIsCustom] = useState<boolean>(false);
-  const [prWeight, setPrWeight] = useState<number>(100);
-  const [useTrainingMax, setUseTrainingMax] = useState<boolean>(true);
+  const [prWeight, setPrWeight] = useState<number>(() => loadInitialCockpitState().prWeight);
+  const [useTrainingMax, setUseTrainingMax] = useState<boolean>(() => loadInitialCockpitState().useTrainingMax);
   const [completedSets, setCompletedSets] = useState<Record<string, boolean>>({});
-  const [selectedBarWeight, setSelectedBarWeight] = useState<number>(20);
+  const [selectedBarWeight, setSelectedBarWeight] = useState<number>(() => loadInitialCockpitState().selectedBarWeight);
   const [showInlineDemo, setShowInlineDemo] = useState<boolean>(false);
 
   // RPE Records per set: { set_id: rpeValue }
@@ -100,20 +123,6 @@ export function UniversalProtocolCockpit({
   const [subWeight, setSubWeight] = useState<number>(80);
   const [subReps, setSubReps] = useState<number>(5);
   const [subRir, setSubRir] = useState<number>(2);
-
-  // Load saved state
-  useEffect(() => {
-    try {
-      const saved = localStorage.getItem("atp_universal_cockpit_state_v2");
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        if (parsed.exerciseName) setExerciseName(parsed.exerciseName);
-        if (parsed.prWeight) setPrWeight(parsed.prWeight);
-        if (parsed.useTrainingMax !== undefined) setUseTrainingMax(parsed.useTrainingMax);
-        if (parsed.selectedBarWeight !== undefined) setSelectedBarWeight(parsed.selectedBarWeight);
-      }
-    } catch {}
-  }, []);
 
   // Save state
   useEffect(() => {

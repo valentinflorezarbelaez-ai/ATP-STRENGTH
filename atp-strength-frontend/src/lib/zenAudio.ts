@@ -186,17 +186,30 @@ export function playTempoTone(
   }
 }
 
-let wakeLockSentinel: any = null;
-let heartbeatInterval: any = null;
+interface WakeLockSentinelLike extends EventTarget {
+  released: boolean;
+  release(): Promise<void>;
+}
+
+interface NavigatorWithWakeLock {
+  wakeLock?: {
+    request(type: "screen"): Promise<WakeLockSentinelLike>;
+  };
+}
+
+let wakeLockSentinel: WakeLockSentinelLike | null = null;
+let heartbeatInterval: ReturnType<typeof setInterval> | null = null;
 
 /**
  * Screen Wake Lock API — keeps display awake during active ATP rest intervals.
  * Automatically handles visibility change and release events.
  */
 export async function requestScreenWakeLock(): Promise<boolean> {
-  if (typeof navigator === "undefined" || !("wakeLock" in navigator)) return false;
+  if (typeof navigator === "undefined") return false;
+  const nav = navigator as unknown as NavigatorWithWakeLock;
+  if (!nav.wakeLock) return false;
   try {
-    wakeLockSentinel = await (navigator as any).wakeLock.request("screen");
+    wakeLockSentinel = await nav.wakeLock.request("screen");
     wakeLockSentinel.addEventListener("release", () => {
       wakeLockSentinel = null;
     });

@@ -7,10 +7,8 @@ import {
   Zap,
   Flame,
   X,
-  Dumbbell,
   Clock,
   ChevronRight,
-  Sparkles,
   Info,
   Check,
 } from "lucide-react";
@@ -59,10 +57,10 @@ export function WarmupCalculatorModal({
   const [selectedPhaseKey, setSelectedPhaseKey] = useState<string>("F1");
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
 
-  // Rounding utility for barbell increments (2.5 kg minimum plate jump)
-  const round25 = (val: number) => Math.max(barWeight, Math.round(val / 2.5) * 2.5);
-
   const steps: WarmupStepCalculation[] = useMemo(() => {
+    // Rounding utility for barbell increments (2.5 kg minimum plate jump)
+    const round25 = (val: number) => Math.max(barWeight, Math.round(val / 2.5) * 2.5);
+
     if (strategy === "joint_protection_5") {
       // 5-Phase Progressive Joint Protection Strategy (for heavy loads or tendon sensitive lifters)
       return [

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useMemo } from "react";
-import { ShieldCheck, Activity, Award, AlertCircle, ArrowUpRight, Scale } from "lucide-react";
+import { Activity, Scale } from "lucide-react";
 
 export interface ExerciseMaxRecord {
   one_rep_max: number;
@@ -27,32 +27,34 @@ interface PillarMetric {
   idealRatio: number; // relative to squat (1.0)
 }
 
+const RINGS = [20, 40, 60, 80, 100];
+
 export function NeuromuscularRadarChart({
   maxesMap = {},
   currentWorkingWeight = 100,
   currentExerciseName,
   className = "",
 }: NeuromuscularRadarChartProps) {
-  // Helper to extract best matching 1RM for core patterns
-  const get1RM = (matchTerms: string[], fallbackKg: number): number => {
-    for (const [name, rec] of Object.entries(maxesMap)) {
-      const lower = name.toLowerCase();
-      if (matchTerms.some((term) => lower.includes(term)) && rec.one_rep_max > 0) {
-        return rec.one_rep_max;
-      }
-    }
-    // If active exercise matches, use current working weight or reasonable default
-    if (currentExerciseName) {
-      const lowerCur = currentExerciseName.toLowerCase();
-      if (matchTerms.some((term) => lowerCur.includes(term))) {
-        return currentWorkingWeight;
-      }
-    }
-    return fallbackKg;
-  };
-
   // Derive 5 core pillars of athletic power
   const pillars: PillarMetric[] = useMemo(() => {
+    // Helper to extract best matching 1RM for core patterns
+    const get1RM = (matchTerms: string[], fallbackKg: number): number => {
+      for (const [name, rec] of Object.entries(maxesMap)) {
+        const lower = name.toLowerCase();
+        if (matchTerms.some((term) => lower.includes(term)) && rec.one_rep_max > 0) {
+          return rec.one_rep_max;
+        }
+      }
+      // If active exercise matches, use current working weight or reasonable default
+      if (currentExerciseName) {
+        const lowerCur = currentExerciseName.toLowerCase();
+        if (matchTerms.some((term) => lowerCur.includes(term))) {
+          return currentWorkingWeight;
+        }
+      }
+      return fallbackKg;
+    };
+
     const squatKg = get1RM(["sentadilla trasera", "sentadilla"], 120);
     const deadliftKg = get1RM(["peso muerto convencional", "peso muerto"], 145);
     const benchKg = get1RM(["press de banca plano", "press de banca", "banca"], 85);
@@ -181,9 +183,8 @@ export function NeuromuscularRadarChart({
   };
 
   // Concentric Rings Polygon Paths
-  const rings = [20, 40, 60, 80, 100];
   const ringPolygons = useMemo(() => {
-    return rings.map((ringPct) => {
+    return RINGS.map((ringPct) => {
       const points = Array.from({ length: numVertices })
         .map((_, i) => {
           const pt = getCoordinates(i, ringPct);
