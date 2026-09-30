@@ -1,8 +1,9 @@
 "use client";
 
-import React from "react";
-import { X, Play, CheckCircle2, AlertTriangle, Dumbbell, ShieldCheck, Zap, ExternalLink } from "lucide-react";
+import React, { useState } from "react";
+import { X, Play, CheckCircle2, AlertTriangle, Dumbbell, ShieldCheck, Zap, ExternalLink, Compass } from "lucide-react";
 import { type ExerciseMedia } from "@/lib/exerciseMediaCatalog";
+import { BiomechanicalBlueprint } from "@/app/components/BiomechanicalBlueprint";
 
 interface ExerciseVideoModalProps {
   media: ExerciseMedia;
@@ -17,6 +18,8 @@ export function ExerciseVideoModal({
   onClose,
   onStartExercise,
 }: ExerciseVideoModalProps) {
+  const [viewMode, setViewMode] = useState<"video" | "blueprint">("video");
+
   if (!isOpen) return null;
 
   const youtubeId = media.youtubeId || (media.videoUrl?.includes("youtube.com") ? media.videoUrl.split("v=")[1]?.split("&")[0] : null);
@@ -58,51 +61,85 @@ export function ExerciseVideoModal({
           </button>
         </div>
 
-        {/* Video Player Container */}
-        <div className="relative w-full bg-black aspect-video overflow-hidden border-b border-zinc-900 group">
-          {youtubeId ? (
-            <iframe
-              key={youtubeId}
-              src={`https://www.youtube.com/embed/${youtubeId}?autoplay=1&mute=1&rel=0`}
-              title={`${media.name} - Rogue Fitness Demo`}
-              className="w-full h-full border-0"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-              referrerPolicy="strict-origin-when-cross-origin"
-              allowFullScreen
-            />
-          ) : (
-            <video
-              src={media.videoUrl}
-              poster={media.posterUrl}
-              autoPlay
-              loop
-              muted
-              playsInline
-              controls
-              className="w-full h-full object-cover"
-            >
-              Tu navegador no soporta reproducción de video HTML5.
-            </video>
-          )}
-
-          <div className="absolute top-2.5 right-2.5 flex items-center gap-1.5 pointer-events-none opacity-80 group-hover:opacity-100 transition-opacity">
-            <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-black/70 text-amber-400 border border-amber-400/30 backdrop-blur-sm">
-              Tempo {media.tempo}
-            </span>
-            {media.videoUrl && (
-              <a
-                href={media.videoUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="pointer-events-auto px-2 py-0.5 rounded-full text-[10px] font-bold bg-red-600 hover:bg-red-500 text-white flex items-center gap-1 backdrop-blur-sm transition-colors shadow"
-                title="Ver en YouTube (Rogue Fitness)"
-              >
-                <span>Rogue Fitness</span>
-                <ExternalLink className="w-2.5 h-2.5" />
-              </a>
-            )}
-          </div>
+        {/* View Mode Switcher: Video Rogue vs Blueprint Biomecánico */}
+        <div className="grid grid-cols-2 p-1.5 bg-zinc-950 border-b border-zinc-900 gap-1.5 text-xs font-mono font-bold">
+          <button
+            type="button"
+            onClick={() => setViewMode("video")}
+            className={`py-1.5 rounded-xl flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+              viewMode === "video"
+                ? "bg-amber-500/20 text-amber-300 border border-amber-500/40 shadow-sm"
+                : "text-zinc-500 hover:text-zinc-300"
+            }`}
+          >
+            <Play className="w-3.5 h-3.5 fill-current" />
+            <span>VIDEO ROGUE HD</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setViewMode("blueprint")}
+            className={`py-1.5 rounded-xl flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+              viewMode === "blueprint"
+                ? "bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 shadow-sm"
+                : "text-zinc-500 hover:text-zinc-300"
+            }`}
+          >
+            <Compass className="w-3.5 h-3.5" />
+            <span>BLUEPRINT 3D</span>
+          </button>
         </div>
+
+        {/* Media Container: Either Video or Biomechanical Blueprint */}
+        {viewMode === "blueprint" ? (
+          <div className="p-3 bg-black">
+            <BiomechanicalBlueprint media={media} />
+          </div>
+        ) : (
+          <div className="relative w-full bg-black aspect-video overflow-hidden border-b border-zinc-900 group">
+            {youtubeId ? (
+              <iframe
+                key={youtubeId}
+                src={`https://www.youtube.com/embed/${youtubeId}?autoplay=1&mute=1&rel=0`}
+                title={`${media.name} - Rogue Fitness Demo`}
+                className="w-full h-full border-0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                referrerPolicy="strict-origin-when-cross-origin"
+                allowFullScreen
+              />
+            ) : (
+              <video
+                src={media.videoUrl}
+                poster={media.posterUrl}
+                autoPlay
+                loop
+                muted
+                playsInline
+                controls
+                className="w-full h-full object-cover"
+              >
+                Tu navegador no soporta reproducción de video HTML5.
+              </video>
+            )}
+
+            <div className="absolute top-2.5 right-2.5 flex items-center gap-1.5 pointer-events-none opacity-80 group-hover:opacity-100 transition-opacity">
+              <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-black/70 text-amber-400 border border-amber-400/30 backdrop-blur-sm">
+                Tempo {media.tempo}
+              </span>
+              {media.videoUrl && (
+                <a
+                  href={media.videoUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="pointer-events-auto px-2 py-0.5 rounded-full text-[10px] font-bold bg-red-600 hover:bg-red-500 text-white flex items-center gap-1 backdrop-blur-sm transition-colors shadow"
+                  title="Ver en YouTube (Rogue Fitness)"
+                >
+                  <span>Rogue Fitness</span>
+                  <ExternalLink className="w-2.5 h-2.5" />
+                </a>
+              )}
+            </div>
+          </div>
+        )}
 
         {/* Content Details */}
         <div className="p-5 overflow-y-auto space-y-4 text-xs">

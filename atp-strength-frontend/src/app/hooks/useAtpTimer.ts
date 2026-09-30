@@ -9,7 +9,14 @@ import {
   tickAbsoluteTimer,
   triggerPhaseCompleteHaptic,
 } from "@/lib/atpTimerEngine.mjs";
-import { disposeZenAudio, playChime } from "@/lib/zenAudio";
+import {
+  disposeZenAudio,
+  playChime,
+  requestScreenWakeLock,
+  releaseScreenWakeLock,
+  startAudioHeartbeat,
+  stopAudioHeartbeat,
+} from "@/lib/zenAudio";
 
 type AbsoluteSession = {
   phase: string;
@@ -39,6 +46,35 @@ export function useAtpTimer(initialSeconds = 180) {
       disposeZenAudio();
     };
   }, []);
+
+  // Screen Wake Lock & Background Audio Keep-Alive management while timer is running
+  useEffect(() => {
+    if (isRunning) {
+      void requestScreenWakeLock();
+      startAudioHeartbeat();
+    } else {
+      void releaseScreenWakeLock();
+      stopAudioHeartbeat();
+    }
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "visible" && isRunning) {
+        void requestScreenWakeLock();
+      }
+    };
+
+    if (typeof document !== "undefined") {
+      document.addEventListener("visibilitychange", handleVisibilityChange);
+    }
+
+    return () => {
+      void releaseScreenWakeLock();
+      stopAudioHeartbeat();
+      if (typeof document !== "undefined") {
+        document.removeEventListener("visibilitychange", handleVisibilityChange);
+      }
+    };
+  }, [isRunning]);
 
   // Synchronize document title with remaining countdown for instant tab visibility
   useEffect(() => {

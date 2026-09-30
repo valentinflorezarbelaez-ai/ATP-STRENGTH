@@ -13,12 +13,16 @@ import { ExerciseCatalogModal } from "@/app/components/ExerciseCatalogModal";
 import { UniversalProtocolCockpit } from "@/app/components/UniversalProtocolCockpit";
 import { getExerciseMedia } from "@/lib/exerciseMediaCatalog";
 import { WorkoutLogger } from "@/app/components/WorkoutLogger";
+import { NeuromuscularRadarChart } from "@/app/components/NeuromuscularRadarChart";
+import { exportBackupJson, exportHistoryCsv, importBackupJsonFile } from "@/lib/dataPortability";
+import { playTactileClick } from "@/lib/zenAudio";
 import {
   Play,
   Flame, Zap, RotateCcw, CheckCircle2, Calendar, Activity,
   ShieldCheck, Lock, Maximize2, Layers, Sparkles,
   TrendingUp, X, Save, Dumbbell, History, Calculator, BarChart3, Target,
   AlertTriangle, Trophy, Sun, Moon, Laptop,
+  Download, Upload, Database, HardDrive,
 } from "lucide-react";
 import { computeMetrics } from "@/lib/workoutStrategies";
 import type { useZenDashboard } from "@/app/hooks/useZenDashboard";
@@ -31,6 +35,7 @@ export function ZenDashboardView({ d, onShowSpotify }: { d: Dash; onShowSpotify?
   const [selectedVideoExercise, setSelectedVideoExercise] = React.useState<string | null>(null);
   const [showCatalogModal, setShowCatalogModal] = React.useState(false);
   const [showUniversalCalc, setShowUniversalCalc] = React.useState(false);
+  const [backupStatusMsg, setBackupStatusMsg] = React.useState<string | null>(null);
   const {
     selectedDayKey, setSelectedDayKey,
     activeExerciseIndex, setActiveExerciseIndex,
@@ -71,6 +76,15 @@ export function ZenDashboardView({ d, onShowSpotify }: { d: Dash; onShowSpotify?
         <div className="ambient-orb-2" />
         <div className="ambient-orb-3" />
       </div>
+
+      {/* Floating Toast Pill (Dynamic Island Style) */}
+      {backupStatusMsg && (
+        <div className="fixed top-5 z-50 px-4 py-2 rounded-2xl bg-zinc-950/95 border border-emerald-500/50 text-emerald-300 font-mono text-xs font-bold shadow-2xl backdrop-blur-xl animate-in slide-in-from-top-3 flex items-center gap-2">
+          <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+          <span>{backupStatusMsg}</span>
+        </div>
+      )}
+
       {/* Top Header */}
       <header className="w-full max-w-6xl flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-zinc-900 pb-5 mb-6">
         <div className="flex items-center justify-between w-full md:w-auto">
@@ -124,6 +138,20 @@ export function ZenDashboardView({ d, onShowSpotify }: { d: Dash; onShowSpotify?
                 >
                   ⚔️ FORJA
                 </a>
+                <button
+                  type="button"
+                  onClick={() => {
+                    playTactileClick();
+                    exportBackupJson();
+                    setBackupStatusMsg("Copia JSON descargada ✓");
+                    setTimeout(() => setBackupStatusMsg(null), 4000);
+                  }}
+                  className="px-2.5 py-1 rounded-lg text-[10px] font-mono font-bold bg-zinc-950 border border-zinc-800 text-zinc-300 hover:text-cyan-400 hover:border-cyan-500/50 transition-all flex items-center gap-1 shadow-sm active:scale-95 flex-shrink-0 cursor-pointer"
+                  title="Descargar copia de seguridad soberana JSON"
+                >
+                  <Download className="w-3 h-3 text-cyan-400" />
+                  <span>BACKUP</span>
+                </button>
               </div>
               <p className="text-[11px] sm:text-xs text-zinc-400 font-mono tracking-tight mt-0.5">
                 MOTOR ZEN DE RESÍNTESIS DE ATP & FUERZA MÁXIMA
@@ -809,6 +837,13 @@ export function ZenDashboardView({ d, onShowSpotify }: { d: Dash; onShowSpotify?
                 </div>
               </div>
 
+              {/* Pentágono de Simetría Neuromuscular Pure SVG */}
+              <NeuromuscularRadarChart
+                maxesMap={d.maxesMap}
+                currentWorkingWeight={activeExMax?.one_rep_max || 100}
+                currentExerciseName={selectedProgressEx}
+              />
+
               {/* Prescripción de Cargas por Fase */}
               {currentExMax && (
                 <div className="p-4 sm:p-5 rounded-2xl bg-black border border-zinc-800">
@@ -1029,6 +1064,74 @@ export function ZenDashboardView({ d, onShowSpotify }: { d: Dash; onShowSpotify?
                   </div>
                 </div>
               )}
+
+              {/* Soberanía de Datos y Copias de Seguridad (Pillar 4) */}
+              <div className="p-4 sm:p-5 rounded-2xl bg-zinc-950 border border-zinc-800 space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <HardDrive className="w-4 h-4 text-cyan-400" />
+                    <span className="text-xs font-mono font-bold text-white uppercase tracking-wider">
+                      SOBERANÍA DE DATOS // RESPALDO & RESTAURACIÓN
+                    </span>
+                  </div>
+                  {backupStatusMsg && (
+                    <span className="text-[10px] font-mono text-emerald-400 font-bold bg-emerald-500/10 border border-emerald-500/30 px-2 py-0.5 rounded">
+                      {backupStatusMsg}
+                    </span>
+                  )}
+                </div>
+                <p className="text-xs text-zinc-400">
+                  Tus marcas, progresiones y series te pertenecen. Descargá copias criptográficas locales o restaurá tu perfil completo en 1 clic.
+                </p>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs font-mono">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      playTactileClick();
+                      exportBackupJson();
+                      setBackupStatusMsg("Copia JSON descargada ✓");
+                      setTimeout(() => setBackupStatusMsg(null), 4000);
+                    }}
+                    className="py-2.5 px-3 rounded-xl bg-zinc-900/90 hover:bg-zinc-800 border border-zinc-700/80 text-zinc-200 hover:text-white flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-sm active:scale-95"
+                  >
+                    <Download className="w-3.5 h-3.5 text-amber-400" />
+                    <span>Backup JSON</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      playTactileClick();
+                      exportHistoryCsv(exerciseHistory);
+                      setBackupStatusMsg("Historial CSV descargado ✓");
+                      setTimeout(() => setBackupStatusMsg(null), 4000);
+                    }}
+                    className="py-2.5 px-3 rounded-xl bg-zinc-900/90 hover:bg-zinc-800 border border-zinc-700/80 text-zinc-200 hover:text-white flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-sm active:scale-95"
+                  >
+                    <Database className="w-3.5 h-3.5 text-cyan-400" />
+                    <span>Exportar CSV</span>
+                  </button>
+                  <label className="py-2.5 px-3 rounded-xl bg-zinc-900/90 hover:bg-zinc-800 border border-dashed border-zinc-700 text-zinc-300 hover:text-white flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-sm active:scale-95 text-center">
+                    <Upload className="w-3.5 h-3.5 text-emerald-400" />
+                    <span>Restaurar JSON</span>
+                    <input
+                      type="file"
+                      accept=".json"
+                      className="hidden"
+                      onChange={async (e) => {
+                        const file = e.target.files?.[0];
+                        if (!file) return;
+                        try {
+                          const res = await importBackupJsonFile(file);
+                          setBackupStatusMsg(`Restaurado (${res.restoredKeys.length} registros) ✓`);
+                          window.location.reload();
+                        } catch {
+                          setBackupStatusMsg("Error al restaurar archivo ⚠️");
+                        }
+                      }}
+                    />
+                  </label>
+                </div>
+              </div>
             </div>
           </div>
         </div>

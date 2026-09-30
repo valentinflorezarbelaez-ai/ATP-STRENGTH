@@ -185,3 +185,65 @@ export function playTempoTone(
     // ignore
   }
 }
+
+let wakeLockSentinel: any = null;
+let heartbeatInterval: any = null;
+
+/**
+ * Screen Wake Lock API — keeps display awake during active ATP rest intervals.
+ * Automatically handles visibility change and release events.
+ */
+export async function requestScreenWakeLock(): Promise<boolean> {
+  if (typeof navigator === "undefined" || !("wakeLock" in navigator)) return false;
+  try {
+    wakeLockSentinel = await (navigator as any).wakeLock.request("screen");
+    wakeLockSentinel.addEventListener("release", () => {
+      wakeLockSentinel = null;
+    });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+export async function releaseScreenWakeLock(): Promise<void> {
+  if (wakeLockSentinel) {
+    try {
+      await wakeLockSentinel.release();
+    } catch {}
+    wakeLockSentinel = null;
+  }
+}
+
+/**
+ * Background Audio Keep-Alive Heartbeat.
+ * Emits an ultra-low sub-audible pulse every 10s so mobile browser
+ * engines don't suspend the Web Audio hardware thread while the phone is locked.
+ */
+export function startAudioHeartbeat(): void {
+  if (heartbeatInterval) return;
+  heartbeatInterval = setInterval(() => {
+    try {
+      const ctx = getAudioContext();
+      if (ctx && ctx.state === "running") {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.frequency.setValueAtTime(1, ctx.currentTime);
+        gain.gain.setValueAtTime(0.00001, ctx.currentTime);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start();
+        osc.stop(ctx.currentTime + 0.05);
+      }
+    } catch {
+      // ignore
+    }
+  }, 10000);
+}
+
+export function stopAudioHeartbeat(): void {
+  if (heartbeatInterval) {
+    clearInterval(heartbeatInterval);
+    heartbeatInterval = null;
+  }
+}

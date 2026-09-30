@@ -14,7 +14,9 @@ import {
   HeartPulse,
   Award,
   ChevronDown,
+  Scale,
 } from "lucide-react";
+import { NeuromuscularRadarChart } from "@/app/components/NeuromuscularRadarChart";
 
 // ═══════════════════════════════════════════════════════════════
 // CALCULADORA UNIVERSAL DE FUERZA & FASES NEUROMUSCULARES
@@ -30,7 +32,7 @@ export interface UniversalStrengthCalcModalProps {
 type ExperienceLevel = "beginner" | "intermediate" | "advanced";
 type WeightUnit = "kg" | "lb";
 type InputMode = "submax" | "direct";
-type ActiveTab = "calc" | "protocol" | "coach" | "roadmap";
+type ActiveTab = "calc" | "protocol" | "radar" | "coach" | "roadmap";
 
 interface PhaseSet {
   label: string;
@@ -336,23 +338,23 @@ export function UniversalStrengthCalcModal({
         </div>
 
         {/* Navegación por Pestañas */}
-        <div className="grid grid-cols-4 border-b border-zinc-800/80 bg-zinc-900/60 p-1 sm:p-2 gap-1 flex-shrink-0">
+        <div className="grid grid-cols-5 border-b border-zinc-800/80 bg-zinc-900/60 p-1 sm:p-2 gap-1 flex-shrink-0">
           <button
             type="button"
             onClick={() => setActiveTab("calc")}
-            className={`flex flex-col sm:flex-row items-center justify-center gap-1 py-1.5 sm:py-2 px-1 sm:px-3 rounded-lg text-[10px] sm:text-xs font-mono font-bold transition-all cursor-pointer ${
+            className={`flex flex-col sm:flex-row items-center justify-center gap-1 py-1.5 sm:py-2 px-1 rounded-lg text-[9px] sm:text-xs font-mono font-bold transition-all cursor-pointer ${
               activeTab === "calc"
                 ? "bg-amber-500/20 border border-amber-500/50 text-amber-300 shadow-sm"
                 : "text-zinc-400 hover:text-zinc-200"
             }`}
           >
             <Zap className="w-3.5 h-3.5 text-amber-400 flex-shrink-0" />
-            <span>CALC FASES</span>
+            <span>FASES</span>
           </button>
           <button
             type="button"
             onClick={() => setActiveTab("protocol")}
-            className={`flex flex-col sm:flex-row items-center justify-center gap-1 py-1.5 sm:py-2 px-1 sm:px-3 rounded-lg text-[10px] sm:text-xs font-mono font-bold transition-all cursor-pointer ${
+            className={`flex flex-col sm:flex-row items-center justify-center gap-1 py-1.5 sm:py-2 px-1 rounded-lg text-[9px] sm:text-xs font-mono font-bold transition-all cursor-pointer ${
               activeTab === "protocol"
                 ? "bg-cyan-500/20 border border-cyan-500/50 text-cyan-300 shadow-sm"
                 : "text-zinc-400 hover:text-zinc-200"
@@ -363,8 +365,20 @@ export function UniversalStrengthCalcModal({
           </button>
           <button
             type="button"
+            onClick={() => setActiveTab("radar")}
+            className={`flex flex-col sm:flex-row items-center justify-center gap-1 py-1.5 sm:py-2 px-1 rounded-lg text-[9px] sm:text-xs font-mono font-bold transition-all cursor-pointer ${
+              activeTab === "radar"
+                ? "bg-emerald-500/20 border border-emerald-500/50 text-emerald-300 shadow-sm"
+                : "text-zinc-400 hover:text-zinc-200"
+            }`}
+          >
+            <Scale className="w-3.5 h-3.5 text-emerald-400 flex-shrink-0" />
+            <span>SIMETRÍA</span>
+          </button>
+          <button
+            type="button"
             onClick={() => setActiveTab("coach")}
-            className={`flex flex-col sm:flex-row items-center justify-center gap-1 py-1.5 sm:py-2 px-1 sm:px-3 rounded-lg text-[10px] sm:text-xs font-mono font-bold transition-all cursor-pointer ${
+            className={`flex flex-col sm:flex-row items-center justify-center gap-1 py-1.5 sm:py-2 px-1 rounded-lg text-[9px] sm:text-xs font-mono font-bold transition-all cursor-pointer ${
               activeTab === "coach"
                 ? "bg-orange-500/20 border border-orange-500/50 text-orange-300 shadow-sm"
                 : "text-zinc-400 hover:text-zinc-200"
@@ -376,7 +390,7 @@ export function UniversalStrengthCalcModal({
           <button
             type="button"
             onClick={() => setActiveTab("roadmap")}
-            className={`flex flex-col sm:flex-row items-center justify-center gap-1 py-1.5 sm:py-2 px-1 sm:px-3 rounded-lg text-[10px] sm:text-xs font-mono font-bold transition-all cursor-pointer ${
+            className={`flex flex-col sm:flex-row items-center justify-center gap-1 py-1.5 sm:py-2 px-1 rounded-lg text-[9px] sm:text-xs font-mono font-bold transition-all cursor-pointer ${
               activeTab === "roadmap"
                 ? "bg-violet-500/20 border border-violet-500/50 text-violet-300 shadow-sm"
                 : "text-zinc-400 hover:text-zinc-200"
@@ -386,6 +400,13 @@ export function UniversalStrengthCalcModal({
             <span>ONDAS</span>
           </button>
         </div>
+
+        {/* Pestaña: Simetría Neuromuscular & Pentágono */}
+        {activeTab === "radar" && (
+          <div className="p-4 sm:p-5 space-y-4 flex-1 overflow-y-auto overscroll-contain pb-24 sm:pb-6">
+            <NeuromuscularRadarChart currentWorkingWeight={workingMax} />
+          </div>
+        )}
 
         {/* Pestaña 1: Calculadora de Fases */}
         {activeTab === "calc" && (
