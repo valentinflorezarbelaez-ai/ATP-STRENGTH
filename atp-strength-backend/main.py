@@ -48,24 +48,17 @@ app.include_router(state_router)
 app.include_router(strength_router)
 
 
-
 @app.get("/health", tags=["Health"])
 def health_check():
-    return {
-        "status": "healthy",
-        "service": "atp-strength-backend",
-        "version": "1.0.0"
-    }
+    return {"status": "healthy", "service": "atp-strength-backend", "version": "1.0.0"}
 
 
 @app.get("/", tags=["Health"])
 def root():
-    return {
-        "message": "ATP-Strength Engine Backend is active.",
-        "docs": "/docs"
-    }
+    return {"message": "ATP-Strength Engine Backend is active.", "docs": "/docs"}
 
 
 if __name__ == "__main__":
     import uvicorn
+
     uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)

@@ -36,6 +36,7 @@ class StrengthRepository:
         - Phase 4 (Heavy PAP): 80% TM
         - Phase 5 (Real Strength / Work Sets): 85% TM
         """
+
         def round_plate(w: float) -> float:
             if w <= 0:
                 return 0.0

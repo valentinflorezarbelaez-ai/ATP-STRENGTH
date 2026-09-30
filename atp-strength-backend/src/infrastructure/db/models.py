@@ -2,6 +2,7 @@
 SQLAlchemy ORM models for database persistence.
 Infrastructure Layer - completely separated from Domain Logic.
 """
+
 import datetime
 
 from sqlalchemy import Boolean, Column, DateTime, Float, Integer, String, Text
@@ -23,12 +24,7 @@ class WorkoutSession(Base):
     current_set = Column(Integer, default=1, nullable=False)
     total_sets = Column(Integer, default=1, nullable=False)
     created_at = Column(DateTime, default=get_utc_now, nullable=False)
-    updated_at = Column(
-        DateTime,
-        default=get_utc_now,
-        onupdate=get_utc_now,
-        nullable=False
-    )
+    updated_at = Column(DateTime, default=get_utc_now, onupdate=get_utc_now, nullable=False)
 
 
 class TimerState(Base):
@@ -40,12 +36,7 @@ class TimerState(Base):
     duration_seconds = Column(Integer, default=180, nullable=False)
     remaining_seconds = Column(Integer, default=180, nullable=False)
     started_at = Column(DateTime, nullable=True)
-    updated_at = Column(
-        DateTime,
-        default=get_utc_now,
-        onupdate=get_utc_now,
-        nullable=False
-    )
+    updated_at = Column(DateTime, default=get_utc_now, onupdate=get_utc_now, nullable=False)
 
 
 class ExerciseExecution(Base):
@@ -79,9 +70,4 @@ class ExerciseMax(Base):
     lifted_weight = Column(Float, default=0.0, nullable=False)
     reps_performed = Column(Integer, default=1, nullable=False)
     notes = Column(Text, nullable=True)
-    updated_at = Column(
-        DateTime,
-        default=get_utc_now,
-        onupdate=get_utc_now,
-        nullable=False
-    )
+    updated_at = Column(DateTime, default=get_utc_now, onupdate=get_utc_now, nullable=False)

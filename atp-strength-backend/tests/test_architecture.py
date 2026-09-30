@@ -2,7 +2,9 @@
 Clean Architecture Invariant Verification.
 Guards the purity of the Domain layer against infrastructure leakage.
 """
+
 import inspect
+
 import src.domain.models as domain_models
 
 

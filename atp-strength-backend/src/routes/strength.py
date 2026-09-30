@@ -1,4 +1,3 @@
-
 import datetime
 
 from fastapi import APIRouter, Depends
@@ -12,6 +11,7 @@ router = APIRouter(prefix="/api/strength", tags=["Strength & Progression"])
 
 
 # ---------------- Pydantic Schemas ---------------- #
+
 
 class PhasePrescriptionSchema(BaseModel):
     phase_1_activation: float
@@ -63,6 +63,7 @@ class ExecutionHistoryItem(BaseModel):
 
 
 # ---------------- Endpoints ---------------- #
+
 
 @router.get("/maxes", response_model=list[ExerciseMaxResponse])
 def get_all_maxes(db: Session = Depends(get_db)):

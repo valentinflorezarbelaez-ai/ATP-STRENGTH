@@ -1,4 +1,5 @@
 """Domain layer models and pure entities."""
+
 from src.domain.models import (
     ExerciseExecutionDomain,
     ExerciseMaxDomain,

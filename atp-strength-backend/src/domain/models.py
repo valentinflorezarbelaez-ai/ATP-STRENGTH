@@ -2,8 +2,10 @@
 Pure Domain Entities for NEURO//STRENGTH ATP Engine.
 Clean Architecture Domain Layer - Zero ORM or Framework dependencies.
 """
+
 from datetime import datetime
 from typing import Literal
+
 from pydantic import BaseModel, ConfigDict, Field
 
 

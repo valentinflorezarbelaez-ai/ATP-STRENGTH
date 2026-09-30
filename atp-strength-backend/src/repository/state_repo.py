@@ -103,9 +103,7 @@ class StateRepository:
         # Idempotency check 1: Exact client_sync_id match
         if client_sync_id:
             existing = (
-                self.db.query(ExerciseExecution)
-                .filter(ExerciseExecution.client_sync_id == client_sync_id)
-                .first()
+                self.db.query(ExerciseExecution).filter(ExerciseExecution.client_sync_id == client_sync_id).first()
             )
             if existing:
                 return existing

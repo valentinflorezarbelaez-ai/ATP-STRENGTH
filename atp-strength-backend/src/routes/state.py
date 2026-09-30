@@ -10,6 +10,7 @@ router = APIRouter(prefix="/api/state", tags=["State & Telemetry"])
 
 # ---------------- Pydantic Schemas ---------------- #
 
+
 class TimerResponse(BaseModel):
     id: int
     is_running: bool
@@ -77,6 +78,7 @@ class ExecutionResponse(BaseModel):
 
 
 # ---------------- Route Endpoints ---------------- #
+
 
 @router.get("/timer", response_model=TimerResponse)
 def get_timer(db: Session = Depends(get_db)):

@@ -1,4 +1,5 @@
 """Database models and configuration."""
+
 from src.infrastructure.db.models import (
     ExerciseExecution,
     ExerciseMax,
