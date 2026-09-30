@@ -534,6 +534,121 @@ export const DELTA_ARCANGEL_DAYS: RoutineDay[] = [
   }
 ];
 
+export const UNIVERSAL_PR_DAYS: RoutineDay[] = [
+  {
+    key: "DAY_UNIVERSAL_PUSH",
+    name: "Día 1 - Calibración & Fases de Empuje (Push)",
+    focus: "Protocolo PR de Empuje Universal · 1RM Submáximo & Fases Neuromusculares",
+    isRest: false,
+    exercises: [
+      {
+        name: "Press de Banca",
+        sets: 4,
+        reps: "Fases 1-6 (Test 3-5 reps RIR 2 + Series Efectivas 80-85%)",
+        restSeconds: 240,
+        cue: "Plantilla universal de empuje horizontal. Si hacés mancuernas o máquina, aplicá la misma fórmula. Aceleración concéntrica compensatoria (CAT)."
+      },
+      {
+        name: "Press Militar",
+        sets: 3,
+        reps: "Fases 1-4 (80% 1RM)",
+        restSeconds: 180,
+        cue: "Plantilla universal de empuje vertical. Bracing neumático 360° e irradiación de agarre."
+      }
+    ]
+  },
+  {
+    key: "DAY_UNIVERSAL_REST_1",
+    name: "Día 2 - Resíntesis de ATP-CP & Recuperación Neural",
+    focus: "Descanso Activo · Restauración del 99% de Fosfágenos",
+    isRest: true,
+    restMessage: "La fuerza real no se construye desgastando el cuerpo sin pausa. Las adaptaciones neurales y la mielinización de los axones ocurren en reposo. Cero fatiga metabólica.",
+    exercises: []
+  },
+  {
+    key: "DAY_UNIVERSAL_PULL",
+    name: "Día 3 - Calibración & Fases de Tracción (Pull)",
+    focus: "Protocolo PR de Tracción Universal · 1RM Submáximo & Activación PAP",
+    isRest: false,
+    exercises: [
+      {
+        name: "Dominadas Lastradas",
+        sets: 4,
+        reps: "Fases 1-6 (Test Submáximo + Series Efectivas 82%)",
+        restSeconds: 240,
+        cue: "Plantilla universal de tracción vertical. Aplicable a polea alta, jalón o dominadas libres. Pausa isométrica y retracción escapular activa."
+      },
+      {
+        name: "Clean High Pull (Tirón Alto de Cargada)",
+        sets: 3,
+        reps: "Fases 1-3 Potenciación (68-75% 1RM explosivo)",
+        restSeconds: 180,
+        cue: "Plantilla de extensión triple explosiva. Máxima aceleración sin desacelerar la barra."
+      }
+    ]
+  },
+  {
+    key: "DAY_UNIVERSAL_REST_2",
+    name: "Día 4 - Regeneración Articular & Vía Vagal",
+    focus: "Activación Parasimpática · Descompresión Articular",
+    isRest: true,
+    restMessage: "Resíntesis completa de neurotransmisores (acetilcolina y dopamina). Caminatas suaves y nutrición hiperproteica.",
+    exercises: []
+  },
+  {
+    key: "DAY_UNIVERSAL_LEGS",
+    name: "Día 5 - Calibración & Fases de Tren Inferior",
+    focus: "Protocolo PR de Tren Inferior · Cadena Anterior y Posterior",
+    isRest: false,
+    exercises: [
+      {
+        name: "Sentadilla Trasera",
+        sets: 4,
+        reps: "Fases 1-6 (Test RIR 2 + Series Efectivas 80-85%)",
+        restSeconds: 300,
+        cue: "Plantilla universal de flexión/extensión de rodilla (Squat o Prensa). Descanso completo de 3 a 5 min para regenerar el 98% del ATP."
+      },
+      {
+        name: "Peso Muerto Convencional",
+        sets: 3,
+        reps: "Fases 1-4 (82% 1RM)",
+        restSeconds: 300,
+        cue: "Plantilla universal de bisagra de cadera. Cuña firme contra la barra, corte al 20% de caída de velocidad."
+      }
+    ]
+  },
+  {
+    key: "DAY_UNIVERSAL_POWER",
+    name: "Día 6 - Calibración de Potencia Libre / Accesorios",
+    focus: "Potencia Dinámica & Agarre · Test Transferencia",
+    isRest: false,
+    exercises: [
+      {
+        name: "Power Clean (Cargada de Potencia)",
+        sets: 4,
+        reps: "4x2 reps @ 75% velocidad pura",
+        restSeconds: 180,
+        cue: "Potencia explosiva sin fatiga periférica."
+      },
+      {
+        name: "Paseo del Granjero Pesado",
+        sets: 3,
+        reps: "3x30 metros pesados",
+        restSeconds: 120,
+        cue: "Irradiación neural máxima y blindaje de core."
+      }
+    ]
+  },
+  {
+    key: "DAY_UNIVERSAL_REST_3",
+    name: "Día 7 - Supercompensación & Cierre de Microciclo",
+    focus: "Supercompensación Neural · Preparación Onda Siguiente",
+    isRest: true,
+    restMessage: "Fin del microciclo universal. Si todas las series efectivas se movieron con velocidad concéntrica limpia, aplicá un aumento del 2.5% a tu balance en la siguiente semana.",
+    exercises: []
+  }
+];
+
 export const TRAINING_PROGRAMS: TrainingProgram[] = [
   {
     id: "warrior",
@@ -566,6 +681,22 @@ export const TRAINING_PROGRAMS: TrainingProgram[] = [
     badge: "4 DÍAS · POWERLIFTING PURO",
     description: "Sentadilla, press de banca, peso muerto y press militar pesado con periodización rusa.",
     days: CLASSIC_DAYS,
+  },
+  {
+    id: "delta-arcangel",
+    name: "Soldado de San Miguel Arcángel: Fuerza Letal & Mente Zen",
+    shortName: "Delta Arcángel",
+    badge: "3 DÍAS · IMPACTO + RESISTENCIA + TEMPLANZA",
+    description: "Fuerza de impacto y combate real: Power Clean balístico, Press de Banca con pausa táctica, Push Press, Tirón Alto, Sentadilla Técnica, Dominadas con Lastre y Paseo del Granjero Pesado. Regeneración del Sistema Nervioso Autónomo bajo la Doctrina de San Miguel.",
+    days: DELTA_ARCANGEL_DAYS,
+  },
+  {
+    id: "universal-pr",
+    name: "Protocolo Universal: Calibración & Progresión de PR",
+    shortName: "Universal PR",
+    badge: "UNIVERSAL · CUALQUIER EJERCICIO",
+    description: "Motor agnóstico al ejercicio: 4 sesiones de testeo submáximo, calibración de 1RM con RIR 2, cálculo de 6 fases y periodización por ondas para cualquier movimiento (barra, mancuernas o máquinas).",
+    days: UNIVERSAL_PR_DAYS,
   },
 ];
 

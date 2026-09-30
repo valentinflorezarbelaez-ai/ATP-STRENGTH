@@ -45,9 +45,9 @@ ATP STRENGTH fue diseñado pensando en el lugar donde realmente se entrena: **el
 
 ---
 
-## ⚡ 2. Motor Universal de Fuerza (`/calc` & `PHASE CALC`)
+## ⚡ 2. Motor Universal de Fuerza (`/calc` & `CALC FASES`)
 
-Una calculadora **100% agnóstica al ejercicio**. Funciona para press de banca, sentadilla, dominadas con lastre, press militar o cualquier máquina del gimnasio.
+Una calculadora y programa activo **100% agnóstico al ejercicio**. Funciona para press de banca, sentadilla, dominadas con lastre, press militar o cualquier máquina del gimnasio. Disfrútalo en modal oscuro tocando `CALC FASES` o en pantalla completa en `/calc`, así como en el programa activo `Universal PR`.
 
 ### A. Dos Modalidades de Entrada
 1. **Balance Submáximo (Sin conocer tu PR):** Ingresás el peso que movés cómodo, las repeticiones logradas (ej. 6 reps) y las repeticiones en reserva (RIR 2). El motor calcula tu 1RM estimado mediante el algoritmo híbrido **Brzycki + Epley** sin riesgo de lesión.
@@ -117,7 +117,7 @@ Evitá el estancamiento neural aplicando sobrecarga escalonada:
 ## 🏃 7. Guía Rápida de Entrenamiento (Día a Día en el Gym)
 
 1. Abrí **[atp-strength.vercel.app](https://atp-strength.vercel.app)** en tu celular.
-2. Si vas a hacer un ejercicio libre o máquina nueva, tocá **PHASE CALC** o entrá a **/calc**.
+2. Si vas a hacer un ejercicio libre o máquina nueva, tocá **CALC FASES**, entrá a **/calc**, o seleccioná el programa activo **Universal PR** en el selector de ciclos.
 3. Ingresá tu peso de trabajo o hacé el **PR Protocol** de 3 pasos.
 4. Ejecutá cada serie respetando el tempo indicado (ej. 3s bajando, 1s pausa, explosión al subir).
 5. Tocá el ícono de **reloj** en cada serie para iniciar el descanso exacto con alerta sonora.

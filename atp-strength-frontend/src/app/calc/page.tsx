@@ -26,7 +26,7 @@ export default function UniversalCalcPage() {
         </Link>
         <div className="flex items-center gap-2">
           <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
-          <span className="text-[11px] font-mono text-zinc-400">UNIVERSAL ENGINE ACTIVE</span>
+          <span className="text-[11px] font-mono text-zinc-400">MOTOR UNIVERSAL ACTIVO</span>
         </div>
       </header>
 
@@ -40,13 +40,13 @@ export default function UniversalCalcPage() {
             }
           }}
           onStartTimer={(sec, title) => {
-            console.log("Rest timer requested:", sec, title);
+            console.log("Temporizador solicitado:", sec, title);
           }}
         />
       </div>
 
-      <footer className="max-w-4xl mx-auto w-full py-4 text-center border-t border-zinc-900 text-xs font-mono text-zinc-600">
-        ATP-STRENGTH • NEUROMUSCULAR FORCE &amp; RESYNTHESIS ENGINE
+      <footer className="max-w-4xl mx-auto w-full py-4 text-center border-t border-zinc-900 text-xs font-mono text-zinc-500">
+        ATP-STRENGTH • MOTOR DE FUERZA NEUROMUSCULAR &amp; RESÍNTESIS DE ATP
       </footer>
     </main>
   );

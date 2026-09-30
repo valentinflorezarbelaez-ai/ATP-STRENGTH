@@ -73,11 +73,24 @@ describe('SPEC-0008 Workout Strategies & Multi-Program Power Suite', () => {
     });
   });
 
-  describe('Multi-Program Architecture (Warrior, Classic, Olympic, Hybrid, Delta Arcángel)', () => {
-    it('defines exactly 5 training programs with full metadata', () => {
-      assert.equal(TRAINING_PROGRAMS.length, 5);
+  describe('Multi-Program Architecture (Warrior, Classic, Olympic, Hybrid, Delta Arcángel, Universal PR)', () => {
+    it('defines exactly 6 training programs with full metadata', () => {
+      assert.equal(TRAINING_PROGRAMS.length, 6);
       const programIds = TRAINING_PROGRAMS.map((p) => p.id);
-      assert.deepEqual(programIds, ['warrior', 'hybrid', 'olympic', 'classic', 'delta-arcangel']);
+      assert.deepEqual(programIds, ['warrior', 'hybrid', 'olympic', 'classic', 'delta-arcangel', 'universal-pr']);
+    });
+
+    it('validates Program 6: Protocolo Universal: Calibración & Progresión de PR (4 Activos + 3 Descanso)', () => {
+      const universal = getTrainingProgram('universal-pr');
+      assert.equal(universal.id, 'universal-pr');
+      assert.equal(universal.days.length, 7);
+      const activeDays = universal.days.filter((d) => !d.isRest);
+      const restDays = universal.days.filter((d) => d.isRest);
+      assert.equal(activeDays.length, 4);
+      assert.equal(restDays.length, 3);
+      for (const restDay of restDays) {
+        assert.ok(restDay.restMessage, 'Rest day must have a pedagogical message');
+      }
     });
 
     it('validates Program 5: Soldado de San Miguel Arcángel (3 Activos + 4 Descanso)', () => {
