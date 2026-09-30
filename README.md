@@ -201,6 +201,22 @@ docker compose down
 
 ---
 
+## 🚀 Registro de Actualizaciones & Hitos de Ingeniería (Edición Perfección Total)
+
+| Hito | Módulo / Commit | Descripción de la Mejora | Impacto Técnico |
+| :--- | :--- | :--- | :--- |
+| **01** | `refactor(quality)` [`acd8550`](https://github.com/valentinflorezarbelaez-ai/ATP-STRENGTH/commit/acd8550) | Saneamiento de 93 variables y eliminación de `setState` síncrono en `useEffect`. | 0 errores y 0 warnings en ESLint y TypeScript. |
+| **02** | `feat(pwa)` [`cdd3d8a`](https://github.com/valentinflorezarbelaez-ai/ATP-STRENGTH/commit/cdd3d8a) | Service Worker v5 (`neuro-strength-v5`) con carrera de 2500ms (`fetchWithTimeout`). | Operatividad instantánea frente a condiciones de "Lie-Fi" en sótanos. |
+| **03** | `feat(history)` [`46f63a0`](https://github.com/valentinflorezarbelaez-ai/ATP-STRENGTH/commit/46f63a0) | Motor L0 puro en `prHistoryCore.mjs` y gráfico SVG de supercompensación (SPEC-0009). | Trazado vectorial Bézier cúbico de e1RM y detección automática de PRs. |
+| **04** | `feat(sync)` [`176c975`](https://github.com/valentinflorezarbelaez-ai/ATP-STRENGTH/commit/176c975) | Deduplicación bidireccional con `client_sync_id` y cabeceras `X-Idempotency-Key`. | Cola WAL con retroceso exponencial (*exponential backoff*) y *full jitter*. |
+| **05** | `fix(security)` [`57ade11`](https://github.com/valentinflorezarbelaez-ai/ATP-STRENGTH/commit/57ade11) | Actualización de dependencias críticas a Next.js 16.3.8 y parche de `brace-expansion`. | Mitigación del RCE en `ImageResponse` (GHSA-vcvr-r3jv-pc5j); 0 vulnerabilidades. |
+| **06** | `ci(github-actions)` [`3af209f`](https://github.com/valentinflorezarbelaez-ai/ATP-STRENGTH/commit/3af209f) | Pipeline dual en paralelo para Node.js (20, 22) y Python (3.11, 3.12). | Verificación automatizada con Ruff, Pytest, linting estricto y Turbopack. |
+| **07** | `test(e2e)` [`4ea9fb9`](https://github.com/valentinflorezarbelaez-ai/ATP-STRENGTH/commit/4ea9fb9) | Suite End-to-End con Playwright (11 especificaciones en Chromium). | Verificación automatizada de shell PWA, offline WAL y renderizado reactivo. |
+| **08** | `build(docker)` [`5de787d`](https://github.com/valentinflorezarbelaez-ai/ATP-STRENGTH/commit/5de787d) | Dockerfiles multi-stage y orquestación unificada con `docker-compose.yml`. | Despliegue reproducible en 1 comando con usuarios seguros no-root. |
+| **09** | `docs(readme)` [`dda05f2`](https://github.com/valentinflorezarbelaez-ai/ATP-STRENGTH/commit/dda05f2) | Sincronización documental integral con los 130 tests automáticos del sistema. | Fidelidad absoluta entre especificación, arquitectura y base de código. |
+
+---
+
 ## 📄 Licencia
 
 Este proyecto se distribuye bajo la **Licencia MIT** — consultar el archivo [LICENSE](LICENSE) para más detalles.
