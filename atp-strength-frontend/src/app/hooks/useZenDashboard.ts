@@ -40,15 +40,7 @@ export function useZenDashboard() {
   const timer = useAtpTimer(180);
   const wal = useBackendWal(apiUrl);
 
-  const [selectedProgramId, setSelectedProgramId] = useState<string>(() => {
-    if (typeof window === "undefined") return "hybrid";
-    try {
-      const saved = localStorage.getItem("neuro_strength_selected_program");
-      return (saved === "classic" || saved === "olympic" || saved === "hybrid") ? saved : "hybrid";
-    } catch {
-      return "hybrid";
-    }
-  });
+  const [selectedProgramId, setSelectedProgramId] = useState<string>("universal-pr");
 
   const currentProgram = getTrainingProgram(selectedProgramId);
   const scheduleDays = currentProgram.days;
@@ -543,7 +535,7 @@ export function useZenDashboard() {
     setSelectedProgramId,
     handleSelectProgram,
     currentProgram,
-    availablePrograms: TRAINING_PROGRAMS,
+    availablePrograms: [currentProgram],
     ALL_TRACKABLE_EXERCISES,
   };
 }

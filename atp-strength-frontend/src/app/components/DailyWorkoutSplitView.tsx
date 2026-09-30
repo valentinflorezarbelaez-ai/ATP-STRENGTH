@@ -106,6 +106,78 @@ export function DailyWorkoutSplitView({
         </div>
       </div>
 
+      {/* Directiva de Oro del Protocolo Universal PR */}
+      <div className="rounded-3xl border border-amber-500/30 bg-gradient-to-b from-amber-500/10 via-zinc-950 to-zinc-950 p-4 sm:p-5 shadow-2xl space-y-3.5">
+        <div className="flex items-center justify-between border-b border-zinc-800/80 pb-2.5">
+          <div className="flex items-center gap-2">
+            <div className="p-1.5 rounded-xl bg-amber-500/20 text-amber-400 border border-amber-500/30">
+              <Sparkles className="w-4 h-4" />
+            </div>
+            <div>
+              <h3 className="text-xs sm:text-sm font-extrabold text-white tracking-wide uppercase">
+                Directiva Oficial · Protocolo Universal PR
+              </h3>
+              <p className="text-[10px] text-zinc-400 font-mono">
+                Reglas fisiológicas obligatorias para maximizar 1RM y regeneración del SNC
+              </p>
+            </div>
+          </div>
+          <span className="hidden sm:inline-flex text-[10px] font-mono font-bold text-amber-400 bg-amber-500/10 px-2.5 py-1 rounded-full border border-amber-500/30">
+            SISTEMA EXCLUSIVO
+          </span>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+          {/* Card 1: Cuántos y Cuáles Ejercicios */}
+          <div className="p-3.5 rounded-2xl bg-zinc-900/60 border border-zinc-800/80 space-y-1.5">
+            <div className="flex items-center gap-1.5 text-amber-400 text-xs font-bold font-mono">
+              <Dumbbell className="w-3.5 h-3.5" />
+              <span>1. ¿Cuántos ejercicios hacer?</span>
+            </div>
+            <p className="text-[11px] text-zinc-300 leading-relaxed font-sans">
+              Exactamente <strong className="text-white">3 ejercicios clave</strong> por sesión:
+            </p>
+            <ul className="text-[10px] text-zinc-400 font-mono space-y-1 list-disc pl-3.5">
+              <li><strong className="text-amber-300">1 Principal Pesado:</strong> 4 series efectivas de 3 a 5 reps (80-85% 1RM).</li>
+              <li><strong className="text-zinc-200">1 Secundario Angular:</strong> 3 series efectivas de 5 reps (75-80% 1RM).</li>
+              <li><strong className="text-zinc-200">1 Accesorio / Blindaje:</strong> 3 series para tendones y potencia.</li>
+            </ul>
+          </div>
+
+          {/* Card 2: Cuánto Descansar */}
+          <div className="p-3.5 rounded-2xl bg-zinc-900/60 border border-zinc-800/80 space-y-1.5">
+            <div className="flex items-center gap-1.5 text-amber-400 text-xs font-bold font-mono">
+              <Timer className="w-3.5 h-3.5" />
+              <span>2. ¿Cuánto descansar?</span>
+            </div>
+            <p className="text-[11px] text-zinc-300 leading-relaxed font-sans">
+              Tiempo estricto para <strong className="text-white">resíntesis biológica de ATP-PCr</strong>:
+            </p>
+            <ul className="text-[10px] text-zinc-400 font-mono space-y-1 list-disc pl-3.5">
+              <li><strong className="text-amber-300">4 a 5 min (240-300s):</strong> Series pesadas efectivas (99% ATP restaurado).</li>
+              <li><strong className="text-zinc-200">2 a 3 min (120-180s):</strong> Series de aproximación técnica.</li>
+              <li><strong className="text-zinc-200">2 min (120s):</strong> Accesorios. 48-72h entre mismos patrones.</li>
+            </ul>
+          </div>
+
+          {/* Card 3: Y demás (Tempo, RIR, Progresión) */}
+          <div className="p-3.5 rounded-2xl bg-zinc-900/60 border border-zinc-800/80 space-y-1.5">
+            <div className="flex items-center gap-1.5 text-amber-400 text-xs font-bold font-mono">
+              <Zap className="w-3.5 h-3.5" />
+              <span>3. ¿Y demás? (Tempo & RIR)</span>
+            </div>
+            <p className="text-[11px] text-zinc-300 leading-relaxed font-sans">
+              Normas de ejecución para no quemar el sistema nervioso:
+            </p>
+            <ul className="text-[10px] text-zinc-400 font-mono space-y-1 list-disc pl-3.5">
+              <li><strong className="text-amber-300">RIR 1-2:</strong> Cero fallo concéntrico para evitar inhibición neural.</li>
+              <li><strong className="text-zinc-200">Tempo 3-1-X-1:</strong> 3s bajada, 1s pausa isométrica, explosión concéntrica (CAT).</li>
+              <li><strong className="text-zinc-200">Sobrecarga:</strong> +2.5 kg si completás con RPE ≤ 7.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
       {/* 2. Active Day Hero Card */}
       <div className="relative overflow-hidden rounded-3xl border border-zinc-800 bg-gradient-to-br from-zinc-950 via-[#0a0a0c] to-black p-5 shadow-xl">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -192,28 +264,31 @@ export function DailyWorkoutSplitView({
                     </div>
 
                     {/* Middle: Exercise Info */}
-                    <div className="space-y-1">
-                      <div className="flex items-center gap-2">
+                    <div className="space-y-1.5 flex-1 min-w-0">
+                      <div className="flex flex-wrap items-center gap-2">
                         <span className="text-[10px] font-mono font-bold text-amber-500/90 px-2 py-0.5 rounded bg-amber-500/10 border border-amber-500/20">
-                          #{idx + 1}
+                          {idx === 0 ? "#1 Principal Pesado" : idx === 1 ? "#2 Secundario Angular" : "#3 Accesorio / Blindaje"}
                         </span>
-                        <h4 className="text-sm font-bold text-white group-hover:text-amber-400 transition-colors">
+                        <h4 className="text-sm font-bold text-white group-hover:text-amber-400 transition-colors truncate">
                           {ex.name}
                         </h4>
                       </div>
 
-                      <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-zinc-400">
-                        <span className="flex items-center gap-1 font-semibold text-zinc-300">
-                          <Dumbbell className="w-3 h-3 text-amber-400" />
-                          {ex.sets} series × {ex.reps}
+                      <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs">
+                        <span className="flex items-center gap-1 font-semibold text-zinc-200">
+                          <Dumbbell className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+                          <span>{ex.sets} series</span>
                         </span>
-                        <span className="flex items-center gap-1 text-zinc-500 font-mono text-[11px]">
+                        <span className="text-zinc-400 font-medium">
+                          {ex.reps}
+                        </span>
+                        <span className="flex items-center gap-1 text-amber-400 font-mono text-[11px] bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/20 font-bold shrink-0">
                           <Timer className="w-3 h-3" />
-                          {Math.round(ex.restSeconds / 60)} min rest
+                          <span>{Math.round(ex.restSeconds / 60)} min descanso (ATP-PCr)</span>
                         </span>
                       </div>
 
-                      <p className="text-[11px] text-zinc-500 line-clamp-1 italic">
+                      <p className="text-[11px] text-zinc-400 line-clamp-2 leading-relaxed">
                         {ex.cue}
                       </p>
                     </div>

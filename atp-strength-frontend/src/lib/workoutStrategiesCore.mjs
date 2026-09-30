@@ -297,9 +297,6 @@ export const HYBRID_DAYS = [
   },
 ];
 
-/** Default schedule days export for backward compatibility. */
-export const SCHEDULE_DAYS = HYBRID_DAYS;
-
 export const UNIVERSAL_PR_DAYS = [
   {
     key: "DAY_UNIVERSAL_PUSH",
@@ -310,16 +307,23 @@ export const UNIVERSAL_PR_DAYS = [
       {
         name: "Press de Banca",
         sets: 4,
-        reps: "Fases 1-6 (Test 3-5 reps RIR 2 + Series Efectivas 80-85%)",
+        reps: "4 series efectivas × 3 a 5 reps (80-85% 1RM a RIR 1-2)",
         restSeconds: 240,
-        cue: "Plantilla universal de empuje horizontal. Si hacés mancuernas o máquina, aplicá la misma fórmula. Aceleración concéntrica compensatoria (CAT)."
+        cue: "DESCANSO OBLIGATORIO: 4 a 5 minutos (240-300s) entre series pesadas (resíntesis del 99% ATP-PCr). 120s en aproximación. Retracción escapular activa y aceleración concéntrica compensatoria (CAT)."
       },
       {
         name: "Press Militar",
         sets: 3,
-        reps: "Fases 1-4 (80% 1RM)",
+        reps: "3 series efectivas × 5 reps (80% 1RM)",
         restSeconds: 180,
-        cue: "Plantilla universal de empuje vertical. Bracing neumático 360° e irradiación de agarre."
+        cue: "DESCANSO OBLIGATORIO: 3 minutos (180s). Bloqueo articular vertical sobre la coronilla. Glúteos y core en cerrojo isométrico."
+      },
+      {
+        name: "Fondos en Paralelas",
+        sets: 3,
+        reps: "3 series × 6-8 reps (Hipertrofia & Tendones)",
+        restSeconds: 120,
+        cue: "DESCANSO: 2 minutos (120s). Control excéntrico de 3 segundos, pausa isométrica de 1 segundo abajo y empuje firme sin balanceo."
       }
     ]
   },
@@ -340,16 +344,23 @@ export const UNIVERSAL_PR_DAYS = [
       {
         name: "Dominadas Lastradas",
         sets: 4,
-        reps: "Fases 1-6 (Test Submáximo + Series Efectivas 82%)",
+        reps: "4 series efectivas × 3 a 5 reps (82% 1RM a RIR 1-2)",
         restSeconds: 240,
-        cue: "Plantilla universal de tracción vertical. Aplicable a polea alta, jalón o dominadas libres. Pausa isométrica y retracción escapular activa."
+        cue: "DESCANSO OBLIGATORIO: 4 a 5 minutos (240-300s) para regenerar acetilcolina en motoneuronas. 120s en aproximación. Pausa con barbilla sobre la barra y descenso en 3 segundos."
+      },
+      {
+        name: "Remo Pendlay",
+        sets: 3,
+        reps: "3 series efectivas × 5 reps explosivas (75-80% 1RM)",
+        restSeconds: 180,
+        cue: "DESCANSO OBLIGATORIO: 3 minutos (180s). Barra muerta desde el suelo en cada repetición. Tracción potente al esternón inferior sin impulso lumbar."
       },
       {
         name: "Clean High Pull (Tirón Alto de Cargada)",
         sets: 3,
-        reps: "Fases 1-3 Potenciación (68-75% 1RM explosivo)",
-        restSeconds: 180,
-        cue: "Plantilla de extensión triple explosiva. Máxima aceleración sin desacelerar la barra."
+        reps: "3 series × 3 reps (Potenciación Explosiva 70-75% 1RM)",
+        restSeconds: 150,
+        cue: "DESCANSO: 2.5 minutos (150s). Triple extensión explosiva (tobillos, rodillas, cadera). Máxima velocidad concéntrica sin desacelerar la barra."
       }
     ]
   },
@@ -370,16 +381,23 @@ export const UNIVERSAL_PR_DAYS = [
       {
         name: "Sentadilla Trasera",
         sets: 4,
-        reps: "Fases 1-6 (Test RIR 2 + Series Efectivas 80-85%)",
+        reps: "4 series efectivas × 3 a 5 reps (80-85% 1RM a RIR 1-2)",
         restSeconds: 300,
-        cue: "Plantilla universal de flexión/extensión de rodilla (Squat o Prensa). Descanso completo de 3 a 5 min para regenerar el 98% del ATP."
+        cue: "DESCANSO OBLIGATORIO: 5 minutos completos (300s) entre series pesadas para evitar degradación de la técnica y preservar la columna. 120-180s en aproximación. Maniobra de Valsalva 360° y romper el paralelo."
+      },
+      {
+        name: "Peso Muerto Rumano",
+        sets: 3,
+        reps: "3 series efectivas × 5 reps (75-80% 1RM)",
+        restSeconds: 240,
+        cue: "DESCANSO OBLIGATORIO: 4 minutos (240s). Foco estricto en bisagra de cadera empujando los glúteos atrás. Tensión mecánica en isquiosurales con columna lumbar neutra."
       },
       {
         name: "Peso Muerto Convencional",
         sets: 3,
-        reps: "Fases 1-4 (82% 1RM)",
-        restSeconds: 300,
-        cue: "Plantilla universal de bisagra de cadera. Cuña firme contra la barra, corte al 20% de caída de velocidad."
+        reps: "3 series × 3 reps técnicas limpias",
+        restSeconds: 240,
+        cue: "DESCANSO: 4 minutos (240s). Cuña firme contra la barra, corte al 20% de caída de velocidad y activación total del dorsal."
       }
     ]
   },
@@ -392,16 +410,23 @@ export const UNIVERSAL_PR_DAYS = [
       {
         name: "Power Clean (Cargada de Potencia)",
         sets: 4,
-        reps: "4x2 reps @ 75% velocidad pura",
+        reps: "4 series × 2 reps explosivas @ 75% 1RM",
         restSeconds: 180,
-        cue: "Potencia explosiva sin fatiga periférica."
+        cue: "DESCANSO OBLIGATORIO: 3 minutos (180s). Foco 100% en velocidad concéntrica pura y reclutamiento de unidades motoras tipo IIX. Cero fatiga metabólica."
+      },
+      {
+        name: "Push Press (Press de Empuje)",
+        sets: 3,
+        reps: "3 series × 3 reps (75-80% 1RM)",
+        restSeconds: 180,
+        cue: "DESCANSO OBLIGATORIO: 3 minutos (180s). Dip corto y potente con piernas; transferencia elástica directa a la extensión vertical de brazos."
       },
       {
         name: "Paseo del Granjero Pesado",
         sets: 3,
-        reps: "3x30 metros pesados",
+        reps: "3 series × 35 metros con carga máxima",
         restSeconds: 120,
-        cue: "Irradiación neural máxima y blindaje de core."
+        cue: "DESCANSO: 2 minutos (120s). Blindaje de trapecio, antebrazos y core lumbar. Pasos cortos y firmes manteniendo la columna rígida."
       }
     ]
   },
@@ -414,6 +439,9 @@ export const UNIVERSAL_PR_DAYS = [
     exercises: []
   }
 ];
+
+/** Default schedule days export — locked to Universal PR protocol. */
+export const SCHEDULE_DAYS = UNIVERSAL_PR_DAYS;
 
 export const TRAINING_PROGRAMS = [
   {
@@ -458,11 +486,14 @@ export const TRAINING_PROGRAMS = [
   },
 ];
 
-export function getTrainingProgram(programId = "warrior") {
+export function getTrainingProgram(programId) {
+  if (!programId) {
+    return TRAINING_PROGRAMS.find((p) => p.id === "universal-pr") || TRAINING_PROGRAMS[0];
+  }
   return TRAINING_PROGRAMS.find((p) => p.id === programId) || TRAINING_PROGRAMS[0];
 }
 
-export function getProgramDays(programId = "warrior") {
+export function getProgramDays(programId = "universal-pr") {
   return getTrainingProgram(programId).days;
 }
 
