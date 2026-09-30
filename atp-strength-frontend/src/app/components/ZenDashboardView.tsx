@@ -140,8 +140,8 @@ export function ZenDashboardView({ d, onShowSpotify }: { d: Dash; onShowSpotify?
           </button>
         </div>
 
-        {/* Acciones de Cabecera (Totalmente visibles y adaptativas en móvil) */}
-        <div className="flex items-center gap-2.5 w-full md:w-auto">
+        {/* Acciones de Cabecera (Totalmente visibles y adaptativas en móvil sin quiebres) */}
+        <div className="flex items-center gap-2.5 w-full md:w-auto overflow-x-auto no-scrollbar py-1 flex-nowrap">
           {/* Qobuz / Apple Music Tri-Mode Aspect Toggle */}
           <button
             type="button"

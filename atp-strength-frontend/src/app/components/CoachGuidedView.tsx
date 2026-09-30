@@ -4,7 +4,7 @@ import React, { useState, useMemo } from "react";
 import {
   Flame, Sparkles, Calendar, CheckCircle2, ChevronLeft, ChevronRight,
   Play, Pause, RotateCcw, Volume2, Trophy,
-  Minus, Plus, Activity, Heart, ArrowRight, Coffee, Eye, Sun, Moon, Laptop, User, Download, Upload, Database, Zap, BarChart3
+  Minus, Plus, Activity, Heart, ArrowRight, Coffee, Eye, Sun, Moon, Laptop, User, Download, Upload, Database, Zap, BarChart3, Clock
 } from "lucide-react";
 import {
   computeEstimated1Rm,
@@ -305,62 +305,79 @@ export function CoachGuidedView({ d, onShowSpotify }: { d: Dash; onShowSpotify?:
   };
 
   return (
-    <main className="min-h-screen relative overflow-x-hidden flex flex-col items-center justify-between p-4 md:p-6 pb-20 font-sans selection:bg-pink-500 selection:text-white">
+    <main className="min-h-screen relative overflow-x-hidden flex flex-col items-center justify-between p-4 md:p-6 pb-32 md:pb-20 font-sans selection:bg-pink-500 selection:text-white">
       {/* Ambient Radial Mesh Backgrounds (Apple Music + Tidal Luxury Style) */}
       <div className="ambient-mesh-light" aria-hidden="true">
         <div className="ambient-orb-1" />
         <div className="ambient-orb-2" />
         <div className="ambient-orb-3" />
       </div>
-      {/* 1. Top Coach Header */}
-      <header className="w-full max-w-2xl flex items-center justify-between gap-3 border-b border-zinc-900/80 pb-4 mb-4">
-        {/* Brand & Coach Status */}
-        <div className="flex items-center gap-2.5">
-          <div className="p-2 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-400">
-            <Flame className="w-5 h-5" />
-          </div>
-          <div>
-            <div className="flex items-center gap-1.5">
-              <span className="text-base font-black tracking-wide text-white uppercase">
-                ATP <span className="text-amber-400">COACH</span>
-              </span>
-              <span className="px-1.5 py-0.5 rounded text-[9px] font-mono font-bold bg-amber-500/20 text-amber-400 border border-amber-500/30">
-                GUIADO
-              </span>
+      {/* 1. Top Coach Header (Mobile-First 2-Row Architecture) */}
+      <header className="w-full max-w-2xl flex flex-col gap-2.5 border-b border-zinc-900/80 pb-3 mb-4">
+        {/* Top Row: Brand & Unmissable MODO PRO Button */}
+        <div className="flex items-center justify-between w-full">
+          <div className="flex items-center gap-2.5">
+            <div className="p-2 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-400">
+              <Flame className="w-5 h-5" />
             </div>
-            <p className="text-[11px] text-zinc-400 font-sans">
-              Tu asistente de fuerza y descanso paso a paso
-            </p>
+            <div>
+              <div className="flex items-center gap-1.5">
+                <span className="text-base font-black tracking-wide text-white uppercase">
+                  ATP <span className="text-amber-400">COACH</span>
+                </span>
+                <span className="px-1.5 py-0.5 rounded text-[9px] font-mono font-bold bg-amber-500/20 text-amber-400 border border-amber-500/30">
+                  GUIADO
+                </span>
+              </div>
+              <p className="text-[11px] text-zinc-400 font-sans">
+                Tu asistente de fuerza y descanso paso a paso
+              </p>
+            </div>
           </div>
+
+          {/* Prominent MODO PRO Button - Always Visible on Mobile */}
+          <button
+            type="button"
+            onClick={() => {
+              playTactileClick();
+              toggleCoachMode();
+            }}
+            className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-gradient-to-r from-amber-500/20 to-amber-600/20 hover:from-amber-500/30 hover:to-amber-600/30 border border-amber-500/40 text-xs font-mono font-bold text-amber-300 shadow-lg shadow-amber-500/5 transition-all transform active:scale-95 cursor-pointer flex-shrink-0"
+            title="Volver a Modo Pro (Dashboard Analítico / Cockpit)"
+          >
+            <Eye className="w-4 h-4 text-amber-400 flex-shrink-0" />
+            <span className="tracking-wide">MODO PRO</span>
+          </button>
         </div>
 
-        {/* Header Actions: Mode Toggle & Reset */}
-        <div className="flex items-center gap-2">
-          {/* Athlete Profile & Data Backup */}
+        {/* Bottom Row: Smooth Horizontally Scrollable Utility Chips Bar */}
+        <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5 -mx-1 px-1 w-full flex-nowrap">
           <button
             type="button"
             onClick={() => {
               playTactileClick();
               setShowUniversalProtocol(true);
             }}
-            className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-amber-500/30 bg-amber-500/10 text-amber-300 hover:bg-amber-500/20 hover:border-amber-400/50 transition-all text-xs font-mono font-bold cursor-pointer shadow-[0_0_12px_rgba(245,158,11,0.15)]"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-amber-500/30 bg-amber-500/10 text-amber-300 hover:bg-amber-500/20 hover:border-amber-400/50 transition-all text-xs font-mono font-bold cursor-pointer shadow-[0_0_12px_rgba(245,158,11,0.15)] flex-shrink-0"
             title="Calculadora Universal: Ingresá cualquier ejercicio o máquina y tu PR"
           >
             <span>⚡</span>
-            <span className="hidden sm:inline">PROTOCOLO PR</span>
+            <span>PROTOCOLO PR</span>
           </button>
+
           <button
             type="button"
             onClick={() => {
               playTactileClick();
               setShowUniversalCalc(true);
             }}
-            className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-zinc-800 bg-zinc-950 text-zinc-300 hover:text-amber-400 hover:border-amber-500/50 transition-all text-xs font-mono font-bold cursor-pointer shadow-sm active:scale-95"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-zinc-800 bg-zinc-950 text-zinc-300 hover:text-amber-400 hover:border-amber-500/50 transition-all text-xs font-mono font-bold cursor-pointer shadow-sm active:scale-95 flex-shrink-0"
             title="Calculadora Universal de Fases Neuromusculares (Cualquier Ejercicio)"
           >
             <BarChart3 className="w-3.5 h-3.5 text-amber-400" />
-            <span className="hidden sm:inline">CALC FASES</span>
+            <span>CALC FASES</span>
           </button>
+
           <a
             href="https://open.spotify.com/intl-es"
             target="_blank"
@@ -369,30 +386,31 @@ export function CoachGuidedView({ d, onShowSpotify }: { d: Dash; onShowSpotify?:
               playTactileClick();
               try { window.location.href = "spotify:"; } catch {}
             }}
-            className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-emerald-500/30 bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20 hover:border-emerald-400/50 transition-all text-xs font-mono font-bold cursor-pointer shadow-[0_0_12px_rgba(16,185,129,0.15)]"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-emerald-500/30 bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20 hover:border-emerald-400/50 transition-all text-xs font-mono font-bold cursor-pointer shadow-[0_0_12px_rgba(16,185,129,0.15)] flex-shrink-0"
             title="Abrir Spotify directamente"
           >
             <span>🎵</span>
-            <span className="hidden sm:inline">SPOTIFY</span>
+            <span>SPOTIFY</span>
           </a>
+
           <button
             type="button"
             onClick={() => {
               playTactileClick();
               setShowProfileModal(true);
             }}
-            className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-black/10 dark:border-white/15 bg-white/80 dark:bg-white/5 backdrop-blur-xl hover:bg-black/5 dark:hover:bg-white/10 text-xs font-mono font-medium transition-all active:scale-95 cursor-pointer shadow-sm"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-black/10 dark:border-white/15 bg-white/80 dark:bg-white/5 backdrop-blur-xl hover:bg-black/5 dark:hover:bg-white/10 text-xs font-mono font-medium transition-all active:scale-95 cursor-pointer shadow-sm flex-shrink-0"
             title="Perfil de Atleta y Copias de Seguridad"
           >
             <User className="w-3.5 h-3.5 text-amber-400" />
-            <span className="hidden sm:inline text-zinc-200">{athlete.name}</span>
+            <span className="text-zinc-200">{athlete.name}</span>
           </button>
 
           {/* Qobuz / Apple Music Tri-Mode Aspect Toggle */}
           <button
             type="button"
             onClick={d.toggleTheme}
-            className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-black/10 dark:border-white/15 bg-white/80 dark:bg-white/5 backdrop-blur-xl hover:bg-black/5 dark:hover:bg-white/10 text-xs font-mono font-medium transition-all active:scale-95 cursor-pointer shadow-sm"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-black/10 dark:border-white/15 bg-white/80 dark:bg-white/5 backdrop-blur-xl hover:bg-black/5 dark:hover:bg-white/10 text-xs font-mono font-medium transition-all active:scale-95 cursor-pointer shadow-sm flex-shrink-0"
             title={
               d.themeMode === 'dark'
                 ? "Modo Oscuro (Qobuz Obsidian). Clic para Modo Sistema"
@@ -404,17 +422,17 @@ export function CoachGuidedView({ d, onShowSpotify }: { d: Dash; onShowSpotify?:
             {d.themeMode === 'dark' ? (
               <>
                 <Moon className="w-3.5 h-3.5 text-amber-400" />
-                <span className="hidden sm:inline text-zinc-200">DARK</span>
+                <span className="text-zinc-200">DARK</span>
               </>
             ) : d.themeMode === 'light' ? (
               <>
                 <Sun className="w-3.5 h-3.5 text-amber-500" />
-                <span className="hidden sm:inline text-zinc-800">LIGHT</span>
+                <span className="text-zinc-800">LIGHT</span>
               </>
             ) : (
               <>
                 <Laptop className="w-3.5 h-3.5 text-amber-400" />
-                <span className="hidden sm:inline text-zinc-300">AUTO</span>
+                <span className="text-zinc-300">AUTO</span>
               </>
             )}
           </button>
@@ -423,7 +441,7 @@ export function CoachGuidedView({ d, onShowSpotify }: { d: Dash; onShowSpotify?:
           <button
             type="button"
             onClick={toggleVoiceCoach}
-            className={`flex items-center gap-1.5 px-3 py-2 rounded-xl border text-xs font-mono font-medium transition-all active:scale-95 cursor-pointer ${
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-mono font-medium transition-all active:scale-95 cursor-pointer flex-shrink-0 ${
               audioPrefs.voiceEnabled
                 ? "bg-amber-500/10 border-amber-500/40 text-amber-400 shadow-sm"
                 : "bg-zinc-900 border-zinc-800 text-zinc-500 hover:text-zinc-300"
@@ -431,28 +449,18 @@ export function CoachGuidedView({ d, onShowSpotify }: { d: Dash; onShowSpotify?:
             title={audioPrefs.voiceEnabled ? "Voz Coach activada (clic para silenciar)" : "Voz Coach silenciada (clic para activar)"}
           >
             <Volume2 className={`w-3.5 h-3.5 ${audioPrefs.voiceEnabled ? "text-amber-400 animate-pulse" : "text-zinc-500"}`} />
-            <span className="hidden sm:inline">VOZ:</span> {audioPrefs.voiceEnabled ? "ON" : "OFF"}
-          </button>
-
-          {/* Switch to Pro Analytics Mode */}
-          <button
-            type="button"
-            onClick={toggleCoachMode}
-            className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-800 hover:border-amber-500/40 text-xs font-mono font-medium text-zinc-300 hover:text-amber-400 transition-all active:scale-95 cursor-pointer"
-            title="Cambiar a Modo Pro (Dashboard Analítico)"
-          >
-            <Eye className="w-3.5 h-3.5 text-zinc-400" />
-            <span className="hidden sm:inline">MODO</span> PRO
+            <span>VOZ: {audioPrefs.voiceEnabled ? "ON" : "OFF"}</span>
           </button>
 
           {/* Reset Action */}
           <button
             type="button"
             onClick={() => setShowResetConfirm(!showResetConfirm)}
-            className="p-2 rounded-xl bg-zinc-950 border border-zinc-800 text-zinc-400 hover:text-amber-400 transition-all cursor-pointer"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-zinc-950 border border-zinc-800 text-zinc-400 hover:text-amber-400 transition-all cursor-pointer flex-shrink-0"
             title="Reiniciar sesión o ejercicio"
           >
-            <RotateCcw className="w-4 h-4" />
+            <RotateCcw className="w-3.5 h-3.5 text-amber-400" />
+            <span className="font-mono text-xs">RESET</span>
           </button>
         </div>
       </header>
@@ -1513,6 +1521,42 @@ export function CoachGuidedView({ d, onShowSpotify }: { d: Dash; onShowSpotify?:
             handleStartTimer(seconds, title);
           }}
         />
+
+      {/* Floating Sticky Mobile Mini-Timer HUD */}
+      {isRunning && (
+        <div className="fixed bottom-4 left-4 right-4 z-40 max-w-md mx-auto p-3 rounded-2xl bg-zinc-950/95 border border-amber-500/40 shadow-2xl backdrop-blur-xl flex items-center justify-between gap-3 animate-in slide-in-from-bottom-4 duration-200">
+          <div className="flex items-center gap-2.5 overflow-hidden">
+            <div className="w-8 h-8 rounded-xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-400 flex-shrink-0 animate-pulse">
+              <Clock className="w-4 h-4" />
+            </div>
+            <div className="overflow-hidden">
+              <span className="text-[10px] font-mono text-zinc-400 truncate block">
+                {timerTitle || "Descanso ATP"}
+              </span>
+              <span className="font-mono text-base font-black text-amber-400">
+                {Math.floor(remainingSeconds / 60)}:{(remainingSeconds % 60).toString().padStart(2, "0")}
+              </span>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-1.5 flex-shrink-0">
+            <button
+              type="button"
+              onClick={togglePlayPause}
+              className="px-2.5 py-1.5 rounded-lg bg-zinc-900 border border-zinc-800 text-xs font-mono font-bold text-zinc-200 active:scale-95 cursor-pointer"
+            >
+              {isRunning ? "PAUSA" : "SEGUIR"}
+            </button>
+            <button
+              type="button"
+              onClick={skipRest}
+              className="px-2.5 py-1.5 rounded-lg bg-amber-500 text-black text-xs font-mono font-bold active:scale-95 shadow-md shadow-amber-500/20 cursor-pointer"
+            >
+              LISTO
+            </button>
+          </div>
+        </div>
+      )}
       </main>
 
   );
