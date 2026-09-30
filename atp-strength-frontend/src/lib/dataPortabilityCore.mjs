@@ -22,6 +22,7 @@ export function generateBackupData(storage) {
     maxes: safeGet('atp_exercise_maxes_v1') || {},
     sessionProgress: safeGet('neuro_strength_session_progress') || null,
     audioPreferences: safeGet('atp_coach_audio_prefs') || null,
+    history: safeGet('atp_history_records_v1') || [],
   };
 }
 
@@ -57,6 +58,11 @@ export function restoreBackupData(storage, rawJson) {
   if (parsed.audioPreferences && typeof parsed.audioPreferences === 'object') {
     storage.setItem('atp_coach_audio_prefs', JSON.stringify(parsed.audioPreferences));
     restored.push('audioPreferences');
+  }
+
+  if (Array.isArray(parsed.history)) {
+    storage.setItem('atp_history_records_v1', JSON.stringify(parsed.history));
+    restored.push('history');
   }
 
   return {

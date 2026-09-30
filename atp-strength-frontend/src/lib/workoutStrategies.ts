@@ -42,15 +42,20 @@ export interface ExerciseMaxData {
 }
 
 export interface HistoryItem {
-  id: number;
+  id: number | string;
   exercise_name: string;
   set_number: number;
   prescribed_reps: number;
   completed_reps?: number;
   load_kg: number;
-  rest_seconds: number;
+  rest_seconds?: number;
   notes?: string;
-  completed: boolean;
+  completed?: boolean;
+  e1rm?: number;
+  rpe?: number;
+  rir?: number;
+  is_pr?: boolean;
+  timestamp?: string;
 }
 
 export interface SavedSessionProgress {

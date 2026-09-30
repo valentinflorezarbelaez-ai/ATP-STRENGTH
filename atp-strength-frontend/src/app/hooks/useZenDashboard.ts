@@ -30,6 +30,14 @@ import {
   type ExerciseMaxData,
   type HistoryItem,
 } from "@/lib/workoutStrategies";
+import {
+  getLocalExerciseHistory,
+  getLocalProgressionCurve,
+  getLocalSupercompensationTrend,
+  logLocalSetHistory,
+  type ProgressionCurvePoint,
+  type SupercompensationTrend,
+} from "@/lib/prHistory";
 import { playChime } from "@/lib/zenAudio";
 
 export function useZenDashboard() {
@@ -156,7 +164,43 @@ export function useZenDashboard() {
   const [formReps, setFormReps] = useState("5");
   const [formNotes, setFormNotes] = useState("");
   const [isSavingMax, setIsSavingMax] = useState(false);
-  const [exerciseHistory, setExerciseHistory] = useState<HistoryItem[]>([]);
+  const [historyRevision, setHistoryRevision] = useState(0);
+  const [serverHistory, setServerHistory] = useState<HistoryItem[]>([]);
+
+  const localHistory = useMemo(
+    () => getLocalExerciseHistory(selectedProgressEx),
+    [selectedProgressEx, historyRevision]
+  );
+
+  const exerciseHistory = useMemo<HistoryItem[]>(() => {
+    if (serverHistory.length > 0) return serverHistory;
+    return localHistory.map((l) => ({
+      id: l.id,
+      exercise_name: l.exercise_name,
+      set_number: l.set_number,
+      prescribed_reps: l.prescribed_reps ?? l.completed_reps,
+      completed_reps: l.completed_reps,
+      load_kg: l.load_kg,
+      rest_seconds: 180,
+      notes: l.notes,
+      completed: true,
+      e1rm: l.e1rm,
+      rpe: l.rpe,
+      rir: l.rir,
+      is_pr: l.is_pr,
+      timestamp: l.timestamp,
+    }));
+  }, [serverHistory, localHistory]);
+
+  const progressionCurve = useMemo(
+    () => getLocalProgressionCurve(selectedProgressEx),
+    [selectedProgressEx, historyRevision]
+  );
+
+  const supercompensationTrend = useMemo(
+    () => getLocalSupercompensationTrend(selectedProgressEx),
+    [selectedProgressEx, historyRevision]
+  );
 
   const activeDay = scheduleDays.find((d) => d.key === selectedDayKey) || scheduleDays[0];
   const activeExercise = activeDay.exercises[activeExerciseIndex] || activeDay.exercises[0] || REST_PLACEHOLDER_EXERCISE;
@@ -240,13 +284,14 @@ export function useZenDashboard() {
 
   const refreshHistory = useCallback(
     async (exName: string) => {
+      setHistoryRevision((v) => v + 1);
       try {
         const res = await fetch(
-          `${apiUrl}/api/strength/history?exercise_name=${encodeURIComponent(exName)}&limit=10`
+          `${apiUrl}/api/strength/history?exercise_name=${encodeURIComponent(exName)}&limit=15`
         );
-        if (res.ok) setExerciseHistory(await res.json());
+        if (res.ok) setServerHistory(await res.json());
       } catch {
-        setExerciseHistory([]);
+        /* offline-first */
       }
     },
     [apiUrl]
@@ -263,6 +308,19 @@ export function useZenDashboard() {
       return next;
     });
     patchOverride("weight", String(updated.prescriptions.phase_5_work));
+
+    // Sovereign PR & set history logging
+    logLocalSetHistory({
+      exercise_name: activeExercise.name,
+      load_kg: w,
+      completed_reps: r,
+      prescribed_reps: r,
+      rpe: 10,
+      e1rm: updated.one_rep_max,
+      notes: "Calibración en vivo",
+    });
+    setHistoryRevision((v) => v + 1);
+
     enqueueWalEntry("/api/strength/maxes", {
       exercise_name: activeExercise.name,
       lifted_weight: w,
@@ -305,11 +363,14 @@ export function useZenDashboard() {
     (async () => {
       try {
         const res = await fetch(
-          `${apiUrl}/api/strength/history?exercise_name=${encodeURIComponent(selectedProgressEx)}&limit=10`
+          `${apiUrl}/api/strength/history?exercise_name=${encodeURIComponent(selectedProgressEx)}&limit=15`
         );
-        if (res.ok && !ignore) setExerciseHistory(await res.json());
+        if (res.ok && !ignore) {
+          const serverData: HistoryItem[] = await res.json();
+          setServerHistory(serverData);
+        }
       } catch {
-        if (!ignore) setExerciseHistory([]);
+        /* offline-first fallback preserves local sets */
       }
     })();
     return () => {
@@ -382,6 +443,18 @@ export function useZenDashboard() {
       patchOverride("quickWeight", String(w));
       patchOverride("quickReps", String(r));
     }
+    // Sovereign PR & set history logging
+    logLocalSetHistory({
+      exercise_name: selectedProgressEx,
+      load_kg: w,
+      completed_reps: r,
+      prescribed_reps: r,
+      rpe: 10,
+      e1rm: updated.one_rep_max,
+      notes: formNotes || "Calibración Manual 1RM",
+    });
+    setHistoryRevision((v) => v + 1);
+
     try {
       enqueueWalEntry("/api/strength/maxes", {
         exercise_name: selectedProgressEx,
@@ -490,6 +563,8 @@ export function useZenDashboard() {
     setFormNotes,
     isSavingMax,
     exerciseHistory,
+    progressionCurve,
+    supercompensationTrend,
     activeDay,
     activeExercise,
     activeExMax,

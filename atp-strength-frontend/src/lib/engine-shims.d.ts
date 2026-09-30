@@ -158,3 +158,19 @@ declare module './prilepinEngine.mjs' {
   export * from '@/lib/prilepinEngine.mjs';
 }
 
+declare module '@/lib/prHistoryCore.mjs' {
+  export const HISTORY_STORAGE_KEY: string;
+  export const MAX_HISTORY_RECORDS: number;
+  export function getAllHistoryRecords(storage: unknown): unknown[];
+  export function normalizeExerciseName(name: string): string;
+  export function getExerciseHistory(storage: unknown, exerciseName: string): unknown[];
+  export function getBestHistoricalE1rm(storage: unknown, exerciseName: string): number;
+  export function recordSetHistory(storage: unknown, input: unknown): unknown;
+  export function getE1rmProgressionCurve(storage: unknown, exerciseName: string): unknown[];
+  export function calculateSupercompensationTrend(storage: unknown, exerciseName: string): unknown;
+}
+
+declare module './prHistoryCore.mjs' {
+  export * from '@/lib/prHistoryCore.mjs';
+}
+

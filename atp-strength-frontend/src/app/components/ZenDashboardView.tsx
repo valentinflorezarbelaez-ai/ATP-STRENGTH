@@ -12,6 +12,7 @@ import { ExerciseCatalogModal } from "@/app/components/ExerciseCatalogModal";
 import { UniversalProtocolCockpit } from "@/app/components/UniversalProtocolCockpit";
 import { getExerciseMedia } from "@/lib/exerciseMediaCatalog";
 import { NeuromuscularRadarChart } from "@/app/components/NeuromuscularRadarChart";
+import { NeuromuscularProgressionChart } from "@/app/components/NeuromuscularProgressionChart";
 import { exportBackupJson, exportHistoryCsv, importBackupJsonFile } from "@/lib/dataPortability";
 import { playTactileClick } from "@/lib/zenAudio";
 import {
@@ -47,6 +48,7 @@ export function ZenDashboardView({ d }: { d: Dash; onShowSpotify?: () => void })
     formFormula, setFormFormula, formWeight, setFormWeight,
     formReps, setFormReps, formNotes, setFormNotes,
     isSavingMax, exerciseHistory,
+    progressionCurve, supercompensationTrend,
     activeDay, activeExercise, activeExMax,
     liveCalc, currentExMax,
     atpSaturationPercent,
@@ -722,24 +724,49 @@ export function ZenDashboardView({ d }: { d: Dash; onShowSpotify?: () => void })
                 </button>
               </div>
 
+              {/* Curva de Supercompensación Neuromuscular (SPEC-0009) */}
+              <NeuromuscularProgressionChart
+                exerciseName={selectedProgressEx}
+                curvePoints={progressionCurve}
+                trend={supercompensationTrend}
+                current1Rm={currentExMax?.one_rep_max}
+              />
+
               {/* Historial Reciente de Series */}
               {exerciseHistory.length > 0 && (
                 <div className="p-4 rounded-2xl bg-zinc-950 border border-zinc-800">
-                  <div className="text-xs font-mono font-bold text-zinc-300 uppercase tracking-wider mb-3 flex items-center gap-2">
-                    <History className="w-4 h-4 text-amber-400" />
-                    Historial de Series Registradas en PostgreSQL
+                  <div className="text-xs font-mono font-bold text-zinc-300 uppercase tracking-wider mb-3 flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <History className="w-4 h-4 text-amber-400" />
+                      <span>Historial de Series & Calibraciones ({exerciseHistory.length})</span>
+                    </div>
+                    <span className="text-[10px] text-zinc-500 font-mono">
+                      Soberanía Local + WAL
+                    </span>
                   </div>
-                  <div className="space-y-1.5 max-h-40 overflow-y-auto pr-1">
+                  <div className="space-y-1.5 max-h-48 overflow-y-auto pr-1">
                     {exerciseHistory.map((item) => (
                       <div
                         key={item.id}
-                        className="p-2 rounded-lg bg-zinc-900/60 border border-zinc-800/80 flex items-center justify-between text-xs font-mono"
+                        className="p-2.5 rounded-lg bg-zinc-900/60 border border-zinc-800/80 flex items-center justify-between text-xs font-mono"
                       >
-                        <span className="text-zinc-300">
-                          Serie {item.set_number}: <strong>{item.load_kg} kg</strong> × {item.completed_reps || item.prescribed_reps} reps
-                        </span>
+                        <div className="flex items-center gap-2">
+                          <span className="text-zinc-300">
+                            Serie {item.set_number}: <strong className="text-white">{item.load_kg} kg</strong> × {item.completed_reps || item.prescribed_reps} reps
+                          </span>
+                          {item.e1rm && (
+                            <span className="px-1.5 py-0.2 rounded bg-amber-500/10 text-amber-400 text-[10px] font-bold">
+                              e1RM: {item.e1rm} kg
+                            </span>
+                          )}
+                          {item.is_pr && (
+                            <span className="px-1.5 py-0.2 rounded bg-emerald-500/20 text-emerald-400 text-[9px] font-bold uppercase">
+                              ★ PR
+                            </span>
+                          )}
+                        </div>
                         <span className="text-zinc-500 text-[10px]">
-                          {item.notes || "Completada"} • Descanso {item.rest_seconds}s
+                          {item.notes || "Completada"} {item.rest_seconds ? `• ${item.rest_seconds}s` : ""}
                         </span>
                       </div>
                     ))}

@@ -2,6 +2,7 @@
 
 import { enqueueWalEntry } from "@/lib/walSync";
 import { playChime } from "@/lib/zenAudio";
+import { logLocalSetHistory } from "@/lib/prHistory";
 import {
   getWarmupRestConfig,
   resolvePhaseAfterNavigation,
@@ -210,6 +211,25 @@ export function createWorkoutHandlers(d: WorkoutHandlerDeps) {
       e1rm,
     });
     void d.enqueueFlush();
+
+    try {
+      const prResult = logLocalSetHistory({
+        exercise_name: d.activeExercise.name,
+        set_number: setToFinish,
+        load_kg: numericWeight,
+        completed_reps: numericReps,
+        prescribed_reps: parseInt(d.activeExercise.reps, 10) || 3,
+        rpe: clampedRpe,
+        rir,
+        e1rm: e1rm ?? undefined,
+        notes: `RPE ${d.inputRpe}`,
+      });
+      if (prResult?.isNewPr) {
+        playChime(true);
+      }
+    } catch {
+      // offline-safe: non-blocking storage
+    }
   };
 
   return {
