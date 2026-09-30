@@ -138,8 +138,8 @@ export function ExerciseCatalogModal({
                 <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-amber-500">
                   Manual de Operación Técnica
                 </span>
-                <span className="px-1.5 py-0.2 rounded text-[9px] font-mono font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30">
-                  25 EJERCICIOS
+                <span className="px-2 py-0.5 rounded text-[9px] font-mono font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                  25 EJERCICIOS • ROGUE FITNESS
                 </span>
               </div>
               <h2
@@ -226,6 +226,9 @@ export function ExerciseCatalogModal({
 
               {/* Overlay Badges */}
               <div className="absolute top-3 right-3 flex items-center gap-2 pointer-events-none">
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40 backdrop-blur-sm shadow">
+                  Rogue Fitness Demo
+                </span>
                 <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-black/85 text-amber-400 border border-amber-400/30 backdrop-blur-sm shadow">
                   Tempo {activeExercise.tempo}
                 </span>
@@ -234,10 +237,10 @@ export function ExerciseCatalogModal({
                     href={activeExercise.videoUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="pointer-events-auto px-2 py-0.5 rounded-full text-[10px] font-bold bg-red-600 hover:bg-red-500 text-white flex items-center gap-1 backdrop-blur-sm transition-colors shadow"
-                    title="Ver en YouTube"
+                    className="pointer-events-auto px-2 py-0.5 rounded-full text-[10px] font-bold bg-red-600 hover:bg-red-500 text-white flex items-center gap-1 backdrop-blur-sm transition-colors shadow cursor-pointer"
+                    title="Ver en YouTube (Rogue Fitness)"
                   >
-                    <span>YouTube</span>
+                    <span>Rogue Fitness</span>
                     <ExternalLink className="w-2.5 h-2.5" />
                   </a>
                 )}

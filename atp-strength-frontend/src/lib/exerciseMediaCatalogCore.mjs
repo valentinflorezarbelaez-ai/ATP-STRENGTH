@@ -15,8 +15,8 @@ export const EXERCISE_MEDIA_CATALOG = {
       "Erector Espinal",
       "Core"
     ],
-    "videoUrl": "https://www.youtube.com/watch?v=ultWZbUMPL8",
-    "youtubeId": "ultWZbUMPL8",
+    "videoUrl": "https://www.youtube.com/watch?v=x0tjZRfF3Wg",
+    "youtubeId": "x0tjZRfF3Wg",
     "posterUrl": "https://images.unsplash.com/photo-1574680096145-d05b474e2155?q=80&w=800&auto=format&fit=crop",
     "formCues": [
       "Apoyo trípode firme con los pies al ancho de hombros y puntas ligeramente abiertas.",
@@ -91,8 +91,8 @@ export const EXERCISE_MEDIA_CATALOG = {
       "Trapecio Superior",
       "Core y Glúteos"
     ],
-    "videoUrl": "https://www.youtube.com/watch?v=5yWaNOvgFCM",
-    "youtubeId": "5yWaNOvgFCM",
+    "videoUrl": "https://www.youtube.com/watch?v=VdeHikSTxQ8",
+    "youtubeId": "VdeHikSTxQ8",
     "posterUrl": "https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?q=80&w=800&auto=format&fit=crop",
     "formCues": [
       "Agarre apenas por fuera de los hombros con muñecas rectas sobre los antebrazos.",
@@ -116,8 +116,8 @@ export const EXERCISE_MEDIA_CATALOG = {
       "Braquiorradial",
       "Redondo Mayor"
     ],
-    "videoUrl": "https://www.youtube.com/watch?v=HRV5YKKaeVw",
-    "youtubeId": "HRV5YKKaeVw",
+    "videoUrl": "https://www.youtube.com/watch?v=7jyKGpHW9XQ",
+    "youtubeId": "7jyKGpHW9XQ",
     "posterUrl": "https://images.unsplash.com/photo-1526506118085-60ce8714f8c5?q=80&w=800&auto=format&fit=crop",
     "formCues": [
       "Comenzar desde suspensión muerta con codos bloqueados y escápulas activas.",
@@ -140,8 +140,8 @@ export const EXERCISE_MEDIA_CATALOG = {
       "Tríceps",
       "Deltoides Anterior"
     ],
-    "videoUrl": "https://www.youtube.com/watch?v=2z8JmcrW-As",
-    "youtubeId": "2z8JmcrW-As",
+    "videoUrl": "https://www.youtube.com/watch?v=UZ_kEpmACZ4",
+    "youtubeId": "UZ_kEpmACZ4",
     "posterUrl": "https://images.unsplash.com/photo-1598971639058-fab3c3109a00?q=80&w=800&auto=format&fit=crop",
     "formCues": [
       "Depresión escapular firme manteniendo los hombros lejos de las orejas.",
@@ -165,8 +165,8 @@ export const EXERCISE_MEDIA_CATALOG = {
       "Trapecio Medio",
       "Erectores Espinales"
     ],
-    "videoUrl": "https://www.youtube.com/watch?v=C_p-s66KBpg",
-    "youtubeId": "C_p-s66KBpg",
+    "videoUrl": "https://www.youtube.com/watch?v=pyBHPoC8Nzo",
+    "youtubeId": "pyBHPoC8Nzo",
     "posterUrl": "https://images.unsplash.com/photo-1541534741688-6078c6bfb5c5?q=80&w=800&auto=format&fit=crop",
     "formCues": [
       "Torso completamente paralelo al suelo en cada repetición partiendo del piso muerto.",
@@ -214,8 +214,8 @@ export const EXERCISE_MEDIA_CATALOG = {
       "Core Anti-flexión Lateral",
       "Glúteo Medio"
     ],
-    "videoUrl": "https://www.youtube.com/watch?v=wtHHiJecbQg",
-    "youtubeId": "wtHHiJecbQg",
+    "videoUrl": "https://www.youtube.com/watch?v=sXTcmJ_CIQM",
+    "youtubeId": "sXTcmJ_CIQM",
     "posterUrl": "https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?q=80&w=800&auto=format&fit=crop",
     "formCues": [
       "Despegue inicial como un peso muerto perfecto con columna totalmente neutra.",
@@ -239,8 +239,8 @@ export const EXERCISE_MEDIA_CATALOG = {
       "Glúteos",
       "Serrato"
     ],
-    "videoUrl": "https://www.youtube.com/watch?v=sZxrs3C209k",
-    "youtubeId": "sZxrs3C209k",
+    "videoUrl": "https://www.youtube.com/watch?v=_ATX_OLs1qY",
+    "youtubeId": "_ATX_OLs1qY",
     "posterUrl": "https://images.unsplash.com/photo-1566241142559-40e1dab266c6?q=80&w=800&auto=format&fit=crop",
     "formCues": [
       "Apoyo en antebrazos con codos directamente debajo de los hombros.",
@@ -264,8 +264,8 @@ export const EXERCISE_MEDIA_CATALOG = {
       "Aductores",
       "Core"
     ],
-    "videoUrl": "https://www.youtube.com/watch?v=MvZsHEroKPE",
-    "youtubeId": "MvZsHEroKPE",
+    "videoUrl": "https://www.youtube.com/watch?v=2bkidbmb8Tk",
+    "youtubeId": "2bkidbmb8Tk",
     "posterUrl": "https://images.unsplash.com/photo-1574680096145-d05b474e2155?q=80&w=800&auto=format&fit=crop",
     "formCues": [
       "Descenso controlado en 3 segundos manteniendo la rigidez del torso.",
@@ -288,8 +288,8 @@ export const EXERCISE_MEDIA_CATALOG = {
       "Braquial Anterior",
       "Braquiorradial"
     ],
-    "videoUrl": "https://www.youtube.com/watch?v=PpLPrakn0eQ",
-    "youtubeId": "PpLPrakn0eQ",
+    "videoUrl": "https://www.youtube.com/watch?v=vfUELyWMD54",
+    "youtubeId": "vfUELyWMD54",
     "posterUrl": "https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?q=80&w=800&auto=format&fit=crop",
     "formCues": [
       "Agarre en los ángulos de la barra Z que alinean la muñeca de forma anatómica y segura.",
@@ -313,8 +313,8 @@ export const EXERCISE_MEDIA_CATALOG = {
       "Dorsales",
       "Agarre"
     ],
-    "videoUrl": "https://www.youtube.com/watch?v=CaDbc9ft-Ac",
-    "youtubeId": "CaDbc9ft-Ac",
+    "videoUrl": "https://www.youtube.com/watch?v=HO_0C8Qd728",
+    "youtubeId": "HO_0C8Qd728",
     "posterUrl": "https://images.unsplash.com/photo-1526506118085-60ce8714f8c5?q=80&w=800&auto=format&fit=crop",
     "formCues": [
       "Comenzar colgado en posición hollow con escápulas activas.",
@@ -339,8 +339,8 @@ export const EXERCISE_MEDIA_CATALOG = {
       "Trapecios",
       "Deltoides"
     ],
-    "videoUrl": "https://www.youtube.com/watch?v=YG8M_-11C2A",
-    "youtubeId": "YG8M_-11C2A",
+    "videoUrl": "https://www.youtube.com/watch?v=KjGvwQl8tis",
+    "youtubeId": "KjGvwQl8tis",
     "posterUrl": "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=800&auto=format&fit=crop",
     "formCues": [
       "Primer tirón controlado desde el suelo manteniendo el ángulo del torso.",
@@ -364,8 +364,8 @@ export const EXERCISE_MEDIA_CATALOG = {
       "Trapecios",
       "Erectores Espinales"
     ],
-    "videoUrl": "https://www.youtube.com/watch?v=efHjodEVf9w",
-    "youtubeId": "efHjodEVf9w",
+    "videoUrl": "https://www.youtube.com/watch?v=22XonEeuRjk",
+    "youtubeId": "22XonEeuRjk",
     "posterUrl": "https://images.unsplash.com/photo-1517838277536-f5f99be501cd?q=80&w=800&auto=format&fit=crop",
     "formCues": [
       "Iniciar desde la posición de colgado (justo arriba o a la altura de las rodillas).",
@@ -389,8 +389,8 @@ export const EXERCISE_MEDIA_CATALOG = {
       "Trapecios",
       "Core"
     ],
-    "videoUrl": "https://www.youtube.com/watch?v=1Lv1IyigIUY",
-    "youtubeId": "1Lv1IyigIUY",
+    "videoUrl": "https://www.youtube.com/watch?v=rhF0cbRjxRo",
+    "youtubeId": "rhF0cbRjxRo",
     "posterUrl": "https://images.unsplash.com/photo-1541534741688-6078c6bfb5c5?q=80&w=800&auto=format&fit=crop",
     "formCues": [
       "Agarre ancho con hook grip (agarre de gancho) y pecho erguido sobre la barra.",
@@ -414,8 +414,8 @@ export const EXERCISE_MEDIA_CATALOG = {
       "Trapecios",
       "Estabilizadores Overhead"
     ],
-    "videoUrl": "https://www.youtube.com/watch?v=ydHHsju1-Nc",
-    "youtubeId": "ydHHsju1-Nc",
+    "videoUrl": "https://www.youtube.com/watch?v=YlDzqi9imjc",
+    "youtubeId": "YlDzqi9imjc",
     "posterUrl": "https://images.unsplash.com/photo-1541534741688-6078c6bfb5c5?q=80&w=800&auto=format&fit=crop",
     "formCues": [
       "Deslizar la barra por los muslos hasta la posición de colgado con torso firme.",
@@ -440,8 +440,8 @@ export const EXERCISE_MEDIA_CATALOG = {
       "Glúteos",
       "Core"
     ],
-    "videoUrl": "https://www.youtube.com/watch?v=yklSQG1_Ovc",
-    "youtubeId": "yklSQG1_Ovc",
+    "videoUrl": "https://www.youtube.com/watch?v=i0mElJo73EE",
+    "youtubeId": "i0mElJo73EE",
     "posterUrl": "https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?q=80&w=800&auto=format&fit=crop",
     "formCues": [
       "Barra apoyada sólidamente sobre los deltoides anteriores (front rack posicional).",
@@ -465,8 +465,8 @@ export const EXERCISE_MEDIA_CATALOG = {
       "Cuádriceps",
       "Core"
     ],
-    "videoUrl": "https://www.youtube.com/watch?v=Ir_34nxrk1Q",
-    "youtubeId": "Ir_34nxrk1Q",
+    "videoUrl": "https://www.youtube.com/watch?v=KY2q95iRfO4",
+    "youtubeId": "KY2q95iRfO4",
     "posterUrl": "https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?q=80&w=800&auto=format&fit=crop",
     "formCues": [
       "Dip vertical idéntico al push press manteniendo el torso perpendicular al piso.",
@@ -490,8 +490,8 @@ export const EXERCISE_MEDIA_CATALOG = {
       "Cuádriceps",
       "Deltoides Posterior"
     ],
-    "videoUrl": "https://www.youtube.com/watch?v=2Qv8pEnprpU",
-    "youtubeId": "2Qv8pEnprpU",
+    "videoUrl": "https://www.youtube.com/watch?v=qC3T3LF-ed0",
+    "youtubeId": "qC3T3LF-ed0",
     "posterUrl": "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=800&auto=format&fit=crop",
     "formCues": [
       "Ejecución del primer y segundo tirón con idéntica técnica al clean de competición.",
@@ -514,8 +514,8 @@ export const EXERCISE_MEDIA_CATALOG = {
       "Trapecio Superior y Medio",
       "Glúteos"
     ],
-    "videoUrl": "https://www.youtube.com/watch?v=9WRp0a5hcb0",
-    "youtubeId": "9WRp0a5hcb0",
+    "videoUrl": "https://www.youtube.com/watch?v=ZtjSf7Y0-w4",
+    "youtubeId": "ZtjSf7Y0-w4",
     "posterUrl": "https://images.unsplash.com/photo-1541534741688-6078c6bfb5c5?q=80&w=800&auto=format&fit=crop",
     "formCues": [
       "Agarre ancho de snatch asegurando la barra pegada a los muslos durante el recorrido.",
@@ -539,8 +539,8 @@ export const EXERCISE_MEDIA_CATALOG = {
       "Gemelos",
       "Core"
     ],
-    "videoUrl": "https://www.youtube.com/watch?v=NF8iXaH8i_E",
-    "youtubeId": "NF8iXaH8i_E",
+    "videoUrl": "https://www.youtube.com/watch?v=6_8E9e3Dgcc",
+    "youtubeId": "6_8E9e3Dgcc",
     "posterUrl": "https://images.unsplash.com/photo-1574680096145-d05b474e2155?q=80&w=800&auto=format&fit=crop",
     "formCues": [
       "Carga ligera (20-30% de 1RM) asegurando la barra firmemente pegada a los trapecios.",
@@ -564,8 +564,8 @@ export const EXERCISE_MEDIA_CATALOG = {
       "Erectores Espinales",
       "Agarre"
     ],
-    "videoUrl": "https://www.youtube.com/watch?v=I-Zm8g6kXIM",
-    "youtubeId": "I-Zm8g6kXIM",
+    "videoUrl": "https://www.youtube.com/watch?v=YhiSmpoQujA",
+    "youtubeId": "YhiSmpoQujA",
     "posterUrl": "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=800&auto=format&fit=crop",
     "formCues": [
       "Posición centrada en la Trap Bar con agarre neutro firme y brazos extendidos.",
@@ -614,8 +614,8 @@ export const EXERCISE_MEDIA_CATALOG = {
       "Glúteos",
       "Isquiosurales"
     ],
-    "videoUrl": "https://www.youtube.com/watch?v=E42_MZOKktU",
-    "youtubeId": "E42_MZOKktU",
+    "videoUrl": "https://www.youtube.com/watch?v=UCSpoQ641_c",
+    "youtubeId": "UCSpoQ641_c",
     "posterUrl": "https://images.unsplash.com/photo-1541534741688-6078c6bfb5c5?q=80&w=800&auto=format&fit=crop",
     "formCues": [
       "Agarre extra ancho en los anillos de la barra obligando a bajar más la cadera al inicio.",

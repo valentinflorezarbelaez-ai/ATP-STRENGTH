@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { X, Play, CheckCircle2, AlertTriangle, Dumbbell, ShieldCheck, Zap } from "lucide-react";
+import { X, Play, CheckCircle2, AlertTriangle, Dumbbell, ShieldCheck, Zap, ExternalLink } from "lucide-react";
 import { type ExerciseMedia } from "@/lib/exerciseMediaCatalog";
 
 interface ExerciseVideoModalProps {
@@ -19,6 +19,8 @@ export function ExerciseVideoModal({
 }: ExerciseVideoModalProps) {
   if (!isOpen) return null;
 
+  const youtubeId = media.youtubeId || (media.videoUrl?.includes("youtube.com") ? media.videoUrl.split("v=")[1]?.split("&")[0] : null);
+
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-black/85 backdrop-blur-md animate-fade-in"
@@ -34,9 +36,14 @@ export function ExerciseVideoModal({
               <Play className="w-4 h-4 fill-amber-400" />
             </span>
             <div>
-              <span className="text-[10px] font-bold uppercase tracking-wider text-amber-500/90">
-                {media.category} • Demo Técnica
-              </span>
+              <div className="flex items-center gap-1.5">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-amber-500/90">
+                  {media.category} • Demo Técnica
+                </span>
+                <span className="px-1.5 py-0.2 rounded text-[8px] font-mono font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                  ROGUE FITNESS
+                </span>
+              </div>
               <h3 id="video-modal-title" className="text-base font-bold text-white tracking-tight">
                 {media.name}
               </h3>
@@ -44,7 +51,7 @@ export function ExerciseVideoModal({
           </div>
           <button
             onClick={onClose}
-            className="w-9 h-9 rounded-full bg-zinc-900/80 hover:bg-zinc-800 text-zinc-400 hover:text-white flex items-center justify-center transition-colors"
+            className="w-9 h-9 rounded-full bg-zinc-900/80 hover:bg-zinc-800 text-zinc-400 hover:text-white flex items-center justify-center transition-colors cursor-pointer"
             aria-label="Cerrar modal"
           >
             <X className="w-5 h-5" />
@@ -53,22 +60,47 @@ export function ExerciseVideoModal({
 
         {/* Video Player Container */}
         <div className="relative w-full bg-black aspect-video overflow-hidden border-b border-zinc-900 group">
-          <video
-            src={media.videoUrl}
-            poster={media.posterUrl}
-            autoPlay
-            loop
-            muted
-            playsInline
-            controls
-            className="w-full h-full object-cover"
-          >
-            Tu navegador no soporta reproducción de video HTML5.
-          </video>
-          <div className="absolute top-2.5 right-2.5 pointer-events-none opacity-80 group-hover:opacity-100 transition-opacity">
+          {youtubeId ? (
+            <iframe
+              key={youtubeId}
+              src={`https://www.youtube.com/embed/${youtubeId}?autoplay=1&mute=1&rel=0`}
+              title={`${media.name} - Rogue Fitness Demo`}
+              className="w-full h-full border-0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              referrerPolicy="strict-origin-when-cross-origin"
+              allowFullScreen
+            />
+          ) : (
+            <video
+              src={media.videoUrl}
+              poster={media.posterUrl}
+              autoPlay
+              loop
+              muted
+              playsInline
+              controls
+              className="w-full h-full object-cover"
+            >
+              Tu navegador no soporta reproducción de video HTML5.
+            </video>
+          )}
+
+          <div className="absolute top-2.5 right-2.5 flex items-center gap-1.5 pointer-events-none opacity-80 group-hover:opacity-100 transition-opacity">
             <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-black/70 text-amber-400 border border-amber-400/30 backdrop-blur-sm">
               Tempo {media.tempo}
             </span>
+            {media.videoUrl && (
+              <a
+                href={media.videoUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="pointer-events-auto px-2 py-0.5 rounded-full text-[10px] font-bold bg-red-600 hover:bg-red-500 text-white flex items-center gap-1 backdrop-blur-sm transition-colors shadow"
+                title="Ver en YouTube (Rogue Fitness)"
+              >
+                <span>Rogue Fitness</span>
+                <ExternalLink className="w-2.5 h-2.5" />
+              </a>
+            )}
           </div>
         </div>
 
