@@ -857,7 +857,7 @@ export function UniversalProtocolCockpit({
               <button
                 type="button"
                 onClick={() => adjustPr(-5)}
-                className="py-1.5 rounded-lg bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-[11px] font-mono text-zinc-300 font-bold active:scale-95 transition-all"
+                className="py-2.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-xs font-mono text-zinc-300 font-bold active:scale-95 transition-all min-h-[44px] flex items-center justify-center cursor-pointer select-none"
                 title="Restar 5 kg"
               >
                 -5 kg
@@ -865,7 +865,7 @@ export function UniversalProtocolCockpit({
               <button
                 type="button"
                 onClick={() => adjustPr(-2.5)}
-                className="py-1.5 rounded-lg bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-[11px] font-mono text-zinc-300 font-bold active:scale-95 transition-all"
+                className="py-2.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-xs font-mono text-zinc-300 font-bold active:scale-95 transition-all min-h-[44px] flex items-center justify-center cursor-pointer select-none"
                 title="Restar 2.5 kg"
               >
                 -2.5 kg
@@ -873,7 +873,7 @@ export function UniversalProtocolCockpit({
               <button
                 type="button"
                 onClick={() => adjustPr(2.5)}
-                className="py-1.5 rounded-lg bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 text-[11px] font-mono text-amber-300 font-bold active:scale-95 transition-all"
+                className="py-2.5 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 text-xs font-mono text-amber-300 font-bold active:scale-95 transition-all min-h-[44px] flex items-center justify-center cursor-pointer select-none"
                 title="Sumar 2.5 kg"
               >
                 +2.5 kg
@@ -881,7 +881,7 @@ export function UniversalProtocolCockpit({
               <button
                 type="button"
                 onClick={() => adjustPr(5)}
-                className="py-1.5 rounded-lg bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 text-[11px] font-mono text-amber-300 font-bold active:scale-95 transition-all"
+                className="py-2.5 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 text-xs font-mono text-amber-300 font-bold active:scale-95 transition-all min-h-[44px] flex items-center justify-center cursor-pointer select-none"
                 title="Sumar 5 kg"
               >
                 +5 kg
@@ -1049,15 +1049,15 @@ export function UniversalProtocolCockpit({
                       </span>
 
                       {/* Selector de barra */}
-                      <div className="flex items-center gap-1 overflow-x-auto">
+                      <div className="flex items-center gap-1.5 overflow-x-auto py-0.5">
                         {BAR_OPTIONS.map((bar) => (
                           <button
                             key={bar.id}
                             type="button"
                             onClick={() => setSelectedBarWeight(bar.weight)}
-                            className={`px-2 py-1 rounded text-[10px] font-mono font-bold transition-all ${
+                            className={`px-3 py-1.5 rounded-lg text-xs font-mono font-bold transition-all min-h-[38px] flex items-center justify-center cursor-pointer select-none ${
                               selectedBarWeight === bar.weight
-                                ? "bg-amber-500 text-zinc-950 font-black"
+                                ? "bg-amber-500 text-zinc-950 font-black shadow-md shadow-amber-500/20"
                                 : "bg-zinc-900 text-zinc-400 hover:text-zinc-200 border border-zinc-800"
                             }`}
                           >
@@ -1138,7 +1138,7 @@ export function UniversalProtocolCockpit({
                             <span className="text-[10px] font-mono text-zinc-400">
                               ¿Cómo sentiste la serie? (RPE Autoregulador):
                             </span>
-                            <div className="flex items-center gap-1 overflow-x-auto no-scrollbar py-0.5">
+                            <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-1">
                               {[
                                 { rpe: 7.0, label: "RPE 7 (Fácil/CAT)" },
                                 { rpe: 8.0, label: "RPE 8 (Diana -2 RIR)" },
@@ -1158,10 +1158,10 @@ export function UniversalProtocolCockpit({
                                       set.nextSetId
                                     )
                                   }
-                                  className={`px-2 py-1 rounded text-[10px] font-mono font-bold whitespace-nowrap transition-all ${
+                                  className={`px-3 py-2 rounded-xl text-xs font-mono font-bold whitespace-nowrap transition-all min-h-[40px] flex items-center justify-center cursor-pointer select-none ${
                                     loggedRpe === option.rpe
-                                      ? "bg-amber-400 text-zinc-950 font-black shadow-sm"
-                                      : "bg-zinc-800/80 hover:bg-zinc-700 text-zinc-300 border border-zinc-700/60"
+                                      ? "bg-amber-400 text-zinc-950 font-black shadow-md shadow-amber-400/20"
+                                      : "bg-zinc-800/80 hover:bg-zinc-700 text-zinc-300 border border-zinc-700/60 active:scale-95"
                                   }`}
                                 >
                                   {option.label}

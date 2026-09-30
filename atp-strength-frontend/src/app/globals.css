@@ -53,12 +53,42 @@
   --accent-purple: #a78bfa;
 }
 
+html {
+  -webkit-tap-highlight-color: transparent;
+  -webkit-text-size-adjust: 100%;
+  overscroll-behavior-y: none;
+}
+
 body {
   background-color: var(--bg-canvas);
   color: var(--text-main);
   font-family: var(--font-sans), -apple-system, BlinkMacSystemFont, "SF Pro Display", "Inter", "Segoe UI", Roboto, sans-serif;
   overflow-x: hidden;
+  overscroll-behavior-y: none;
+  -webkit-overflow-scrolling: touch;
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
   transition: background-color 0.35s cubic-bezier(0.16, 1, 0.3, 1), color 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Mobile Gym-First Ergonomics: Instant Tap & Anti-Lag */
+button, a, [role="button"], input[type="button"], input[type="submit"] {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Prevent iOS Safari from auto-zooming inputs under 16px */
+@media (max-width: 768px) {
+  input, select, textarea {
+    font-size: 16px !important;
+  }
+  
+  .touch-control, button {
+    user-select: none;
+    -webkit-user-select: none;
+  }
 }
 
 /* Ambient Radial Mesh: Audiophile Luxury Subtlety (0 Eye Strain) */

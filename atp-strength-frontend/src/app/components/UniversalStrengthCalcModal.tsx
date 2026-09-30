@@ -389,7 +389,7 @@ export function UniversalStrengthCalcModal({
 
         {/* Pestaña 1: Calculadora de Fases */}
         {activeTab === "calc" && (
-          <div className="p-4 sm:p-5 space-y-4 overflow-y-auto max-h-[75vh]">
+          <div className="p-4 sm:p-5 space-y-4 flex-1 overflow-y-auto overscroll-contain pb-24 sm:pb-6">
             {/* Tarjeta de Entrada Oscura */}
             <div className="rounded-xl bg-zinc-900/60 border border-zinc-800 p-4 sm:p-5 space-y-4">
               {/* Selector de Modo */}
@@ -720,7 +720,7 @@ export function UniversalStrengthCalcModal({
 
         {/* Pestaña 2: Protocolo PR de Calibración */}
         {activeTab === "protocol" && (
-          <div className="p-4 sm:p-5 space-y-4 overflow-y-auto max-h-[75vh]">
+          <div className="p-4 sm:p-5 space-y-4 flex-1 overflow-y-auto overscroll-contain pb-24 sm:pb-6">
             <div className="p-4 rounded-xl bg-cyan-500/10 border border-cyan-500/30 space-y-1">
               <span className="text-xs font-mono font-bold text-cyan-300 uppercase flex items-center gap-1.5">
                 <Target className="w-4 h-4 text-cyan-400" />
@@ -804,7 +804,7 @@ export function UniversalStrengthCalcModal({
 
         {/* Pestaña 3: Doctrinas del Coach & Recuperación ATP */}
         {activeTab === "coach" && (
-          <div className="p-4 sm:p-5 space-y-4 overflow-y-auto max-h-[75vh]">
+          <div className="p-4 sm:p-5 space-y-4 flex-1 overflow-y-auto overscroll-contain pb-24 sm:pb-6">
             {/* Ciencia de Resíntesis de ATP-CP */}
             <div className="p-4 rounded-xl bg-zinc-950 border border-zinc-800 space-y-2">
               <div className="flex items-center justify-between">
@@ -884,7 +884,7 @@ export function UniversalStrengthCalcModal({
 
         {/* Pestaña 4: Periodización por Ondas */}
         {activeTab === "roadmap" && (
-          <div className="p-4 sm:p-5 space-y-4 overflow-y-auto max-h-[75vh]">
+          <div className="p-4 sm:p-5 space-y-4 flex-1 overflow-y-auto overscroll-contain pb-24 sm:pb-6">
             <div className="p-4 rounded-xl bg-violet-500/10 border border-violet-500/30 space-y-1">
               <span className="text-xs font-mono font-bold text-violet-300 uppercase flex items-center gap-1.5">
                 <TrendingUp className="w-4 h-4 text-violet-400" />
