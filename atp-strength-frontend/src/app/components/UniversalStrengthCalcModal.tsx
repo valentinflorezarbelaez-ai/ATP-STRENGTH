@@ -307,25 +307,25 @@ export function UniversalStrengthCalcModal({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-start justify-center bg-black/85 backdrop-blur-md overflow-y-auto p-3 sm:p-6 animate-in fade-in duration-200">
-      <div className="w-full max-w-3xl mx-auto my-auto rounded-2xl bg-zinc-950 border border-zinc-800 shadow-2xl shadow-amber-500/10 overflow-hidden flex flex-col">
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/85 backdrop-blur-md overflow-hidden p-0 sm:p-6 animate-in fade-in duration-200">
+      <div className="w-full sm:max-w-3xl h-[100dvh] sm:h-auto sm:max-h-[88vh] rounded-t-2xl sm:rounded-2xl bg-zinc-950 border-t sm:border border-zinc-800 shadow-2xl shadow-amber-500/10 overflow-hidden flex flex-col">
         {/* Header */}
-        <div className="sticky top-0 z-20 bg-zinc-950/95 backdrop-blur-xl border-b border-zinc-800 px-5 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="p-2.5 rounded-xl bg-gradient-to-br from-amber-500/20 to-orange-500/20 border border-amber-500/30">
-              <BarChart3 className="w-5 h-5 text-amber-400" />
+        <div className="sticky top-0 z-20 bg-zinc-950/95 backdrop-blur-xl border-b border-zinc-800 px-4 py-3 sm:px-5 sm:py-4 flex items-center justify-between flex-shrink-0">
+          <div className="flex items-center gap-2.5 sm:gap-3">
+            <div className="p-2 sm:p-2.5 rounded-xl bg-gradient-to-br from-amber-500/20 to-orange-500/20 border border-amber-500/30">
+              <BarChart3 className="w-4 h-4 sm:w-5 sm:h-5 text-amber-400" />
             </div>
             <div>
-              <div className="flex items-center gap-2">
-                <h2 className="text-sm font-mono font-bold tracking-widest text-zinc-100 uppercase">
-                  NEURO<span className="text-amber-400">//</span>STRENGTH ENGINE
+              <div className="flex items-center gap-1.5 sm:gap-2">
+                <h2 className="text-xs sm:text-sm font-mono font-bold tracking-widest text-zinc-100 uppercase">
+                  NEURO<span className="text-amber-400">//</span>STRENGTH
                 </h2>
-                <span className="text-[9px] font-mono px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/30 font-bold">
+                <span className="text-[8px] sm:text-[9px] font-mono px-1.5 sm:px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/30 font-bold">
                   UNIVERSAL
                 </span>
               </div>
-              <p className="text-[10px] font-mono text-zinc-500 tracking-wide">
-                EXERCISE-AGNOSTIC • NEURAL ADAPTATION • ATP RECOVERY
+              <p className="text-[9px] sm:text-[10px] font-mono text-zinc-500 tracking-tight">
+                CUALQUIER EJERCICIO • ADAPTACIÓN NEURAL • RECUPERACIÓN ATP
               </p>
             </div>
           </div>
@@ -338,55 +338,55 @@ export function UniversalStrengthCalcModal({
           </button>
         </div>
 
-        {/* Tab Navigation */}
-        <div className="flex border-b border-zinc-800/80 bg-zinc-900/40 p-2 gap-1.5">
+        {/* Tab Navigation — Mobile Adaptive */}
+        <div className="grid grid-cols-4 border-b border-zinc-800/80 bg-zinc-900/60 p-1 sm:p-2 gap-1 flex-shrink-0">
           <button
             type="button"
             onClick={() => setActiveTab("calc")}
-            className={`flex-1 flex items-center justify-center gap-1.5 py-2 px-3 rounded-lg text-xs font-mono font-bold transition-all cursor-pointer ${
+            className={`flex flex-col sm:flex-row items-center justify-center gap-1 py-1.5 sm:py-2 px-1 sm:px-3 rounded-lg text-[10px] sm:text-xs font-mono font-bold transition-all cursor-pointer ${
               activeTab === "calc"
-                ? "bg-amber-500/15 border border-amber-500/40 text-amber-300 shadow-sm"
-                : "text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/40"
+                ? "bg-amber-500/20 border border-amber-500/50 text-amber-300 shadow-sm"
+                : "text-zinc-400 hover:text-zinc-200"
             }`}
           >
-            <Zap className="w-3.5 h-3.5 text-amber-400" />
-            <span>CALCULATOR</span>
+            <Zap className="w-3.5 h-3.5 text-amber-400 flex-shrink-0" />
+            <span>CALC</span>
           </button>
           <button
             type="button"
             onClick={() => setActiveTab("protocol")}
-            className={`flex-1 flex items-center justify-center gap-1.5 py-2 px-3 rounded-lg text-xs font-mono font-bold transition-all cursor-pointer ${
+            className={`flex flex-col sm:flex-row items-center justify-center gap-1 py-1.5 sm:py-2 px-1 sm:px-3 rounded-lg text-[10px] sm:text-xs font-mono font-bold transition-all cursor-pointer ${
               activeTab === "protocol"
-                ? "bg-cyan-500/15 border border-cyan-500/40 text-cyan-300 shadow-sm"
-                : "text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/40"
+                ? "bg-cyan-500/20 border border-cyan-500/50 text-cyan-300 shadow-sm"
+                : "text-zinc-400 hover:text-zinc-200"
             }`}
           >
-            <Target className="w-3.5 h-3.5 text-cyan-400" />
-            <span>PR PROTOCOL</span>
+            <Target className="w-3.5 h-3.5 text-cyan-400 flex-shrink-0" />
+            <span>TEST PR</span>
           </button>
           <button
             type="button"
             onClick={() => setActiveTab("coach")}
-            className={`flex-1 flex items-center justify-center gap-1.5 py-2 px-3 rounded-lg text-xs font-mono font-bold transition-all cursor-pointer ${
+            className={`flex flex-col sm:flex-row items-center justify-center gap-1 py-1.5 sm:py-2 px-1 sm:px-3 rounded-lg text-[10px] sm:text-xs font-mono font-bold transition-all cursor-pointer ${
               activeTab === "coach"
-                ? "bg-orange-500/15 border border-orange-500/40 text-orange-300 shadow-sm"
-                : "text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/40"
+                ? "bg-orange-500/20 border border-orange-500/50 text-orange-300 shadow-sm"
+                : "text-zinc-400 hover:text-zinc-200"
             }`}
           >
-            <HeartPulse className="w-3.5 h-3.5 text-orange-400" />
-            <span>COACH DOCTRINE</span>
+            <HeartPulse className="w-3.5 h-3.5 text-orange-400 flex-shrink-0" />
+            <span>COACH</span>
           </button>
           <button
             type="button"
             onClick={() => setActiveTab("roadmap")}
-            className={`flex-1 flex items-center justify-center gap-1.5 py-2 px-3 rounded-lg text-xs font-mono font-bold transition-all cursor-pointer ${
+            className={`flex flex-col sm:flex-row items-center justify-center gap-1 py-1.5 sm:py-2 px-1 sm:px-3 rounded-lg text-[10px] sm:text-xs font-mono font-bold transition-all cursor-pointer ${
               activeTab === "roadmap"
-                ? "bg-violet-500/15 border border-violet-500/40 text-violet-300 shadow-sm"
-                : "text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/40"
+                ? "bg-violet-500/20 border border-violet-500/50 text-violet-300 shadow-sm"
+                : "text-zinc-400 hover:text-zinc-200"
             }`}
           >
-            <TrendingUp className="w-3.5 h-3.5 text-violet-400" />
-            <span>ROADMAP</span>
+            <TrendingUp className="w-3.5 h-3.5 text-violet-400 flex-shrink-0" />
+            <span>ONDAS</span>
           </button>
         </div>
 
@@ -666,13 +666,13 @@ export function UniversalStrengthCalcModal({
                         {/* Phase Body */}
                         {isExpanded && (
                           <div className="px-4 pb-4 pt-2 border-t border-zinc-800/80 space-y-3 animate-in fade-in duration-200">
-                            {/* Sets Table */}
-                            <div className="space-y-1">
-                              <div className="grid grid-cols-6 gap-2 text-[9px] font-mono text-zinc-500 uppercase tracking-wider px-2">
+                            {/* Sets Table — Mobile Optimized */}
+                            <div className="space-y-1.5">
+                              <div className="grid grid-cols-5 sm:grid-cols-6 gap-1 sm:gap-2 text-[9px] font-mono text-zinc-500 uppercase tracking-wider px-2">
                                 <span>Set</span>
                                 <span className="text-center">Weight</span>
                                 <span className="text-center">Reps</span>
-                                <span className="text-center">Tempo</span>
+                                <span className="text-center hidden sm:block">Tempo</span>
                                 <span className="text-center">Rest</span>
                                 <span className="text-center">Timer</span>
                               </div>
@@ -681,14 +681,14 @@ export function UniversalStrengthCalcModal({
                                 return (
                                   <div
                                     key={si}
-                                    className="grid grid-cols-6 gap-2 items-center bg-zinc-800/40 rounded-lg py-2 px-2 text-xs font-mono"
+                                    className="grid grid-cols-5 sm:grid-cols-6 gap-1 sm:gap-2 items-center bg-zinc-800/40 hover:bg-zinc-800/60 rounded-xl py-2 px-2.5 text-xs font-mono transition-colors"
                                   >
-                                    <span className="text-zinc-500 text-[10px]">{set.label}</span>
-                                    <span className={`text-center font-bold ${phase.colorClass}`}>
-                                      {setWeight} {unit}
+                                    <span className="text-zinc-500 text-[10px] font-bold">{set.label}</span>
+                                    <span className={`text-center font-bold text-xs sm:text-sm ${phase.colorClass}`}>
+                                      {setWeight} <span className="text-[10px] opacity-75">{unit}</span>
                                     </span>
-                                    <span className="text-center text-zinc-300">{set.reps}</span>
-                                    <span className="text-center text-zinc-400">{set.tempo}</span>
+                                    <span className="text-center text-zinc-300 font-medium">{set.reps}</span>
+                                    <span className="text-center text-zinc-400 hidden sm:block">{set.tempo}</span>
                                     <span className="text-center text-zinc-300">{formatRest(set.rest)}</span>
                                     <button
                                       type="button"
@@ -696,7 +696,7 @@ export function UniversalStrengthCalcModal({
                                         e.stopPropagation();
                                         handleStartRest(set.rest, phase.name);
                                       }}
-                                      className="flex items-center justify-center p-1 rounded bg-amber-500/10 text-amber-400 hover:bg-amber-500 hover:text-zinc-950 transition-all cursor-pointer"
+                                      className="flex items-center justify-center w-8 h-8 mx-auto rounded-lg bg-amber-500/15 border border-amber-500/30 text-amber-400 hover:bg-amber-500 hover:text-zinc-950 active:scale-90 transition-all cursor-pointer shadow-sm"
                                       title={`Start ${set.rest}s rest timer`}
                                     >
                                       <Clock className="w-3.5 h-3.5" />

@@ -77,7 +77,7 @@ export function ZenDashboardView({ d, onShowSpotify }: { d: Dash; onShowSpotify?
             <div className="p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-400 glow-zen-gold">
               <Flame className="w-5 h-5 sm:w-6 sm:h-6" />
             </div>
-            <div>
+            <div className="flex flex-col gap-1.5">
               <div className="flex items-center gap-2">
                 <h1 className="text-lg sm:text-xl md:text-2xl font-black tracking-widest text-zinc-100 uppercase">
                   NEURO//<span className="text-amber-400">STRENGTH</span>
@@ -85,6 +85,9 @@ export function ZenDashboardView({ d, onShowSpotify }: { d: Dash; onShowSpotify?
                 <span className="px-1.5 sm:px-2 py-0.5 rounded text-[9px] sm:text-[10px] font-mono font-bold bg-amber-500/20 text-amber-400 border border-amber-500/30">
                   PRO-V1
                 </span>
+              </div>
+              {/* Responsive Chip Action Bar — Smooth Horizontal Scroll on Mobile */}
+              <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5 -mx-1 px-1 sm:mx-0 sm:px-0 flex-nowrap sm:flex-wrap">
                 <a
                   href="https://open.spotify.com/intl-es"
                   target="_blank"
@@ -92,7 +95,7 @@ export function ZenDashboardView({ d, onShowSpotify }: { d: Dash; onShowSpotify?
                   onClick={() => {
                     try { window.location.href = "spotify:"; } catch {}
                   }}
-                  className="px-2.5 py-1 rounded-lg text-[10px] font-mono font-bold bg-emerald-500/15 text-emerald-400 border border-emerald-500/25 hover:bg-emerald-500/25 hover:border-emerald-400/50 transition-all flex items-center gap-1 shadow-[0_0_12px_rgba(16,185,129,0.15)] cursor-pointer"
+                  className="px-2.5 py-1 rounded-lg text-[10px] font-mono font-bold bg-emerald-500/15 text-emerald-400 border border-emerald-500/25 hover:bg-emerald-500/25 hover:border-emerald-400/50 transition-all flex items-center gap-1 shadow-[0_0_12px_rgba(16,185,129,0.15)] flex-shrink-0 cursor-pointer"
                   title="Abrir Spotify directamente"
                 >
                   🎵 SPOTIFY
@@ -100,7 +103,7 @@ export function ZenDashboardView({ d, onShowSpotify }: { d: Dash; onShowSpotify?
                 <button
                   type="button"
                   onClick={() => setShowCatalogModal(true)}
-                  className="px-2.5 py-1 rounded-lg text-[10px] font-mono font-bold bg-gradient-to-r from-amber-500/20 to-yellow-500/20 text-amber-300 border border-amber-500/40 hover:bg-amber-500/30 hover:border-amber-400/60 transition-all flex items-center gap-1.5 shadow-[0_0_15px_rgba(245,158,11,0.2)] active:scale-95 cursor-pointer"
+                  className="px-2.5 py-1 rounded-lg text-[10px] font-mono font-bold bg-gradient-to-r from-amber-500/20 to-yellow-500/20 text-amber-300 border border-amber-500/40 hover:bg-amber-500/30 hover:border-amber-400/60 transition-all flex items-center gap-1.5 shadow-[0_0_15px_rgba(245,158,11,0.2)] active:scale-95 flex-shrink-0 cursor-pointer"
                   title="Abrir Biblioteca Técnica con los 25 videos oficiales en HD"
                 >
                   <span>🎬</span>
@@ -109,15 +112,22 @@ export function ZenDashboardView({ d, onShowSpotify }: { d: Dash; onShowSpotify?
                 <button
                   type="button"
                   onClick={() => setShowUniversalCalc(true)}
-                  className="px-2.5 py-1 rounded-lg text-[10px] font-mono font-bold bg-gradient-to-r from-cyan-500/20 to-amber-500/20 text-cyan-300 border border-cyan-500/40 hover:bg-cyan-500/30 hover:border-cyan-400/60 transition-all flex items-center gap-1.5 shadow-[0_0_15px_rgba(6,182,212,0.15)] active:scale-95 cursor-pointer"
+                  className="px-2.5 py-1 rounded-lg text-[10px] font-mono font-bold bg-gradient-to-r from-cyan-500/20 to-amber-500/20 text-cyan-300 border border-cyan-500/40 hover:bg-cyan-500/30 hover:border-cyan-400/60 transition-all flex items-center gap-1.5 shadow-[0_0_15px_rgba(6,182,212,0.15)] active:scale-95 flex-shrink-0 cursor-pointer"
                   title="Universal Phase Calculator — Any Exercise"
                 >
                   <BarChart3 className="w-3 h-3" />
                   <span>PHASE CALC</span>
                 </button>
                 <a
+                  href="/calc"
+                  className="px-2.5 py-1 rounded-lg text-[10px] font-mono font-bold bg-gradient-to-r from-purple-500/20 to-indigo-500/20 text-purple-300 border border-purple-500/30 hover:bg-purple-500/30 transition-all flex items-center gap-1 flex-shrink-0"
+                  title="Pantalla Completa — Calculadora Universal"
+                >
+                  ⚡ FULL CALC
+                </a>
+                <a
                   href="/forge"
-                  className="px-2.5 py-1 rounded-lg text-[10px] font-mono font-bold bg-amber-500/15 text-amber-400 border border-amber-500/25 hover:bg-amber-500/25 transition-all flex items-center gap-1"
+                  className="px-2.5 py-1 rounded-lg text-[10px] font-mono font-bold bg-amber-500/15 text-amber-400 border border-amber-500/25 hover:bg-amber-500/25 transition-all flex items-center gap-1 flex-shrink-0"
                   title="La Forja de los Guerreros"
                 >
                   ⚔️ FORJA

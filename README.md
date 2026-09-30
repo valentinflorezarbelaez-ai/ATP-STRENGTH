@@ -1,234 +1,124 @@
 # ⚡ ATP STRENGTH (NEURO//STRENGTH)
-### Enterprise Neuromuscular Performance Engine & Soviet Olympic Strength System
+### Plataforma de Rendimiento Neuromuscular, Resíntesis de ATP y Fuerza Máxima
 
-[![Production Status](https://img.shields.io/badge/Production-Live-emerald?style=for-the-badge&logo=vercel)](https://atp-strength.vercel.app/landing.html)
+[![Production Status](https://img.shields.io/badge/Production-Live-emerald?style=for-the-badge&logo=vercel)](https://atp-strength.vercel.app/)
 [![Next.js 16](https://img.shields.io/badge/Next.js-16.3.4_(Turbopack)-black?style=for-the-badge&logo=next.js)](https://nextjs.org/)
 [![React 19](https://img.shields.io/badge/React-19.2.8-61DAFB?style=for-the-badge&logo=react)](https://react.dev/)
-[![FastAPI](https://img.shields.io/badge/FastAPI-0.115+-009688?style=for-the-badge&logo=fastapi)](https://fastapi.tiangolo.com/)
-[![Python](https://img.shields.io/badge/Python-3.12-3776AB?style=for-the-badge&logo=python)](https://python.org/)
-[![Alembic](https://img.shields.io/badge/Alembic-1.14+-red?style=for-the-badge&logo=alembic)](https://alembic.sqlalchemy.org/)
-[![PostgreSQL](https://img.shields.io/badge/Neon_PostgreSQL-Serverless-4169E1?style=for-the-badge&logo=postgresql)](https://neon.tech/)
-[![Tests](https://img.shields.io/badge/Tests-59%2F59_PASS-brightgreen?style=for-the-badge&logo=pytest)](https://github.com/valentinflorezarbelaez-ai/ATP-STRENGTH)
+[![PWA](https://img.shields.io/badge/PWA-Mobile_Optimized-purple?style=for-the-badge&logo=pwa)](https://atp-strength.vercel.app/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-Strict_100%25-blue?style=for-the-badge&logo=typescript)](https://www.typescriptlang.org/)
 [![License](https://img.shields.io/badge/License-MIT-amber?style=for-the-badge)](LICENSE)
 
 ---
 
-## 🌐 Enlaces Oficiales del Ecosistema (Producción Vercel)
+## 🌐 Enlaces Oficiales de Producción
 
-| Activo | Enlace de Acceso | Descripción |
+| Módulo | Enlace Directo | Utilidad Principal |
 | :--- | :--- | :--- |
-| 🏛️ **Landing Page Oficial** | **[atp-strength.vercel.app/landing.html](https://atp-strength.vercel.app/landing.html)** | **Hub central de acceso**, misión, visión y comparativa de valor disruptivo en el mercado. |
-| 🚀 **Aplicación Web** | **[atp-strength.vercel.app](https://atp-strength.vercel.app)** | Aplicación completa: Coach Guiado, Cronómetro ATP, Registro WAL y Progresión. |
-| ⚡ **Manual Interactivo** | **[atp-strength.vercel.app/manual.html](https://atp-strength.vercel.app/manual.html)** | Manual dinámico en navegador con **simuladores de Prilepin en vivo**, infografías SVG y quiz de autoevaluación. |
-| 📄 **Manual Oficial (PDF)** | **[atp-strength.vercel.app/manual.pdf](https://atp-strength.vercel.app/manual.pdf)** | Documento imprimible de alta resolución (442 KB) con todos los fundamentos científicos. |
-| 💻 **Repositorio GitHub** | **[github.com/.../ATP-STRENGTH](https://github.com/valentinflorezarbelaez-ai/ATP-STRENGTH)** | Código fuente completo, arquitectura limpia, contratos EARS y suites de pruebas. |
+| 🚀 **Templo Zen (App Principal)** | **[atp-strength.vercel.app](https://atp-strength.vercel.app)** | Dashboard de entrenamiento diario, itinerarios, cronómetro de ATP y registro de series. |
+| ⚡ **Calculadora Universal Móvil** | **[atp-strength.vercel.app/calc](https://atp-strength.vercel.app/calc)** | Cabina universal de fuerza adaptable a cualquier ejercicio (barra, mancuerna o máquina). |
+| ⚔️ **La Forja de Guerreros** | **[atp-strength.vercel.app/forge](https://atp-strength.vercel.app/forge)** | Manifiesto de fuerza real, principios de los strongman clásicos y motivación pura. |
 
 ---
 
-## 🎯 1. Resumen Ejecutivo & Misión de Ingeniería
+## 📱 1. Optimización Móvil & Experiencia Gym-First (PWA)
 
-**ATP STRENGTH** es una plataforma de software de rendimiento neuromuscular de grado Big Tech diseñada para erradicar el "entrenamiento por sensaciones" (*vibe training*) y el sobreentrenamiento del Sistema Nervioso Central (SNC). 
+ATP STRENGTH fue diseñado pensando en el lugar donde realmente se entrena: **el gimnasio, directo desde tu celular**.
 
-A diferencia de las aplicaciones comerciales convencionales que promueven el agotamiento muscular metabólico y series indiscriminadas al fallo (RIR 0), **ATP STRENGTH** opera como un sistema determinista de control de ciclo cerrado:
-* Prescribe **repeticiones enteras cerradas** basadas en las tablas olímpicas de **A.S. Prilepin (1974)**.
-* Aplica el **Principio del Tamaño de Henneman** para garantizar el reclutamiento del 100% de fibras rápidas tipo IIb a intensidades $\\ge 80\\%$ 1RM sin fatiga destructiva.
-* Impone un **cortafuegos biológico de 180 a 300 segundos** para la resíntesis completa de fosfocreatina (**ATP-PCr**).
-* Monitorea la fatiga central acumulada en tiempo real mediante el cálculo continuo de **INOL** (*Intensity Number of Lifts*).
-
----
-
-## 🔬 2. Fundamentos Fisiológicos y Biomecánicos
-
-```mermaid
-flowchart TD
-    subgraph FISIOLOGIA_NEURAL["1. Principio de Henneman (Reclutamiento de Alto Umbral)"]
-        Load[Cargas >= 80% 1RM] --> HighThreshold[100% Unidades Motoras Rápidas IIb]
-        HighThreshold --> MaxTension[Tensión Mecánica Pura]
-    end
-
-    subgraph FATIGA_CENTRAL["2. Gestión de la Fatiga Neural"]
-        Failure[Fallo Muscular / RIR 0] --> CNSFatigue[Depleción Sináptica Central: 48-72h Recuperación]
-        Submax[Submáximo RIR 1-2] --> NeuralAdaptation[98% Señal Adaptativa con 30% Fatiga]
-    end
-
-    subgraph BIOENERGETICA_ATP["3. Sistema de Fosfágenos"]
-        Rest[Pausa 180s - 300s] --> Phosphagen[Resíntesis 98-100% ATP-PCr]
-        Phosphagen --> Velocity[Velocidad Concéntrica Preservada]
-    end
+```
+┌─────────────────────────────────────────────────────────┐
+│                    EXPERIENCIA EN CELULAR               │
+│                                                         │
+│  [⚡ Wake Lock]     Pantalla encendida durante la sesión │
+│  [👆 Ergonomía]     Touch targets >= 44px (dedos/tiza) │
+│  [🖤 True Black]    Modo OLED puro (ahorro de batería) │
+│  [📶 Offline-First] Registro WAL activo sin internet    │
+│  [🔊 Web Audio]     Beeps y chimes sin consumir datos   │
+└─────────────────────────────────────────────────────────┘
 ```
 
-### A. Reclutamiento Motriz y Tensión Mecánica (Henneman)
-Las motoneuronas se reclutan en orden de tamaño. Al superar el **80% del 1RM**, el organismo no puede graduar la fuerza reclutando más fibras: **todas las fibras rápidas tipo IIb están activas desde la primera repetición**. Por tanto, extender una serie hasta el fallo concéntrico no recluta fibras adicionales; únicamente genera fatiga en la médula espinal y los neurotransmisores.
-
-### B. Parada Submáxima (RIR 1–2 / RPE 8.0–8.5)
-Detener la serie a 1 o 2 repeticiones del fallo técnico produce el **98% del estímulo adaptativo de fuerza e hipertrofia miofibrilar**, reduciendo el daño residual del SNC en más de un **65%**. Esto permite entrenar con alta frecuencia sin acumular sobreentrenamiento.
-
-### C. Dinámica de Resíntesis de Fosfágenos
-El esfuerzo submáximo explosivo agota el ATP intracelular en menos de 10 segundos. La creatina quinasa requiere:
-* **30 segundos:** ~50% de resíntesis (zona de deuda de oxígeno).
-* **90 segundos:** ~75% de resíntesis (glucólisis anaeróbica activa).
-* **180 segundos:** ~98% de resíntesis (fosfágenos restaurados).
-* **240–300 segundos:** 100% de supercompensación neural.
+* **Instalable como App Nativa (PWA):**
+  * **iOS (iPhone):** Abrí Safari $\to$ Compartir $\to$ *"Agregar al inicio"*.
+  * **Android:** Abrí Chrome $\to$ Menú (3 puntos) $\to$ *"Instalar aplicación"*.
+* **Pantalla Siempre Activa (Wake Lock):** El celular no se bloquea ni se apaga mientras descansás entre series.
+* **Ergonomía Táctil:** Botones grandes y de alto contraste diseñados para usarse con manos sudadas o con magnesio.
+* **Navegación Fluida:** Barra de acciones superior con desplazamiento horizontal (*chip bar*) que no se corta en pantallas pequeñas.
 
 ---
 
-## 🏛️ 3. Arquitectura del Sistema (Clean Architecture / C4 Standard)
+## ⚡ 2. Motor Universal de Fuerza (`/calc` & `PHASE CALC`)
 
-El proyecto sigue una estricta arquitectura en capas desacopladas (**Clean / Hexagonal Architecture**), garantizando que las reglas de negocio del dominio sean 100% puras y agnósticas de frameworks:
+Una calculadora **100% agnóstica al ejercicio**. Funciona para press de banca, sentadilla, dominadas con lastre, press militar o cualquier máquina del gimnasio.
 
-```mermaid
-graph TD
-    subgraph PRESENTATION["Presentation Layer (Next.js 16 App Router)"]
-        UI[CoachGuidedView / ZenDashboardView]
-        Audio[Web Audio 65Hz / 528Hz Solfeggio]
-        Sensory[W3C Wake Lock & OS Media Session]
-        Ring[AtpEnergyRing Radial Biofeedback]
-    end
+### A. Dos Modalidades de Entrada
+1. **Balance Submáximo (Sin conocer tu PR):** Ingresás el peso que movés cómodo, las repeticiones logradas (ej. 6 reps) y las repeticiones en reserva (RIR 2). El motor calcula tu 1RM estimado mediante el algoritmo híbrido **Brzycki + Epley** sin riesgo de lesión.
+2. **PR Directo:** Si ya conocés tu marca (ej. 70 kg, 100 kg), la ingresás directamente y calcula las 6 zonas al milímetro.
 
-    subgraph APPLICATION["Application Layer (Use Cases & Schedulers)"]
-        WorkoutHandlers[createWorkoutHandlers]
-        SyncWorker[walSync FIFO Queue Worker]
-        ProfileService[athleteProfile & dataPortability]
-    end
+### B. Escudo 90% Training Max (Longevidad Física)
+Calcula las cargas de trabajo efectivas sobre el **90% del 1RM real**. Esta directiva de los strongmen clásicos y del método Wendler protege las cápsulas articulares, ligamentos y tendones, eliminando el agotamiento del Sistema Nervioso Central (SNC).
 
-    subgraph DOMAIN["Pure Domain Layer (L0 - Zero Dependencies)"]
-        PrilepinEngine[prilepinEngine: Zones, Prescriptions & INOL]
-        RpeEngine[rpeEngine: Tuchscherer %1RM Matrix & e1RM]
-        TimerEngine[atpTimerCore: Absolute Monotonic Wall-Clock]
-        WalEngine[walEngine: Checksumed Mutation Journals]
-    end
-
-    subgraph INFRASTRUCTURE["Infrastructure & Adapters Layer"]
-        FastAPI[FastAPI 0.115+ REST Endpoints]
-        Alembic[Alembic Versioned DB Migrations]
-        SQLAlchemy[SQLAlchemy 2.0 ORM Models]
-        NeonPG[(Neon Serverless PostgreSQL)]
-        LocalStorage[(Encrypted LocalStorage / IDB)]
-    end
-
-    PRESENTATION --> APPLICATION
-    APPLICATION --> DOMAIN
-    APPLICATION --> INFRASTRUCTURE
-    INFRASTRUCTURE --> DOMAIN
-```
+### C. Las 6 Fases Neuromusculares
+1. **Activación & Movilidad (20–30%):** Lubrica cartílagos con líquido sinovial y abre el canal neural.
+2. **Rampa Progresiva (42–58%):** Aclimatación de colágeno y velocidad concéntrica.
+3. **Potenciación Post-Activación (PAP) (68–76%):** Sincronización de motoneuronas rápidas (Tipo IIx) con máxima intención de aceleración.
+4. **Fuerza Efectiva (80–85%):** Zona reina de tensión mecánica miofibrilar (3s excéntrica, pausa isométrica y explosión concéntrica).
+5. **Umbral de Pico (88–92%):** Contracción voluntaria máxima sin ir al fallo.
+6. **Vuelta a la Calma Parasimpática (38–48%):** Transición autonómica de estrés a recuperación y desinflamación celular.
 
 ---
 
-## 📐 4. Especificaciones de Ingeniería Formales (EARS & BDD)
+## 🎯 3. Asistente "PR Protocol" (Testeo Seguro)
 
-El comportamiento de cada módulo de cálculo está gobernado por especificaciones formales versionadas bajo sintaxis **EARS** (*Easy Approach to Requirements Syntax*) y escenarios de aceptación **BDD**:
-
-### `SPEC-0001`: Motor de Cronómetro Absoluto Monotónico
-* **REQ-EARS-TIME-01:** *Cuando* el temporizador se inicializa, el sistema registrará un timestamp absoluto de pared (`targetTimestamp = Date.now() + durationMs`) para prevenir desfasajes cuando la pestaña o pantalla entra en suspensión.
-* **REQ-EARS-TIME-03:** *Cuando* el tiempo restante alcance cero, el sistema emitirá el patrón háptico `[200ms, 100ms, 200ms]` y ejecutará el acorde Solfeggio a 528 Hz.
-
-### `SPEC-0002` & `SPEC-0004`: Motor WAL Offline-First Resiliente
-* **REQ-EARS-WAL-01:** *Cuando* el atleta complete una serie, el sistema registrará inmediatamente la mutación en la cola `PENDING_SYNC` con un checksum SHA-256 antes de iniciar cualquier solicitud de red.
-* **REQ-EARS-WAL-03:** *Si* la red falla o el servidor responde HTTP 5xx, *entonces* el sistema mantendrá la entrada en la cola FIFO y activará reintentos exponenciales sin pérdida de datos.
-
-### `SPEC-0003`: Motor de Autorregulación Neuromuscular (Mike Tuchscherer)
-* **REQ-EARS-AUTO-01:** La matriz `TUCHSCHERER_RPE_MATRIX` es inmutable y congelada, proporcionando la equivalencia matemática entre RPE (6.5 a 10.0), repeticiones (1 a 10) y porcentaje de 1RM.
-* **REQ-EARS-AUTO-03:** *Cuando* el RPE real difiera del RPE objetivo prescrito, el sistema ajustará automáticamente la carga de la siguiente serie respetando el paso mínimo del implemento (2.5 kg barra olímpica, 1.25 kg mancuernas).
-
-### `SPEC-0006`: Identidad de Atleta y Portabilidad de Datos
-* **REQ-EARS-PORT-01:** El sistema mantendrá la tenencia multi-atleta mediante UUID persistente en almacenamiento seguro.
-* **REQ-EARS-PORT-02:** El motor de portabilidad permitirá exportar el historial completo en formato JSON estructurado y CSV compatible con software de análisis biomecánico.
-
-### `SPEC-0007`: Motor Soviético de Prilepin y Fatiga Neural INOL
-* **REQ-EARS-SOV-01:** Para intensidades entre 80% y 89.9% 1RM, el sistema prescribirá **exactamente 3 repeticiones** por serie con un volumen acumulado óptimo de 15 repeticiones.
-* **REQ-EARS-SOV-02:** El sistema calculará el INOL de cada serie mediante $\\text{INOL} = \\frac{\\text{Reps}}{100 - \\%1\\text{RM}}$ y evaluará el volumen acumulado de la sesión:
-  * $\\text{INOL} < 0.4$: Volumen Ligero / Calentamiento.
-  * $0.4 \\le \\text{INOL} \\le 1.0$: **Óptimo Soviético** (máxima ganancia con SNC preservado).
-  * $1.0 < \\text{INOL} \\le 1.2$: Carga Alta (Límite Neural).
-  * $\\text{INOL} > 1.2$: Sobrecarga Máxima (cese inmediato recomendado).
+Nunca pongas a prueba una repetición máxima al fallo en frío. El asistente interactivo te guía en 3 etapas:
+1. **Calibración Articular:** 10–12 reps suaves con barra vacía o polea ligera.
+2. **Rampa de Intención:** 5 reps explosivas al ~50% de capacidad percibida.
+3. **Serie de Anclaje Submáxima:** 3 a 5 repeticiones limpias con **estrictamente 2 reps en reserva (RIR 2)**.
+4. **Aplicación Instantánea:** Tocás *"Aplicar al Motor Universal"* y todas las fases se configuran automáticamente.
 
 ---
 
-## 📱 5. Ergonomía Sensorial de Grado Big Tech
+## 🧠 4. Doctrinas del Coach & Resíntesis de ATP-CP
 
-Inspirado en los principios de diseño de **Apple Human Interface Guidelines** y **Tidal Luxury Dark**:
+### A. Curva de Regeneración de Fosfocreatina
+El ATP muscular de alta potencia se agota en 8 a 10 segundos de esfuerzo máximo. La ciencia bioenergética dicta los descansos exactos:
+* **30 segundos:** 50% de recarga (deuda de oxígeno activa).
+* **90 segundos:** 85% de recarga (glucólisis anaeróbica mitigada).
+* **180 segundos (3 min):** 95% de recarga (resíntesis de fosfocreatina casi completa).
+* **240–300 segundos (4–5 min):** 99% de supercompensación neural.
 
-* **W3C Screen Wake Lock API:** Mantiene la pantalla encendida de forma autónoma durante los descansos en el banco de pesas.
-* **OS Media Session API:** Al bloquear el dispositivo móvil, el temporizador de resíntesis se refleja en los controles multimedia de la pantalla de bloqueo de iOS y Android.
-* **Notificaciones en Segundo Plano:** Alertas visuales y hápticas cuando finaliza el descanso, incluso si el atleta navega en otra aplicación.
-* **Web Audio Synthesis:** Clicks hápticos táctiles sintetizados en tiempo real a 65 Hz (sub-grave) y campana armónica Solfeggio a 528 Hz para señalizar supercompensación.
-* **AtpEnergyRing:** Anillo radial SVG con gradiente continuo tetracromático (Rojo $\\to$ Violeta $\\to$ Cian $\\to$ Esmeralda) reflejando el estado celular en cada segundo.
-* **Quick Plate Stepper:** Chips táctiles calibrados (`-5`, `-2.5`, `-1.25`, `+1.25`, `+2.5`, `+5`, `+10` kg) para ajuste instantáneo de peso sin desplegar teclados virtuales.
+> **Regla de Oro:** Acortar los descansos por debajo de 3 minutos en series pesadas convierte el entrenamiento de fuerza en resistencia metabólica y degrada el sistema nervioso.
 
----
-
-## 🧪 6. Calidad de Código y Evidencia Criptográfica
-
-El proyecto mantiene una política de **Tolerancia Cero a Errores y Advertencias** (`--max-warnings 0`):
-
-```bash
-# Frontend Unit Tests (Node Native Test Runner)
-npm test
-# Output: 53 tests passing, 0 failures, 185ms duration
-
-# Static Type Safety Analysis
-npx tsc --noEmit
-# Output: 0 type errors across all strict modules
-
-# Static Linting
-npm run lint
-# Output: 0 ESLint errors, 0 warnings
-
-# Backend Unit & Architectural Invariant Tests
-pytest
-# Output: 6 passed (Domain purity & API endpoints verified)
-```
+### B. Leyes Biomecánicas de Ejecución
+1. **Aceleración Compensatoria (CAT):** Empujá cada repetición con 100% de intención de aceleración concéntrica. Fuerza = Masa $\times$ Aceleración.
+2. **Bracing Neumático 360°:** Inhalá hacia el piso pélvico y costillas bajas expandiendo el torso. Creá presión intraabdominal (IAP) para blindar la columna.
+3. **Irradiación Neural (Ley de Sherrington):** Apretá la barra o mancuerna con agarre de hierro. La tensión en las manos irradia señal nerviosa a hombros y core.
+4. **Corte al 20% de Caída de Velocidad:** Si una repetición sube notablemente más lenta que la primera (~20% de desaceleración), **dejá la barra**. Forzar repeticiones agónicas triplica la fatiga central sin aportar más fuerza.
 
 ---
 
-## 🚀 7. Guía de Puesta en Marcha Local
+## 📈 5. Ondas de Progresión de 4 Semanas
 
-### Prerrequisitos
-* **Node.js:** v20.x o v24.x (LTS recomendado)
-* **Python:** v3.12+ con pip y venv
-* **PostgreSQL:** Neon Serverless o instancia PostgreSQL 15+ local
-
-### 1. Clonar el Repositorio
-```bash
-git clone https://github.com/valentinflorezarbelaez-ai/ATP-STRENGTH.git
-cd ATP-STRENGTH
-```
-
-### 2. Frontend (Next.js 16 Turbopack)
-```bash
-cd atp-strength-frontend
-npm install
-
-# Iniciar servidor de desarrollo en http://localhost:3000
-npm run dev
-
-# Ejecutar pruebas unitarias
-npm test
-
-# Compilar bundle de producción
-npm run build
-```
-
-### 3. Backend (FastAPI + SQLAlchemy + Alembic)
-```bash
-cd atp-strength-backend
-python -m venv .venv
-source .venv/bin/activate  # En Windows: .venv\\Scripts\\activate
-pip install -r requirements.txt
-
-# Aplicar migraciones versionadas de base de datos
-alembic upgrade head
-
-# Iniciar servidor API en http://localhost:8000
-uvicorn main:app --reload --port 8000
-
-# Ejecutar suite de pruebas pytest
-pytest
-```
+Evitá el estancamiento neural aplicando sobrecarga escalonada:
+* **Semana 1 (Acumulación):** Carga base al 100% de la prescripción.
+* **Semana 2 (Intensificación):** +2.5% de carga sobre el baseline.
+* **Semana 3 (Pico de Fuerza):** +5.0% de carga (máxima estimulación miofibrilar).
+* **Semana 4 (Descarga / Deload):** -40% de volumen para recuperación articular y del SNC.
 
 ---
 
-## 📄 8. Licencia y Gobernanza
+## 🛠️ 6. Arquitectura de Software
 
-Este proyecto está licenciado bajo la **Licencia MIT**. Diseñado y auditado bajo el marco de ingeniería y gobernanza formal de **EOS System**.
+* **Frontend:** Next.js 16 (App Router + Turbopack), React 19, Tailwind CSS v4, Lucide Icons.
+* **Audio Engine:** Síntesis nativa en navegador con Web Audio API (frecuencias Solfeggio 528 Hz y tonos D5/A5 de alerta).
+* **Almacenamiento Local (WAL):** Persistencia en `localStorage` con arquitectura de diario de transacciones para operar 100% offline.
+* **Despliegue:** Vercel Edge Network con CI/CD automatizado desde GitHub.
+
+---
+
+## 🏃 7. Guía Rápida de Entrenamiento (Día a Día en el Gym)
+
+1. Abrí **[atp-strength.vercel.app](https://atp-strength.vercel.app)** en tu celular.
+2. Si vas a hacer un ejercicio libre o máquina nueva, tocá **PHASE CALC** o entrá a **/calc**.
+3. Ingresá tu peso de trabajo o hacé el **PR Protocol** de 3 pasos.
+4. Ejecutá cada serie respetando el tempo indicado (ej. 3s bajando, 1s pausa, explosión al subir).
+5. Tocá el ícono de **reloj** en cada serie para iniciar el descanso exacto con alerta sonora.
+6. Registrá tus marcas; el sistema guardará tu progreso de forma automática.
