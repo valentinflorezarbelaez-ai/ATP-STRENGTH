@@ -64,7 +64,7 @@ export function ZenDashboardView({ d, onShowSpotify }: { d: Dash; onShowSpotify?
   const sessionStats = React.useMemo(() => calculateSessionStats(), [calculateSessionStats]);
 
   return (
-    <main className="min-h-screen relative overflow-x-hidden flex flex-col items-center justify-between p-4 md:p-8 pb-24 md:pb-8 font-sans selection:bg-pink-500 selection:text-white">
+    <main className="min-h-screen relative overflow-x-hidden flex flex-col items-center justify-between p-4 md:p-8 pb-32 md:pb-8 font-sans selection:bg-pink-500 selection:text-white">
       {/* Ambient Radial Mesh Backgrounds (Apple Music + Tidal Luxury Style) */}
       <div className="ambient-mesh-light" aria-hidden="true">
         <div className="ambient-orb-1" />
@@ -280,7 +280,10 @@ export function ZenDashboardView({ d, onShowSpotify }: { d: Dash; onShowSpotify?
           </div>
 
           {selectedProgramId === "universal-pr" ? (
-            <UniversalProtocolCockpit onStartTimer={handleStartTimer} />
+            <UniversalProtocolCockpit
+              onStartTimer={handleStartTimer}
+              onOpenVideo={(name) => setSelectedVideoExercise(name)}
+            />
           ) : (
             <>
               {/* Selector de Itinerario */}
@@ -1253,6 +1256,42 @@ export function ZenDashboardView({ d, onShowSpotify }: { d: Dash; onShowSpotify?
         </div>
         <div>NEURO//STRENGTH // High Performance Framework</div>
       </footer>
+
+      {/* Floating Sticky Mini-Timer on Mobile when active */}
+      {isRunning && remainingSeconds > 0 && (
+        <div
+          onClick={() => setZenFocusMode(true)}
+          className="md:hidden fixed bottom-[72px] left-3 right-3 z-40 p-3 rounded-2xl bg-zinc-950/95 border border-amber-500/50 shadow-2xl shadow-amber-500/20 backdrop-blur-xl flex items-center justify-between cursor-pointer animate-in slide-in-from-bottom-2"
+        >
+          <div className="flex items-center gap-2.5 min-w-0">
+            <span className="relative flex h-2.5 w-2.5 flex-shrink-0">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75" />
+              <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-amber-500" />
+            </span>
+            <div className="min-w-0">
+              <span className="text-[10px] font-mono text-zinc-400 block uppercase">Resíntesis ATP Activa</span>
+              <span className="text-xs font-mono font-bold text-amber-300 truncate block">
+                {timerTitle || "Recuperación Neural"}
+              </span>
+            </div>
+          </div>
+          <div className="flex items-center gap-2 flex-shrink-0">
+            <span className="text-base font-mono font-black text-amber-400">
+              {formatTime(remainingSeconds)}
+            </span>
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                skipRest();
+              }}
+              className="px-2.5 py-1.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-[10px] font-mono font-bold text-zinc-300 hover:text-white active:scale-95 transition-all"
+            >
+              Saltar
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Barra Móvil Inferior Fija: acceso 100% permanente a Progreso de Fuerza y Reset */}
       <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-zinc-950/95 border-t border-zinc-800/80 backdrop-blur-xl px-3 py-2.5 pb-[max(0.625rem,env(safe-area-inset-bottom))] shadow-2xl flex items-center justify-between gap-2">
