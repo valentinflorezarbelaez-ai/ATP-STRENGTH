@@ -1,57 +1,57 @@
-# Contributing to ATP-STRENGTH
+# Guía de Contribución en ATP-STRENGTH
 
-Thank you for your interest in contributing to **ATP-STRENGTH**! This platform is built with the engineering rigor of mission-critical systems and the sports-science precision of elite neuromuscular training.
-
----
-
-## 1. Core Architectural Doctrines
-
-All contributions must strictly respect our architectural boundaries:
-
-1. **Domain Purity (L0 Layer)**:
-   * Core computation modules (`atpTimerEngine.mjs`, `walEngine.mjs`, `rpeEngine.mjs`, `prilepinEngine.mjs`, `workoutStrategiesCore.mjs`) must remain pure ECMAScript with **zero runtime dependencies** (`node_modules`).
-   * No framework imports, no React dependencies, and no DOM globals inside L0.
-2. **Deterministic Evidence Over Claims**:
-   * No pull request may be merged without 100% passing tests in the Node.js test runner (`npm test`).
-   * All bug fixes must be accompanied by a reproducing unit test before remediation.
-3. **Gym-First Mobile Ergonomics**:
-   * UI components must provide touch targets $\ge 44 \times 44\text{px}$, avoid input auto-zoom on iOS (`font-size: 16px`), and support safe area insets (`env(safe-area-inset)`).
-4. **Conventional Commits**:
-   * Commit messages must follow the [Conventional Commits](https://www.conventionalcommits.org/) specification:
-     * `feat(...)`: New features or capabilities.
-     * `fix(...)`: Bug fixes.
-     * `test(...)`: Adding or updating test suites.
-     * `refactor(...)`: Code changes that neither fix bugs nor add features.
-     * `docs(...)`: Documentation updates.
-   * Commits must **never** contain AI attribution or `Co-Authored-By` footers.
+¡Gracias por tu interés en contribuir a **ATP-STRENGTH**! Esta plataforma está construida con el rigor de la ingeniería de software de misión crítica y la precisión biomecánica del entrenamiento neuromuscular de fuerza máxima.
 
 ---
 
-## 2. Local Development Workflow
+## 1. Doctrinas Arquitectónicas Fundamentales
+
+Toda contribución debe respetar estrictamente los límites arquitectónicos del sistema:
+
+1. **Pureza de Dominio (Capa L0)**:
+   * Los módulos centrales de cálculo (`atpTimerEngine.mjs`, `walEngine.mjs`, `rpeEngine.mjs`, `prilepinEngine.mjs`, `workoutStrategiesCore.mjs`) deben mantenerse como código ECMAScript puro con **cero dependencias externas** (`node_modules`).
+   * No se permiten dependencias de React, frameworks ni variables globales del DOM dentro de L0.
+2. **Evidencia Determinista sobre Afirmaciones**:
+   * No se aprueba ningún Pull Request sin que el 100% de las pruebas unitarias pasen en verde (`npm test`).
+   * Toda corrección de errores debe incluir una prueba unitaria que reproduzca el fallo antes de su solución.
+3. **Ergonomía Móvil Gym-First**:
+   * Los componentes de la interfaz deben garantizar áreas táctiles $\ge 44 \times 44\text{px}$, evitar el auto-zoom en iOS (`font-size: 16px`) y respetar las zonas seguras (`env(safe-area-inset)`).
+4. **Convención de Commits**:
+   * Los mensajes de commit deben respetar la especificación de [Conventional Commits](https://www.conventionalcommits.org/):
+     * `feat(...)`: Nuevas capacidades o características.
+     * `fix(...)`: Corrección de errores.
+     * `test(...)`: Incorporación o actualización de pruebas.
+     * `refactor(...)`: Cambios de estructura sin modificar comportamiento externo.
+     * `docs(...)`: Actualización de documentación.
+   * Los commits nunca deben incluir atribuciones de IA ni pies `Co-Authored-By`.
+
+---
+
+## 2. Flujo de Trabajo en Desarrollo Local
 
 ```bash
-# Clone the repository
+# Clonar el repositorio
 git clone https://github.com/valentinflorezarbelaez-ai/ATP-STRENGTH.git
 cd ATP-STRENGTH/atp-strength-frontend
 
-# Install dependencies
+# Instalar dependencias
 npm install
 
-# Run the test suite (Node.js native test runner)
+# Ejecutar la suite de pruebas unitarias (Node.js nativo)
 npm test
 
-# Start development server
+# Iniciar servidor local de desarrollo
 npm run dev
 
-# Verify strict production build (Turbopack + TypeScript)
+# Validar la compilación estricta de producción (Turbopack + TypeScript)
 npm run build
 ```
 
 ---
 
-## 3. Pull Request Guidelines
+## 3. Criterios de Pull Request
 
-1. Create a feature branch off `main`: `git checkout -b feat/my-enhancement`.
-2. Ensure `npm test` passes cleanly with 0 failures.
-3. Verify that `npm run build` succeeds with zero TypeScript errors.
-4. Submit your pull request with a concise description of changes and motivation.
+1. Crear una rama de funcionalidad a partir de `main`: `git checkout -b feat/mi-mejora`.
+2. Verificar que `npm test` finalice con 0 fallos (97 pruebas en verde).
+3. Asegurar que `npm run build` compile sin advertencias ni errores de TypeScript.
+4. Describir con precisión la motivación técnica y el alcance de los cambios.

@@ -1,25 +1,25 @@
-# Security Policy
+# Política de Seguridad
 
-## Supported Versions
+## Versiones Soportadas
 
-| Version | Supported          |
-| :------ | :----------------- |
-| 1.x.x   | :white_check_mark: |
-| < 1.0.0 | :x:                |
+| Versión | Estado de Soporte   |
+| :------ | :------------------ |
+| 1.x.x   | :white_check_mark:  |
+| < 1.0.0 | :x:                 |
 
-## Reporting a Vulnerability
+## Reporte Responsable de Vulnerabilidades
 
-The ATP-STRENGTH engineering team takes security and athlete data privacy seriously.
+El equipo de ingeniería de ATP-STRENGTH se toma con la máxima seriedad la seguridad y la privacidad de los datos de cada atleta.
 
-If you believe you have discovered a vulnerability or security issue within the codebase, please do **NOT** open a public issue. Instead, report it responsibly:
+Si creés haber detectado una vulnerabilidad o fallo de seguridad en el código base, te solicitamos **NO** abrir un issue público. Por favor, reportalo de forma responsable:
 
-1. Send an email to `security@atp-strength.internal` or contact the repository owner through private GitHub vulnerability reporting.
-2. Include a detailed proof-of-concept (PoC) and steps to reproduce.
-3. Allow up to 48 hours for an acknowledgment and coordinated triage.
+1. Enviá un correo a `security@atp-strength.internal` o contactá al propietario del repositorio mediante el canal privado de reportes de seguridad de GitHub.
+2. Adjuntá una prueba de concepto (PoC) detallada y los pasos reproducibles.
+3. El equipo dará acuse de recibo y coordinará la mitigación dentro de las primeras 48 horas.
 
-## Privacy & Local-First Security Architecture
+## Arquitectura de Privacidad y Seguridad Local-First
 
-ATP-STRENGTH adheres to a strict **Zero-Telemetry, Local-First Architecture**:
-- All session data, sets, weights, and neuromuscular records are stored locally in the athlete's device storage via an offline Write-Ahead Logging (WAL) engine.
-- Every entry is verified with cryptographic checksums (`djb2` standard) before being persisted.
-- No third-party analytical trackers, pixel beacons, or user identification cookies are deployed.
+ATP-STRENGTH opera bajo una estricta política de **cero telemetría y procesamiento local**:
+- Todas las sesiones, series, cargas y marcas neuromusculares se almacenan exclusivamente en el dispositivo del atleta a través de un motor Write-Ahead Logging (WAL) offline.
+- Cada entrada se valida mediante sumas de comprobación criptográficas (estándar `djb2`) antes de su persistencia.
+- No se incorporan balizas de rastreo, píxeles de analítica ni cookies de identificación de usuarios.
