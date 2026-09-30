@@ -139,7 +139,7 @@ export function ExerciseCatalogModal({
                   Manual de Operación Técnica
                 </span>
                 <span className="px-1.5 py-0.2 rounded text-[9px] font-mono font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30">
-                  25 VIDEOS HD
+                  25 EJERCICIOS
                 </span>
               </div>
               <h2
@@ -326,7 +326,7 @@ export function ExerciseCatalogModal({
                 Listado ({filteredExercises.length} ejercicios)
               </span>
               <span className="text-[10px] font-mono text-zinc-500">
-                Clic para reproducir HD
+                Clic para ver técnica
               </span>
             </div>
 

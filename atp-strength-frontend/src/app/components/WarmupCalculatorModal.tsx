@@ -219,10 +219,10 @@ export function WarmupCalculatorModal({
                   type="button"
                   onClick={() => setShowVideoModal(true)}
                   className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg border border-amber-500/40 bg-amber-500/10 hover:bg-amber-500/20 text-[11px] font-mono font-bold text-amber-300 transition-all active:scale-95 cursor-pointer shadow-[0_0_10px_rgba(245,158,11,0.15)]"
-                  title="Ver video técnico biomecánico en HD"
+                  title="Ver video de técnica biomecánica"
                 >
                   <Play className="w-3 h-3 fill-amber-400 text-amber-400" />
-                  <span>VER TÉCNICA HD</span>
+                  <span>VER TÉCNICA</span>
                 </button>
               )}
             </div>

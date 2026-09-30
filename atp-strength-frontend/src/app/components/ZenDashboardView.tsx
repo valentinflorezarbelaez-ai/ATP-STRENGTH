@@ -10,6 +10,7 @@ import { UniversalProtocolModal } from "@/app/components/UniversalProtocolModal"
 import { UniversalStrengthCalcModal } from "@/app/components/UniversalStrengthCalcModal";
 import { ExerciseVideoModal } from "@/app/components/ExerciseVideoModal";
 import { ExerciseCatalogModal } from "@/app/components/ExerciseCatalogModal";
+import { UniversalProtocolCockpit } from "@/app/components/UniversalProtocolCockpit";
 import { getExerciseMedia } from "@/lib/exerciseMediaCatalog";
 import { WorkoutLogger } from "@/app/components/WorkoutLogger";
 import {
@@ -226,7 +227,7 @@ export function ZenDashboardView({ d, onShowSpotify }: { d: Dash; onShowSpotify?
       {/* Main Grid Layout */}
       <div className="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-12 gap-6 flex-1 items-start">
         {/* Left Column: Itinerario Élite de 4 Días + Ejercicio Activo */}
-        <section className="lg:col-span-6 flex flex-col gap-5">
+        <section className={`flex flex-col gap-5 ${selectedProgramId === "universal-pr" ? "lg:col-span-7" : "lg:col-span-6"}`}>
           {/* Selector de Programa / Mesociclo */}
           <div className="p-4 sm:p-5 rounded-2xl bg-zinc-950 border border-zinc-900 shadow-2xl space-y-3">
             <div className="flex items-center justify-between">
@@ -278,162 +279,146 @@ export function ZenDashboardView({ d, onShowSpotify }: { d: Dash; onShowSpotify?
             <p className="text-[11px] font-mono text-zinc-400 pt-1.5 border-t border-zinc-900 leading-relaxed">
               ⚡ {currentProgram.description}
             </p>
-
-            {selectedProgramId === "universal-pr" && (
-              <div className="p-3.5 rounded-xl bg-zinc-950 border border-amber-500/30 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-lg shadow-amber-500/5">
-                <div className="space-y-0.5">
-                  <span className="text-xs font-mono font-bold text-amber-300 flex items-center gap-1.5">
-                    <Target className="w-3.5 h-3.5 text-amber-400" />
-                    MOTOR UNIVERSAL DE PR &amp; PROGRESIONES
-                  </span>
-                  <p className="text-[10px] text-zinc-400">
-                    Agnóstico al ejercicio: calculá tu 1RM submáximo, tus 6 fases exactas y las ondas de sobrecarga para cualquier movimiento.
-                  </p>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setShowUniversalCalc(true)}
-                  className="px-3 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-zinc-950 font-mono font-bold text-xs uppercase tracking-wider transition-all flex items-center gap-1.5 cursor-pointer shadow-md shadow-amber-500/20 active:scale-95 flex-shrink-0"
-                >
-                  <BarChart3 className="w-3.5 h-3.5" />
-                  <span>CALCULAR FASES &amp; PR</span>
-                </button>
-              </div>
-            )}
           </div>
 
-          {/* Selector de Itinerario */}
-          <div className="p-5 rounded-2xl bg-zinc-950 border border-zinc-900 shadow-2xl">
-            <div className="flex items-center justify-between mb-4">
-              <span className="text-xs font-mono text-zinc-400 flex items-center gap-2">
-                <Calendar className="w-4 h-4 text-amber-400" /> ITINERARIO DEL CICLO
-              </span>
-              <span className="text-[11px] font-mono text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/20">
-                {scheduleDays.filter((d) => !d.isRest).length} DÍAS + {scheduleDays.filter((d) => d.isRest).length} DESCANSO
-              </span>
-            </div>
-
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-              {scheduleDays.map((day) => {
-                const isSelected = day.key === selectedDayKey;
-                return (
-                  <button
-                    key={day.key}
-                    onClick={() => {
-                      setSelectedDayKey(day.key);
-                      setActiveExerciseIndex(0);
-                      const dayObj = scheduleDays.find((d) => d.key === day.key);
-                      const firstEx = dayObj?.exercises[0];
-                      const done = firstEx ? (completedSetsMap[firstEx.name]?.length || 0) : 0;
-                      const nextSet = done > 0 && done < (firstEx?.sets || 1) ? done + 1 : 1;
-                      setCurrentSet(nextSet);
-                      setActivePhaseStep(done === 0 ? "F1" : nextSet.toString());
-                      persistSessionProgress(completedSetsMap, completedWarmupMap, day.key, 0, nextSet, done === 0 ? "F1" : nextSet.toString());
-                    }}
-                    className={`p-3 rounded-xl text-left transition-all border relative overflow-hidden cursor-pointer ${
-                      isSelected
-                        ? "bg-amber-500/10 border-amber-500/50 text-white shadow-lg shadow-amber-500/5"
-                        : day.isRest
-                        ? "bg-zinc-950/40 border-zinc-900 text-zinc-400 hover:border-zinc-800"
-                        : "bg-zinc-900/40 border-zinc-800/80 text-zinc-400 hover:border-zinc-700 hover:text-zinc-200"
-                    }`}
-                  >
-                    <div className="flex items-center justify-between mb-1">
-                      <span className="text-xs font-bold truncate">{day.name}</span>
-                      {day.isRest && <Lock className="w-3 h-3 text-zinc-400" />}
-                    </div>
-                    <div className="text-[10px] text-zinc-400 truncate">
-                      {day.isRest ? "Descanso Absoluto" : day.focus}
-                    </div>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* Barra de Progreso de la Sesión + Botón de Reset */}
-          {!activeDay.isRest && (
-            <div className="p-4 sm:p-5 rounded-2xl bg-zinc-950 border border-zinc-900 shadow-xl space-y-3">
-              <div className="flex items-center justify-between text-xs font-mono">
-                <div className="flex items-center gap-2">
-                  <div className="p-2 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-400">
-                    <Activity className="w-4 h-4" />
-                  </div>
-                  <div>
-                    <div className="font-bold text-white uppercase tracking-wider flex items-center gap-2">
-                      <span>PROGRESO DE HOY</span>
-                      {isDayFinished && (
-                        <span className="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 font-bold text-[10px]">
-                          COMPLETADO ✓
-                        </span>
-                      )}
-                    </div>
-                    <div className="text-zinc-400 text-[11px] font-mono mt-0.5">
-                      {completedDaySets} de {totalDaySets} series efectivas ({dayProgressPercent}%)
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-2">
-                  {isDayFinished && (
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setShowVictoryModal(true);
-                        playChime(true);
-                      }}
-                      className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-gradient-to-r from-amber-500/20 to-amber-600/10 hover:from-amber-500/30 border border-amber-500/40 text-amber-300 font-mono font-bold text-xs transition-all active:scale-95 cursor-pointer shadow-md shadow-amber-500/10"
-                      title="Ver resumen y tonelaje de la sesión"
-                    >
-                      <Trophy className="w-3.5 h-3.5 text-amber-400" />
-                      <span>Resumen</span>
-                    </button>
-                  )}
-
-                  {/* Botón de Reset de Sesión */}
-                  <button
-                    type="button"
-                    onClick={() => setShowResetModal(true)}
-                    className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-zinc-800 bg-zinc-900/80 hover:bg-zinc-800 hover:border-amber-500/40 text-xs font-mono text-zinc-300 hover:text-amber-400 transition-all active:scale-95 cursor-pointer shadow-sm"
-                    title="Reiniciar progreso de sesión o ejercicio"
-                  >
-                    <RotateCcw className="w-3.5 h-3.5 text-amber-400" />
-                    <span>Reset</span>
-                  </button>
-                </div>
-              </div>
-
-              {/* Barra de Progreso Visual */}
-              <div className="w-full h-2.5 rounded-full bg-zinc-900 overflow-hidden border border-zinc-800/80">
-                <div
-                  className="h-full bg-gradient-to-r from-amber-500 via-amber-400 to-emerald-400 rounded-full transition-all duration-500 ease-out shadow-[0_0_12px_rgba(245,158,11,0.3)]"
-                  style={{ width: `${dayProgressPercent}%` }}
-                />
-              </div>
-            </div>
-          )}
-
-          {/* Si el día actual es de Descanso Absoluto */}
-          {activeDay.isRest ? (
-            <div className="p-8 rounded-2xl bg-zinc-950 border border-zinc-900 text-center flex flex-col items-center justify-center gap-4 shadow-2xl">
-              <div className="p-4 rounded-full bg-zinc-900 border border-zinc-800 text-zinc-400">
-                <Lock className="w-8 h-8 text-amber-400" />
-              </div>
-              <div>
-                <h3 className="text-lg font-bold text-white uppercase tracking-wider mb-2">
-                  Día de Descanso Absoluto
-                </h3>
-                <p className="text-xs text-zinc-400 max-w-md mx-auto leading-relaxed">
-                  {activeDay.restMessage}
-                </p>
-              </div>
-              <div className="px-4 py-2 rounded-xl bg-zinc-900/60 border border-zinc-800 text-[11px] font-mono text-amber-400/90">
-                ⚡ El crecimiento muscular y la regeneración del SNC ocurren en ausencia de carga.
-              </div>
-            </div>
+          {selectedProgramId === "universal-pr" ? (
+            <UniversalProtocolCockpit onStartTimer={handleStartTimer} />
           ) : (
             <>
-              <WorkoutLogger d={d} />
+              {/* Selector de Itinerario */}
+              <div className="p-5 rounded-2xl bg-zinc-950 border border-zinc-900 shadow-2xl">
+                <div className="flex items-center justify-between mb-4">
+                  <span className="text-xs font-mono text-zinc-400 flex items-center gap-2">
+                    <Calendar className="w-4 h-4 text-amber-400" /> ITINERARIO DEL CICLO
+                  </span>
+                  <span className="text-[11px] font-mono text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/20">
+                    {scheduleDays.filter((d) => !d.isRest).length} DÍAS + {scheduleDays.filter((d) => d.isRest).length} DESCANSO
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                  {scheduleDays.map((day) => {
+                    const isSelected = day.key === selectedDayKey;
+                    return (
+                      <button
+                        key={day.key}
+                        onClick={() => {
+                          setSelectedDayKey(day.key);
+                          setActiveExerciseIndex(0);
+                          const dayObj = scheduleDays.find((d) => d.key === day.key);
+                          const firstEx = dayObj?.exercises[0];
+                          const done = firstEx ? (completedSetsMap[firstEx.name]?.length || 0) : 0;
+                          const nextSet = done > 0 && done < (firstEx?.sets || 1) ? done + 1 : 1;
+                          setCurrentSet(nextSet);
+                          setActivePhaseStep(done === 0 ? "F1" : nextSet.toString());
+                          persistSessionProgress(completedSetsMap, completedWarmupMap, day.key, 0, nextSet, done === 0 ? "F1" : nextSet.toString());
+                        }}
+                        className={`p-3 rounded-xl text-left transition-all border relative overflow-hidden cursor-pointer ${
+                          isSelected
+                            ? "bg-amber-500/10 border-amber-500/50 text-white shadow-lg shadow-amber-500/5"
+                            : day.isRest
+                            ? "bg-zinc-950/40 border-zinc-900 text-zinc-400 hover:border-zinc-800"
+                            : "bg-zinc-900/40 border-zinc-800/80 text-zinc-400 hover:border-zinc-700 hover:text-zinc-200"
+                        }`}
+                      >
+                        <div className="flex items-center justify-between mb-1">
+                          <span className="text-xs font-bold truncate">{day.name}</span>
+                          {day.isRest && <Lock className="w-3 h-3 text-zinc-400" />}
+                        </div>
+                        <div className="text-[10px] text-zinc-400 truncate">
+                          {day.isRest ? "Descanso Absoluto" : day.focus}
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Barra de Progreso de la Sesión + Botón de Reset */}
+              {!activeDay.isRest && (
+                <div className="p-4 sm:p-5 rounded-2xl bg-zinc-950 border border-zinc-900 shadow-xl space-y-3">
+                  <div className="flex items-center justify-between text-xs font-mono">
+                    <div className="flex items-center gap-2">
+                      <div className="p-2 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-400">
+                        <Activity className="w-4 h-4" />
+                      </div>
+                      <div>
+                        <div className="font-bold text-white uppercase tracking-wider flex items-center gap-2">
+                          <span>PROGRESO DE HOY</span>
+                          {isDayFinished && (
+                            <span className="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 font-bold text-[10px]">
+                              COMPLETADO ✓
+                            </span>
+                          )}
+                        </div>
+                        <div className="text-zinc-400 text-[11px] font-mono mt-0.5">
+                          {completedDaySets} de {totalDaySets} series efectivas ({dayProgressPercent}%)
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      {isDayFinished && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setShowVictoryModal(true);
+                            playChime(true);
+                          }}
+                          className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-gradient-to-r from-amber-500/20 to-amber-600/10 hover:from-amber-500/30 border border-amber-500/40 text-amber-300 font-mono font-bold text-xs transition-all active:scale-95 cursor-pointer shadow-md shadow-amber-500/10"
+                          title="Ver resumen y tonelaje de la sesión"
+                        >
+                          <Trophy className="w-3.5 h-3.5 text-amber-400" />
+                          <span>Resumen</span>
+                        </button>
+                      )}
+
+                      {/* Botón de Reset de Sesión */}
+                      <button
+                        type="button"
+                        onClick={() => setShowResetModal(true)}
+                        className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-zinc-800 bg-zinc-900/80 hover:bg-zinc-800 hover:border-amber-500/40 text-xs font-mono text-zinc-300 hover:text-amber-400 transition-all active:scale-95 cursor-pointer shadow-sm"
+                        title="Reiniciar progreso de sesión o ejercicio"
+                      >
+                        <RotateCcw className="w-3.5 h-3.5 text-amber-400" />
+                        <span>Reset</span>
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Barra de Progreso Visual */}
+                  <div className="w-full h-2.5 rounded-full bg-zinc-900 overflow-hidden border border-zinc-800/80">
+                    <div
+                      className="h-full bg-gradient-to-r from-amber-500 via-amber-400 to-emerald-400 rounded-full transition-all duration-500 ease-out shadow-[0_0_12px_rgba(245,158,11,0.3)]"
+                      style={{ width: `${dayProgressPercent}%` }}
+                    />
+                  </div>
+                </div>
+              )}
+
+              {/* Si el día actual es de Descanso Absoluto */}
+              {activeDay.isRest ? (
+                <div className="p-8 rounded-2xl bg-zinc-950 border border-zinc-900 text-center flex flex-col items-center justify-center gap-4 shadow-2xl">
+                  <div className="p-4 rounded-full bg-zinc-900 border border-zinc-800 text-zinc-400">
+                    <Lock className="w-8 h-8 text-amber-400" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-bold text-white uppercase tracking-wider mb-2">
+                      Día de Descanso Absoluto
+                    </h3>
+                    <p className="text-xs text-zinc-400 max-w-md mx-auto leading-relaxed">
+                      {activeDay.restMessage}
+                    </p>
+                  </div>
+                  <div className="px-4 py-2 rounded-xl bg-zinc-900/60 border border-zinc-800 text-[11px] font-mono text-amber-400/90">
+                    ⚡ El crecimiento muscular y la regeneración del SNC ocurren en ausencia de carga.
+                  </div>
+                </div>
+              ) : (
+                <>
+                  <WorkoutLogger d={d} />
+                </>
+              )}
             </>
           )}
         </section>
@@ -477,74 +462,103 @@ export function ZenDashboardView({ d, onShowSpotify }: { d: Dash; onShowSpotify?
           )}
 
           {/* Matriz Completa del Día con Cargas de Todos los Ejercicios */}
-          <div className="p-5 rounded-2xl bg-zinc-950 border border-zinc-900 shadow-2xl">
-            <div className="flex items-center justify-between mb-3 text-xs font-mono">
-              <span className="text-zinc-300 font-bold uppercase flex items-center gap-2">
-                <Calendar className="w-4 h-4 text-amber-400" /> RUTINA COMPLETA DE HOY
-              </span>
-              <span className="text-[11px] text-amber-400/90 font-mono">
-                {activeDay.exercises.length} Ejercicios
-              </span>
-            </div>
+          {selectedProgramId !== "universal-pr" ? (
+            <div className="p-5 rounded-2xl bg-zinc-950 border border-zinc-900 shadow-2xl">
+              <div className="flex items-center justify-between mb-3 text-xs font-mono">
+                <span className="text-zinc-300 font-bold uppercase flex items-center gap-2">
+                  <Calendar className="w-4 h-4 text-amber-400" /> RUTINA COMPLETA DE HOY
+                </span>
+                <span className="text-[11px] text-amber-400/90 font-mono">
+                  {activeDay.exercises.length} Ejercicios
+                </span>
+              </div>
 
-            <div className="space-y-2">
-              {activeDay.exercises.map((ex, idx) => {
-                const isCurrent = idx === activeExerciseIndex;
-                const exMax = maxesMap[ex.name] || computeMetrics(ex.name, 80, 5);
-                const doneCount = completedSetsMap[ex.name]?.length || 0;
+              <div className="space-y-2">
+                {activeDay.exercises.map((ex, idx) => {
+                  const isCurrent = idx === activeExerciseIndex;
+                  const exMax = maxesMap[ex.name] || computeMetrics(ex.name, 80, 5);
+                  const doneCount = completedSetsMap[ex.name]?.length || 0;
 
-                return (
-                  <button
-                    key={ex.name}
-                    onClick={() => {
-                      setActiveExerciseIndex(idx);
-                      setCurrentSet(1);
-                    }}
-                    className={`w-full p-3.5 rounded-xl text-left flex items-center justify-between text-xs transition-all border cursor-pointer ${
-                      isCurrent
-                        ? "bg-amber-500/10 border-amber-500/40 text-white shadow-md shadow-amber-500/5"
-                        : "bg-zinc-900/30 border-zinc-800/80 text-zinc-400 hover:border-zinc-700 hover:text-zinc-200"
-                    }`}
-                  >
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <span className="font-mono text-zinc-500 text-[11px]">{idx + 1}.</span>
-                        <span className="font-bold text-zinc-200 text-sm">{ex.name}</span>
-                      </div>
-                      <div className="text-[11px] text-zinc-400 font-mono mt-1">
-                        {ex.sets} series de {ex.reps} • Descanso: {Math.floor(ex.restSeconds / 60)} min
-                      </div>
-                    </div>
-
-                    <div className="flex items-center gap-3">
-                      <div className="text-right">
-                        <div className="text-sm font-black font-mono text-amber-400">
-                          {exMax.prescriptions.phase_5_work} kg
+                  return (
+                    <button
+                      key={ex.name}
+                      onClick={() => {
+                        setActiveExerciseIndex(idx);
+                        setCurrentSet(1);
+                      }}
+                      className={`w-full p-3.5 rounded-xl text-left flex items-center justify-between text-xs transition-all border cursor-pointer ${
+                        isCurrent
+                          ? "bg-amber-500/10 border-amber-500/40 text-white shadow-md shadow-amber-500/5"
+                          : "bg-zinc-900/30 border-zinc-800/80 text-zinc-400 hover:border-zinc-700 hover:text-zinc-200"
+                      }`}
+                    >
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span className="font-mono text-zinc-500 text-[11px]">{idx + 1}.</span>
+                          <span className="font-bold text-zinc-200 text-sm">{ex.name}</span>
                         </div>
-                        <div className="text-[10px] font-mono text-zinc-500 mt-0.5">
-                          {doneCount} / {ex.sets} series
+                        <div className="text-[11px] text-zinc-400 font-mono mt-1">
+                          {ex.sets} series de {ex.reps} • Descanso: {Math.floor(ex.restSeconds / 60)} min
                         </div>
                       </div>
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setSelectedVideoExercise(ex.name);
-                        }}
-                        className="p-2 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 text-amber-400 transition-all active:scale-95 cursor-pointer"
-                        title="Ver video técnico en HD"
-                      >
-                        <Play className="w-3.5 h-3.5 fill-amber-400" />
-                      </button>
-                    </div>
-                  </button>
-                );
-              })}
+
+                      <div className="flex items-center gap-3">
+                        <div className="text-right">
+                          <div className="text-sm font-black font-mono text-amber-400">
+                            {exMax.prescriptions.phase_5_work} kg
+                          </div>
+                          <div className="text-[10px] font-mono text-zinc-500 mt-0.5">
+                            {doneCount} / {ex.sets} series
+                          </div>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setSelectedVideoExercise(ex.name);
+                          }}
+                          className="p-2 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 text-amber-400 transition-all active:scale-95 cursor-pointer"
+                          title="Ver video técnico"
+                        >
+                          <Play className="w-3.5 h-3.5 fill-amber-400" />
+                        </button>
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
             </div>
-          </div>
+          ) : (
+            <div className="p-5 rounded-2xl bg-zinc-950 border border-zinc-900 shadow-2xl space-y-4">
+              <div className="flex items-center justify-between border-b border-zinc-900 pb-2">
+                <span className="text-xs font-mono font-bold text-amber-400 uppercase flex items-center gap-2">
+                  <Sparkles className="w-4 h-4" /> MOTOR UNIVERSAL &middot; ACCESOS RÁPIDOS
+                </span>
+                <span className="text-[10px] font-mono text-zinc-500">MODO ACTIVO</span>
+              </div>
+              <p className="text-xs text-zinc-400 leading-relaxed font-mono">
+                Este programa no depende de una rutina fija ni de días predeterminados. Elegí o escribí cualquier ejercicio en el panel izquierdo, ingresá tu PR y ejecutá el protocolo exacto paso a paso.
+              </p>
+              <div className="grid grid-cols-2 gap-2 text-center text-xs font-mono">
+                <a
+                  href="/calc"
+                  className="p-3 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-zinc-200 hover:text-amber-400 transition-all font-bold"
+                >
+                  ⚡ Pantalla Completa (/calc)
+                </a>
+                <button
+                  type="button"
+                  onClick={() => setShowUniversalCalc(true)}
+                  className="p-3 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/30 text-amber-300 font-bold transition-all cursor-pointer"
+                >
+                  📊 Abrir Modal Fases
+                </button>
+              </div>
+            </div>
+          )}
 
           {/* Guía Fisiológica de las Fases ATP con Kilos Exactos Adaptados */}
-          {!activeDay.isRest && (
+          {!activeDay.isRest && selectedProgramId !== "universal-pr" && (
           <div id="guia-fases-atp" className="p-5 rounded-2xl bg-zinc-950 border border-zinc-900 shadow-2xl space-y-3 scroll-mt-6">
             <div className="flex items-center justify-between mb-1 text-xs font-mono">
               <span className="text-zinc-300 font-bold uppercase flex items-center gap-2">
@@ -554,10 +568,10 @@ export function ZenDashboardView({ d, onShowSpotify }: { d: Dash; onShowSpotify?
                 type="button"
                 onClick={() => setSelectedVideoExercise(activeExercise.name)}
                 className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg border border-amber-500/40 bg-amber-500/10 hover:bg-amber-500/20 text-xs font-mono font-bold text-amber-300 transition-all active:scale-95 cursor-pointer shadow-[0_0_10px_rgba(245,158,11,0.15)]"
-                title="Ver video técnico biomecánico en HD"
+                title="Ver video de técnica biomecánica"
               >
                 <Play className="w-3 h-3 fill-amber-400 text-amber-400" />
-                <span>TÉCNICA HD</span>
+                <span>TÉCNICA</span>
               </button>
               <div className="flex items-center gap-3">
                 <button
@@ -740,10 +754,10 @@ export function ZenDashboardView({ d, onShowSpotify }: { d: Dash; onShowSpotify?
                   type="button"
                   onClick={() => setSelectedVideoExercise(selectedProgressEx)}
                   className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-amber-500/40 bg-amber-500/10 hover:bg-amber-500/20 text-xs font-mono font-bold text-amber-300 transition-all active:scale-95 cursor-pointer shadow-[0_0_10px_rgba(245,158,11,0.15)]"
-                  title="Ver video técnico en HD"
+                  title="Ver video técnico"
                 >
                   <Play className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
-                  <span>VER TÉCNICA HD</span>
+                  <span>VER TÉCNICA</span>
                 </button>
               </div>
 
