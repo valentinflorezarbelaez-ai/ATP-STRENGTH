@@ -54,6 +54,14 @@ jobs:
         working-directory: ./atp-strength-frontend
         run: npm run build
 
+      - name: Install Playwright Chromium
+        working-directory: ./atp-strength-frontend
+        run: npx playwright install --with-deps chromium
+
+      - name: Run End-to-End Browser Tests (Playwright)
+        working-directory: ./atp-strength-frontend
+        run: npm run test:e2e
+
   backend-ci:
     name: Backend Suite (Python ${{ matrix.python-version }})
     runs-on: ubuntu-latest
