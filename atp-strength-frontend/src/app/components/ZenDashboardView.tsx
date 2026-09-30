@@ -102,15 +102,6 @@ export function ZenDashboardView({ d, onShowSpotify }: { d: Dash; onShowSpotify?
                 </a>
                 <button
                   type="button"
-                  onClick={() => setShowCatalogModal(true)}
-                  className="px-2.5 py-1 rounded-lg text-[10px] font-mono font-bold bg-gradient-to-r from-amber-500/20 to-yellow-500/20 text-amber-300 border border-amber-500/40 hover:bg-amber-500/30 hover:border-amber-400/60 transition-all flex items-center gap-1.5 shadow-[0_0_15px_rgba(245,158,11,0.2)] active:scale-95 flex-shrink-0 cursor-pointer"
-                  title="Abrir Biblioteca Técnica con los 25 videos oficiales en HD"
-                >
-                  <span>🎬</span>
-                  <span>VIDEOS HD (25)</span>
-                </button>
-                <button
-                  type="button"
                   onClick={() => setShowUniversalCalc(true)}
                   className="px-2.5 py-1 rounded-lg text-[10px] font-mono font-bold bg-gradient-to-r from-cyan-500/20 to-amber-500/20 text-cyan-300 border border-cyan-500/40 hover:bg-cyan-500/30 hover:border-cyan-400/60 transition-all flex items-center gap-1.5 shadow-[0_0_15px_rgba(6,182,212,0.15)] active:scale-95 flex-shrink-0 cursor-pointer"
                   title="Universal Phase Calculator — Any Exercise"
