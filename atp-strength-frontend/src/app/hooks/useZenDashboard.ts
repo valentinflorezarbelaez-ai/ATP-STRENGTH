@@ -35,8 +35,6 @@ import {
   getLocalProgressionCurve,
   getLocalSupercompensationTrend,
   logLocalSetHistory,
-  type ProgressionCurvePoint,
-  type SupercompensationTrend,
 } from "@/lib/prHistory";
 import { playChime } from "@/lib/zenAudio";
 
@@ -167,10 +165,10 @@ export function useZenDashboard() {
   const [historyRevision, setHistoryRevision] = useState(0);
   const [serverHistory, setServerHistory] = useState<HistoryItem[]>([]);
 
-  const localHistory = useMemo(
-    () => getLocalExerciseHistory(selectedProgressEx),
-    [selectedProgressEx, historyRevision]
-  );
+  const localHistory = useMemo(() => {
+    void historyRevision;
+    return getLocalExerciseHistory(selectedProgressEx);
+  }, [selectedProgressEx, historyRevision]);
 
   const exerciseHistory = useMemo<HistoryItem[]>(() => {
     if (serverHistory.length > 0) return serverHistory;
@@ -192,15 +190,15 @@ export function useZenDashboard() {
     }));
   }, [serverHistory, localHistory]);
 
-  const progressionCurve = useMemo(
-    () => getLocalProgressionCurve(selectedProgressEx),
-    [selectedProgressEx, historyRevision]
-  );
+  const progressionCurve = useMemo(() => {
+    void historyRevision;
+    return getLocalProgressionCurve(selectedProgressEx);
+  }, [selectedProgressEx, historyRevision]);
 
-  const supercompensationTrend = useMemo(
-    () => getLocalSupercompensationTrend(selectedProgressEx),
-    [selectedProgressEx, historyRevision]
-  );
+  const supercompensationTrend = useMemo(() => {
+    void historyRevision;
+    return getLocalSupercompensationTrend(selectedProgressEx);
+  }, [selectedProgressEx, historyRevision]);
 
   const activeDay = scheduleDays.find((d) => d.key === selectedDayKey) || scheduleDays[0];
   const activeExercise = activeDay.exercises[activeExerciseIndex] || activeDay.exercises[0] || REST_PLACEHOLDER_EXERCISE;

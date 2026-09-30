@@ -45,6 +45,15 @@ describe('SPEC-0009 PR Historical Persistence & Progression', () => {
       assert.throws(() => recordSetHistory(storage, { exercise_name: 'Sentadilla', load_kg: 0, completed_reps: 3 }), /ERR_INVALID_LOAD/);
       assert.throws(() => recordSetHistory(storage, { exercise_name: 'Sentadilla', load_kg: 100, completed_reps: 0 }), /ERR_INVALID_REPS/);
     });
+
+    it('verifies storage key, capacity limits, and safe empty retrieval', () => {
+      assert.equal(typeof HISTORY_STORAGE_KEY, 'string');
+      assert.equal(HISTORY_STORAGE_KEY, 'atp_history_records_v1');
+      assert.equal(MAX_HISTORY_RECORDS, 2000);
+      assert.deepEqual(getAllHistoryRecords(null), []);
+      const storage = createMemoryStorage();
+      assert.deepEqual(getAllHistoryRecords(storage), []);
+    });
   });
 
   describe('PR Detection & e1RM Calculation', () => {
