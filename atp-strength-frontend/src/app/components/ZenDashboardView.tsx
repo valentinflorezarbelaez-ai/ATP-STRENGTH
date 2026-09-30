@@ -36,7 +36,6 @@ export function ZenDashboardView({ d, onShowSpotify }: { d: Dash; onShowSpotify?
   const [showCatalogModal, setShowCatalogModal] = React.useState(false);
   const [showUniversalCalc, setShowUniversalCalc] = React.useState(false);
   const [backupStatusMsg, setBackupStatusMsg] = React.useState<string | null>(null);
-  const [universalTab, setUniversalTab] = React.useState<"ROUTINE" | "COCKPIT">("ROUTINE");
   const {
     selectedDayKey, setSelectedDayKey,
     activeExerciseIndex, setActiveExerciseIndex,
@@ -116,22 +115,13 @@ export function ZenDashboardView({ d, onShowSpotify }: { d: Dash; onShowSpotify?
                 >
                   🎵 SPOTIFY
                 </a>
-                <button
-                  type="button"
-                  onClick={() => {
-                    playTactileClick();
-                    setUniversalTab("COCKPIT");
-                  }}
-                  className={`px-3 py-1 rounded-lg text-[10px] font-mono font-bold border transition-all flex items-center gap-1.5 shadow-sm active:scale-95 flex-shrink-0 cursor-pointer ${
-                    universalTab === "COCKPIT"
-                      ? "bg-amber-500 text-black border-amber-400 font-extrabold shadow-[0_0_12px_rgba(245,158,11,0.3)]"
-                      : "bg-amber-500/15 text-amber-300 border-amber-500/35 hover:bg-amber-500/25"
-                  }`}
-                  title="Aplicar Protocolo Universal PR a cualquier ejercicio libre"
+                <div
+                  className="px-3 py-1 rounded-lg text-[10px] font-mono font-bold border border-amber-400 bg-amber-500 text-black flex items-center gap-1.5 shadow-[0_0_12px_rgba(245,158,11,0.3)] flex-shrink-0"
+                  title="Protocolo Universal PR activo para cualquier ejercicio libre"
                 >
-                  <Sparkles className="w-3 h-3 text-amber-400" />
+                  <Sparkles className="w-3 h-3 text-black fill-black" />
                   <span>⚡ PROTOCOLO PR (CUALQUIER EJERCICIO)</span>
-                </button>
+                </div>
                 <a
                   href="/calc"
                   className="px-2.5 py-1 rounded-lg text-[10px] font-mono font-bold bg-zinc-950 border border-zinc-800 text-zinc-300 hover:text-amber-400 hover:border-amber-500/50 transition-all flex items-center gap-1 flex-shrink-0"
@@ -248,269 +238,54 @@ export function ZenDashboardView({ d, onShowSpotify }: { d: Dash; onShowSpotify?
 
       {/* Main Grid Layout */}
       <div className="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-12 gap-6 flex-1 items-start">
-        {/* Left Column: Protocolo Universal PR Itinerario & Rutina */}
-        <section className={`flex flex-col gap-5 ${universalTab === "COCKPIT" ? "lg:col-span-7" : "lg:col-span-6"}`}>
-          {/* Header del Protocolo Universal PR (Programa Único Activo) */}
-          <div className="p-4 sm:p-5 rounded-3xl bg-zinc-950 border border-amber-500/30 shadow-2xl space-y-3 relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-64 h-32 bg-amber-500/5 rounded-full blur-2xl pointer-events-none" />
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+        {/* Left Column: Protocolo Universal PR para Cualquier Ejercicio */}
+        <section className="flex flex-col gap-5 lg:col-span-7">
+          {/* Directiva de Oro del Protocolo Universal PR */}
+          <div className="rounded-2xl border border-amber-500/25 bg-gradient-to-b from-amber-500/10 via-zinc-950 to-zinc-950 p-4 shadow-xl space-y-3">
+            <div className="flex items-center justify-between border-b border-zinc-800/80 pb-2">
               <div className="flex items-center gap-2">
-                <span className="p-2 rounded-xl bg-amber-500/20 text-amber-400 border border-amber-500/30">
-                  <Dumbbell className="w-4 h-4" />
+                <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+                <span className="text-xs font-extrabold text-white uppercase tracking-wider font-mono">
+                  Directiva de Oro · Protocolo Universal PR
                 </span>
-                <div>
-                  <h2 className="text-sm sm:text-base font-extrabold text-white tracking-wide uppercase">
-                    Protocolo Universal PR
-                  </h2>
-                  <p className="text-[10px] text-zinc-400 font-mono">
-                    Sistema Oficial de Fuerza Absoluta & Potencia Neuromuscular
-                  </p>
-                </div>
               </div>
-              <span className="text-[10px] font-mono text-amber-400 bg-amber-500/10 px-3 py-1 rounded-full border border-amber-500/30 font-bold tracking-wider shrink-0">
-                PROGRAMA ÚNICO ACTIVO · 4 DÍAS + 3 DESCANSO
-              </span>
+              <span className="text-[10px] font-mono text-zinc-500">SSOT OFICIAL</span>
             </div>
 
-            {/* Selector de Modo: Rutina 4D vs Protocolo PR en Cualquier Ejercicio */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
-              <button
-                type="button"
-                onClick={() => setUniversalTab("ROUTINE")}
-                className={`p-3 rounded-2xl text-left transition-all border flex items-center justify-between cursor-pointer ${
-                  universalTab === "ROUTINE"
-                    ? "bg-amber-500/15 border-amber-500/60 text-white shadow-lg shadow-amber-500/10"
-                    : "bg-zinc-900/40 border-zinc-800 text-zinc-400 hover:border-zinc-700 hover:text-zinc-200"
-                }`}
-              >
-                <div className="space-y-0.5">
-                  <div className="flex items-center gap-1.5 text-xs font-bold font-mono">
-                    <Calendar className="w-3.5 h-3.5 text-amber-400" />
-                    <span className={universalTab === "ROUTINE" ? "text-amber-400 font-extrabold" : "text-zinc-200"}>
-                      1. Rutina Semanal (Split 4D)
-                    </span>
-                  </div>
-                  <p className="text-[10px] text-zinc-400 font-mono">
-                    Push, Pull, Legs & Power (3 ejercicios clave/día)
-                  </p>
-                </div>
-                {universalTab === "ROUTINE" && (
-                  <span className="w-2 h-2 rounded-full bg-amber-400 shrink-0" />
-                )}
-              </button>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 text-xs">
+              <div className="p-2.5 rounded-xl bg-zinc-900/60 border border-zinc-800 space-y-1">
+                <span className="text-[11px] font-bold text-amber-400 flex items-center gap-1 font-mono">
+                  <Dumbbell className="w-3 h-3" /> 1. ¿Cuántos hacer?
+                </span>
+                <p className="text-[10px] text-zinc-300 leading-tight">
+                  <strong className="text-white">3 ejercicios clave</strong> por día (1 Principal pesado + 1 Secundario angular + 1 Blindaje).
+                </p>
+              </div>
 
-              <button
-                type="button"
-                onClick={() => setUniversalTab("COCKPIT")}
-                className={`p-3 rounded-2xl text-left transition-all border flex items-center justify-between cursor-pointer ${
-                  universalTab === "COCKPIT"
-                    ? "bg-amber-500/15 border-amber-500/60 text-white shadow-lg shadow-amber-500/10"
-                    : "bg-zinc-900/40 border-zinc-800 text-zinc-400 hover:border-zinc-700 hover:text-zinc-200"
-                }`}
-              >
-                <div className="space-y-0.5">
-                  <div className="flex items-center gap-1.5 text-xs font-bold font-mono">
-                    <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-                    <span className={universalTab === "COCKPIT" ? "text-amber-400 font-extrabold" : "text-zinc-200"}>
-                      2. Protocolo PR (Cualquier Ejercicio)
-                    </span>
-                  </div>
-                  <p className="text-[10px] text-zinc-400 font-mono">
-                    Aplica el protocolo a cualquier ejercicio o PR libre
-                  </p>
-                </div>
-                {universalTab === "COCKPIT" && (
-                  <span className="w-2 h-2 rounded-full bg-amber-400 shrink-0" />
-                )}
-              </button>
+              <div className="p-2.5 rounded-xl bg-zinc-900/60 border border-zinc-800 space-y-1">
+                <span className="text-[11px] font-bold text-amber-400 flex items-center gap-1 font-mono">
+                  <Timer className="w-3 h-3" /> 2. ¿Cuánto descansar?
+                </span>
+                <p className="text-[10px] text-zinc-300 leading-tight">
+                  <strong className="text-amber-300">4-5 min</strong> en series pesadas (ATP-PCr 99%), <strong className="text-zinc-200">2-3 min</strong> en aproximación, <strong className="text-zinc-200">2 min</strong> accesorios.
+                </p>
+              </div>
+
+              <div className="p-2.5 rounded-xl bg-zinc-900/60 border border-zinc-800 space-y-1">
+                <span className="text-[11px] font-bold text-amber-400 flex items-center gap-1 font-mono">
+                  <Zap className="w-3 h-3" /> 3. ¿Y demás?
+                </span>
+                <p className="text-[10px] text-zinc-300 leading-tight">
+                  <strong className="text-amber-300">RIR 1-2</strong> (cero fallo concéntrico), tempo <strong className="text-zinc-200">3-1-X-1</strong> y +2.5 kg cuando RPE ≤ 7.
+                </p>
+              </div>
             </div>
           </div>
 
-          {universalTab === "COCKPIT" ? (
-            <UniversalProtocolCockpit
-              onStartTimer={handleStartTimer}
-              onOpenVideo={(name) => setSelectedVideoExercise(name)}
-            />
-          ) : (
-            <>
-              {/* Directiva de Oro del Protocolo Universal PR */}
-              <div className="rounded-2xl border border-amber-500/25 bg-gradient-to-b from-amber-500/10 via-zinc-950 to-zinc-950 p-4 shadow-xl space-y-3">
-                <div className="flex items-center justify-between border-b border-zinc-800/80 pb-2">
-                  <div className="flex items-center gap-2">
-                    <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-                    <span className="text-xs font-extrabold text-white uppercase tracking-wider font-mono">
-                      Directiva de Oro · Protocolo Universal PR
-                    </span>
-                  </div>
-                  <span className="text-[10px] font-mono text-zinc-500">SSOT OFICIAL</span>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 text-xs">
-                  <div className="p-2.5 rounded-xl bg-zinc-900/60 border border-zinc-800 space-y-1">
-                    <span className="text-[11px] font-bold text-amber-400 flex items-center gap-1 font-mono">
-                      <Dumbbell className="w-3 h-3" /> 1. ¿Cuántos hacer?
-                    </span>
-                    <p className="text-[10px] text-zinc-300 leading-tight">
-                      <strong className="text-white">3 ejercicios clave</strong> por día (1 Principal pesado + 1 Secundario angular + 1 Blindaje).
-                    </p>
-                  </div>
-
-                  <div className="p-2.5 rounded-xl bg-zinc-900/60 border border-zinc-800 space-y-1">
-                    <span className="text-[11px] font-bold text-amber-400 flex items-center gap-1 font-mono">
-                      <Timer className="w-3 h-3" /> 2. ¿Cuánto descansar?
-                    </span>
-                    <p className="text-[10px] text-zinc-300 leading-tight">
-                      <strong className="text-amber-300">4-5 min</strong> en series pesadas (ATP-PCr 99%), <strong className="text-zinc-200">2-3 min</strong> en aproximación, <strong className="text-zinc-200">2 min</strong> accesorios.
-                    </p>
-                  </div>
-
-                  <div className="p-2.5 rounded-xl bg-zinc-900/60 border border-zinc-800 space-y-1">
-                    <span className="text-[11px] font-bold text-amber-400 flex items-center gap-1 font-mono">
-                      <Zap className="w-3 h-3" /> 3. ¿Y demás?
-                    </span>
-                    <p className="text-[10px] text-zinc-300 leading-tight">
-                      <strong className="text-amber-300">RIR 1-2</strong> (cero fallo concéntrico), tempo <strong className="text-zinc-200">3-1-X-1</strong> y +2.5 kg cuando RPE ≤ 7.
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Selector de Itinerario */}
-              <div className="p-5 rounded-2xl bg-zinc-950 border border-zinc-900 shadow-2xl">
-                <div className="flex items-center justify-between mb-4">
-                  <span className="text-xs font-mono text-zinc-400 flex items-center gap-2">
-                    <Calendar className="w-4 h-4 text-amber-400" /> ITINERARIO DEL CICLO
-                  </span>
-                  <span className="text-[11px] font-mono text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/20">
-                    {scheduleDays.filter((d) => !d.isRest).length} DÍAS + {scheduleDays.filter((d) => d.isRest).length} DESCANSO
-                  </span>
-                </div>
-
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                  {scheduleDays.map((day) => {
-                    const isSelected = day.key === selectedDayKey;
-                    return (
-                      <button
-                        key={day.key}
-                        onClick={() => {
-                          setSelectedDayKey(day.key);
-                          setActiveExerciseIndex(0);
-                          const dayObj = scheduleDays.find((d) => d.key === day.key);
-                          const firstEx = dayObj?.exercises[0];
-                          const done = firstEx ? (completedSetsMap[firstEx.name]?.length || 0) : 0;
-                          const nextSet = done > 0 && done < (firstEx?.sets || 1) ? done + 1 : 1;
-                          setCurrentSet(nextSet);
-                          setActivePhaseStep(done === 0 ? "F1" : nextSet.toString());
-                          persistSessionProgress(completedSetsMap, completedWarmupMap, day.key, 0, nextSet, done === 0 ? "F1" : nextSet.toString());
-                        }}
-                        className={`p-3 rounded-xl text-left transition-all border relative overflow-hidden cursor-pointer ${
-                          isSelected
-                            ? "bg-amber-500/10 border-amber-500/50 text-white shadow-lg shadow-amber-500/5"
-                            : day.isRest
-                            ? "bg-zinc-950/40 border-zinc-900 text-zinc-400 hover:border-zinc-800"
-                            : "bg-zinc-900/40 border-zinc-800/80 text-zinc-400 hover:border-zinc-700 hover:text-zinc-200"
-                        }`}
-                      >
-                        <div className="flex items-center justify-between mb-1">
-                          <span className="text-xs font-bold truncate">{day.name}</span>
-                          {day.isRest && <Lock className="w-3 h-3 text-zinc-400" />}
-                        </div>
-                        <div className="text-[10px] text-zinc-400 truncate">
-                          {day.isRest ? "Descanso Absoluto" : day.focus}
-                        </div>
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-
-              {/* Barra de Progreso de la Sesión + Botón de Reset */}
-              {!activeDay.isRest && (
-                <div className="p-4 sm:p-5 rounded-2xl bg-zinc-950 border border-zinc-900 shadow-xl space-y-3">
-                  <div className="flex items-center justify-between text-xs font-mono">
-                    <div className="flex items-center gap-2">
-                      <div className="p-2 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-400">
-                        <Activity className="w-4 h-4" />
-                      </div>
-                      <div>
-                        <div className="font-bold text-white uppercase tracking-wider flex items-center gap-2">
-                          <span>PROGRESO DE HOY</span>
-                          {isDayFinished && (
-                            <span className="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 font-bold text-[10px]">
-                              COMPLETADO ✓
-                            </span>
-                          )}
-                        </div>
-                        <div className="text-zinc-400 text-[11px] font-mono mt-0.5">
-                          {completedDaySets} de {totalDaySets} series efectivas ({dayProgressPercent}%)
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center gap-2">
-                      {isDayFinished && (
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setShowVictoryModal(true);
-                            playChime(true);
-                          }}
-                          className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-gradient-to-r from-amber-500/20 to-amber-600/10 hover:from-amber-500/30 border border-amber-500/40 text-amber-300 font-mono font-bold text-xs transition-all active:scale-95 cursor-pointer shadow-md shadow-amber-500/10"
-                          title="Ver resumen y tonelaje de la sesión"
-                        >
-                          <Trophy className="w-3.5 h-3.5 text-amber-400" />
-                          <span>Resumen</span>
-                        </button>
-                      )}
-
-                      {/* Botón de Reset de Sesión */}
-                      <button
-                        type="button"
-                        onClick={() => setShowResetModal(true)}
-                        className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-zinc-800 bg-zinc-900/80 hover:bg-zinc-800 hover:border-amber-500/40 text-xs font-mono text-zinc-300 hover:text-amber-400 transition-all active:scale-95 cursor-pointer shadow-sm"
-                        title="Reiniciar progreso de sesión o ejercicio"
-                      >
-                        <RotateCcw className="w-3.5 h-3.5 text-amber-400" />
-                        <span>Reset</span>
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Barra de Progreso Visual */}
-                  <div className="w-full h-2.5 rounded-full bg-zinc-900 overflow-hidden border border-zinc-800/80">
-                    <div
-                      className="h-full bg-gradient-to-r from-amber-500 via-amber-400 to-emerald-400 rounded-full transition-all duration-500 ease-out shadow-[0_0_12px_rgba(245,158,11,0.3)]"
-                      style={{ width: `${dayProgressPercent}%` }}
-                    />
-                  </div>
-                </div>
-              )}
-
-              {/* Si el día actual es de Descanso Absoluto */}
-              {activeDay.isRest ? (
-                <div className="p-8 rounded-2xl bg-zinc-950 border border-zinc-900 text-center flex flex-col items-center justify-center gap-4 shadow-2xl">
-                  <div className="p-4 rounded-full bg-zinc-900 border border-zinc-800 text-zinc-400">
-                    <Lock className="w-8 h-8 text-amber-400" />
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-bold text-white uppercase tracking-wider mb-2">
-                      Día de Descanso Absoluto
-                    </h3>
-                    <p className="text-xs text-zinc-400 max-w-md mx-auto leading-relaxed">
-                      {activeDay.restMessage}
-                    </p>
-                  </div>
-                  <div className="px-4 py-2 rounded-xl bg-zinc-900/60 border border-zinc-800 text-[11px] font-mono text-amber-400/90">
-                    ⚡ El crecimiento muscular y la regeneración del SNC ocurren en ausencia de carga.
-                  </div>
-                </div>
-              ) : (
-                <>
-                  <WorkoutLogger d={d} />
-                </>
-              )}
-            </>
-          )}
+          <UniversalProtocolCockpit
+            onStartTimer={handleStartTimer}
+            onOpenVideo={(name) => setSelectedVideoExercise(name)}
+          />
         </section>
 
         {/* Right Column: Sesión del Día + Estado del Descanso ATP + Guía Neuromuscular */}
@@ -551,259 +326,90 @@ export function ZenDashboardView({ d, onShowSpotify }: { d: Dash; onShowSpotify?
             </div>
           )}
 
-          {/* Matriz Completa del Día con Cargas de Todos los Ejercicios */}
-          {universalTab === "ROUTINE" ? (
-            <div className="p-5 rounded-2xl bg-zinc-950 border border-zinc-900 shadow-2xl space-y-3">
-              <div className="flex items-center justify-between mb-1 text-xs font-mono">
-                <span className="text-zinc-200 font-bold uppercase flex items-center gap-2">
-                  <Calendar className="w-4 h-4 text-amber-400" /> RUTINA COMPLETA DE HOY · {activeDay.name.toUpperCase()}
-                </span>
-                <span className="text-[11px] text-amber-400 font-mono font-bold bg-amber-500/10 px-2.5 py-0.5 rounded border border-amber-500/20">
-                  {activeDay.exercises.length} Ejercicios Seleccionados
-                </span>
-              </div>
-
-              <div className="space-y-2.5">
-                {activeDay.exercises.map((ex, idx) => {
-                  const isCurrent = idx === activeExerciseIndex;
-                  const exMax = maxesMap[ex.name] || computeMetrics(ex.name, 80, 5);
-                  const doneCount = completedSetsMap[ex.name]?.length || 0;
-
-                  return (
-                    <button
-                      key={ex.name}
-                      onClick={() => {
-                        setActiveExerciseIndex(idx);
-                        setCurrentSet(1);
-                      }}
-                      className={`w-full p-3.5 rounded-2xl text-left flex items-center justify-between text-xs transition-all border cursor-pointer ${
-                        isCurrent
-                          ? "bg-amber-500/10 border-amber-500/40 text-white shadow-md shadow-amber-500/5"
-                          : "bg-zinc-900/30 border-zinc-800/80 text-zinc-400 hover:border-zinc-700 hover:text-zinc-200"
-                      }`}
-                    >
-                      <div className="space-y-1.5 flex-1 pr-2">
-                        <div className="flex flex-wrap items-center gap-2">
-                          <span className="font-mono text-[10px] font-bold text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/20">
-                            {idx === 0 ? "#1 Principal Pesado" : idx === 1 ? "#2 Secundario Angular" : "#3 Accesorio / Blindaje"}
-                          </span>
-                          <span className="font-bold text-zinc-100 text-sm">{ex.name}</span>
-                        </div>
-                        <div className="text-[11px] text-zinc-300 font-mono">
-                          {ex.sets} series de {ex.reps}
-                        </div>
-                        <div className="flex flex-wrap items-center gap-2 pt-0.5">
-                          <span className="text-[10px] font-mono text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/20 font-bold flex items-center gap-1">
-                            <Timer className="w-3 h-3" />
-                            Descanso: {Math.floor(ex.restSeconds / 60)} min (ATP-PCr 99%)
-                          </span>
-                        </div>
-                      </div>
-
-                      <div className="flex items-center gap-2 shrink-0">
-                        <div className="text-right">
-                          <div className="text-sm font-black font-mono text-amber-400">
-                            {exMax.prescriptions.phase_5_work} kg
-                          </div>
-                          <div className="text-[10px] font-mono text-zinc-500 mt-0.5">
-                            {doneCount} / {ex.sets} series
-                          </div>
-                        </div>
-
-                        {/* Botón Iniciar Descanso Directo */}
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleStartTimer(ex.restSeconds, `${ex.name} · Descanso`);
-                          }}
-                          className="p-2 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/30 text-amber-300 transition-all active:scale-95 cursor-pointer"
-                          title={`Iniciar temporizador de descanso (${Math.floor(ex.restSeconds / 60)} min)`}
-                        >
-                          <Timer className="w-3.5 h-3.5" />
-                        </button>
-
-                        {/* Botón Ver Video Rogue */}
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setSelectedVideoExercise(ex.name);
-                          }}
-                          className="p-2 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-zinc-300 hover:text-amber-400 transition-all active:scale-95 cursor-pointer"
-                          title="Ver video técnico oficial Rogue"
-                        >
-                          <Play className="w-3.5 h-3.5 fill-current" />
-                        </button>
-                      </div>
-                    </button>
-                  );
-                })}
-              </div>
+          {/* Card de Accesos Rápidos & Dominio Universal */}
+          <div className="p-5 rounded-2xl bg-zinc-950 border border-zinc-900 shadow-2xl space-y-4">
+            <div className="flex items-center justify-between border-b border-zinc-900 pb-2">
+              <span className="text-xs font-mono font-bold text-amber-400 uppercase flex items-center gap-2">
+                <Sparkles className="w-4 h-4" /> MOTOR UNIVERSAL · ACCESOS RÁPIDOS
+              </span>
+              <span className="text-[10px] font-mono text-zinc-500">DOMINIO TOTAL</span>
             </div>
-          ) : (
-            <div className="p-5 rounded-2xl bg-zinc-950 border border-zinc-900 shadow-2xl space-y-4">
-              <div className="flex items-center justify-between border-b border-zinc-900 pb-2">
-                <span className="text-xs font-mono font-bold text-amber-400 uppercase flex items-center gap-2">
-                  <Sparkles className="w-4 h-4" /> MOTOR UNIVERSAL &middot; ACCESOS RÁPIDOS
-                </span>
-                <span className="text-[10px] font-mono text-zinc-500">MODO ACTIVO</span>
-              </div>
-              <p className="text-xs text-zinc-400 leading-relaxed font-mono">
-                Este programa no depende de una rutina fija ni de días predeterminados. Elegí o escribí cualquier ejercicio en el panel izquierdo, ingresá tu PR y ejecutá el protocolo exacto paso a paso.
-              </p>
-              <div className="grid grid-cols-2 gap-2 text-center text-xs font-mono">
-                <a
-                  href="/calc"
-                  className="p-3 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-zinc-200 hover:text-amber-400 transition-all font-bold"
-                >
-                  ⚡ Pantalla Completa (/calc)
-                </a>
-                <button
-                  type="button"
-                  onClick={() => setShowUniversalCalc(true)}
-                  className="p-3 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/30 text-amber-300 font-bold transition-all cursor-pointer"
-                >
-                  📊 Abrir Modal Fases
-                </button>
-              </div>
+            <p className="text-xs text-zinc-400 leading-relaxed font-mono">
+              El entrenamiento no se ata a rutinas cerradas ni divisiones rígidas. Elegí o escribí cualquier ejercicio en el panel principal, ingresá tu PR y ejecutá la sobrecarga con tiempos de recuperación ATP precisos.
+            </p>
+            <div className="grid grid-cols-2 gap-2 text-center text-xs font-mono">
+              <a
+                href="/calc"
+                className="p-3 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-zinc-200 hover:text-amber-400 transition-all font-bold"
+              >
+                ⚡ Pantalla Completa (/calc)
+              </a>
+              <button
+                type="button"
+                onClick={() => setShowUniversalCalc(true)}
+                className="p-3 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/30 text-amber-300 font-bold transition-all cursor-pointer"
+              >
+                📊 Abrir Modal Fases
+              </button>
             </div>
-          )}
+          </div>
 
-          {/* Guía Fisiológica de las Fases ATP con Kilos Exactos Adaptados */}
-          {!activeDay.isRest && universalTab === "ROUTINE" && (
-          <div id="guia-fases-atp" className="p-5 rounded-2xl bg-zinc-950 border border-zinc-900 shadow-2xl space-y-3 scroll-mt-6">
-            <div className="flex items-center justify-between mb-1 text-xs font-mono">
-              <span className="text-zinc-300 font-bold uppercase flex items-center gap-2">
-                <Layers className="w-4 h-4 text-amber-400" /> GUÍA DE ACLIMATACIÓN SNC • {activeExercise.name.toUpperCase()}
+          {/* Card Guía Fisiológica de las 6 Fases Neuromusculares */}
+          <div className="p-5 rounded-2xl bg-zinc-950 border border-zinc-900 shadow-2xl space-y-3">
+            <div className="flex items-center justify-between border-b border-zinc-900 pb-2">
+              <span className="text-xs font-mono font-bold text-zinc-200 uppercase flex items-center gap-2">
+                <Layers className="w-4 h-4 text-amber-400" /> FISIOLOGÍA DE LAS 6 FASES
               </span>
               <button
                 type="button"
-                onClick={() => setSelectedVideoExercise(activeExercise.name)}
-                className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg border border-amber-500/40 bg-amber-500/10 hover:bg-amber-500/20 text-xs font-mono font-bold text-amber-300 transition-all active:scale-95 cursor-pointer shadow-[0_0_10px_rgba(245,158,11,0.15)]"
-                title="Ver video de técnica biomecánica"
+                onClick={() => setShowUniversalProtocol(true)}
+                className="text-[11px] font-mono text-amber-400 hover:underline cursor-pointer"
               >
-                <Play className="w-3 h-3 fill-amber-400 text-amber-400" />
-                <span>TÉCNICA</span>
+                Ver Guía Completa
               </button>
-              <div className="flex items-center gap-3">
-                <button
-                  type="button"
-                  onClick={() => setShowWarmupModal(true)}
-                  className="px-2.5 py-1 rounded-xl border border-emerald-500/40 bg-emerald-500/10 hover:bg-emerald-500/20 text-xs font-mono font-bold text-emerald-300 transition-all flex items-center gap-1 cursor-pointer shadow-[0_0_12px_rgba(16,185,129,0.15)]"
-                  title="Abrir Calculador de Aproximación y Placas"
-                >
-                  <Calculator className="w-3.5 h-3.5 text-emerald-400" />
-                  <span>CALCULADOR & DISCOS</span>
-                </button>
-                <button
-                  onClick={() => setShowPrepProtocol(!showPrepProtocol)}
-                  className="text-[11px] text-amber-400 hover:underline cursor-pointer"
-                >
-                  {showPrepProtocol ? "Plegar" : "Expandir"}
-                </button>
-              </div>
             </div>
 
             <p className="text-xs text-zinc-400 font-mono leading-relaxed">
-              Cargas exactas calculadas para tu capacidad registrada en <strong className="text-white">{activeExercise.name}</strong> para aclimatar motoneuronas alfa sin fatiga antes de las series efectivas.
+              Cada ejercicio seleccionado sigue la secuencia neuromuscular óptima para reclutar unidades motoras de alto umbral sin fatiga metabólica prematura:
             </p>
 
-            {showPrepProtocol && (
-              <div className="space-y-2.5 font-mono pt-1">
-                {[
-                  {
-                    phase: 0,
-                    key: "F0",
-                    name: "Fase 0: Movilidad & Flujo Sinovial",
-                    cue: "90s continuos",
-                    objective: "Descompresión capsular articular y lubricación con líquido sinovial.",
-                    duration: 90,
-                  },
-                  {
-                    phase: 1,
-                    key: "F1",
-                    name: "Fase 1: Activación Dinámica del SNC",
-                    cue: `${activeExMax?.prescriptions.phase_1_activation ?? 20} kg × 10 reps (Barra vacía)`,
-                    objective: "Reclutamiento de motoneuronas alfa y unidades motoras tipo IIb.",
-                    duration: 60,
-                  },
-                  {
-                    phase: 2,
-                    key: "F2",
-                    name: "Fase 2: Aproximación Ligera",
-                    cue: `${activeExMax?.prescriptions.phase_2_light ?? 0} kg × 5 reps`,
-                    objective: "Fijación del patrón motor sin fatiga metabólica acumulada.",
-                    duration: 90,
-                  },
-                  {
-                    phase: 3,
-                    key: "F3",
-                    name: "Fase 3: Aproximación Media",
-                    cue: `${activeExMax?.prescriptions.phase_3_medium ?? 0} kg × 3 reps`,
-                    objective: "Sensibilización barométrica y aclimatación de la tensión tendinosa.",
-                    duration: 120,
-                  },
-                  {
-                    phase: 4,
-                    key: "F4",
-                    name: "Fase 4: Potenciación Pesada (PAP)",
-                    cue: `${activeExMax?.prescriptions.phase_4_pap ?? 0} kg × 1 rep`,
-                    objective: "Máxima Potenciación Post-Activación (PAP) previa a series efectivas.",
-                    duration: 180,
-                  },
-                ].map((p) => (
-                  <div
-                    key={p.phase}
-                    className="p-3.5 rounded-xl bg-black border border-zinc-800/90 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:border-zinc-700 transition-colors"
-                  >
-                    <div className="flex-1 min-w-0">
-                      <div className="font-bold text-zinc-100 text-xs sm:text-sm">
-                        {p.name}
-                      </div>
-                      <div className="text-amber-400 font-bold text-xs mt-0.5">
-                        {p.cue}
-                      </div>
-                      <div className="text-[11px] text-zinc-400 mt-1 leading-relaxed">
-                        {p.objective}
-                      </div>
-                      {p.phase > 0 && (
-                        <div className="mt-2 sm:max-w-xs">
-                          <BarbellPlateVisualizer
-                            targetWeightKg={
-                              p.phase === 1
-                                ? (activeExMax?.prescriptions.phase_1_activation ?? 20)
-                                : p.phase === 2
-                                ? (activeExMax?.prescriptions.phase_2_light ?? 40)
-                                : p.phase === 3
-                                ? (activeExMax?.prescriptions.phase_3_medium ?? 60)
-                                : (activeExMax?.prescriptions.phase_4_pap ?? 80)
-                            }
-                            exerciseName={activeExercise.name}
-                          />
-                        </div>
-                      )}
-                    </div>
-
-                    <button
-                      type="button"
-                      onClick={() => {
-                        if (p.key.startsWith("F") && p.phase > 0) {
-                          setActivePhaseStep(p.key);
-                        }
-                        handleStartTimer(p.duration, p.name);
-                        setZenFocusMode(true);
-                      }}
-                      className="self-start sm:self-center px-3 py-1.5 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 border border-amber-500/40 font-mono text-xs font-bold whitespace-nowrap transition-all shadow-sm active:scale-95 cursor-pointer"
-                    >
-                      Timer {p.duration}s
-                    </button>
-                  </div>
-                ))}
+            <div className="space-y-2 font-mono text-xs">
+              <div className="p-2.5 rounded-xl bg-black border border-zinc-800/80 flex items-center justify-between">
+                <span className="text-zinc-300 font-bold">F1: Activación SNC</span>
+                <span className="text-amber-400 font-bold">20% PR · 10 reps (Barra)</span>
               </div>
-            )}
+              <div className="p-2.5 rounded-xl bg-black border border-zinc-800/80 flex items-center justify-between">
+                <span className="text-zinc-300 font-bold">F2: Aproximación Ligera</span>
+                <span className="text-amber-400 font-bold">45% PR · 5 reps</span>
+              </div>
+              <div className="p-2.5 rounded-xl bg-black border border-zinc-800/80 flex items-center justify-between">
+                <span className="text-zinc-300 font-bold">F3: Aproximación Media</span>
+                <span className="text-amber-400 font-bold">65% PR · 3 reps</span>
+              </div>
+              <div className="p-2.5 rounded-xl bg-black border border-zinc-800/80 flex items-center justify-between">
+                <span className="text-zinc-300 font-bold">F4: Potenciación PAP</span>
+                <span className="text-amber-400 font-bold">85% PR · 1 rep</span>
+              </div>
+              <div className="p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-between">
+                <span className="text-white font-bold">F5: Efectivas de Fuerza</span>
+                <span className="text-amber-300 font-bold">3×3-5 @ RPE 8-9 (4-5 min)</span>
+              </div>
+              <div className="p-2.5 rounded-xl bg-black border border-zinc-800/80 flex items-center justify-between">
+                <span className="text-zinc-300 font-bold">F6: Back-Off Hipertrofia</span>
+                <span className="text-amber-400 font-bold">70% PR · 8-10 reps (2 min)</span>
+              </div>
+            </div>
+
+            <div className="pt-2">
+              <button
+                type="button"
+                onClick={() => setShowUniversalProtocol(true)}
+                className="w-full py-2.5 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 border border-amber-500/30 font-mono text-xs font-bold transition-all text-center cursor-pointer shadow-sm"
+              >
+                ⚡ LEER PROTOCOLO UNIVERSAL DETALLADO
+              </button>
+            </div>
           </div>
-          )}
         </section>
       </div>
 
