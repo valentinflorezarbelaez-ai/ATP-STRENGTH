@@ -1,4 +1,6 @@
 
+import datetime
+
 from fastapi import APIRouter, Depends
 from pydantic import BaseModel, ConfigDict, Field
 from sqlalchemy.orm import Session
@@ -51,6 +53,11 @@ class ExecutionHistoryItem(BaseModel):
     rest_seconds: int
     notes: str | None
     completed: bool
+    rpe: float | None = None
+    rir: float | None = None
+    e1rm: float | None = None
+    client_sync_id: str | None = None
+    timestamp: datetime.datetime | None = None
 
     model_config = ConfigDict(from_attributes=True)
 

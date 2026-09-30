@@ -53,6 +53,7 @@ class ExerciseExecution(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     session_id = Column(Integer, nullable=True, index=True)
+    client_sync_id = Column(String(100), unique=True, nullable=True, index=True)
     exercise_name = Column(String(150), nullable=False)
     set_number = Column(Integer, nullable=False)
     prescribed_reps = Column(Integer, nullable=False)

@@ -98,13 +98,47 @@ class StateRepository:
         rpe: float | None = None,
         rir: float | None = None,
         e1rm: float | None = None,
+        client_sync_id: str | None = None,
     ) -> ExerciseExecution:
+        # Idempotency check 1: Exact client_sync_id match
+        if client_sync_id:
+            existing = (
+                self.db.query(ExerciseExecution)
+                .filter(ExerciseExecution.client_sync_id == client_sync_id)
+                .first()
+            )
+            if existing:
+                return existing
+
+        target_reps = completed_reps if completed_reps is not None else prescribed_reps
+
+        # Idempotency check 2: Deduplicate rapid duplicate packets within 60s
+        recent_cutoff = datetime.datetime.now(datetime.UTC) - datetime.timedelta(seconds=60)
+        duplicate = (
+            self.db.query(ExerciseExecution)
+            .filter(
+                ExerciseExecution.exercise_name == exercise_name,
+                ExerciseExecution.set_number == set_number,
+                ExerciseExecution.load_kg == load_kg,
+                ExerciseExecution.completed_reps == target_reps,
+                ExerciseExecution.timestamp >= recent_cutoff,
+            )
+            .first()
+        )
+        if duplicate:
+            if client_sync_id and not duplicate.client_sync_id:
+                duplicate.client_sync_id = client_sync_id
+                self.db.commit()
+                self.db.refresh(duplicate)
+            return duplicate
+
         execution = ExerciseExecution(
             session_id=session_id,
+            client_sync_id=client_sync_id,
             exercise_name=exercise_name,
             set_number=set_number,
             prescribed_reps=prescribed_reps,
-            completed_reps=completed_reps if completed_reps is not None else prescribed_reps,
+            completed_reps=target_reps,
             load_kg=load_kg,
             rest_seconds=rest_seconds,
             notes=notes,

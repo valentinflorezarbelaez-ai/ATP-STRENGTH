@@ -25,6 +25,7 @@ export interface WalLogEntry<T = unknown> {
   payload: T;
   checksum: string;
   retryCount: number;
+  nextRetryTimestamp?: number | null;
   error?: string;
 }
 

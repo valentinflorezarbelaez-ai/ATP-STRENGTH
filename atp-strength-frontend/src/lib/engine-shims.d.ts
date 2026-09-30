@@ -36,6 +36,12 @@ declare module '@/lib/walEngine.mjs' {
   export const LEGACY_WAL_STORAGE_KEY: string;
   export const MAX_COMMITTED_HISTORY: number;
   export function calculateChecksum(payload: unknown): string;
+  export function calculateBackoffDelay(
+    retryCount?: number,
+    baseDelayMs?: number,
+    maxDelayMs?: number,
+    rng?: () => number
+  ): number;
   export function createMemoryStorage(seed?: Record<string, string>): {
     getItem(k: string): string | null;
     setItem(k: string, v: string): void;

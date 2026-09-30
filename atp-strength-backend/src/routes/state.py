@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Header
 from pydantic import BaseModel, ConfigDict, Field
 from sqlalchemy.orm import Session
 
@@ -58,6 +58,7 @@ class LogSetRequest(BaseModel):
     rpe: float | None = None
     rir: float | None = None
     e1rm: float | None = None
+    client_sync_id: str | None = None
 
 
 class ExecutionResponse(BaseModel):
@@ -70,6 +71,7 @@ class ExecutionResponse(BaseModel):
     rpe: float | None = None
     rir: float | None = None
     e1rm: float | None = None
+    client_sync_id: str | None = None
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -114,8 +116,13 @@ def update_session(request: UpdateSessionRequest, db: Session = Depends(get_db))
 
 
 @router.post("/log-set", response_model=ExecutionResponse)
-def log_set(request: LogSetRequest, db: Session = Depends(get_db)):
+def log_set(
+    request: LogSetRequest,
+    x_idempotency_key: str | None = Header(None, alias="X-Idempotency-Key"),
+    db: Session = Depends(get_db),
+):
     repo = StateRepository(db)
+    sync_id = x_idempotency_key or request.client_sync_id
     return repo.log_exercise_execution(
         exercise_name=request.exercise_name,
         set_number=request.set_number,
@@ -128,4 +135,5 @@ def log_set(request: LogSetRequest, db: Session = Depends(get_db)):
         rpe=request.rpe,
         rir=request.rir,
         e1rm=request.e1rm,
+        client_sync_id=sync_id,
     )

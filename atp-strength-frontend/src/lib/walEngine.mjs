@@ -67,12 +67,25 @@ export function readWalQueue(storage) {
  * @param {{ setItem(k: string, v: string): void }} storage
  * @param {unknown[]} queue
  */
+export function calculateBackoffDelay(
+  retryCount = 0,
+  baseDelayMs = 1000,
+  maxDelayMs = 30000,
+  rng = Math.random
+) {
+  const clampedExponent = Math.min(Math.max(0, retryCount), 5);
+  const maxBackoff = Math.min(maxDelayMs, baseDelayMs * Math.pow(2, clampedExponent));
+  const randomFactor = typeof rng === 'function' ? rng() : Math.random();
+  return Math.floor(baseDelayMs + randomFactor * (maxBackoff - baseDelayMs));
+}
+
 export function writeWalQueue(storage, queue) {
   storage.setItem(WAL_STORAGE_KEY, JSON.stringify(queue));
 }
 
 /**
  * [REQ-EARS-WAL-01] Append-only before any network attempt.
+ * Attaches client_sync_id for idempotency.
  * @param {{ getItem(k: string): string|null, setItem(k: string, v: string): void }} storage
  * @param {string} endpoint
  * @param {unknown} payload
@@ -85,15 +98,26 @@ export function enqueueWalEntry(storage, endpoint, payload, method = 'POST', opt
     opts.idFactory ??
     (() => `WAL-${now()}-${Math.random().toString(36).slice(2, 7)}`);
 
+  const entryId = idFactory();
+
+  // Attach client_sync_id to payload if object for backend idempotency
+  let finalPayload = payload;
+  if (payload && typeof payload === 'object' && !Array.isArray(payload)) {
+    if (!('client_sync_id' in payload)) {
+      finalPayload = { ...payload, client_sync_id: entryId };
+    }
+  }
+
   const entry = {
-    entryId: idFactory(),
+    entryId,
     timestamp: new Date(now()).toISOString(),
     status: 'PENDING_SYNC',
     endpoint,
     method,
-    payload,
-    checksum: calculateChecksum(payload),
+    payload: finalPayload,
+    checksum: calculateChecksum(finalPayload),
     retryCount: 0,
+    nextRetryTimestamp: 0,
   };
 
   const queue = readWalQueue(storage);
@@ -112,12 +136,14 @@ export function getPendingWalCount(storage) {
 }
 
 /**
- * [REQ-EARS-WAL-02/03/04] FIFO flush with checksum quarantine and 5xx retry.
+ * [REQ-EARS-WAL-02/03/04] FIFO flush with checksum quarantine, exponential backoff, and idempotency headers.
  * @param {{ getItem(k: string): string|null, setItem(k: string, v: string): void }} storage
  * @param {string} apiUrl
  * @param {typeof fetch} [fetchImpl]
+ * @param {{ now?: () => number, rng?: () => number }} [opts]
  */
-export async function flushWalQueue(storage, apiUrl, fetchImpl = globalThis.fetch) {
+export async function flushWalQueue(storage, apiUrl, fetchImpl = globalThis.fetch, opts = {}) {
+  const now = opts.now ?? (() => Date.now());
   const queue = readWalQueue(storage);
   let synced = 0;
   let failed = 0;
@@ -126,6 +152,13 @@ export async function flushWalQueue(storage, apiUrl, fetchImpl = globalThis.fetc
   for (let i = 0; i < queue.length; i++) {
     const entry = queue[i];
     if (entry.status !== 'PENDING_SYNC' && entry.status !== 'SYNCING') continue;
+
+    // Check if entry is in exponential backoff window
+    const currentTime = now();
+    if (entry.nextRetryTimestamp && currentTime < entry.nextRetryTimestamp) {
+      failed++;
+      break;
+    }
 
     const expected = calculateChecksum(entry.payload);
     if (entry.checksum !== expected) {
@@ -144,15 +177,21 @@ export async function flushWalQueue(storage, apiUrl, fetchImpl = globalThis.fetc
     try {
       const response = await fetchImpl(`${apiUrl}${entry.endpoint}`, {
         method: entry.method,
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Idempotency-Key': entry.entryId,
+        },
         body: JSON.stringify(entry.payload),
       });
 
       if (response.ok) {
         entry.status = 'COMMITTED';
+        entry.nextRetryTimestamp = null;
         synced++;
       } else if (response.status >= 500) {
         entry.retryCount = (entry.retryCount || 0) + 1;
+        const delay = calculateBackoffDelay(entry.retryCount, 1000, 30000, opts.rng);
+        entry.nextRetryTimestamp = now() + delay;
         entry.status = 'PENDING_SYNC';
         failed++;
         writeWalQueue(storage, queue);
@@ -160,6 +199,7 @@ export async function flushWalQueue(storage, apiUrl, fetchImpl = globalThis.fetc
       } else if (response.status >= 400) {
         entry.retryCount = (entry.retryCount || 0) + 1;
         entry.status = 'FAILED';
+        entry.error = 'ERR-FUE-WAL-HTTP-4XX';
         failed++;
         writeWalQueue(storage, queue);
         break;
@@ -172,6 +212,8 @@ export async function flushWalQueue(storage, apiUrl, fetchImpl = globalThis.fetc
     } catch {
       entry.status = 'PENDING_SYNC';
       entry.retryCount = (entry.retryCount || 0) + 1;
+      const delay = calculateBackoffDelay(entry.retryCount, 1000, 30000, opts.rng);
+      entry.nextRetryTimestamp = now() + delay;
       failed++;
       writeWalQueue(storage, queue);
       break;

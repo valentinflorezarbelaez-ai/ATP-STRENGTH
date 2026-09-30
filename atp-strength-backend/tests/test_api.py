@@ -127,3 +127,63 @@ def test_exercise_maxes_with_rpe_formula():
     assert data["exercise_name"] == "Press de Banca"
     assert data["formula"] == "rpe"
     assert data["lifted_weight"] == 100.0
+
+
+def test_log_set_idempotency_with_client_sync_id():
+    """Verify that duplicate packets with identical client_sync_id do not create duplicate rows."""
+    payload = {
+        "exercise_name": "Sentadilla Frontal",
+        "set_number": 1,
+        "prescribed_reps": 3,
+        "completed_reps": 3,
+        "load_kg": 110.0,
+        "client_sync_id": "WAL-SYNC-ID-12345",
+        "rpe": 8.0,
+        "rir": 2.0,
+        "e1rm": 125.0,
+    }
+
+    # First attempt
+    res1 = client.post("/api/state/log-set", json=payload)
+    assert res1.status_code == 200
+    data1 = res1.json()
+    assert data1["client_sync_id"] == "WAL-SYNC-ID-12345"
+
+    # Second identical attempt (WAL retry)
+    res2 = client.post("/api/state/log-set", json=payload)
+    assert res2.status_code == 200
+    data2 = res2.json()
+
+    # Must return exact same execution ID
+    assert data1["id"] == data2["id"]
+
+    # Verify history has only 1 row
+    hist_res = client.get("/api/strength/history?exercise_name=Sentadilla%20Frontal")
+    assert hist_res.status_code == 200
+    items = hist_res.json()
+    assert len(items) == 1
+    assert items[0]["client_sync_id"] == "WAL-SYNC-ID-12345"
+    assert items[0]["e1rm"] == 125.0
+    assert items[0]["rpe"] == 8.0
+
+
+def test_log_set_idempotency_with_x_idempotency_key_header():
+    """Verify that X-Idempotency-Key header deduplicates identical requests."""
+    payload = {
+        "exercise_name": "Peso Muerto Rumano",
+        "set_number": 1,
+        "prescribed_reps": 5,
+        "completed_reps": 5,
+        "load_kg": 120.0,
+    }
+    headers = {"X-Idempotency-Key": "WAL-HEADER-IDEMPOTENT-99"}
+
+    res1 = client.post("/api/state/log-set", json=payload, headers=headers)
+    assert res1.status_code == 200
+    id1 = res1.json()["id"]
+
+    res2 = client.post("/api/state/log-set", json=payload, headers=headers)
+    assert res2.status_code == 200
+    id2 = res2.json()["id"]
+
+    assert id1 == id2

@@ -8,6 +8,7 @@ import {
   WAL_STORAGE_KEY,
   LEGACY_WAL_STORAGE_KEY,
   calculateChecksum,
+  calculateBackoffDelay,
   createMemoryStorage,
   enqueueWalEntry,
   flushWalQueue,
@@ -142,5 +143,87 @@ describe('SPEC-0002 ATP offline WAL engine', () => {
       });
     }
     assert.equal(getPendingWalCount(storage), 5);
+  });
+
+  it('calculates exponential backoff delay within bounded jitter limits', () => {
+    // 0 retries with constant rng: baseDelayMs = 1000
+    const delay0 = calculateBackoffDelay(0, 1000, 30000, () => 0.5);
+    assert.equal(delay0, 1000);
+
+    // 1 retry with constant rng (max backoff = 2000): 1000 + 0.5 * 1000 = 1500
+    const delay1 = calculateBackoffDelay(1, 1000, 30000, () => 0.5);
+    assert.equal(delay1, 1500);
+
+    // 5 retries with max rng (max backoff = 30000): 1000 + 1.0 * 29000 = 30000
+    const delayMax = calculateBackoffDelay(5, 1000, 30000, () => 1.0);
+    assert.equal(delayMax, 30000);
+  });
+
+  it('injects client_sync_id into payload and X-Idempotency-Key into headers', async () => {
+    const storage = createMemoryStorage();
+    const entry = enqueueWalEntry(storage, '/api/state/log-set', { exercise_name: 'Sentadilla', load_kg: 100 }, 'POST', {
+      idFactory: () => 'WAL-SYNC-XYZ',
+    });
+
+    assert.equal(entry.payload.client_sync_id, 'WAL-SYNC-XYZ');
+
+    let capturedHeaders = null;
+    let capturedBody = null;
+
+    const fetchImpl = async (url, init) => {
+      capturedHeaders = init.headers;
+      capturedBody = JSON.parse(init.body);
+      return { ok: true, status: 200 };
+    };
+
+    await flushWalQueue(storage, 'http://api', fetchImpl);
+    assert.equal(capturedHeaders['X-Idempotency-Key'], 'WAL-SYNC-XYZ');
+    assert.equal(capturedBody.client_sync_id, 'WAL-SYNC-XYZ');
+  });
+
+  it('gates flush during backoff window and processes when backoff window elapses', async () => {
+    const storage = createMemoryStorage();
+    enqueueWalEntry(storage, '/api/state/log-set', { exercise_name: 'Banca' }, 'POST', {
+      idFactory: () => 'WAL-FAIL-THEN-PASS',
+    });
+
+    let networkAttempts = 0;
+    let serverOk = false;
+
+    const fetchImpl = async () => {
+      networkAttempts++;
+      if (!serverOk) {
+        return { ok: false, status: 500 };
+      }
+      return { ok: true, status: 200 };
+    };
+
+    // Attempt 1 at t = 1000: fails with 500
+    // Backoff sets nextRetryTimestamp = 1000 + 2000 = 3000
+    const res1 = await flushWalQueue(storage, 'http://api', fetchImpl, {
+      now: () => 1000,
+      rng: () => 1.0, // max backoff for retry 1: 1000 * 2^1 = 2000
+    });
+    assert.equal(networkAttempts, 1);
+    assert.equal(res1.failed, 1);
+
+    const qAfterFail = readWalQueue(storage);
+    assert.equal(qAfterFail[0].nextRetryTimestamp, 3000);
+
+    // Attempt 2 at t = 2000 (still in backoff window < 3000): must be gated and NOT call network
+    serverOk = true; // even if server recovered, client backoff prevents stampede
+    const res2 = await flushWalQueue(storage, 'http://api', fetchImpl, {
+      now: () => 2000,
+    });
+    assert.equal(networkAttempts, 1); // No new network call was made!
+    assert.equal(res2.failed, 1);
+
+    // Attempt 3 at t = 3500 (after backoff window): now executes and commits!
+    const res3 = await flushWalQueue(storage, 'http://api', fetchImpl, {
+      now: () => 3500,
+    });
+    assert.equal(networkAttempts, 2);
+    assert.equal(res3.synced, 1);
+    assert.equal(readWalQueue(storage)[0].status, 'COMMITTED');
   });
 });
