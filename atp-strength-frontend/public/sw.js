@@ -1,32 +1,67 @@
 // Service Worker for NEURO//STRENGTH (PWA Standalone Engine)
-const CACHE_NAME = "neuro-strength-v4";
+// Cache Version v5: Complete App Shell, Offline Navigation & Lie-Fi Timeout Defense
+const CACHE_NAME = "neuro-strength-v5";
 
 const PRECACHE_ASSETS = [
   "/",
+  "/calc",
+  "/forge",
   "/manifest.webmanifest",
+  "/favicon.ico",
+  "/favicon-32x32.png",
+  "/apple-touch-icon.png",
   "/icon-192.png",
   "/icon-512.png",
+  "/icon-192.svg",
+  "/icon-512.svg",
   "/icon-maskable-192.png",
   "/icon-maskable-512.png",
-  "/apple-touch-icon.png",
-  "/favicon-32x32.png",
 ];
 
-// Install: Precache shell
+// Helper: Fetch with timeout to defeat the "Lie-Fi" hanging connection problem in underground gyms
+function fetchWithTimeout(request, timeoutMs = 2500) {
+  return new Promise((resolve, reject) => {
+    const timer = setTimeout(() => {
+      reject(new Error("Network timeout (Lie-Fi detected)"));
+    }, timeoutMs);
+
+    fetch(request)
+      .then((response) => {
+        clearTimeout(timer);
+        resolve(response);
+      })
+      .catch((err) => {
+        clearTimeout(timer);
+        reject(err);
+      });
+  });
+}
+
+// Install: Precache shell resiliently using Promise.allSettled
 self.addEventListener("install", (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(PRECACHE_ASSETS))
+    caches.open(CACHE_NAME).then(async (cache) => {
+      const results = await Promise.allSettled(
+        PRECACHE_ASSETS.map((asset) => cache.add(asset))
+      );
+      results.forEach((res, index) => {
+        if (res.status === "rejected") {
+          console.warn("[SW] Warning: Precache skipped for asset:", PRECACHE_ASSETS[index]);
+        }
+      });
+    })
   );
   self.skipWaiting();
 });
 
-// Activate: Clean old caches and take control
+// Activate: Purge obsolete cache generations and claim clients immediately
 self.addEventListener("activate", (event) => {
   event.waitUntil(
     caches.keys().then((keys) =>
       Promise.all(
         keys.map((key) => {
           if (key !== CACHE_NAME) {
+            console.log("[SW] Evicting legacy cache:", key);
             return caches.delete(key);
           }
         })
@@ -36,24 +71,24 @@ self.addEventListener("activate", (event) => {
   self.clients.claim();
 });
 
-// Fetch: Smart caching strategy
+// Fetch: Smart caching with Lie-Fi protection
 self.addEventListener("fetch", (event) => {
   const { request } = event;
   if (request.method !== "GET") return;
 
   const url = new URL(request.url);
 
-  // Bypass backend API / external endpoints
+  // Bypass backend API / external analytics / local uvicorn
   if (url.port === "8000" || url.pathname.startsWith("/api/")) {
     return;
   }
 
-  // Navigation (HTML pages): Network-first, fallback to cache
+  // 1. Navigation (HTML pages): Network-first with 2.5s timeout, instant fallback to cache
   if (request.mode === "navigate" || request.destination === "document") {
     event.respondWith(
-      fetch(request)
+      fetchWithTimeout(request, 2500)
         .then((response) => {
-          if (response.ok) {
+          if (response && response.ok) {
             const clone = response.clone();
             caches.open(CACHE_NAME).then((cache) => cache.put(request, clone));
           }
@@ -62,30 +97,56 @@ self.addEventListener("fetch", (event) => {
         .catch(async () => {
           const cached = await caches.match(request);
           if (cached) return cached;
-          return caches.match("/");
+          const rootCached = await caches.match("/");
+          if (rootCached) return rootCached;
+          return new Response("ATP-STRENGTH Offline", {
+            status: 503,
+            headers: { "Content-Type": "text/plain" },
+          });
         })
     );
     return;
   }
 
-  // Next.js static chunks and assets: Stale-while-revalidate / Cache-first
+  // 2. Next.js static assets, chunks, icons, webmanifest: Stale-While-Revalidate
   if (
     url.origin === self.location.origin &&
     (url.pathname.startsWith("/_next/static/") ||
       url.pathname.endsWith(".png") ||
       url.pathname.endsWith(".svg") ||
+      url.pathname.endsWith(".webp") ||
+      url.pathname.endsWith(".ico") ||
       url.pathname.endsWith(".webmanifest"))
   ) {
     event.respondWith(
       caches.match(request).then((cached) => {
-        const fetchPromise = fetch(request).then((networkResponse) => {
-          if (networkResponse.ok) {
-            const clone = networkResponse.clone();
+        const fetchPromise = fetch(request)
+          .then((networkResponse) => {
+            if (networkResponse && networkResponse.ok) {
+              const clone = networkResponse.clone();
+              caches.open(CACHE_NAME).then((cache) => cache.put(request, clone));
+            }
+            return networkResponse;
+          })
+          .catch(() => cached);
+        return cached || fetchPromise;
+      })
+    );
+    return;
+  }
+
+  // 3. Audio files (on-demand cache): Cache-First
+  if (url.origin === self.location.origin && url.pathname.startsWith("/audio/")) {
+    event.respondWith(
+      caches.match(request).then((cached) => {
+        if (cached) return cached;
+        return fetch(request).then((response) => {
+          if (response && response.ok) {
+            const clone = response.clone();
             caches.open(CACHE_NAME).then((cache) => cache.put(request, clone));
           }
-          return networkResponse;
+          return response;
         });
-        return cached || fetchPromise;
       })
     );
     return;

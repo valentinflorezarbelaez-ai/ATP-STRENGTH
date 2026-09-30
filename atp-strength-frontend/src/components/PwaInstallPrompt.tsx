@@ -10,26 +10,22 @@ interface BeforeInstallPromptEvent extends Event {
 
 export function PwaInstallPrompt() {
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
-  const [isStandalone, setIsStandalone] = useState(false);
-  const [isIOS, setIsIOS] = useState(false);
+  const [isStandalone, setIsStandalone] = useState(() => {
+    if (typeof window === "undefined") return false;
+    return (
+      window.matchMedia("(display-mode: standalone)").matches ||
+      (window.navigator as unknown as { standalone?: boolean }).standalone === true
+    );
+  });
+  const [isIOS] = useState(() => {
+    if (typeof window === "undefined") return false;
+    return /iphone|ipad|ipod/.test(window.navigator.userAgent.toLowerCase());
+  });
   const [showIosTip, setShowIosTip] = useState(false);
   const [installed, setInstalled] = useState(false);
   const [dismissed, setDismissed] = useState(false);
 
   useEffect(() => {
-    // 1. Register Service Worker
-    if (typeof window !== "undefined" && "serviceWorker" in navigator) {
-      navigator.serviceWorker
-        .register("/sw.js")
-        .then((reg) => {
-          console.log("[PWA] Service Worker registrado con alcance:", reg.scope);
-        })
-        .catch((err) => {
-          console.warn("[PWA] Fallo al registrar Service Worker:", err);
-        });
-    }
-
-    // 2. Check standalone display mode
     const checkStandalone = () => {
       const isStandaloneMode =
         window.matchMedia("(display-mode: standalone)").matches ||
@@ -37,15 +33,6 @@ export function PwaInstallPrompt() {
       setIsStandalone(isStandaloneMode);
     };
 
-    checkStandalone();
-
-    // 3. Detect iOS
-    const ua = window.navigator.userAgent.toLowerCase();
-    const isIosDevice = /iphone|ipad|ipod/.test(ua);
-    /* eslint-disable-next-line react-hooks/set-state-in-effect */
-    setIsIOS(isIosDevice);
-
-    // 4. Capture beforeinstallprompt (Chromium / Android / Desktop)
     const handleBeforeInstallPrompt = (e: Event) => {
       e.preventDefault();
       setDeferredPrompt(e as BeforeInstallPromptEvent);
@@ -58,10 +45,12 @@ export function PwaInstallPrompt() {
 
     window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
     window.addEventListener("appinstalled", handleAppInstalled);
+    window.addEventListener("resize", checkStandalone);
 
     return () => {
       window.removeEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
       window.removeEventListener("appinstalled", handleAppInstalled);
+      window.removeEventListener("resize", checkStandalone);
     };
   }, []);
 

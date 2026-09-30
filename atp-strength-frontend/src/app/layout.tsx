@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import { ServiceWorkerRegister } from "@/components/ServiceWorkerRegister";
 
 const geistSans = Geist({
   variable: "--font-sans",
@@ -59,6 +60,8 @@ export const metadata: Metadata = {
   },
 };
 
+
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -67,6 +70,7 @@ export default function RootLayout({
   return (
     <html lang="es" className={`${geistSans.variable} ${geistMono.variable}`}>
       <body className="min-h-screen antialiased selection:bg-pink-500 selection:text-white relative">
+        <ServiceWorkerRegister />
         {children}
       </body>
     </html>
