@@ -14,6 +14,7 @@ interface BarbellPlateVisualizerProps {
   targetWeightKg: number;
   exerciseName?: string;
   className?: string;
+  barWeightKg?: number;
 }
 
 const IWF_PLATES = [
@@ -31,6 +32,7 @@ function BarbellPlateVisualizerBase({
   targetWeightKg,
   exerciseName = "",
   className = "",
+  barWeightKg = 20,
 }: BarbellPlateVisualizerProps) {
   const isBodyweight =
     exerciseName.toLowerCase().includes("dominada") ||
@@ -47,12 +49,12 @@ function BarbellPlateVisualizerBase({
     );
   }
 
-  const barWeight = 20; // Standard Olympic Barbell (kg)
+  const barWeight = barWeightKg;
   if (targetWeightKg <= barWeight) {
     return (
       <div className={`text-[10px] font-mono text-zinc-400 flex items-center justify-between px-2.5 py-1.5 rounded-xl bg-zinc-950/60 border border-zinc-800/80 ${className}`}>
-        <span>Barra Olímpica sola</span>
-        <span className="text-amber-400 font-bold">20.0 kg</span>
+        <span>Barra sola ({barWeight} kg)</span>
+        <span className="text-amber-400 font-bold">{barWeight.toFixed(1)} kg</span>
       </div>
     );
   }

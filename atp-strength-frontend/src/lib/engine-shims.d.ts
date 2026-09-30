@@ -106,3 +106,55 @@ declare module '@/lib/rpeEngine.mjs' {
 declare module './rpeEngine.mjs' {
   export * from '@/lib/rpeEngine.mjs';
 }
+
+declare module '@/lib/prilepinEngine.mjs' {
+  export const PRILEPIN_ZONES: Record<string, {
+    key: string;
+    name: string;
+    minIntensity: number;
+    maxIntensity: number;
+    optimalReps: number;
+    repRange: readonly number[];
+    optimalTotalVolume: number;
+    rationale: string;
+  }>;
+  export const SOVIET_WARMUP_PROTOCOL: Record<string, {
+    phase: string;
+    title: string;
+    exactReps: number;
+    repsLabel: string;
+    cue: string;
+  }>;
+  export function calculateInol(reps: number, intensityPercent: number): number;
+  export function getPrilepinZone(intensityPercent: number): {
+    key: string;
+    name: string;
+    minIntensity: number;
+    maxIntensity: number;
+    optimalReps: number;
+    repRange: readonly number[];
+    optimalTotalVolume: number;
+    rationale: string;
+  };
+  export function getPrilepinPrescription(weightKg: number, oneRepMaxKg: number): {
+    exactTargetReps: number;
+    intensityPercent: number;
+    zoneKey: string;
+    zoneName: string;
+    repRange: readonly number[] | number[];
+    rationale: string;
+    setInol: number;
+  };
+  export function evaluateSessionInol(sets?: Array<{ reps: number; intensity: number }>): {
+    totalInol: number;
+    status: string;
+    label: string;
+    badgeColor: string;
+    guidance: string;
+  };
+}
+
+declare module './prilepinEngine.mjs' {
+  export * from '@/lib/prilepinEngine.mjs';
+}
+
