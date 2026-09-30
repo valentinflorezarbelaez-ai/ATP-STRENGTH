@@ -118,19 +118,26 @@ export function ZenDashboardView({ d, onShowSpotify }: { d: Dash; onShowSpotify?
                 </a>
                 <button
                   type="button"
-                  onClick={() => setShowUniversalCalc(true)}
-                  className="px-2.5 py-1 rounded-lg text-[10px] font-mono font-bold bg-zinc-950 border border-zinc-800 text-zinc-300 hover:text-amber-400 hover:border-amber-500/50 transition-all flex items-center gap-1.5 shadow-sm active:scale-95 flex-shrink-0 cursor-pointer"
-                  title="Calculadora Universal de Fases Neuromusculares (Cualquier Ejercicio)"
+                  onClick={() => {
+                    playTactileClick();
+                    setUniversalTab("COCKPIT");
+                  }}
+                  className={`px-3 py-1 rounded-lg text-[10px] font-mono font-bold border transition-all flex items-center gap-1.5 shadow-sm active:scale-95 flex-shrink-0 cursor-pointer ${
+                    universalTab === "COCKPIT"
+                      ? "bg-amber-500 text-black border-amber-400 font-extrabold shadow-[0_0_12px_rgba(245,158,11,0.3)]"
+                      : "bg-amber-500/15 text-amber-300 border-amber-500/35 hover:bg-amber-500/25"
+                  }`}
+                  title="Aplicar Protocolo Universal PR a cualquier ejercicio libre"
                 >
-                  <BarChart3 className="w-3 h-3 text-amber-400" />
-                  <span>CALC FASES</span>
+                  <Sparkles className="w-3 h-3 text-amber-400" />
+                  <span>⚡ PROTOCOLO PR (CUALQUIER EJERCICIO)</span>
                 </button>
                 <a
                   href="/calc"
                   className="px-2.5 py-1 rounded-lg text-[10px] font-mono font-bold bg-zinc-950 border border-zinc-800 text-zinc-300 hover:text-amber-400 hover:border-amber-500/50 transition-all flex items-center gap-1 flex-shrink-0"
                   title="Calculadora Universal y Progresiones en Pantalla Completa"
                 >
-                  ⚡ CALC COMPLETO
+                  CALC COMPLETO
                 </a>
                 <a
                   href="/forge"
@@ -139,20 +146,6 @@ export function ZenDashboardView({ d, onShowSpotify }: { d: Dash; onShowSpotify?
                 >
                   ⚔️ FORJA
                 </a>
-                <button
-                  type="button"
-                  onClick={() => {
-                    playTactileClick();
-                    exportBackupJson();
-                    setBackupStatusMsg("Copia JSON descargada ✓");
-                    setTimeout(() => setBackupStatusMsg(null), 4000);
-                  }}
-                  className="px-2.5 py-1 rounded-lg text-[10px] font-mono font-bold bg-zinc-950 border border-zinc-800 text-zinc-300 hover:text-cyan-400 hover:border-cyan-500/50 transition-all flex items-center gap-1 shadow-sm active:scale-95 flex-shrink-0 cursor-pointer"
-                  title="Descargar copia de seguridad soberana JSON"
-                >
-                  <Download className="w-3 h-3 text-cyan-400" />
-                  <span>BACKUP</span>
-                </button>
               </div>
               <p className="text-[11px] sm:text-xs text-zinc-400 font-mono tracking-tight mt-0.5">
                 MOTOR ZEN DE RESÍNTESIS DE ATP & FUERZA MÁXIMA
@@ -279,31 +272,56 @@ export function ZenDashboardView({ d, onShowSpotify }: { d: Dash; onShowSpotify?
               </span>
             </div>
 
-            {/* Selector de Modo: Rutina & Itinerario vs Cockpit 1RM */}
-            <div className="grid grid-cols-2 gap-2 pt-1">
+            {/* Selector de Modo: Rutina 4D vs Protocolo PR en Cualquier Ejercicio */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
               <button
                 type="button"
                 onClick={() => setUniversalTab("ROUTINE")}
-                className={`py-2.5 px-3 rounded-xl text-xs font-bold font-mono transition-all flex items-center justify-center gap-2 cursor-pointer ${
+                className={`p-3 rounded-2xl text-left transition-all border flex items-center justify-between cursor-pointer ${
                   universalTab === "ROUTINE"
-                    ? "bg-amber-500 text-black shadow-lg shadow-amber-500/20 font-extrabold"
-                    : "bg-zinc-900/60 text-zinc-400 hover:text-white border border-zinc-800"
+                    ? "bg-amber-500/15 border-amber-500/60 text-white shadow-lg shadow-amber-500/10"
+                    : "bg-zinc-900/40 border-zinc-800 text-zinc-400 hover:border-zinc-700 hover:text-zinc-200"
                 }`}
               >
-                <Calendar className="w-3.5 h-3.5" />
-                <span>Itinerario & Rutina de Hoy</span>
+                <div className="space-y-0.5">
+                  <div className="flex items-center gap-1.5 text-xs font-bold font-mono">
+                    <Calendar className="w-3.5 h-3.5 text-amber-400" />
+                    <span className={universalTab === "ROUTINE" ? "text-amber-400 font-extrabold" : "text-zinc-200"}>
+                      1. Rutina Semanal (Split 4D)
+                    </span>
+                  </div>
+                  <p className="text-[10px] text-zinc-400 font-mono">
+                    Push, Pull, Legs & Power (3 ejercicios clave/día)
+                  </p>
+                </div>
+                {universalTab === "ROUTINE" && (
+                  <span className="w-2 h-2 rounded-full bg-amber-400 shrink-0" />
+                )}
               </button>
+
               <button
                 type="button"
                 onClick={() => setUniversalTab("COCKPIT")}
-                className={`py-2.5 px-3 rounded-xl text-xs font-bold font-mono transition-all flex items-center justify-center gap-2 cursor-pointer ${
+                className={`p-3 rounded-2xl text-left transition-all border flex items-center justify-between cursor-pointer ${
                   universalTab === "COCKPIT"
-                    ? "bg-amber-500 text-black shadow-lg shadow-amber-500/20 font-extrabold"
-                    : "bg-zinc-900/60 text-zinc-400 hover:text-white border border-zinc-800"
+                    ? "bg-amber-500/15 border-amber-500/60 text-white shadow-lg shadow-amber-500/10"
+                    : "bg-zinc-900/40 border-zinc-800 text-zinc-400 hover:border-zinc-700 hover:text-zinc-200"
                 }`}
               >
-                <Sparkles className="w-3.5 h-3.5" />
-                <span>Cockpit & Calibrador 1RM</span>
+                <div className="space-y-0.5">
+                  <div className="flex items-center gap-1.5 text-xs font-bold font-mono">
+                    <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+                    <span className={universalTab === "COCKPIT" ? "text-amber-400 font-extrabold" : "text-zinc-200"}>
+                      2. Protocolo PR (Cualquier Ejercicio)
+                    </span>
+                  </div>
+                  <p className="text-[10px] text-zinc-400 font-mono">
+                    Aplica el protocolo a cualquier ejercicio o PR libre
+                  </p>
+                </div>
+                {universalTab === "COCKPIT" && (
+                  <span className="w-2 h-2 rounded-full bg-amber-400 shrink-0" />
+                )}
               </button>
             </div>
           </div>
