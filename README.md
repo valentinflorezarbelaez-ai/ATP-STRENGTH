@@ -1,24 +1,29 @@
 # ⚡ ATP-STRENGTH (NEURO//STRENGTH)
-### Plataforma de Rendimiento Neuromuscular, Resíntesis de ATP-CP y Fuerza Máxima
+### Plataforma Industrial de Rendimiento Neuromuscular, Resíntesis de ATP-CP y Fuerza Máxima
 
 [![CI](https://github.com/valentinflorezarbelaez-ai/ATP-STRENGTH/actions/workflows/ci.yml/badge.svg)](https://github.com/valentinflorezarbelaez-ai/ATP-STRENGTH/actions)
 [![Estado de Producción](https://img.shields.io/badge/Producción-En_Línea-00C781?style=for-the-badge&logo=vercel)](https://atp-strength.vercel.app/)
-[![Next.js 16](https://img.shields.io/badge/Next.js-16.3.4_(Turbopack)-black?style=for-the-badge&logo=next.js)](https://nextjs.org/)
+[![Next.js 16](https://img.shields.io/badge/Next.js-16.3.8_(Turbopack)-black?style=for-the-badge&logo=next.js)](https://nextjs.org/)
+[![Python 3.12](https://img.shields.io/badge/Python-3.12_(FastAPI)-3776AB?style=for-the-badge&logo=python)](https://fastapi.tiangolo.com/)
 [![React 19](https://img.shields.io/badge/React-19.2.8-61DAFB?style=for-the-badge&logo=react)](https://react.dev/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-Estricto_100%25-blue?style=for-the-badge&logo=typescript)](https://www.typescriptlang.org/)
-[![Tests](https://img.shields.io/badge/Pruebas-97%2F97_Aprobadas-success?style=for-the-badge&logo=node.js)](https://github.com/valentinflorezarbelaez-ai/ATP-STRENGTH)
-[![Arquitectura](https://img.shields.io/badge/Arquitectura-Limpia_%2F_Hexagonal-purple?style=for-the-badge)](docs/plans)
+[![Tests](https://img.shields.io/badge/Pruebas-130%2F130_Verificadas-success?style=for-the-badge&logo=node.js)](https://github.com/valentinflorezarbelaez-ai/ATP-STRENGTH)
+[![Auditoría de Seguridad](https://img.shields.io/badge/Seguridad-0_Vulnerabilidades-brightgreen?style=for-the-badge&logo=shield)](https://github.com/valentinflorezarbelaez-ai/ATP-STRENGTH)
+[![Docker](https://img.shields.io/badge/Docker-Multi--Stage_Ready-2496ED?style=for-the-badge&logo=docker)](docker-compose.yml)
+[![Arquitectura](https://img.shields.io/badge/Arquitectura-Limpia_%2F_Hexagonal_L0-purple?style=for-the-badge)](docs/plans)
 [![Licencia](https://img.shields.io/badge/Licencia-MIT-amber?style=for-the-badge)](LICENSE)
 
 ---
 
-## 🌐 Enlaces Oficiales de Producción
+## 🌐 Enlaces Oficiales de la Plataforma
 
-| Módulo / Interfaz | URL de Producción | Utilidad Principal |
-| :--- | :--- | :--- |
-| 🚀 **Templo Zen (App Principal)** | **[atp-strength.vercel.app](https://atp-strength.vercel.app)** | Dashboard de entrenamiento diario, itinerarios, cronómetro de ATP y registro de series. |
-| ⚡ **Motor Universal de Fuerza** | **[atp-strength.vercel.app/calc](https://atp-strength.vercel.app/calc)** | Cabina universal de cálculo y fases neuromusculares adaptable a cualquier barra, mancuerna o máquina. |
-| ⚔️ **La Forja de Guerreros** | **[atp-strength.vercel.app/forge](https://atp-strength.vercel.app/forge)** | Manifiesto de fuerza real, principios de los strongman clásicos y motivación pura. |
+| Módulo / Servicio | Entorno Local | URL de Producción | Utilidad Principal |
+| :--- | :--- | :--- | :--- |
+| 🚀 **Templo Zen & Cockpit Pro** | `http://localhost:3000` | **[atp-strength.vercel.app](https://atp-strength.vercel.app)** | Dashboard de entrenamiento diario, itinerarios, cronómetro de ATP y registro de series. |
+| ⚡ **Motor Universal de Fuerza** | `http://localhost:3000/calc` | **[atp-strength.vercel.app/calc](https://atp-strength.vercel.app/calc)** | Cabina universal de cálculo y fases neuromusculares adaptable a cualquier barra, mancuerna o máquina. |
+| ⚔️ **La Forja de los Guerreros** | `http://localhost:3000/forge` | **[atp-strength.vercel.app/forge](https://atp-strength.vercel.app/forge)** | Manifiesto de fuerza real, principios clásicos, jukebox marcial y motivación pura. |
+| 🔌 **API REST (Documentación Swagger)** | `http://127.0.0.1:8000/docs` | Render / Docker API | Especificación OpenAPI interactiva de telemetría, estados de sesión y máximos 1RM. |
+| 🩺 **Endpoint de Salud (Healthcheck)** | `http://127.0.0.1:8000/health` | Backend Health | Sondeo automatizado de disponibilidad y conectividad del motor backend. |
 
 ---
 
@@ -26,11 +31,14 @@
 
 **ATP-STRENGTH** es una plataforma de ingeniería de software y ciencias del deporte diseñada para el desarrollo de la fuerza máxima humana, la potencia neuromuscular explosiva (RFD - *Rate of Force Development*) y la longevidad del Sistema Nervioso Central (SNC).
 
-A diferencia de las aplicaciones convencionales de gimnasio que operan con progresiones porcentuales lineales simplistas, ATP-STRENGTH implementa modelos bioenergéticos formales:
+A diferencia de las aplicaciones convencionales de gimnasio que operan con progresiones porcentuales lineales simplistas y dependen de una conexión a internet ininterrumpida, ATP-STRENGTH implementa modelos bioenergéticos formales y una arquitectura *local-first* de máxima soberanía:
+
 1. **Tabla de INOL Soviética (A.S. Prilepin, 1974)** para monitorear y prevenir el sobreentrenamiento del SNC en tiempo real.
 2. **Autorregulación Neuromuscular (Mike Tuchscherer / Reactive Training Systems)** para ajustar las cargas serie a serie según la Escala de Esfuerzo Percibido (RPE) y las Repeticiones en Reserva (RIR).
 3. **Cinética de Resíntesis de Trifosfato de Adenosina y Fosfocreatina (ATP-CP)** para garantizar descansos bioenergéticamente completos (3 a 5 minutos) entre esfuerzos submáximos y máximos.
-4. **Motor Local-First con Diario de Transacciones (WAL)** y sumas de verificación criptográficas (`djb2`) que aseguran autonomía total sin conexión a internet en gimnasios subterráneos.
+4. **Curvas de Supercompensación Neuromuscular (SPEC-0009)** con trazado vectorial cúbico Bézier y detección automática de récords personales (PR).
+5. **Motor Local-First con Diario de Transacciones (WAL)**, sumas de verificación criptográficas (`djb2`), backoff exponencial con *jitter* y deduplicación idempotente (`client_sync_id`).
+6. **Defensa Activa Anti "Lie-Fi" (PWA v5)** que garantiza operatividad instantánea en sótanos y zonas con conectividad degradada.
 
 ---
 
@@ -40,44 +48,59 @@ El sistema respeta rigurosamente los principios de **Arquitectura Hexagonal y Pu
 
 ```mermaid
 graph TD
-    subgraph Capa_Presentacion["Capa de Presentación & UI (Web / PWA)"]
-        UI_Zen["ZenDashboardView (Cockpit Pro)"]
-        UI_Coach["CoachGuidedView (Paso a Paso)"]
-        UI_Calc["UniversalStrengthCalcModal & /calc"]
-        UI_PWA["Service Worker & Caché Offline"]
+    subgraph Capa_Presentacion["Capa de Presentación & UI (Next.js 16 / React 19 / PWA)"]
+        UI_Zen["ZenDashboardView (Cockpit Pro & Gráficos SVG)"]
+        UI_Coach["CoachGuidedView (Flujo Paso a Paso Asistido)"]
+        UI_Chart["NeuromuscularProgressionChart (Curva Bézier e1RM)"]
+        UI_Radar["NeuromuscularRadarChart (Pentágono de Simetría)"]
+        UI_SW["Service Worker v5 (Caché de Carrera Anti Lie-Fi)"]
     end
 
     subgraph Capa_Orquestacion["Capa de Aplicación & Orquestación"]
-        H_Dash["Hook useZenDashboard"]
-        H_WAL["Hook useBackendWal"]
-        A_Audio["Sintetizador Web Audio (Solfeggio 528Hz)"]
-        A_Voice["Motor de Retroalimentación Acústica"]
+        H_Dash["Hook useZenDashboard (Estado Derivado Puro)"]
+        H_WAL["Hook useBackendWal (Gestión de Cola Offline)"]
+        H_Timer["Hook useAtpTimer (Sincronización Wall-Clock)"]
+        A_Audio["Sintetizador Web Audio API (Solfeggio 528Hz & Metrónomo)"]
     end
 
     subgraph Dominio_Puro_L0["Capa de Dominio Puro (L0 - Cero Dependencias Externas)"]
-        D_Timer["atpTimerEngine.mjs (Tiempo absoluto de pared)"]
-        D_WAL["walEngine.mjs (FIFO de WAL criptográfico)"]
+        D_Timer["atpTimerEngine.mjs (Tiempo absoluto contra deriva)"]
+        D_WAL["walEngine.mjs (FIFO WAL con Jitter & Deduplicación)"]
         D_RPE["rpeEngine.mjs (Matriz %1RM de Tuchscherer)"]
-        D_Prilepin["prilepinEngine.mjs (Tabla INOL de Prilepin)"]
+        D_Prilepin["prilepinEngine.mjs (INOL soviético & Rampa)"]
         D_Strat["workoutStrategiesCore.mjs (5 sistemas de entrenamiento)"]
+        D_PR["prHistoryCore.mjs (SPEC-0009: Detección PR & Tendencias)"]
+    end
+
+    subgraph Backend_Hexagonal["Backend FastAPI (Python 3.12 / SQLAlchemy 2.0)"]
+        B_Routes["Endpoints REST (/state, /strength, /health)"]
+        B_Repo["StateRepository (Deduplicación Idempotente por client_sync_id)"]
+        B_DB["Motor Relacional (PostgreSQL en Producción / SQLite en Local & CI)"]
     end
 
     UI_Zen --> H_Dash
     UI_Coach --> H_Dash
-    UI_Calc --> H_Dash
+    UI_Zen --> UI_Chart
+    UI_Zen --> UI_Radar
     H_Dash --> D_Timer
     H_Dash --> D_RPE
     H_Dash --> D_Prilepin
     H_Dash --> D_Strat
+    H_Dash --> D_PR
+    H_Dash --> H_WAL
     H_WAL --> D_WAL
+    H_WAL -.->|HTTP POST Idempotente + X-Idempotency-Key| B_Routes
+    B_Routes --> B_Repo
+    B_Repo --> B_DB
 ```
 
-* **Módulos de Dominio L0:** ECMAScript 100% puro sin dependencias de `node_modules`, React ni del DOM.
-* **Contrato Determinista:** 97 pruebas unitarias ejecutadas directamente mediante el ejecutor de pruebas nativo de Node.js (`node --test`).
+* **Módulos de Dominio L0:** ECMAScript 100% puro sin dependencias de `node_modules`, React ni del DOM. Probables de forma aislada en microsegundos.
+* **Idempotencia Garantizada:** Cada transacción genera un `client_sync_id` único inyectado en cabecera `X-Idempotency-Key`, evitando duplicación de series ante reintentos de red.
+* **Cero Warnings:** Cumplimiento total de reglas estrictas de TypeScript (`tsc --noEmit`) y ESLint 9 (`eslint-config-next 16.3.8`).
 
 ---
 
-## 🔬 Motores Científicos Integrados
+## 🔬 Motores Científicos & Algoritmos Implementados
 
 ### 1. Motor de Acumulación INOL Soviético (Prilepin)
 Evalúa el estrés neuromuscular acumulado en la sesión mediante la fórmula universal de la escuela soviética de halterofilia:
@@ -95,17 +118,14 @@ Recalcula el 1RM estimado (e1RM) del atleta y prescribe la carga de la siguiente
 * **Fatiga por Desvío Positivo ($\ge +0.5$ RPE de sobreesfuerzo):** Si la serie se sintió notablemente más pesada que la prescripción, prescribe un ajuste a la baja (ej. $-2.5$ a $-5.0$ kg) para evitar fallos técnicos.
 * **Supercompensación ($\ge -0.5$ RPE de mayor velocidad):** Si la carga se movió con facilidad y reserva, recalcula el e1RM al alza y sugiere un incremento seguro.
 
-### 3. Metrónomo de Tempo Neuromuscular 3-1-X-1
-Sincroniza la cadencia de ejecución mediante pulsos visuales y clics acústicos con la Web Audio API:
-* **3 Segundos Excéntrica:** Descenso hipercontrolado para reclutar unidades motoras de alto umbral.
-* **1 Segundo Pausa Isométrica:** Disipación del reflejo miotático elástico en el punto de estiramiento.
-* **X Explosión Concéntrica:** Máxima intención de aceleración compensatoria (CAT - *Compensatory Acceleration Training*).
-* **1 Segundo Bloqueo:** Estabilización articular y reseteo de la presión intraabdominal (IAP).
+### 3. Curva de Supercompensación Neuromuscular & PR (SPEC-0009)
+* **Detección Automática de Récords:** Identifica nuevos picos de e1RM comparando contra el histórico consolidado del atleta.
+* **Geometría Bézier Cúbica:** Trazado vectorial suave en SVG responsive (`viewBox="0 0 600 220"`) que grafica los picos de forma y las fases de supercompensación.
+* **Clasificación de Tendencia:** Evalúa si el atleta se encuentra en estado de *Supercompensación*, *Adaptación Estable* o *Sobrecarga/Fatiga*.
 
-### 4. Visualizador Olímpico de Carga en Barra (IWF)
-Calcula y representa gráficamente la distribución exacta de discos por manga según el código cromático oficial de la Federación Internacional de Halterofilia (IWF):
-* **Rojo:** 25 kg | **Azul:** 20 kg | **Amarillo:** 15 kg | **Verde:** 10 kg | **Blanco:** 5 kg | **Microdiscos:** 2.5 kg, 1.25 kg.
-* Implementos calibrados: Barra estándar de 20 kg, barra olímpica técnica de 15 kg, barra hexagonal/trap bar de 25 kg y opción de 0 kg para mancuernas o lastre corporal.
+### 4. Resistencia de Red Offline y Resincronización WAL
+* **Gating Anti-Stampede:** Cuando se pierde la conexión, la cola WAL no satura la red; calcula intervalos con retroceso exponencial (*exponential backoff*) y fluctuación completa (*full jitter*) de hasta 30 segundos.
+* **Detección de "Lie-Fi":** El Service Worker v5 ejecuta una carrera de 2500 ms contra la red; si la señal del gimnasio se congela, entrega la versión en caché instantáneamente sin bloquear la interfaz.
 
 ---
 
@@ -121,56 +141,68 @@ Calcula y representa gráficamente la distribución exacta de discos por manga s
 
 ---
 
-## 📱 Ergonomía Móvil Gym-First (PWA)
+## 🧪 Jerarquía de Pruebas & Calidad (130 Tests Verificados)
 
-Diseñado específicamente para las condiciones reales de un entrenamiento pesado en el gimnasio:
+La plataforma cuenta con una triple barrera determinista de aseguramiento de calidad:
 
-* **Cabecera de 2 Niveles:** Botón destacado e imposible de cortar para alternar entre **`MODO PRO`** y **`MODO COACH`**, junto a una barra deslizable de herramientas útiles.
-* **Touch Targets Amplios ($\ge 44 \times 44\text{px}$):** Steppers táctiles rápidos (`-5 kg`, `-2.5 kg`, `+2.5 kg`, `+5 kg`), selectores de barra y píldoras de RPE fáciles de tocar con tiza o sudor en las manos.
-* **Bloqueo de Zoom en iOS:** Control estricto de `font-size: 16px` en inputs móviles para evitar que Safari haga zoom automático y desplace la vista al editar pesos.
-* **Cero Latencia Táctil:** Inyección de `touch-action: manipulation` para suprimir el retraso de 300 ms en navegadores móviles.
-* **True Black OLED:** Paleta `#0c0d11` de alto contraste, ahorro de batería y descanso visual.
-* **Escudo de Resiliencia ante Errores:** Pantallas de error dedicadas (`error.tsx` y `global-error.tsx`) que evitan pantallas blancas y ofrecen recuperación de sesión con un solo toque preservando los datos del WAL.
+| Capa de Prueba | Tecnología | Cobertura / Alcance | Cantidad |
+| :--- | :--- | :--- | :--- |
+| **Dominio & Lógica L0** | Node Native Test Runner | Cronómetro, WAL, Prilepin, RPE, 5 Programas, Historial de PRs | **111 tests** |
+| **Navegador End-to-End (E2E)** | Playwright (Chromium) | Shell PWA, Service Worker v5, WAL offline, Curva Bézier SVG | **11 tests** |
+| **Backend & Arquitectura** | Pytest + TestClient | Rutas REST, Persistencia SQLite/PostgreSQL, Aislamiento Hexagonal | **8 tests** |
+| **Total Automatizado** | — | **Verificación continua con 100% de éxito** | **130 tests** |
 
----
+### Ejecución de Pruebas Locales
 
-## 🛠️ Desarrollo Local & Verificación Técnica
-
-### Requisitos Previos
-* **Node.js** $\ge 20.10.0$ (LTS recomendado)
-* **npm** $\ge 10.0.0$
-
-### Instalación y Ejecución
 ```bash
-# 1. Clonar el repositorio
-git clone https://github.com/valentinflorezarbelaez-ai/ATP-STRENGTH.git
-cd ATP-STRENGTH/atp-strength-frontend
+# 1. Tests de Dominio y Lógica Frontend (111 tests)
+cd atp-strength-frontend && npm test
 
-# 2. Instalación limpia de dependencias
-npm ci
+# 2. Tests de Navegador End-to-End con Playwright (11 tests)
+npm run test:e2e
 
-# 3. Ejecutar la suite completa de pruebas unitarias (97 tests)
-npm test
+# 3. Linter y Tipado Estricto (0 warnings)
+npm run lint && npx tsc --noEmit
 
-# 4. Iniciar el servidor local de desarrollo
-npm run dev
+# 4. Tests del Backend en Python (8 tests)
+cd ../atp-strength-backend && pytest tests/ -v
 
-# 5. Compilar el paquete de producción (Turbopack + TypeScript estricto)
-npm run build
+# 5. Linter y Formato del Backend (Ruff)
+python -m ruff check . && python -m ruff format --check .
 ```
 
 ---
 
-## 🛡️ Seguridad, Privacidad e Integridad
+## 🚀 Despliegue con Docker Compose (Contenedorización Total)
 
-* **Cero Telemetría & Cero Secretos Expuestos:** Sin rastreadores de terceros, sin cookies invasivas y sin claves privadas en el código fuente.
-* **Autonomía Offline Completa:** El almacenamiento persistente almacena los registros localmente y los sincroniza de forma segura al detectar conectividad.
-* **Verificación de Integridad WAL:** Cada serie se valida criptográficamente con sumas de comprobación antes de ser procesada.
+Para levantar la plataforma completa de forma determinista (backend FastAPI + frontend Next.js) en un solo comando:
+
+```bash
+# Construir y levantar servicios en segundo plano
+docker compose up --build -d
+
+# Verificación de logs
+docker compose logs -f
+
+# Detener los servicios
+docker compose down
+```
+
+* **Frontend:** Disponible en `http://localhost:3000`
+* **Backend:** Disponible en `http://localhost:8000`
 
 ---
 
-## 📄 Licencia & Créditos
+## 🛡️ Seguridad, Privacidad y Soberanía del Atleta
+
+* **0 Vulnerabilidades:** Dependencias auditadas contra avisos de seguridad (`npm audit` reporta 0 vulnerabilidades; Next.js blindado en `16.3.8`).
+* **Soberanía de Datos:** Tus marcas no están atrapadas en una nube propietaria. El sistema incluye exportación/importación criptográfica completa en formato **JSON** y **CSV** con un solo clic.
+* **Cero Telemetría Invasiva:** Sin rastreadores comerciales de terceros, sin cookies espía y sin recolección de datos personales.
+
+---
+
+## 📄 Licencia
 
 Este proyecto se distribuye bajo la **Licencia MIT** — consultar el archivo [LICENSE](LICENSE) para más detalles.
 
-Arquitecturado y desarrollado con disciplina de ingeniería por [Valentín Flórez Arbeláez](https://github.com/valentinflorezarbelaez-ai).
+Arquitecturado y desarrollado con disciplina de ingeniería por **[Valentín Flórez Arbeláez](https://github.com/valentinflorezarbelaez-ai)**.
