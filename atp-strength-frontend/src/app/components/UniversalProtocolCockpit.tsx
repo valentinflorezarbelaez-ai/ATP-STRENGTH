@@ -17,12 +17,15 @@ import {
   ShieldCheck,
   AlertTriangle,
   Timer,
+  Trophy,
+  Volume2,
 } from "lucide-react";
 import { playTactileClick, playChime } from "@/lib/zenAudio";
 import { getExerciseMedia } from "@/lib/exerciseMediaCatalog";
 import { BarbellPlateVisualizer } from "@/app/components/BarbellPlateVisualizer";
 import { computeAutoregulatedAdjustment } from "@/lib/rpeEngine.mjs";
 import { evaluateSessionInol } from "@/lib/prilepinEngine.mjs";
+import { speakText, formatBarbellPlatesSpoken } from "@/lib/acousticFeedback";
 
 export interface UniversalProtocolCockpitProps {
   onStartTimer: (seconds: number, title: string) => void;
@@ -99,6 +102,7 @@ export function UniversalProtocolCockpit({
   const [completedSets, setCompletedSets] = useState<Record<string, boolean>>({});
   const [selectedBarWeight, setSelectedBarWeight] = useState<number>(() => loadInitialCockpitState().selectedBarWeight);
   const [showInlineDemo, setShowInlineDemo] = useState<boolean>(false);
+  const [isGuidedActive, setIsGuidedActive] = useState<boolean>(false);
 
   // RPE Records per set: { set_id: rpeValue }
   const [setRpeRecords, setSetRpeRecords] = useState<Record<string, number>>({});
@@ -255,6 +259,7 @@ export function UniversalProtocolCockpit({
     setSetRpeRecords({});
     setSetWeightOverrides({});
     setAutoregAlert(null);
+    setIsGuidedActive(false);
   };
 
   // The 6 Neuromuscular Phases with live autoregulated loads
@@ -531,6 +536,76 @@ export function UniversalProtocolCockpit({
 
   const primaryWorkWeight = protocolPhases[3].sets[2].weight;
 
+  // Lista aplanada de todas las series en orden de ejecución cronológico
+  const allSetsFlat = useMemo(() => {
+    return protocolPhases.flatMap((phase) =>
+      phase.sets.map((set) => ({
+        ...set,
+        phaseId: phase.id,
+        phaseName: phase.name,
+        phaseBadge: phase.badge,
+        phaseColorClass: phase.colorClass,
+      }))
+    );
+  }, [protocolPhases]);
+
+  // Próxima serie incompleta
+  const activeGuidedSet = useMemo(() => {
+    return allSetsFlat.find((s) => !completedSets[s.id]) || null;
+  }, [allSetsFlat, completedSets]);
+
+  const startGuidedMode = () => {
+    playTactileClick();
+    playChime(false);
+    setIsGuidedActive(true);
+    const targetSet = activeGuidedSet || allSetsFlat[0];
+    if (targetSet) {
+      const platesText = formatBarbellPlatesSpoken(targetSet.weight, selectedBarWeight);
+      const cue = `Iniciamos ${activeName}. ${targetSet.phaseName}, ${targetSet.label}. Cargá ${targetSet.weight} kilos para ${targetSet.reps} repeticiones. ${platesText}. Cuando termines, tocá Completar Serie para iniciar tu recuperación de ATP.`;
+      speakText(cue);
+    }
+  };
+
+  const stopGuidedMode = () => {
+    playTactileClick();
+    setIsGuidedActive(false);
+    speakText("Acompañamiento pausado.");
+  };
+
+  const repeatGuidedInstruction = () => {
+    playTactileClick();
+    if (activeGuidedSet) {
+      const platesText = formatBarbellPlatesSpoken(activeGuidedSet.weight, selectedBarWeight);
+      const cue = `${activeGuidedSet.phaseName}, ${activeGuidedSet.label}. ${activeGuidedSet.weight} kilos para ${activeGuidedSet.reps} repeticiones. ${platesText}.`;
+      speakText(cue);
+    }
+  };
+
+  const handleCompleteGuidedSet = () => {
+    if (!activeGuidedSet) return;
+    playTactileClick();
+    const currentId = activeGuidedSet.id;
+    const currentPhase = activeGuidedSet.phaseName;
+    const currentRest = activeGuidedSet.rest;
+
+    const currentIndex = allSetsFlat.findIndex((s) => s.id === currentId);
+    const nextSet = allSetsFlat[currentIndex + 1];
+
+    toggleSetComplete(currentId, currentPhase, currentRest);
+
+    if (nextSet) {
+      speakText(
+        `¡Excelente serie! Iniciamos ${currentRest} segundos de descanso para resíntesis de ATP. Próxima serie: ${nextSet.phaseBadge}, con ${nextSet.weight} kilos.`
+      );
+    } else {
+      speakText(
+        `¡Ejercicio ${activeName} completado con éxito! Todas las fases liquidadas. Supercompensación registrada.`
+      );
+      playChime(true);
+      setIsGuidedActive(false);
+    }
+  };
+
   return (
     <div className="space-y-5 sm:space-y-6 animate-in fade-in duration-300">
       {/* 1. Selector de Ejercicio & Configuración del PR */}
@@ -552,6 +627,30 @@ export function UniversalProtocolCockpit({
           </div>
 
           <div className="flex items-center gap-2 self-start sm:self-auto flex-wrap">
+            {/* Botón Principal: INICIAR EJERCICIO / ACOMPAÑAMIENTO GUIADO */}
+            <button
+              type="button"
+              onClick={isGuidedActive ? stopGuidedMode : startGuidedMode}
+              className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-mono font-black transition-all active:scale-95 cursor-pointer shadow-lg ${
+                isGuidedActive
+                  ? "bg-rose-500/20 border border-rose-500/50 text-rose-300 animate-pulse shadow-rose-500/10"
+                  : "bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-black border border-amber-400 shadow-amber-500/25"
+              }`}
+              title="Iniciar acompañamiento guiado paso a paso con voz y descansos"
+            >
+              {isGuidedActive ? (
+                <>
+                  <RotateCcw className="w-4 h-4 text-rose-400" />
+                  <span>PAUSAR GUÍA</span>
+                </>
+              ) : (
+                <>
+                  <Sparkles className="w-4 h-4 text-black fill-black" />
+                  <span>INICIAR EJERCICIO</span>
+                </>
+              )}
+            </button>
+
             {/* Botón Ver Demo & Técnica */}
             <button
               type="button"
@@ -599,6 +698,96 @@ export function UniversalProtocolCockpit({
             </button>
           </div>
         </div>
+
+        {/* CARD DE ACOMPAÑAMIENTO EN VIVO GUIADO */}
+        {isGuidedActive && (
+          <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-br from-amber-500/15 via-zinc-950 to-zinc-900 border-2 border-amber-500/70 shadow-[0_0_35px_rgba(245,158,11,0.25)] space-y-4 animate-in fade-in slide-in-from-top-3">
+            <div className="flex items-center justify-between border-b border-amber-500/25 pb-3">
+              <div className="flex items-center gap-2.5">
+                <span className="relative flex h-3.5 w-3.5">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-3.5 w-3.5 bg-amber-500"></span>
+                </span>
+                <span className="text-xs font-mono font-bold text-amber-300 uppercase tracking-wider">
+                  COACH GUIANDO EN VIVO {activeGuidedSet ? `· ${activeGuidedSet.phaseBadge}` : "· EJERCICIO COMPLETADO"}
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                {activeGuidedSet && (
+                  <button
+                    type="button"
+                    onClick={repeatGuidedInstruction}
+                    className="px-2.5 py-1 rounded-lg bg-zinc-900 border border-zinc-800 hover:border-amber-500/40 text-xs font-mono text-zinc-300 hover:text-amber-300 flex items-center gap-1.5 cursor-pointer shadow-sm"
+                    title="Repetir indicación por voz del coach"
+                  >
+                    <Volume2 className="w-3.5 h-3.5 text-amber-400" />
+                    <span>Repetir Voz</span>
+                  </button>
+                )}
+                <button
+                  type="button"
+                  onClick={stopGuidedMode}
+                  className="px-2.5 py-1 rounded-lg bg-zinc-900 border border-zinc-800 text-zinc-400 hover:text-rose-400 text-xs font-mono cursor-pointer"
+                >
+                  ✕ Salir
+                </button>
+              </div>
+            </div>
+
+            {activeGuidedSet ? (
+              <>
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <div>
+                    <span className="text-xs text-zinc-400 font-mono">Paso activo a realizar:</span>
+                    <h3 className="text-base sm:text-lg font-black text-white font-mono uppercase tracking-wide">
+                      {activeGuidedSet.phaseName} &mdash; {activeGuidedSet.label}
+                    </h3>
+                    <p className="text-xs text-amber-400/90 mt-0.5 font-mono">
+                      {formatBarbellPlatesSpoken(activeGuidedSet.weight, selectedBarWeight)}
+                    </p>
+                  </div>
+
+                  <div className="flex items-center gap-4">
+                    <div className="text-right">
+                      <div className="text-2xl sm:text-3xl font-black text-amber-400 font-mono">
+                        {activeGuidedSet.weight} <span className="text-sm font-normal text-zinc-400">kg</span>
+                      </div>
+                      <div className="text-xs font-mono text-zinc-400">
+                        {activeGuidedSet.reps} reps &middot; Tempo {activeGuidedSet.tempo}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={handleCompleteGuidedSet}
+                  className="w-full h-14 rounded-2xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-black font-black text-base uppercase tracking-wider shadow-xl shadow-amber-500/25 active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer"
+                >
+                  <CheckCircle2 className="w-5 h-5 text-black" />
+                  <span>COMPLETAR SERIE &middot; INICIAR DESCANSO ({activeGuidedSet.rest}s)</span>
+                </button>
+              </>
+            ) : (
+              <div className="text-center py-4 space-y-2">
+                <Trophy className="w-8 h-8 text-amber-400 mx-auto" />
+                <h4 className="text-base font-bold text-white font-mono uppercase">
+                  ¡Ejercicio Completado con Éxito!
+                </h4>
+                <p className="text-xs text-zinc-400 font-mono">
+                  Todas las series han sido ejecutadas. La supercompensación ha sido registrada.
+                </p>
+                <button
+                  type="button"
+                  onClick={resetAllSets}
+                  className="px-4 py-2 rounded-xl bg-zinc-900 border border-zinc-800 text-xs font-mono text-zinc-300 hover:text-amber-400 cursor-pointer"
+                >
+                  Reiniciar Ejercicio
+                </button>
+              </div>
+            )}
+          </div>
+        )}
 
         {/* METRÓNOMO DE TEMPO INTERACTIVO */}
         {showTempoMetronome && (
@@ -1089,6 +1278,7 @@ export function UniversalProtocolCockpit({
                   {phase.sets.map((set) => {
                     const isDone = completedSets[set.id] || false;
                     const loggedRpe = setRpeRecords[set.id];
+                    const isGuidedCurrent = isGuidedActive && activeGuidedSet?.id === set.id;
 
                     return (
                       <div
@@ -1096,6 +1286,8 @@ export function UniversalProtocolCockpit({
                         className={`p-3 sm:p-3.5 rounded-xl border transition-all ${
                           isDone
                             ? "bg-emerald-500/10 border-emerald-500/40 text-emerald-300 shadow-sm"
+                            : isGuidedCurrent
+                            ? "bg-amber-500/15 border-2 border-amber-400 text-amber-200 ring-2 ring-amber-400/40 shadow-[0_0_20px_rgba(245,158,11,0.25)] animate-pulse"
                             : "bg-zinc-900/60 border-zinc-800/80 hover:bg-zinc-900 hover:border-zinc-700"
                         }`}
                       >
@@ -1108,17 +1300,24 @@ export function UniversalProtocolCockpit({
                               className={`w-7 h-7 rounded-lg border flex items-center justify-center transition-all flex-shrink-0 ${
                                 isDone
                                   ? "bg-emerald-500 border-emerald-400 text-zinc-950"
+                                  : isGuidedCurrent
+                                  ? "border-amber-400 bg-amber-400 text-black font-bold"
                                   : "border-zinc-700 bg-zinc-800 text-transparent"
                               }`}
                             >
                               <CheckCircle2 className="w-4 h-4" />
                             </div>
                             <div>
-                              <div className="flex items-center gap-2 font-mono text-xs sm:text-sm">
+                              <div className="flex items-center gap-2 font-mono text-xs sm:text-sm flex-wrap">
                                 <span className="font-bold text-zinc-300">{set.label}:</span>
                                 <span className="text-sm sm:text-base font-black text-amber-400">{set.weight} kg</span>
                                 <span className="text-zinc-500">&times;</span>
                                 <span className="font-bold text-zinc-100">{set.reps} reps</span>
+                                {isGuidedCurrent && (
+                                  <span className="px-1.5 py-0.5 rounded text-[9px] font-mono font-black bg-amber-400 text-black shadow-sm animate-pulse">
+                                    SERIE ACTUAL
+                                  </span>
+                                )}
                               </div>
                               <span className="text-[10px] font-mono text-zinc-500 block">
                                 Tempo {set.tempo} &middot; Descanso {set.rest}s &middot; Target RPE {set.targetRpe}
