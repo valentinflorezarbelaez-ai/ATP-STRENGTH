@@ -47,6 +47,7 @@ export const DEFAULT_PREFS = Object.freeze({
   voiceRate: 1.05,
   voicePitch: 0.92,
   preferredVoiceURI: "",
+  voiceGender: "AUTO",
 });
 
 export function getRandomCue(type, rng = Math.random) {
@@ -155,6 +156,7 @@ export function formatAutoregulationCue({ direction, deltaKg, nextWeightKg, rpe 
 }
 
 export function validateAudioPreferences(prefs = {}) {
+  const validGenders = ["AUTO", "FEMALE", "MALE"];
   return {
     soundEnabled: typeof prefs.soundEnabled === "boolean" ? prefs.soundEnabled : DEFAULT_PREFS.soundEnabled,
     voiceEnabled: typeof prefs.voiceEnabled === "boolean" ? prefs.voiceEnabled : DEFAULT_PREFS.voiceEnabled,
@@ -170,7 +172,53 @@ export function validateAudioPreferences(prefs = {}) {
     preferredVoiceURI: typeof prefs.preferredVoiceURI === "string"
       ? prefs.preferredVoiceURI
       : DEFAULT_PREFS.preferredVoiceURI,
+    voiceGender: validGenders.includes(prefs.voiceGender)
+      ? prefs.voiceGender
+      : DEFAULT_PREFS.voiceGender,
   };
+}
+
+/**
+ * Detects whether a browser SpeechSynthesis voice is Female or Male based on
+ * international, Spanish, Windows, Apple, and Google voice names and URIs.
+ */
+export function detectVoiceGender(voice) {
+  if (!voice) return "AUTO";
+  const name = (voice.name || "").toLowerCase();
+  const uri = (voice.voiceURI || "").toLowerCase();
+  const combined = `${name} ${uri}`;
+
+  const femaleKeywords = [
+    "female", "mujer", "femenin",
+    "dalia", "paloma", "elvira", "laura", "monica", "mónica", "paulina",
+    "angelica", "angélica", "francisca", "soledad", "jimena", "ximena",
+    "sofia", "sofía", "lucia", "lucía", "valentina", "camila", "maria", "maría",
+    "carmen", "elena", "helena", "sabina", "victoria", "raquel", "rosa",
+    "conchita", "penelope", "lupe", "hilda", "mia", "mía", "samantha", "zira",
+    "juana", "ana", "catalina", "isabel", "mariana", "andrea"
+  ];
+
+  const maleKeywords = [
+    "male", "hombre", "masculin",
+    "pablo", "jorge", "alvaro", "álvaro", "carlos", "juan", "diego",
+    "miguel", "raul", "raúl", "mateo", "enrique", "gonzalo", "antonio",
+    "david", "pedro", "fernando", "manuel", "alejandro", "julio", "luis",
+    "javier", "alberto", "ignacio", "tomas", "tomás", "santiago", "alonso"
+  ];
+
+  for (const kw of femaleKeywords) {
+    if (combined.includes(kw)) return "FEMALE";
+  }
+  for (const kw of maleKeywords) {
+    if (combined.includes(kw)) return "MALE";
+  }
+
+  // Google español is typically a natural female voice model on Chromium
+  if (name.includes("google") && name.includes("español") && !combined.includes("male")) {
+    return "FEMALE";
+  }
+
+  return "AUTO";
 }
 
 /**

@@ -25,6 +25,9 @@ import {
   getAvailableSpanishVoices,
   getBestHumanVoice,
   speakText,
+  setVoiceGender,
+  detectVoiceGender,
+  type VoiceGender,
   type CoachAudioPreferences,
 } from "@/lib/acousticFeedback";
 
@@ -64,14 +67,14 @@ export function CoachGuidedView({ d }: { d: Dash; onShowSpotify?: () => void }) 
 
   React.useEffect(() => {
     const updateVoices = () => {
-      const list = getAvailableSpanishVoices();
+      const list = getAvailableSpanishVoices(audioPrefs.voiceGender || "AUTO");
       setAvailableVoices(list);
     };
     updateVoices();
     if (typeof window !== "undefined" && "speechSynthesis" in window) {
       window.speechSynthesis.onvoiceschanged = updateVoices;
     }
-  }, []);
+  }, [audioPrefs.voiceGender]);
 
   React.useEffect(() => {
     if (isRunning) {
@@ -539,9 +542,9 @@ export function CoachGuidedView({ d }: { d: Dash; onShowSpotify?: () => void }) 
               </div>
 
               {/* Selector de Voz Humana del Coach */}
-              <div className="space-y-1.5 pt-2">
+              <div className="space-y-2 pt-2">
                 <div className="flex items-center justify-between">
-                  <span className="text-[11px] font-mono text-zinc-400">Timbre y Voz Humana</span>
+                  <span className="text-[11px] font-mono text-zinc-400">Timbre y Voz del Coach</span>
                   <button
                     type="button"
                     onClick={() => {
@@ -554,28 +557,92 @@ export function CoachGuidedView({ d }: { d: Dash; onShowSpotify?: () => void }) 
                     <span>Probar Voz</span>
                   </button>
                 </div>
+
+                {/* Segmented Control: Mujer / Hombre / Auto */}
+                <div className="grid grid-cols-3 gap-1 p-1 rounded-xl bg-zinc-900 border border-zinc-800 text-xs font-mono">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      playTactileClick();
+                      const next = setVoiceGender("FEMALE");
+                      setAudioPrefs(next);
+                      speakText("¡Voz femenina activada! Vamos con determinación.", next);
+                    }}
+                    className={`py-1.5 px-2 rounded-lg font-bold flex items-center justify-center gap-1 transition-all cursor-pointer ${
+                      audioPrefs.voiceGender === "FEMALE"
+                        ? "bg-rose-500/20 text-rose-300 border border-rose-500/50 shadow-sm"
+                        : "text-zinc-400 hover:text-zinc-200"
+                    }`}
+                  >
+                    <span>👩</span>
+                    <span>Mujer</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      playTactileClick();
+                      const next = setVoiceGender("MALE");
+                      setAudioPrefs(next);
+                      speakText("¡Voz masculina activada! A la barra.", next);
+                    }}
+                    className={`py-1.5 px-2 rounded-lg font-bold flex items-center justify-center gap-1 transition-all cursor-pointer ${
+                      audioPrefs.voiceGender === "MALE"
+                        ? "bg-amber-500/20 text-amber-300 border border-amber-500/50 shadow-sm"
+                        : "text-zinc-400 hover:text-zinc-200"
+                    }`}
+                  >
+                    <span>👨</span>
+                    <span>Hombre</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      playTactileClick();
+                      const next = setVoiceGender("AUTO");
+                      setAudioPrefs(next);
+                      speakText("Modo automático activado.", next);
+                    }}
+                    className={`py-1.5 px-2 rounded-lg font-bold flex items-center justify-center gap-1 transition-all cursor-pointer ${
+                      audioPrefs.voiceGender === "AUTO" || !audioPrefs.voiceGender
+                        ? "bg-cyan-500/20 text-cyan-300 border border-cyan-500/50 shadow-sm"
+                        : "text-zinc-400 hover:text-zinc-200"
+                    }`}
+                  >
+                    <span>⭐</span>
+                    <span>Auto</span>
+                  </button>
+                </div>
+
                 {availableVoices.length > 0 ? (
                   <select
-                    value={audioPrefs.preferredVoiceURI || getBestHumanVoice()?.voiceURI || ""}
+                    value={audioPrefs.preferredVoiceURI || getBestHumanVoice(undefined, audioPrefs.voiceGender)?.voiceURI || ""}
                     onChange={(e) => {
                       const uri = e.target.value;
-                      const next = saveAudioPreferences({ preferredVoiceURI: uri });
+                      const selectedVoice = availableVoices.find((v) => v.voiceURI === uri);
+                      const detectedGender = selectedVoice ? detectVoiceGender(selectedVoice) : audioPrefs.voiceGender;
+                      const next = saveAudioPreferences({
+                        preferredVoiceURI: uri,
+                        voiceGender: detectedGender !== "AUTO" ? detectedGender : audioPrefs.voiceGender,
+                      });
                       setAudioPrefs(next);
                       speakText("Voz de coach configurada.", next);
                     }}
                     className="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-800 text-xs text-zinc-200 font-mono focus:outline-none focus:border-amber-500/50 cursor-pointer"
                   >
-                    {availableVoices.map((v) => (
-                      <option key={v.voiceURI} value={v.voiceURI}>
-                        {v.name.includes("Natural") || v.name.includes("Neural") || v.name.includes("Pablo") || v.name.includes("Jorge")
-                          ? `⭐ ${v.name}`
-                          : v.name} ({v.lang})
-                      </option>
-                    ))}
+                    {availableVoices.map((v) => {
+                      const gender = detectVoiceGender(v);
+                      const icon = gender === "FEMALE" ? "👩" : gender === "MALE" ? "👨" : "🎙️";
+                      const isTop = v.name.includes("Natural") || v.name.includes("Neural");
+                      return (
+                        <option key={v.voiceURI} value={v.voiceURI}>
+                          {icon} {isTop ? `⭐ ${v.name}` : v.name} ({v.lang})
+                        </option>
+                      );
+                    })}
                   </select>
                 ) : (
                   <p className="text-[10px] text-zinc-500 font-mono">
-                    Voz humana optimizada (resonancia cálida de pecho y cadencia natural activa).
+                    Voz humana optimizada (resonancia y cadencia natural activa).
                   </p>
                 )}
               </div>

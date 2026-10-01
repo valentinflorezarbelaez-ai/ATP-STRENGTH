@@ -16,6 +16,7 @@ import {
   formatAutoregulationCue as coreFormatAutoregulationCue,
   validateAudioPreferences,
   normalizeSpeechTextForSpanish,
+  detectVoiceGender as coreDetectVoiceGender,
 } from "./acousticFeedbackCore.mjs";
 
 export type CoachingEventType =
@@ -27,13 +28,16 @@ export type CoachingEventType =
   | "REST_COMPLETED"
   | "SESSION_VICTORY";
 
+export type VoiceGender = "AUTO" | "FEMALE" | "MALE";
+
 export interface CoachAudioPreferences {
   soundEnabled: boolean; // Chimes / Web Audio
   voiceEnabled: boolean; // Spoken coaching cues
   voiceVolume: number;   // 0.0 to 1.0
   voiceRate: number;     // 0.8 to 1.3 (default 1.02 for natural delivery)
-  voicePitch?: number;   // 0.6 to 1.5 (default 0.92 for warm human chest resonance)
+  voicePitch?: number;   // 0.6 to 1.5 (default 0.92 for warm human chest resonance, 1.02 for female)
   preferredVoiceURI?: string; // Specific voice chosen by athlete
+  voiceGender?: VoiceGender;  // "AUTO" | "FEMALE" | "MALE"
 }
 
 export interface TelemetryNarrationParams {
@@ -120,10 +124,17 @@ export function formatAutoregulationCue(params?: AutoregulationParams): string {
   return coreFormatAutoregulationCue(params);
 }
 
+export function detectVoiceGender(
+  voice: SpeechSynthesisVoice | { name?: string; voiceURI?: string } | null | undefined
+): VoiceGender {
+  return coreDetectVoiceGender(voice);
+}
+
 /**
- * Returns available Spanish voices sorted by natural human quality.
+ * Returns available Spanish voices sorted by natural human quality,
+ * with optional gender weighting (FEMALE or MALE priority).
  */
-export function getAvailableSpanishVoices(): SpeechSynthesisVoice[] {
+export function getAvailableSpanishVoices(genderPreference: VoiceGender = "AUTO"): SpeechSynthesisVoice[] {
   if (typeof window === "undefined" || !("speechSynthesis" in window)) return [];
   const allVoices = window.speechSynthesis.getVoices();
   const spanish = allVoices.filter((v) => v.lang.startsWith("es"));
@@ -134,6 +145,17 @@ export function getAvailableSpanishVoices(): SpeechSynthesisVoice[] {
     const uri = v.voiceURI.toLowerCase();
     let score = 0;
 
+    const detectedGender = detectVoiceGender(v);
+
+    // Explicit gender prioritization requested by the athlete
+    if (genderPreference === "FEMALE") {
+      if (detectedGender === "FEMALE") score += 300;
+      else if (detectedGender === "MALE") score -= 200;
+    } else if (genderPreference === "MALE") {
+      if (detectedGender === "MALE") score += 300;
+      else if (detectedGender === "FEMALE") score -= 200;
+    }
+
     // Highest priority: Neural / Natural / Studio / Enhanced
     if (name.includes("natural") || uri.includes("natural")) score += 120;
     if (name.includes("neural") || uri.includes("neural")) score += 120;
@@ -141,7 +163,7 @@ export function getAvailableSpanishVoices(): SpeechSynthesisVoice[] {
     if (name.includes("online") || uri.includes("online")) score += 60;
     if (name.includes("google") || uri.includes("google")) score += 50;
 
-    // Warm, resonant human coach voice names
+    // Warm, resonant human coach voice names (both male and female elite models)
     if (
       name.includes("pablo") ||
       name.includes("jorge") ||
@@ -149,7 +171,18 @@ export function getAvailableSpanishVoices(): SpeechSynthesisVoice[] {
       name.includes("carlos") ||
       name.includes("juan") ||
       name.includes("diego") ||
-      name.includes("miguel")
+      name.includes("miguel") ||
+      name.includes("paloma") ||
+      name.includes("dalia") ||
+      name.includes("elvira") ||
+      name.includes("laura") ||
+      name.includes("paulina") ||
+      name.includes("monica") ||
+      name.includes("mónica") ||
+      name.includes("sofia") ||
+      name.includes("sofía") ||
+      name.includes("camila") ||
+      name.includes("valentina")
     ) {
       score += 40;
     }
@@ -158,15 +191,15 @@ export function getAvailableSpanishVoices(): SpeechSynthesisVoice[] {
     if (v.lang === "es-mx" || v.lang === "es-us" || v.lang === "es-419") score += 20;
     if (v.lang.startsWith("es")) score += 15;
 
-    // Downrank legacy robotic SAPI / desktop synthesizers
-    if (
-      name.includes("helena") ||
-      name.includes("sabina") ||
-      name.includes("desktop") ||
-      name.includes("espeak") ||
-      uri.includes("desktop")
-    ) {
-      score -= 30;
+    // Downrank legacy robotic SAPI / desktop synthesizers ONLY when not neural/natural
+    if (!name.includes("natural") && !name.includes("neural")) {
+      if (
+        name.includes("desktop") ||
+        name.includes("espeak") ||
+        uri.includes("desktop")
+      ) {
+        score -= 40;
+      }
     }
 
     return score;
@@ -176,20 +209,54 @@ export function getAvailableSpanishVoices(): SpeechSynthesisVoice[] {
 }
 
 /**
- * Selects the highest quality natural human voice available on the athlete's device.
+ * Selects the highest quality natural human voice available on the athlete's device,
+ * honoring preferred voice URI and gender preference (FEMALE/MALE).
  */
-export function getBestHumanVoice(preferredURI?: string): SpeechSynthesisVoice | null {
+export function getBestHumanVoice(
+  preferredURI?: string,
+  genderPreference: VoiceGender = "AUTO"
+): SpeechSynthesisVoice | null {
   if (typeof window === "undefined" || !("speechSynthesis" in window)) return null;
   const voices = window.speechSynthesis.getVoices();
   if (voices.length === 0) return null;
 
   if (preferredURI) {
     const match = voices.find((v) => v.voiceURI === preferredURI);
-    if (match) return match;
+    if (match) {
+      // If athlete didn't restrict gender or the preferred voice matches the requested gender, use it!
+      if (genderPreference === "AUTO" || detectVoiceGender(match) === genderPreference) {
+        return match;
+      }
+    }
   }
 
-  const sorted = getAvailableSpanishVoices();
+  const sorted = getAvailableSpanishVoices(genderPreference);
   return sorted[0] || voices[0] || null;
+}
+
+/**
+ * Changes coach voice gender ("FEMALE" | "MALE" | "AUTO"), selects the best
+ * matching human voice on the device, updates pitch appropriately, and persists to localStorage.
+ */
+export function setVoiceGender(gender: VoiceGender): CoachAudioPreferences {
+  const current = getAudioPreferences();
+  const bestMatching = getBestHumanVoice(undefined, gender);
+  const adaptedPitch = gender === "FEMALE" ? 1.02 : 0.92;
+
+  return saveAudioPreferences({
+    voiceGender: gender,
+    preferredVoiceURI: bestMatching?.voiceURI || "",
+    voicePitch: adaptedPitch,
+  });
+}
+
+/**
+ * Toggles coach voice between FEMALE and MALE at will.
+ */
+export function toggleVoiceGender(): CoachAudioPreferences {
+  const current = getAudioPreferences();
+  const nextGender: VoiceGender = current.voiceGender === "FEMALE" ? "MALE" : "FEMALE";
+  return setVoiceGender(nextGender);
 }
 
 // Module-level reference pool preventing Chromium V8 GC from prematurely collecting
@@ -202,7 +269,7 @@ if (typeof window !== "undefined" && "speechSynthesis" in window) {
     try {
       const prefs = getAudioPreferences();
       if (!prefs.preferredVoiceURI) {
-        const best = getBestHumanVoice();
+        const best = getBestHumanVoice(undefined, prefs.voiceGender || "AUTO");
         if (best && best.voiceURI) {
           saveAudioPreferences({ preferredVoiceURI: best.voiceURI });
         }
@@ -220,7 +287,7 @@ if (typeof window !== "undefined" && "speechSynthesis" in window) {
 
 /**
  * Dispatches spoken feedback safely through browser SpeechSynthesis.
- * Prioritizes natural human voices with warm, resonant chest tone.
+ * Prioritizes natural human voices with warm, resonant tone.
  * Normalizes athletic text for zero-error Spanish pronunciation,
  * guards against Chromium GC premature termination, and prevents cancel() race conditions.
  */
@@ -250,9 +317,8 @@ export function speakText(rawText: string, customPrefs?: Partial<CoachAudioPrefe
         const utterance = new SpeechSynthesisUtterance(text);
         utterance.volume = Math.max(0, Math.min(1, prefs.voiceVolume));
         utterance.rate = Math.max(0.5, Math.min(2.0, prefs.voiceRate ?? 1.02));
-        utterance.pitch = Math.max(0.6, Math.min(1.5, prefs.voicePitch ?? 0.92));
 
-        const bestVoice = getBestHumanVoice(prefs.preferredVoiceURI);
+        const bestVoice = getBestHumanVoice(prefs.preferredVoiceURI, prefs.voiceGender);
         if (bestVoice) {
           utterance.voice = bestVoice;
           utterance.lang = bestVoice.lang;
@@ -264,6 +330,13 @@ export function speakText(rawText: string, customPrefs?: Partial<CoachAudioPrefe
         } else {
           utterance.lang = "es-ES";
         }
+
+        // Dynamically tune pitch if user hasn't explicitly overridden it
+        const isFemale =
+          prefs.voiceGender === "FEMALE" ||
+          (bestVoice && detectVoiceGender(bestVoice) === "FEMALE");
+        const defaultPitch = isFemale ? 1.02 : 0.92;
+        utterance.pitch = Math.max(0.6, Math.min(1.5, prefs.voicePitch ?? defaultPitch));
 
         // Chromium Garbage Collection Bug Guard:
         // SpeechSynthesisUtterance gets garbage-collected if no active reference is held,

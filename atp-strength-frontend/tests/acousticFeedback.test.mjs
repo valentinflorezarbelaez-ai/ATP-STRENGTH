@@ -15,6 +15,7 @@ import {
   formatAutoregulationCue,
   validateAudioPreferences,
   normalizeSpeechTextForSpanish,
+  detectVoiceGender,
 } from "../src/lib/acousticFeedbackCore.mjs";
 
 describe("SPEC-0005 Neuro-Acoustic Biofeedback Engine", () => {
@@ -169,6 +170,35 @@ describe("SPEC-0005 Neuro-Acoustic Biofeedback Engine", () => {
     it("preserves boolean toggles", () => {
       assert.equal(validateAudioPreferences({ soundEnabled: false }).soundEnabled, false);
       assert.equal(validateAudioPreferences({ voiceEnabled: false }).voiceEnabled, false);
+    });
+
+    it("validates and preserves voiceGender preferences", () => {
+      assert.equal(validateAudioPreferences({ voiceGender: "FEMALE" }).voiceGender, "FEMALE");
+      assert.equal(validateAudioPreferences({ voiceGender: "MALE" }).voiceGender, "MALE");
+      assert.equal(validateAudioPreferences({ voiceGender: "INVALID" }).voiceGender, "AUTO");
+    });
+  });
+
+  describe("REQ-EARS-AUDIO-08: Voice Gender Detection & Selection", () => {
+    it("detects female voices from standard Spanish synthesizer names and URIs", () => {
+      assert.equal(detectVoiceGender({ name: "Microsoft Dalia Online (Natural) - Spanish (Mexico)" }), "FEMALE");
+      assert.equal(detectVoiceGender({ name: "Microsoft Paloma Online (Natural) - Spanish (United States)" }), "FEMALE");
+      assert.equal(detectVoiceGender({ name: "Microsoft Elvira Online (Natural) - Spanish (Spain)" }), "FEMALE");
+      assert.equal(detectVoiceGender({ name: "Microsoft Laura - Spanish (Spain)" }), "FEMALE");
+      assert.equal(detectVoiceGender({ name: "Paulina" }), "FEMALE");
+      assert.equal(detectVoiceGender({ name: "Mónica" }), "FEMALE");
+      assert.equal(detectVoiceGender({ name: "Google español", voiceURI: "es-es-x-eed-network" }), "FEMALE");
+    });
+
+    it("detects male voices from standard Spanish synthesizer names and URIs", () => {
+      assert.equal(detectVoiceGender({ name: "Microsoft Jorge Online (Natural) - Spanish (Mexico)" }), "MALE");
+      assert.equal(detectVoiceGender({ name: "Microsoft Pablo - Spanish (Spain)" }), "MALE");
+      assert.equal(detectVoiceGender({ name: "Microsoft Alvaro Online (Natural) - Spanish (Spain)" }), "MALE");
+      assert.equal(detectVoiceGender({ name: "Diego" }), "MALE");
+    });
+
+    it("falls back to AUTO for ambiguous voice names", () => {
+      assert.equal(detectVoiceGender({ name: "Generic Spanish Synthesizer", voiceURI: "es-es-generic" }), "AUTO");
     });
   });
 

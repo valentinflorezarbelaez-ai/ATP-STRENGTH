@@ -25,6 +25,9 @@ import {
   speakText,
   formatBarbellPlatesSpoken,
   getAudioPreferences,
+  setVoiceGender,
+  toggleVoiceGender,
+  type VoiceGender,
 } from "@/lib/acousticFeedback";
 import { playTactileClick, playChime } from "@/lib/zenAudio";
 
@@ -118,8 +121,21 @@ export function UniversalGuidedFullscreenModal({
   const [restDuration, setRestDuration] = useState<number>(60);
   const [remainingSeconds, setRemainingSeconds] = useState<number>(60);
   const [isTimerPaused, setIsTimerPaused] = useState<boolean>(false);
+  const [audioPrefs, setAudioPrefs] = useState(() => getAudioPreferences());
   const hasSpokenInitial = useRef<boolean>(false);
   const lastSpokenSetId = useRef<string | null>(null);
+
+  const handleToggleVoiceGender = (explicitGender?: VoiceGender) => {
+    playTactileClick();
+    const next = explicitGender ? setVoiceGender(explicitGender) : toggleVoiceGender();
+    setAudioPrefs(next);
+    const isFem = next.voiceGender === "FEMALE";
+    speakText(
+      isFem
+        ? "¡Voz femenina del coach activada! Vamos con determinación, guerrero."
+        : "¡Voz masculina del coach activada! A romperla en la barra."
+    );
+  };
 
   // Mensaje ameno del coach para la serie actual
   const coachWarmMessage = useMemo(() => {
@@ -271,6 +287,23 @@ export function UniversalGuidedFullscreenModal({
           </div>
 
           <div className="flex items-center gap-2">
+            {/* Botón de Selección Rápida de Voz (Mujer / Hombre a voluntad) */}
+            <button
+              type="button"
+              onClick={() => handleToggleVoiceGender()}
+              className={`px-3 py-2 rounded-xl border text-xs font-mono font-bold flex items-center gap-1.5 transition-all active:scale-95 cursor-pointer shadow-sm ${
+                audioPrefs.voiceGender === "FEMALE"
+                  ? "bg-rose-500/20 border-rose-500/50 text-rose-300 hover:bg-rose-500/30 shadow-[0_0_12px_rgba(244,63,94,0.2)]"
+                  : "bg-amber-500/15 border-amber-500/40 text-amber-300 hover:bg-amber-500/25 shadow-[0_0_12px_rgba(245,158,11,0.15)]"
+              }`}
+              title={`Voz activa del coach: ${audioPrefs.voiceGender === "FEMALE" ? "Mujer" : "Hombre"}. Tocá para cambiar a voluntad.`}
+            >
+              <span className="text-sm">{audioPrefs.voiceGender === "FEMALE" ? "👩" : "👨"}</span>
+              <span className="font-bold">
+                {audioPrefs.voiceGender === "FEMALE" ? "VOZ MUJER" : "VOZ HOMBRE"}
+              </span>
+            </button>
+
             <button
               type="button"
               onClick={() => {
