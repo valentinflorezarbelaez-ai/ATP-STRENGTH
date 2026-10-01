@@ -238,6 +238,58 @@ button, a, [role="button"], input[type="button"], input[type="submit"] {
   border-color: var(--glass-border) !important;
 }
 
+/* Fullscreen Immersive Coach Chamber - Always Opaque Dark Cinema View across all themes */
+.atp-fullscreen-chamber,
+:root:not(.dark) .atp-fullscreen-chamber {
+  background-color: #07090e !important;
+  color: #f1f3f7 !important;
+  z-index: 999999 !important;
+}
+
+.atp-fullscreen-chamber .atp-chamber-card,
+:root:not(.dark) .atp-fullscreen-chamber .atp-chamber-card {
+  background-color: rgba(14, 16, 23, 0.96) !important;
+  border-color: rgba(204, 164, 59, 0.35) !important;
+  color: #ffffff !important;
+  box-shadow: 0 25px 60px -12px rgba(0, 0, 0, 0.95) !important;
+}
+
+.atp-fullscreen-chamber .atp-chamber-header,
+:root:not(.dark) .atp-fullscreen-chamber .atp-chamber-header {
+  background-color: rgba(9, 11, 16, 0.95) !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+.atp-fullscreen-chamber [class*="text-white"],
+:root:not(.dark) .atp-fullscreen-chamber [class*="text-white"] {
+  color: #ffffff !important;
+}
+
+.atp-fullscreen-chamber [class*="text-zinc-100"],
+:root:not(.dark) .atp-fullscreen-chamber [class*="text-zinc-100"] {
+  color: #f4f4f5 !important;
+}
+
+.atp-fullscreen-chamber [class*="text-zinc-200"],
+:root:not(.dark) .atp-fullscreen-chamber [class*="text-zinc-200"] {
+  color: #e4e4e7 !important;
+}
+
+.atp-fullscreen-chamber [class*="text-zinc-300"],
+:root:not(.dark) .atp-fullscreen-chamber [class*="text-zinc-300"] {
+  color: #d4d4d8 !important;
+}
+
+.atp-fullscreen-chamber [class*="text-zinc-400"],
+:root:not(.dark) .atp-fullscreen-chamber [class*="text-zinc-400"] {
+  color: #a1a1aa !important;
+}
+
+.atp-fullscreen-chamber [class*="bg-zinc-900"],
+:root:not(.dark) .atp-fullscreen-chamber [class*="bg-zinc-900"] {
+  background-color: rgba(22, 25, 35, 0.92) !important;
+}
+
 /* Glassmorphism Luxury Utilities */
 .glass-luxury {
   background: var(--glass-card);

@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useMemo, useRef } from "react";
+import { createPortal } from "react-dom";
 import {
   X,
   CheckCircle2,
@@ -193,7 +194,12 @@ export function UniversalGuidedFullscreenModal({
     return () => clearInterval(interval);
   }, [isResting, isTimerPaused, remainingSeconds, restDuration, activeSet, exerciseName, selectedBarWeight]);
 
-  if (!isOpen) return null;
+  const [mounted, setMounted] = useState<boolean>(false);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!isOpen || !mounted) return null;
 
   // Handler para marcar la serie completada
   const handleCompleteCurrentSet = () => {
@@ -233,8 +239,8 @@ export function UniversalGuidedFullscreenModal({
     setRestDuration((prev) => prev + 30);
   };
 
-  return (
-    <div className="fixed inset-0 z-[100] bg-black text-white flex flex-col justify-between overflow-y-auto selection:bg-amber-500 selection:text-black animate-in fade-in duration-300">
+  return createPortal(
+    <div className="atp-fullscreen-chamber fixed inset-0 z-[999999] flex flex-col justify-between overflow-y-auto selection:bg-amber-500 selection:text-black animate-in fade-in duration-300">
       {/* Luces de Fondo Inmersivas */}
       <div className="ambient-mesh-light pointer-events-none" aria-hidden="true">
         <div className="ambient-orb-1 opacity-40" />
@@ -243,7 +249,7 @@ export function UniversalGuidedFullscreenModal({
       </div>
 
       {/* 1. Barra Superior Inmersiva */}
-      <header className="w-full max-w-4xl mx-auto p-4 sm:p-6 pb-2 flex flex-col gap-3 relative z-10">
+      <header className="atp-chamber-header w-full max-w-4xl mx-auto p-4 sm:p-6 pb-2 flex flex-col gap-3 relative z-10">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="p-2 rounded-xl bg-amber-500/15 border border-amber-400/40 text-amber-400">
@@ -317,7 +323,7 @@ export function UniversalGuidedFullscreenModal({
           /* ========================================================= */
           /* MODO DESCANSO ACTIVO (ZEN ATP ENERGY RING)                */
           /* ========================================================= */
-          <div className="w-full p-6 sm:p-10 rounded-3xl bg-zinc-950/90 border border-amber-500/30 text-center space-y-6 shadow-2xl backdrop-blur-2xl relative animate-in zoom-in-95 duration-300">
+          <div className="atp-chamber-card w-full p-6 sm:p-10 rounded-3xl bg-zinc-950/95 border border-amber-500/40 text-center space-y-6 shadow-2xl backdrop-blur-2xl relative animate-in zoom-in-95 duration-300">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Coffee className="w-4 h-4 text-amber-400 animate-pulse" />
@@ -383,7 +389,7 @@ export function UniversalGuidedFullscreenModal({
           /* ========================================================= */
           /* MODO SERIE ACTIVA (A LA BARRA CON CARGA Y DISCOS)         */
           /* ========================================================= */
-          <div className="w-full p-6 sm:p-10 rounded-3xl bg-zinc-950/90 border border-amber-500/40 text-center space-y-6 shadow-2xl backdrop-blur-2xl relative animate-in fade-in duration-300">
+          <div className="atp-chamber-card w-full p-6 sm:p-10 rounded-3xl bg-zinc-950/95 border border-amber-500/40 text-center space-y-6 shadow-2xl backdrop-blur-2xl relative animate-in fade-in duration-300">
             {/* Cabecera de la Fase */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-zinc-900">
               <span className={`text-xs font-mono font-bold px-3 py-1 rounded-full border self-center sm:self-auto ${activeSet.phaseColorClass}`}>
@@ -462,7 +468,7 @@ export function UniversalGuidedFullscreenModal({
           /* ========================================================= */
           /* MODO VICTORIA: TODAS LAS SERIES LIQUIDADAS                */
           /* ========================================================= */
-          <div className="w-full p-8 sm:p-12 rounded-3xl bg-zinc-950/90 border border-emerald-500/40 text-center space-y-6 shadow-2xl backdrop-blur-2xl animate-in zoom-in-95 duration-300">
+          <div className="atp-chamber-card w-full p-8 sm:p-12 rounded-3xl bg-zinc-950/95 border border-emerald-500/40 text-center space-y-6 shadow-2xl backdrop-blur-2xl animate-in zoom-in-95 duration-300">
             <div className="p-4 rounded-full bg-emerald-500/20 border border-emerald-500/40 w-20 h-20 mx-auto flex items-center justify-center text-emerald-400 shadow-xl shadow-emerald-500/10">
               <Trophy className="w-10 h-10 animate-bounce" />
             </div>
@@ -498,9 +504,10 @@ export function UniversalGuidedFullscreenModal({
       </main>
 
       {/* 3. Footer Sencillo de Navegación */}
-      <footer className="w-full max-w-4xl mx-auto p-4 text-center text-xs font-mono text-zinc-600 relative z-10">
+      <footer className="w-full max-w-4xl mx-auto p-4 text-center text-xs font-mono text-zinc-500 relative z-10">
         Modo Acompañamiento Inmersivo &middot; Toca ✕ o la tecla Esc para volver
       </footer>
-    </div>
+    </div>,
+    document.body
   );
 }
