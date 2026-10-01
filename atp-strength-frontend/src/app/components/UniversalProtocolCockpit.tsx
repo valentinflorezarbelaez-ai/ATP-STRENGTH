@@ -31,7 +31,6 @@ import {
   formatBarbellPlatesSpoken,
   getAudioPreferences,
   toggleVoiceGender,
-  type VoiceGender,
 } from "@/lib/acousticFeedback";
 import { UniversalGuidedFullscreenModal } from "@/app/components/UniversalGuidedFullscreenModal";
 

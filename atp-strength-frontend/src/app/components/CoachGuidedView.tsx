@@ -27,7 +27,6 @@ import {
   speakText,
   setVoiceGender,
   detectVoiceGender,
-  type VoiceGender,
   type CoachAudioPreferences,
 } from "@/lib/acousticFeedback";
 
