@@ -10,26 +10,18 @@ import {
   Volume2,
   Sparkles,
   Trophy,
-  RotateCcw,
-  Clock,
   ArrowRight,
   Heart,
   Coffee,
-  ShieldCheck,
-  Dumbbell,
-  Zap,
 } from "lucide-react";
 import { AtpEnergyRing } from "@/app/components/AtpEnergyRing";
 import { BarbellPlateVisualizer } from "@/app/components/BarbellPlateVisualizer";
 import {
   speakText,
   formatBarbellPlatesSpoken,
-  getAudioPreferences,
-  setVoiceGender,
-  toggleVoiceGender,
-  type VoiceGender,
 } from "@/lib/acousticFeedback";
 import { playTactileClick, playChime } from "@/lib/zenAudio";
+import { TrainingVoicePicker } from "@/app/components/TrainingVoicePicker";
 
 export interface UniversalGuidedFullscreenModalProps {
   isOpen: boolean;
@@ -121,21 +113,8 @@ export function UniversalGuidedFullscreenModal({
   const [restDuration, setRestDuration] = useState<number>(60);
   const [remainingSeconds, setRemainingSeconds] = useState<number>(60);
   const [isTimerPaused, setIsTimerPaused] = useState<boolean>(false);
-  const [audioPrefs, setAudioPrefs] = useState(() => getAudioPreferences());
   const hasSpokenInitial = useRef<boolean>(false);
   const lastSpokenSetId = useRef<string | null>(null);
-
-  const handleToggleVoiceGender = (explicitGender?: VoiceGender) => {
-    playTactileClick();
-    const next = explicitGender ? setVoiceGender(explicitGender) : toggleVoiceGender();
-    setAudioPrefs(next);
-    const isFem = next.voiceGender === "FEMALE";
-    speakText(
-      isFem
-        ? "¡Voz femenina del coach activada! Vamos con determinación, guerrero."
-        : "¡Voz masculina del coach activada! A romperla en la barra."
-    );
-  };
 
   // Mensaje ameno del coach para la serie actual
   const coachWarmMessage = useMemo(() => {
@@ -176,46 +155,68 @@ export function UniversalGuidedFullscreenModal({
     }
   }, [isOpen, activeSet, isResting, exerciseName, selectedBarWeight]);
 
-  // Countdown timer para el descanso inmersivo
+  const remainingRef = useRef(remainingSeconds);
+  const restCueRef = useRef({
+    restDuration,
+    activeSet,
+    exerciseName,
+    selectedBarWeight,
+  });
+
+  useEffect(() => {
+    remainingRef.current = remainingSeconds;
+  }, [remainingSeconds]);
+
+  useEffect(() => {
+    restCueRef.current = {
+      restDuration,
+      activeSet,
+      exerciseName,
+      selectedBarWeight,
+    };
+  }, [restDuration, activeSet, exerciseName, selectedBarWeight]);
+
+  // Countdown timer para el descanso inmersivo.
+  // El tick vive en el callback del intervalo para no llamar setState en el cuerpo del efecto.
   useEffect(() => {
     if (!isResting || isTimerPaused) return;
 
-    if (remainingSeconds <= 0) {
-      setIsResting(false);
-      playChime(true);
-      if (activeSet) {
-        const nextPlates = formatBarbellPlatesSpoken(activeSet.weight, selectedBarWeight);
-        speakText(
-          `¡Tiempo cumplido! Se siente esa energía. Ahora tocan ${activeSet.weight} kilos en ${activeSet.label} para ${activeSet.reps} repeticiones. ${nextPlates}. ¡A disfrutar la serie!`
-        );
-      } else {
-        speakText(
-          `¡Increíble entrenamiento! Completaste todas las series de ${exerciseName}. Gran esfuerzo hoy, felicitaciones.`
-        );
-      }
-      return;
-    }
-
-    // Avisos amenos durante el descanso
-    if (remainingSeconds === 15) {
-      speakText("Nos quedan 15 segunditos, ya casi listos. Acercate a la barra con calma.");
-    } else if (remainingSeconds === Math.floor(restDuration / 2) && restDuration >= 40) {
-      speakText("Mitad del descanso. Respirá hondo por la nariz y oxigená bien los músculos.");
-    }
-
     const interval = setInterval(() => {
-      setRemainingSeconds((prev) => prev - 1);
+      const snap = restCueRef.current;
+      const next = remainingRef.current - 1;
+
+      if (next <= 0) {
+        remainingRef.current = 0;
+        setRemainingSeconds(0);
+        setIsResting(false);
+        playChime(true);
+        if (snap.activeSet) {
+          const nextPlates = formatBarbellPlatesSpoken(snap.activeSet.weight, snap.selectedBarWeight);
+          speakText(
+            `¡Tiempo cumplido! Se siente esa energía. Ahora tocan ${snap.activeSet.weight} kilos en ${snap.activeSet.label} para ${snap.activeSet.reps} repeticiones. ${nextPlates}. ¡A disfrutar la serie!`
+          );
+        } else {
+          speakText(
+            `¡Increíble entrenamiento! Completaste todas las series de ${snap.exerciseName}. Gran esfuerzo hoy, felicitaciones.`
+          );
+        }
+        return;
+      }
+
+      remainingRef.current = next;
+      setRemainingSeconds(next);
+
+      if (next === 15) {
+        speakText("Nos quedan 15 segunditos, ya casi listos. Acercate a la barra con calma.");
+      } else if (next === Math.floor(snap.restDuration / 2) && snap.restDuration >= 40) {
+        speakText("Mitad del descanso. Respirá hondo por la nariz y oxigená bien los músculos.");
+      }
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [isResting, isTimerPaused, remainingSeconds, restDuration, activeSet, exerciseName, selectedBarWeight]);
+  }, [isResting, isTimerPaused]);
 
-  const [mounted, setMounted] = useState<boolean>(false);
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  if (!isOpen || !mounted) return null;
+  if (!isOpen || typeof document === "undefined") return null;
 
   // Handler para marcar la serie completada
   const handleCompleteCurrentSet = () => {
@@ -228,6 +229,7 @@ export function UniversalGuidedFullscreenModal({
 
     // Entrar en modo descanso inmersivo si rest > 0
     if (currentRest > 0) {
+      remainingRef.current = currentRest;
       setRestDuration(currentRest);
       setRemainingSeconds(currentRest);
       setIsResting(true);
@@ -241,6 +243,7 @@ export function UniversalGuidedFullscreenModal({
   // Saltar descanso y volver a la serie
   const handleSkipRest = () => {
     playTactileClick();
+    remainingRef.current = 0;
     setIsResting(false);
     setRemainingSeconds(0);
     if (activeSet) {
@@ -251,6 +254,7 @@ export function UniversalGuidedFullscreenModal({
   // Añadir +30s de descanso
   const handleAdd30s = () => {
     playTactileClick();
+    remainingRef.current += 30;
     setRemainingSeconds((prev) => prev + 30);
     setRestDuration((prev) => prev + 30);
   };
@@ -287,22 +291,7 @@ export function UniversalGuidedFullscreenModal({
           </div>
 
           <div className="flex items-center gap-2">
-            {/* Botón de Selección Rápida de Voz (Mujer / Hombre a voluntad) */}
-            <button
-              type="button"
-              onClick={() => handleToggleVoiceGender()}
-              className={`px-3 py-2 rounded-xl border text-xs font-mono font-bold flex items-center gap-1.5 transition-all active:scale-95 cursor-pointer shadow-sm ${
-                audioPrefs.voiceGender === "FEMALE"
-                  ? "bg-rose-500/20 border-rose-500/50 text-rose-300 hover:bg-rose-500/30 shadow-[0_0_12px_rgba(244,63,94,0.2)]"
-                  : "bg-amber-500/15 border-amber-500/40 text-amber-300 hover:bg-amber-500/25 shadow-[0_0_12px_rgba(245,158,11,0.15)]"
-              }`}
-              title={`Voz activa del coach: ${audioPrefs.voiceGender === "FEMALE" ? "Mujer" : "Hombre"}. Tocá para cambiar a voluntad.`}
-            >
-              <span className="text-sm">{audioPrefs.voiceGender === "FEMALE" ? "👩" : "👨"}</span>
-              <span className="font-bold">
-                {audioPrefs.voiceGender === "FEMALE" ? "VOZ MUJER" : "VOZ HOMBRE"}
-              </span>
-            </button>
+            <TrainingVoicePicker />
 
             <button
               type="button"

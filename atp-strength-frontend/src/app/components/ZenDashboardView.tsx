@@ -13,14 +13,13 @@ import { UniversalProtocolCockpit } from "@/app/components/UniversalProtocolCock
 import { getExerciseMedia } from "@/lib/exerciseMediaCatalog";
 import { NeuromuscularRadarChart } from "@/app/components/NeuromuscularRadarChart";
 import { NeuromuscularProgressionChart } from "@/app/components/NeuromuscularProgressionChart";
-import { ExerciseStrengthCoachCard } from "@/app/components/ExerciseStrengthCoachCard";
 import { exportBackupJson, exportHistoryCsv, importBackupJsonFile } from "@/lib/dataPortability";
 import { playTactileClick } from "@/lib/zenAudio";
 import {
   Play,
   Flame, Zap, RotateCcw, CheckCircle2,
   ShieldCheck, Maximize2, Layers, Sparkles,
-  TrendingUp, X, Save, Dumbbell, Plus, Search, Scale, History, Calculator,
+  TrendingUp, X, Save, Dumbbell, History, Calculator,
   AlertTriangle, Trophy, Sun, Moon, Laptop,
   Download, Upload, Database, HardDrive, Timer,
 } from "lucide-react";
@@ -35,42 +34,6 @@ export function ZenDashboardView({ d }: { d: Dash; onShowSpotify?: () => void })
   const [showCatalogModal, setShowCatalogModal] = React.useState(false);
   const [showUniversalCalc, setShowUniversalCalc] = React.useState(false);
   const [backupStatusMsg, setBackupStatusMsg] = React.useState<string | null>(null);
-  const [exerciseSearchQuery, setExerciseSearchQuery] = React.useState("");
-  const [showNewExerciseModal, setShowNewExerciseModal] = React.useState(false);
-  const [newExName, setNewExName] = React.useState("");
-  const [newExWeight, setNewExWeight] = React.useState("100");
-  const [newExReps, setNewExReps] = React.useState("5");
-  const [newExNotes, setNewExNotes] = React.useState("");
-  const [isRegisteringEx, setIsRegisteringEx] = React.useState(false);
-
-  const filteredTrackableExercises = React.useMemo(() => {
-    const list: string[] = Array.from(d.allTrackableExercises || ALL_TRACKABLE_EXERCISES);
-    if (!exerciseSearchQuery.trim()) return list;
-    const q = exerciseSearchQuery.toLowerCase().trim();
-    return list.filter((ex: string) => ex.toLowerCase().includes(q));
-  }, [d.allTrackableExercises, exerciseSearchQuery]);
-
-  const handleRegisterNewExerciseSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newExName.trim()) return;
-    setIsRegisteringEx(true);
-    try {
-      await d.handleAddNewExercise(
-        newExName.trim(),
-        parseFloat(newExWeight) || 0,
-        parseInt(newExReps, 10) || 5,
-        "epley",
-        newExNotes.trim() || "Registro inicial de ejercicio"
-      );
-      setShowNewExerciseModal(false);
-      setNewExName("");
-      setNewExNotes("");
-    } catch (err) {
-      console.error("Error creating new exercise:", err);
-    } finally {
-      setIsRegisteringEx(false);
-    }
-  };
   const {
     currentSet,
     activePhaseStep, setActivePhaseStep,

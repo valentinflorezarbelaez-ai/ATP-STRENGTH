@@ -29,11 +29,9 @@ import { evaluateSessionInol } from "@/lib/prilepinEngine.mjs";
 import {
   speakText,
   formatBarbellPlatesSpoken,
-  getAudioPreferences,
-  toggleVoiceGender,
-  type VoiceGender,
 } from "@/lib/acousticFeedback";
 import { UniversalGuidedFullscreenModal } from "@/app/components/UniversalGuidedFullscreenModal";
+import { TrainingVoicePicker } from "@/app/components/TrainingVoicePicker";
 
 export interface UniversalProtocolCockpitProps {
   onStartTimer: (seconds: number, title: string) => void;
@@ -563,20 +561,6 @@ export function UniversalProtocolCockpit({
     return allSetsFlat.find((s) => !completedSets[s.id]) || null;
   }, [allSetsFlat, completedSets]);
 
-  const [cockpitAudioPrefs, setCockpitAudioPrefs] = useState(() => getAudioPreferences());
-
-  const handleToggleVoiceGenderCockpit = () => {
-    playTactileClick();
-    const next = toggleVoiceGender();
-    setCockpitAudioPrefs(next);
-    const isFem = next.voiceGender === "FEMALE";
-    speakText(
-      isFem
-        ? "¡Voz femenina del coach activada!"
-        : "¡Voz masculina del coach activada!"
-    );
-  };
-
   const startGuidedMode = () => {
     playTactileClick();
     playChime(false);
@@ -676,22 +660,7 @@ export function UniversalProtocolCockpit({
               )}
             </button>
 
-            {/* Botón Selector Rápido de Voz (Mujer / Hombre a voluntad) */}
-            <button
-              type="button"
-              onClick={handleToggleVoiceGenderCockpit}
-              className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border text-xs font-mono font-bold transition-all active:scale-95 cursor-pointer shadow-sm ${
-                cockpitAudioPrefs.voiceGender === "FEMALE"
-                  ? "bg-rose-500/15 border-rose-500/40 text-rose-300 hover:bg-rose-500/25"
-                  : "bg-zinc-900 border-zinc-800 text-zinc-300 hover:text-white hover:border-zinc-700"
-              }`}
-              title={`Voz activa del coach: ${cockpitAudioPrefs.voiceGender === "FEMALE" ? "Mujer" : "Hombre"}. Tocá para cambiar a voluntad.`}
-            >
-              <span className="text-sm">{cockpitAudioPrefs.voiceGender === "FEMALE" ? "👩" : "👨"}</span>
-              <span className="hidden sm:inline">
-                {cockpitAudioPrefs.voiceGender === "FEMALE" ? "VOZ MUJER" : "VOZ HOMBRE"}
-              </span>
-            </button>
+            <TrainingVoicePicker />
 
             {/* Botón Reabrir / Expandir Pantalla Completa si la guía está activa */}
             {isGuidedActive && (

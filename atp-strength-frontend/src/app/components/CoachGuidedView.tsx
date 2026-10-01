@@ -27,9 +27,13 @@ import {
   speakText,
   setVoiceGender,
   detectVoiceGender,
-  type VoiceGender,
   type CoachAudioPreferences,
 } from "@/lib/acousticFeedback";
+import {
+  TrainingVoicePicker,
+  publishTrainingVoiceChange,
+  TRAINING_VOICE_CHANGED_EVENT,
+} from "@/app/components/TrainingVoicePicker";
 
 type Dash = ReturnType<typeof useZenDashboard>;
 
@@ -62,6 +66,17 @@ export function CoachGuidedView({ d }: { d: Dash; onShowSpotify?: () => void }) 
   const [showUniversalProtocol, setShowUniversalProtocol] = useState(false);
   const [showUniversalCalc, setShowUniversalCalc] = useState(false);
   const [audioPrefs, setAudioPrefs] = useState<CoachAudioPreferences>(() => getAudioPreferences());
+
+  const applyAudioPrefs = (next: CoachAudioPreferences) => {
+    setAudioPrefs(() => next);
+    publishTrainingVoiceChange();
+  };
+
+  React.useEffect(() => {
+    const sync = () => setAudioPrefs(getAudioPreferences());
+    window.addEventListener(TRAINING_VOICE_CHANGED_EVENT, sync);
+    return () => window.removeEventListener(TRAINING_VOICE_CHANGED_EVENT, sync);
+  }, []);
   const [availableVoices, setAvailableVoices] = useState<SpeechSynthesisVoice[]>([]);
   const hasSpoken10sWarning = React.useRef(false);
 
@@ -111,7 +126,7 @@ export function CoachGuidedView({ d }: { d: Dash; onShowSpotify?: () => void }) 
 
   const toggleVoiceCoach = () => {
     const next = saveAudioPreferences({ voiceEnabled: !audioPrefs.voiceEnabled });
-    setAudioPrefs(next);
+    applyAudioPrefs(next);
     if (next.voiceEnabled) {
       acousticEngine.playSetCompleteCue();
     }
@@ -265,6 +280,8 @@ export function CoachGuidedView({ d }: { d: Dash; onShowSpotify?: () => void }) 
             <Volume2 className={`w-3.5 h-3.5 ${audioPrefs.voiceEnabled ? "text-amber-400 animate-pulse" : "text-zinc-500"}`} />
             <span>VOZ: {audioPrefs.voiceEnabled ? "ON" : "OFF"}</span>
           </button>
+
+          <TrainingVoicePicker />
 
           {/* Reset Action */}
           <button
@@ -511,7 +528,7 @@ export function CoachGuidedView({ d }: { d: Dash; onShowSpotify?: () => void }) 
                   onClick={() => {
                     playTactileClick();
                     const next = saveAudioPreferences({ voiceEnabled: !audioPrefs.voiceEnabled });
-                    setAudioPrefs(next);
+                    applyAudioPrefs(next);
                   }}
                   className={`py-2 px-3 rounded-xl border text-xs font-mono font-medium flex items-center justify-between cursor-pointer transition-all ${
                     audioPrefs.voiceEnabled
@@ -528,7 +545,7 @@ export function CoachGuidedView({ d }: { d: Dash; onShowSpotify?: () => void }) 
                   onClick={() => {
                     playTactileClick();
                     const next = saveAudioPreferences({ soundEnabled: !audioPrefs.soundEnabled });
-                    setAudioPrefs(next);
+                    applyAudioPrefs(next);
                   }}
                   className={`py-2 px-3 rounded-xl border text-xs font-mono font-medium flex items-center justify-between cursor-pointer transition-all ${
                     audioPrefs.soundEnabled
@@ -565,7 +582,7 @@ export function CoachGuidedView({ d }: { d: Dash; onShowSpotify?: () => void }) 
                     onClick={() => {
                       playTactileClick();
                       const next = setVoiceGender("FEMALE");
-                      setAudioPrefs(next);
+                      applyAudioPrefs(next);
                       speakText("¡Voz femenina activada! Vamos con determinación.", next);
                     }}
                     className={`py-1.5 px-2 rounded-lg font-bold flex items-center justify-center gap-1 transition-all cursor-pointer ${
@@ -582,7 +599,7 @@ export function CoachGuidedView({ d }: { d: Dash; onShowSpotify?: () => void }) 
                     onClick={() => {
                       playTactileClick();
                       const next = setVoiceGender("MALE");
-                      setAudioPrefs(next);
+                      applyAudioPrefs(next);
                       speakText("¡Voz masculina activada! A la barra.", next);
                     }}
                     className={`py-1.5 px-2 rounded-lg font-bold flex items-center justify-center gap-1 transition-all cursor-pointer ${
@@ -599,7 +616,7 @@ export function CoachGuidedView({ d }: { d: Dash; onShowSpotify?: () => void }) 
                     onClick={() => {
                       playTactileClick();
                       const next = setVoiceGender("AUTO");
-                      setAudioPrefs(next);
+                      applyAudioPrefs(next);
                       speakText("Modo automático activado.", next);
                     }}
                     className={`py-1.5 px-2 rounded-lg font-bold flex items-center justify-center gap-1 transition-all cursor-pointer ${
@@ -624,7 +641,7 @@ export function CoachGuidedView({ d }: { d: Dash; onShowSpotify?: () => void }) 
                         preferredVoiceURI: uri,
                         voiceGender: detectedGender !== "AUTO" ? detectedGender : audioPrefs.voiceGender,
                       });
-                      setAudioPrefs(next);
+                      applyAudioPrefs(next);
                       speakText("Voz de coach configurada.", next);
                     }}
                     className="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-800 text-xs text-zinc-200 font-mono focus:outline-none focus:border-amber-500/50 cursor-pointer"

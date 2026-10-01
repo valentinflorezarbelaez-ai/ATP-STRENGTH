@@ -239,7 +239,6 @@ export function getBestHumanVoice(
  * matching human voice on the device, updates pitch appropriately, and persists to localStorage.
  */
 export function setVoiceGender(gender: VoiceGender): CoachAudioPreferences {
-  const current = getAudioPreferences();
   const bestMatching = getBestHumanVoice(undefined, gender);
   const adaptedPitch = gender === "FEMALE" ? 1.02 : 0.92;
 
