@@ -45,6 +45,8 @@ export const DEFAULT_PREFS = Object.freeze({
   voiceEnabled: true,
   voiceVolume: 1.0,
   voiceRate: 1.05,
+  voicePitch: 0.92,
+  preferredVoiceURI: "",
 });
 
 export function getRandomCue(type, rng = Math.random) {
@@ -162,5 +164,11 @@ export function validateAudioPreferences(prefs = {}) {
     voiceRate: typeof prefs.voiceRate === "number"
       ? Math.max(0.5, Math.min(2.0, prefs.voiceRate))
       : DEFAULT_PREFS.voiceRate,
+    voicePitch: typeof prefs.voicePitch === "number"
+      ? Math.max(0.6, Math.min(1.5, prefs.voicePitch))
+      : DEFAULT_PREFS.voicePitch,
+    preferredVoiceURI: typeof prefs.preferredVoiceURI === "string"
+      ? prefs.preferredVoiceURI
+      : DEFAULT_PREFS.preferredVoiceURI,
   };
 }

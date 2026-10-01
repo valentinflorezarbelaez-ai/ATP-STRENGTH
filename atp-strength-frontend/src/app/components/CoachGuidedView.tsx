@@ -22,6 +22,9 @@ import {
   acousticEngine,
   getAudioPreferences,
   saveAudioPreferences,
+  getAvailableSpanishVoices,
+  getBestHumanVoice,
+  speakText,
   type CoachAudioPreferences,
 } from "@/lib/acousticFeedback";
 
@@ -56,7 +59,19 @@ export function CoachGuidedView({ d }: { d: Dash; onShowSpotify?: () => void }) 
   const [showUniversalProtocol, setShowUniversalProtocol] = useState(false);
   const [showUniversalCalc, setShowUniversalCalc] = useState(false);
   const [audioPrefs, setAudioPrefs] = useState<CoachAudioPreferences>(() => getAudioPreferences());
+  const [availableVoices, setAvailableVoices] = useState<SpeechSynthesisVoice[]>([]);
   const hasSpoken10sWarning = React.useRef(false);
+
+  React.useEffect(() => {
+    const updateVoices = () => {
+      const list = getAvailableSpanishVoices();
+      setAvailableVoices(list);
+    };
+    updateVoices();
+    if (typeof window !== "undefined" && "speechSynthesis" in window) {
+      window.speechSynthesis.onvoiceschanged = updateVoices;
+    }
+  }, []);
 
   React.useEffect(() => {
     if (isRunning) {
@@ -521,6 +536,48 @@ export function CoachGuidedView({ d }: { d: Dash; onShowSpotify?: () => void }) 
                   <span>Campanas 528Hz:</span>
                   <span className="font-bold">{audioPrefs.soundEnabled ? "ON" : "OFF"}</span>
                 </button>
+              </div>
+
+              {/* Selector de Voz Humana del Coach */}
+              <div className="space-y-1.5 pt-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-[11px] font-mono text-zinc-400">Timbre y Voz Humana</span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      playTactileClick();
+                      speakText("¡Tiempo cumplido! A la barra con máxima determinación, guerrero.", audioPrefs);
+                    }}
+                    className="text-[10px] font-mono text-amber-400 hover:underline cursor-pointer flex items-center gap-1"
+                  >
+                    <span>🎙️</span>
+                    <span>Probar Voz</span>
+                  </button>
+                </div>
+                {availableVoices.length > 0 ? (
+                  <select
+                    value={audioPrefs.preferredVoiceURI || getBestHumanVoice()?.voiceURI || ""}
+                    onChange={(e) => {
+                      const uri = e.target.value;
+                      const next = saveAudioPreferences({ preferredVoiceURI: uri });
+                      setAudioPrefs(next);
+                      speakText("Voz de coach configurada.", next);
+                    }}
+                    className="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-800 text-xs text-zinc-200 font-mono focus:outline-none focus:border-amber-500/50 cursor-pointer"
+                  >
+                    {availableVoices.map((v) => (
+                      <option key={v.voiceURI} value={v.voiceURI}>
+                        {v.name.includes("Natural") || v.name.includes("Neural") || v.name.includes("Pablo") || v.name.includes("Jorge")
+                          ? `⭐ ${v.name}`
+                          : v.name} ({v.lang})
+                      </option>
+                    ))}
+                  </select>
+                ) : (
+                  <p className="text-[10px] text-zinc-500 font-mono">
+                    Voz humana optimizada (resonancia cálida de pecho y cadencia natural activa).
+                  </p>
+                )}
               </div>
             </div>
 

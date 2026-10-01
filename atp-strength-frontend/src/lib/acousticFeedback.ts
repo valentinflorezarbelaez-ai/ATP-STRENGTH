@@ -30,7 +30,9 @@ export interface CoachAudioPreferences {
   soundEnabled: boolean; // Chimes / Web Audio
   voiceEnabled: boolean; // Spoken coaching cues
   voiceVolume: number;   // 0.0 to 1.0
-  voiceRate: number;     // 0.8 to 1.3 (default 1.05 for energetic delivery)
+  voiceRate: number;     // 0.8 to 1.3 (default 1.02 for natural delivery)
+  voicePitch?: number;   // 0.6 to 1.5 (default 0.92 for warm human chest resonance)
+  preferredVoiceURI?: string; // Specific voice chosen by athlete
 }
 
 export interface TelemetryNarrationParams {
@@ -118,8 +120,80 @@ export function formatAutoregulationCue(params?: AutoregulationParams): string {
 }
 
 /**
+ * Returns available Spanish voices sorted by natural human quality.
+ */
+export function getAvailableSpanishVoices(): SpeechSynthesisVoice[] {
+  if (typeof window === "undefined" || !("speechSynthesis" in window)) return [];
+  const allVoices = window.speechSynthesis.getVoices();
+  const spanish = allVoices.filter((v) => v.lang.startsWith("es"));
+  const pool = spanish.length > 0 ? spanish : allVoices;
+
+  const scoreVoice = (v: SpeechSynthesisVoice): number => {
+    const name = v.name.toLowerCase();
+    const uri = v.voiceURI.toLowerCase();
+    let score = 0;
+
+    // Highest priority: Neural / Natural / Studio / Enhanced
+    if (name.includes("natural") || uri.includes("natural")) score += 120;
+    if (name.includes("neural") || uri.includes("neural")) score += 120;
+    if (name.includes("enhanced") || uri.includes("enhanced")) score += 90;
+    if (name.includes("online") || uri.includes("online")) score += 60;
+    if (name.includes("google") || uri.includes("google")) score += 50;
+
+    // Warm, resonant human coach voice names
+    if (
+      name.includes("pablo") ||
+      name.includes("jorge") ||
+      name.includes("alvaro") ||
+      name.includes("carlos") ||
+      name.includes("juan") ||
+      name.includes("diego") ||
+      name.includes("miguel")
+    ) {
+      score += 40;
+    }
+
+    // Latin American / Neutral Spanish preference
+    if (v.lang === "es-mx" || v.lang === "es-us" || v.lang === "es-419") score += 20;
+    if (v.lang.startsWith("es")) score += 15;
+
+    // Downrank legacy robotic SAPI / desktop synthesizers
+    if (
+      name.includes("helena") ||
+      name.includes("sabina") ||
+      name.includes("desktop") ||
+      name.includes("espeak") ||
+      uri.includes("desktop")
+    ) {
+      score -= 30;
+    }
+
+    return score;
+  };
+
+  return [...pool].sort((a, b) => scoreVoice(b) - scoreVoice(a));
+}
+
+/**
+ * Selects the highest quality natural human voice available on the athlete's device.
+ */
+export function getBestHumanVoice(preferredURI?: string): SpeechSynthesisVoice | null {
+  if (typeof window === "undefined" || !("speechSynthesis" in window)) return null;
+  const voices = window.speechSynthesis.getVoices();
+  if (voices.length === 0) return null;
+
+  if (preferredURI) {
+    const match = voices.find((v) => v.voiceURI === preferredURI);
+    if (match) return match;
+  }
+
+  const sorted = getAvailableSpanishVoices();
+  return sorted[0] || voices[0] || null;
+}
+
+/**
  * Dispatches spoken feedback safely through browser SpeechSynthesis.
- * Resilient against missing API or mobile autoplay restrictions.
+ * Prioritizes natural human voices with warm, resonant chest tone.
  */
 export function speakText(text: string, customPrefs?: Partial<CoachAudioPreferences>): void {
   if (typeof window === "undefined" || !("speechSynthesis" in window)) return;
@@ -134,14 +208,15 @@ export function speakText(text: string, customPrefs?: Partial<CoachAudioPreferen
 
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.volume = Math.max(0, Math.min(1, prefs.voiceVolume));
-    utterance.rate = Math.max(0.5, Math.min(2.0, prefs.voiceRate));
-    utterance.lang = "es-ES";
+    utterance.rate = Math.max(0.5, Math.min(2.0, prefs.voiceRate ?? 1.0));
+    utterance.pitch = Math.max(0.6, Math.min(1.5, prefs.voicePitch ?? 0.92));
 
-    // Find best matching Spanish voice if available
-    const voices = synth.getVoices();
-    const spanishVoice = voices.find((v) => v.lang.startsWith("es"));
-    if (spanishVoice) {
-      utterance.voice = spanishVoice;
+    const bestVoice = getBestHumanVoice(prefs.preferredVoiceURI);
+    if (bestVoice) {
+      utterance.voice = bestVoice;
+      utterance.lang = bestVoice.lang;
+    } else {
+      utterance.lang = "es-ES";
     }
 
     synth.speak(utterance);
