@@ -16,6 +16,9 @@ import {
   validateAudioPreferences,
   normalizeSpeechTextForSpanish,
   detectVoiceGender,
+  selectVoicesForGender,
+  nextVoiceInList,
+  pitchForVoiceGender,
 } from "../src/lib/acousticFeedbackCore.mjs";
 
 describe("SPEC-0005 Neuro-Acoustic Biofeedback Engine", () => {
@@ -199,6 +202,36 @@ describe("SPEC-0005 Neuro-Acoustic Biofeedback Engine", () => {
 
     it("falls back to AUTO for ambiguous voice names", () => {
       assert.equal(detectVoiceGender({ name: "Generic Spanish Synthesizer", voiceURI: "es-es-generic" }), "AUTO");
+    });
+
+    it("keeps a requested gender even when a higher-quality voice of the other gender is present", () => {
+      const voices = [
+        { name: "Microsoft Dalia Online (Natural) - Spanish (Mexico)", voiceURI: "dalia" },
+        { name: "Microsoft Jorge Online (Natural) - Spanish (Mexico)", voiceURI: "jorge" },
+      ];
+      const male = selectVoicesForGender(voices, "MALE");
+      const female = selectVoicesForGender(voices, "FEMALE");
+      assert.deepEqual(male.map((voice) => voice.voiceURI), ["jorge"]);
+      assert.deepEqual(female.map((voice) => voice.voiceURI), ["dalia"]);
+      assert.equal(selectVoicesForGender(voices, "AUTO").length, 2);
+      assert.deepEqual(selectVoicesForGender([{ name: "Generic", voiceURI: "generic" }], "MALE"), [
+        { name: "Generic", voiceURI: "generic" },
+      ]);
+    });
+
+    it("cycles to the next installed training voice and wraps around", () => {
+      const voices = [
+        { voiceURI: "dalia" },
+        { voiceURI: "jorge" },
+        { voiceURI: "pablo" },
+      ];
+      assert.equal(nextVoiceInList(voices, "dalia").voiceURI, "jorge");
+      assert.equal(nextVoiceInList(voices, "pablo").voiceURI, "dalia");
+      assert.equal(nextVoiceInList(voices, "missing").voiceURI, "dalia");
+      assert.equal(nextVoiceInList([], "dalia"), null);
+      assert.equal(pitchForVoiceGender("FEMALE"), 1.02);
+      assert.equal(pitchForVoiceGender("MALE"), 0.92);
+      assert.equal(pitchForVoiceGender("AUTO"), 0.97);
     });
   });
 

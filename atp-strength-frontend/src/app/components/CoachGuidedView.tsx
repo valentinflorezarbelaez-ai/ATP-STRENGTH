@@ -27,7 +27,7 @@ import {
   speakText,
   setVoiceGender,
   detectVoiceGender,
-  type VoiceGender,
+  COACH_AUDIO_PREFS_EVENT,
   type CoachAudioPreferences,
 } from "@/lib/acousticFeedback";
 
@@ -62,6 +62,15 @@ export function CoachGuidedView({ d }: { d: Dash; onShowSpotify?: () => void }) 
   const [showUniversalProtocol, setShowUniversalProtocol] = useState(false);
   const [showUniversalCalc, setShowUniversalCalc] = useState(false);
   const [audioPrefs, setAudioPrefs] = useState<CoachAudioPreferences>(() => getAudioPreferences());
+
+  React.useEffect(() => {
+    const onPrefs = (event: Event) => {
+      const detail = (event as CustomEvent<CoachAudioPreferences>).detail;
+      if (detail) setAudioPrefs(detail);
+    };
+    window.addEventListener(COACH_AUDIO_PREFS_EVENT, onPrefs);
+    return () => window.removeEventListener(COACH_AUDIO_PREFS_EVENT, onPrefs);
+  }, []);
   const [availableVoices, setAvailableVoices] = useState<SpeechSynthesisVoice[]>([]);
   const hasSpoken10sWarning = React.useRef(false);
 

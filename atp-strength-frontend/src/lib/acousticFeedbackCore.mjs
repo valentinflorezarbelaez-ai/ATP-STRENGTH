@@ -222,6 +222,34 @@ export function detectVoiceGender(voice) {
 }
 
 /**
+ * Keeps only voices that match an explicit gender request.
+ * Falls back to the original list when the device has no voice of that gender.
+ */
+export function selectVoicesForGender(voices, genderPreference = "AUTO") {
+  if (!Array.isArray(voices) || voices.length === 0) return [];
+  if (genderPreference !== "FEMALE" && genderPreference !== "MALE") return voices;
+  const strict = voices.filter((voice) => detectVoiceGender(voice) === genderPreference);
+  return strict.length > 0 ? strict : voices;
+}
+
+/**
+ * Advances to the next installed voice. An unknown current URI starts at the first voice.
+ */
+export function nextVoiceInList(voices, currentURI) {
+  if (!Array.isArray(voices) || voices.length === 0) return null;
+  const index = voices.findIndex((voice) => voice && voice.voiceURI === currentURI);
+  const nextIndex = index < 0 ? 0 : (index + 1) % voices.length;
+  return voices[nextIndex] || null;
+}
+
+/** Warm chest pitch for male coaches, slightly brighter pitch for female coaches. */
+export function pitchForVoiceGender(gender) {
+  if (gender === "FEMALE") return 1.02;
+  if (gender === "MALE") return 0.92;
+  return 0.97;
+}
+
+/**
  * Normalizes athletic speech text for flawless Spanish speech synthesis:
  * - Converts number ranges like "10–12" or "10-12" to "10 a 12"
  * - Converts tempos like "TEMPO 3-1-X-1" to "cadencia 3, 1, explosivo, 1"

@@ -17,6 +17,9 @@ import {
   validateAudioPreferences,
   normalizeSpeechTextForSpanish,
   detectVoiceGender as coreDetectVoiceGender,
+  selectVoicesForGender,
+  nextVoiceInList,
+  pitchForVoiceGender,
 } from "./acousticFeedbackCore.mjs";
 
 export type CoachingEventType =
@@ -75,6 +78,7 @@ export const COACH_CUES = CORE_COACH_CUES as Record<CoachingEventType, string[]>
 export const DEFAULT_PREFS: CoachAudioPreferences = CORE_DEFAULT_PREFS;
 
 const PREFS_STORAGE_KEY = "atp_coach_audio_prefs";
+export const COACH_AUDIO_PREFS_EVENT = "atp-coach-audio-prefs";
 
 export function getAudioPreferences(): CoachAudioPreferences {
   if (typeof window === "undefined") return DEFAULT_PREFS;
@@ -93,6 +97,7 @@ export function saveAudioPreferences(prefs: Partial<CoachAudioPreferences>): Coa
   if (typeof window !== "undefined") {
     try {
       localStorage.setItem(PREFS_STORAGE_KEY, JSON.stringify(updated));
+      window.dispatchEvent(new CustomEvent(COACH_AUDIO_PREFS_EVENT, { detail: updated }));
     } catch (err) {
       console.warn("Failed to persist coach audio preferences:", err);
     }
@@ -205,7 +210,8 @@ export function getAvailableSpanishVoices(genderPreference: VoiceGender = "AUTO"
     return score;
   };
 
-  return [...pool].sort((a, b) => scoreVoice(b) - scoreVoice(a));
+  const ranked = [...pool].sort((a, b) => scoreVoice(b) - scoreVoice(a));
+  return selectVoicesForGender(ranked, genderPreference);
 }
 
 /**
@@ -239,14 +245,65 @@ export function getBestHumanVoice(
  * matching human voice on the device, updates pitch appropriately, and persists to localStorage.
  */
 export function setVoiceGender(gender: VoiceGender): CoachAudioPreferences {
-  const current = getAudioPreferences();
   const bestMatching = getBestHumanVoice(undefined, gender);
-  const adaptedPitch = gender === "FEMALE" ? 1.02 : 0.92;
 
   return saveAudioPreferences({
     voiceGender: gender,
     preferredVoiceURI: bestMatching?.voiceURI || "",
-    voicePitch: adaptedPitch,
+    voicePitch: pitchForVoiceGender(gender),
+  });
+}
+
+/**
+ * Short label for the voice currently guiding the workout.
+ */
+export function getCoachVoiceLabel(prefs?: Partial<CoachAudioPreferences>): string {
+  const current = { ...getAudioPreferences(), ...prefs };
+  if (typeof window !== "undefined" && "speechSynthesis" in window) {
+    const match = window.speechSynthesis
+      .getVoices()
+      .find((voice) => voice.voiceURI === current.preferredVoiceURI);
+    if (match?.name) {
+      const shortName = match.name
+        .replace(/^Microsoft\s+/i, "")
+        .replace(/\s+Online\b.*$/i, "")
+        .replace(/\s+-\s+.*$/, "")
+        .replace(/\s*\(.*\)$/, "")
+        .trim();
+      if (shortName) return shortName;
+    }
+  }
+  if (current.voiceGender === "FEMALE") return "Mujer";
+  if (current.voiceGender === "MALE") return "Hombre";
+  return "Auto";
+}
+
+/**
+ * Moves the training coach to the next installed Spanish voice and persists it.
+ * With a single voice available, flips gender and pitch so the delivery still changes.
+ */
+export function cycleCoachVoice(): CoachAudioPreferences {
+  const current = getAudioPreferences();
+  const pool = getAvailableSpanishVoices("AUTO");
+  const activeVoice = getBestHumanVoice(current.preferredVoiceURI, current.voiceGender || "AUTO");
+  const activeURI = current.preferredVoiceURI || activeVoice?.voiceURI || "";
+  const nextVoice = nextVoiceInList(pool, activeURI);
+  const sameVoice =
+    !nextVoice || (pool.length <= 1 && nextVoice.voiceURI === activeURI);
+
+  if (sameVoice) {
+    return toggleVoiceGender();
+  }
+
+  const detected = detectVoiceGender(nextVoice);
+  const voiceGender: VoiceGender =
+    detected === "FEMALE" || detected === "MALE" ? detected : "AUTO";
+
+  return saveAudioPreferences({
+    voiceEnabled: true,
+    preferredVoiceURI: nextVoice.voiceURI,
+    voiceGender,
+    voicePitch: pitchForVoiceGender(voiceGender),
   });
 }
 

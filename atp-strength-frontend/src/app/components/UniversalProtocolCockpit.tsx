@@ -30,8 +30,10 @@ import {
   speakText,
   formatBarbellPlatesSpoken,
   getAudioPreferences,
-  toggleVoiceGender,
-  type VoiceGender,
+  cycleCoachVoice,
+  getCoachVoiceLabel,
+  COACH_AUDIO_PREFS_EVENT,
+  type CoachAudioPreferences,
 } from "@/lib/acousticFeedback";
 import { UniversalGuidedFullscreenModal } from "@/app/components/UniversalGuidedFullscreenModal";
 
@@ -564,18 +566,36 @@ export function UniversalProtocolCockpit({
   }, [allSetsFlat, completedSets]);
 
   const [cockpitAudioPrefs, setCockpitAudioPrefs] = useState(() => getAudioPreferences());
+  const [voiceCatalogVersion, setVoiceCatalogVersion] = useState(0);
 
-  const handleToggleVoiceGenderCockpit = () => {
+  useEffect(() => {
+    const onPrefs = (event: Event) => {
+      const detail = (event as CustomEvent<CoachAudioPreferences>).detail;
+      if (detail) setCockpitAudioPrefs(detail);
+    };
+    window.addEventListener(COACH_AUDIO_PREFS_EVENT, onPrefs);
+    return () => window.removeEventListener(COACH_AUDIO_PREFS_EVENT, onPrefs);
+  }, []);
+
+  useEffect(() => {
+    if (!("speechSynthesis" in window)) return;
+    const refreshVoices = () => setVoiceCatalogVersion((version) => version + 1);
+    window.speechSynthesis.addEventListener("voiceschanged", refreshVoices);
+    return () => window.speechSynthesis.removeEventListener("voiceschanged", refreshVoices);
+  }, []);
+
+  const handleCycleCoachVoice = () => {
     playTactileClick();
-    const next = toggleVoiceGender();
+    const next = cycleCoachVoice();
     setCockpitAudioPrefs(next);
-    const isFem = next.voiceGender === "FEMALE";
-    speakText(
-      isFem
-        ? "¡Voz femenina del coach activada!"
-        : "¡Voz masculina del coach activada!"
-    );
+    const label = getCoachVoiceLabel(next);
+    speakText(`Voz del entrenamiento cambiada a ${label}.`, next);
   };
+
+  const cockpitVoiceLabel = voiceCatalogVersion >= 0
+    ? getCoachVoiceLabel(cockpitAudioPrefs)
+    : "Auto";
+  const cockpitVoiceGender = cockpitAudioPrefs.voiceGender;
 
   const startGuidedMode = () => {
     playTactileClick();
@@ -676,20 +696,24 @@ export function UniversalProtocolCockpit({
               )}
             </button>
 
-            {/* Botón Selector Rápido de Voz (Mujer / Hombre a voluntad) */}
+            {/* Botón para pasar a la siguiente voz instalada del coach */}
             <button
               type="button"
-              onClick={handleToggleVoiceGenderCockpit}
+              onClick={handleCycleCoachVoice}
               className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border text-xs font-mono font-bold transition-all active:scale-95 cursor-pointer shadow-sm ${
-                cockpitAudioPrefs.voiceGender === "FEMALE"
+                cockpitVoiceGender === "FEMALE"
                   ? "bg-rose-500/15 border-rose-500/40 text-rose-300 hover:bg-rose-500/25"
-                  : "bg-zinc-900 border-zinc-800 text-zinc-300 hover:text-white hover:border-zinc-700"
+                  : cockpitVoiceGender === "MALE"
+                    ? "bg-amber-500/15 border-amber-500/40 text-amber-200 hover:bg-amber-500/25"
+                    : "bg-zinc-900 border-zinc-800 text-zinc-300 hover:text-white hover:border-zinc-700"
               }`}
-              title={`Voz activa del coach: ${cockpitAudioPrefs.voiceGender === "FEMALE" ? "Mujer" : "Hombre"}. Tocá para cambiar a voluntad.`}
+              title={`Voz del entrenamiento: ${cockpitVoiceLabel}. Tocá para pasar a la siguiente.`}
             >
-              <span className="text-sm">{cockpitAudioPrefs.voiceGender === "FEMALE" ? "👩" : "👨"}</span>
-              <span className="hidden sm:inline">
-                {cockpitAudioPrefs.voiceGender === "FEMALE" ? "VOZ MUJER" : "VOZ HOMBRE"}
+              <span className="text-sm">
+                {cockpitVoiceGender === "FEMALE" ? "👩" : cockpitVoiceGender === "MALE" ? "👨" : "🎙️"}
+              </span>
+              <span className="max-w-[9rem] truncate">
+                {cockpitVoiceLabel}
               </span>
             </button>
 

@@ -25,9 +25,10 @@ import {
   speakText,
   formatBarbellPlatesSpoken,
   getAudioPreferences,
-  setVoiceGender,
-  toggleVoiceGender,
-  type VoiceGender,
+  cycleCoachVoice,
+  getCoachVoiceLabel,
+  COACH_AUDIO_PREFS_EVENT,
+  type CoachAudioPreferences,
 } from "@/lib/acousticFeedback";
 import { playTactileClick, playChime } from "@/lib/zenAudio";
 
@@ -122,20 +123,38 @@ export function UniversalGuidedFullscreenModal({
   const [remainingSeconds, setRemainingSeconds] = useState<number>(60);
   const [isTimerPaused, setIsTimerPaused] = useState<boolean>(false);
   const [audioPrefs, setAudioPrefs] = useState(() => getAudioPreferences());
+  const [voiceCatalogVersion, setVoiceCatalogVersion] = useState(0);
+
+  useEffect(() => {
+    const onPrefs = (event: Event) => {
+      const detail = (event as CustomEvent<CoachAudioPreferences>).detail;
+      if (detail) setAudioPrefs(detail);
+    };
+    window.addEventListener(COACH_AUDIO_PREFS_EVENT, onPrefs);
+    return () => window.removeEventListener(COACH_AUDIO_PREFS_EVENT, onPrefs);
+  }, []);
+
+  useEffect(() => {
+    if (!("speechSynthesis" in window)) return;
+    const refreshVoices = () => setVoiceCatalogVersion((version) => version + 1);
+    window.speechSynthesis.addEventListener("voiceschanged", refreshVoices);
+    return () => window.speechSynthesis.removeEventListener("voiceschanged", refreshVoices);
+  }, []);
   const hasSpokenInitial = useRef<boolean>(false);
   const lastSpokenSetId = useRef<string | null>(null);
 
-  const handleToggleVoiceGender = (explicitGender?: VoiceGender) => {
+  const handleCycleCoachVoice = () => {
     playTactileClick();
-    const next = explicitGender ? setVoiceGender(explicitGender) : toggleVoiceGender();
+    const next = cycleCoachVoice();
     setAudioPrefs(next);
-    const isFem = next.voiceGender === "FEMALE";
-    speakText(
-      isFem
-        ? "¡Voz femenina del coach activada! Vamos con determinación, guerrero."
-        : "¡Voz masculina del coach activada! A romperla en la barra."
-    );
+    const label = getCoachVoiceLabel(next);
+    speakText(`Voz del entrenamiento cambiada a ${label}.`, next);
   };
+
+  const coachVoiceLabel = voiceCatalogVersion >= 0
+    ? getCoachVoiceLabel(audioPrefs)
+    : "Auto";
+  const coachVoiceGender = audioPrefs.voiceGender;
 
   // Mensaje ameno del coach para la serie actual
   const coachWarmMessage = useMemo(() => {
@@ -287,20 +306,24 @@ export function UniversalGuidedFullscreenModal({
           </div>
 
           <div className="flex items-center gap-2">
-            {/* Botón de Selección Rápida de Voz (Mujer / Hombre a voluntad) */}
+            {/* Botón para pasar a la siguiente voz instalada del coach */}
             <button
               type="button"
-              onClick={() => handleToggleVoiceGender()}
+              onClick={handleCycleCoachVoice}
               className={`px-3 py-2 rounded-xl border text-xs font-mono font-bold flex items-center gap-1.5 transition-all active:scale-95 cursor-pointer shadow-sm ${
-                audioPrefs.voiceGender === "FEMALE"
+                coachVoiceGender === "FEMALE"
                   ? "bg-rose-500/20 border-rose-500/50 text-rose-300 hover:bg-rose-500/30 shadow-[0_0_12px_rgba(244,63,94,0.2)]"
-                  : "bg-amber-500/15 border-amber-500/40 text-amber-300 hover:bg-amber-500/25 shadow-[0_0_12px_rgba(245,158,11,0.15)]"
+                  : coachVoiceGender === "MALE"
+                    ? "bg-amber-500/15 border-amber-500/40 text-amber-200 hover:bg-amber-500/25 shadow-[0_0_12px_rgba(245,158,11,0.15)]"
+                    : "bg-cyan-500/15 border-cyan-500/40 text-cyan-200 hover:bg-cyan-500/25"
               }`}
-              title={`Voz activa del coach: ${audioPrefs.voiceGender === "FEMALE" ? "Mujer" : "Hombre"}. Tocá para cambiar a voluntad.`}
+              title={`Voz del entrenamiento: ${coachVoiceLabel}. Tocá para pasar a la siguiente.`}
             >
-              <span className="text-sm">{audioPrefs.voiceGender === "FEMALE" ? "👩" : "👨"}</span>
-              <span className="font-bold">
-                {audioPrefs.voiceGender === "FEMALE" ? "VOZ MUJER" : "VOZ HOMBRE"}
+              <span className="text-sm">
+                {coachVoiceGender === "FEMALE" ? "👩" : coachVoiceGender === "MALE" ? "👨" : "🎙️"}
+              </span>
+              <span className="font-bold max-w-[8rem] truncate">
+                {coachVoiceLabel}
               </span>
             </button>
 
