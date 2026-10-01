@@ -19,6 +19,7 @@ import {
   Timer,
   Trophy,
   Volume2,
+  Maximize2,
 } from "lucide-react";
 import { playTactileClick, playChime } from "@/lib/zenAudio";
 import { getExerciseMedia } from "@/lib/exerciseMediaCatalog";
@@ -572,6 +573,7 @@ export function UniversalProtocolCockpit({
   const stopGuidedMode = () => {
     playTactileClick();
     setIsGuidedActive(false);
+    setShowFullscreenGuide(false);
     speakText("Acompañamiento pausado.");
   };
 
@@ -653,6 +655,22 @@ export function UniversalProtocolCockpit({
                 </>
               )}
             </button>
+
+            {/* Botón Reabrir / Expandir Pantalla Completa si la guía está activa */}
+            {isGuidedActive && (
+              <button
+                type="button"
+                onClick={() => {
+                  playTactileClick();
+                  setShowFullscreenGuide(true);
+                }}
+                className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/50 text-xs font-mono font-bold text-amber-300 transition-all active:scale-95 cursor-pointer shadow-[0_0_12px_rgba(245,158,11,0.2)]"
+                title="Abrir guía inmersiva de pantalla completa"
+              >
+                <Maximize2 className="w-3.5 h-3.5 text-amber-400" />
+                <span>EXPANDIR GUÍA</span>
+              </button>
+            )}
 
             {/* Botón Ver Demo & Técnica */}
             <button

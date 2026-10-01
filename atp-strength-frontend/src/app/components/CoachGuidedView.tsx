@@ -319,7 +319,7 @@ export function CoachGuidedView({ d }: { d: Dash; onShowSpotify?: () => void }) 
 
       {/* 2. Main Guided Area: Universal Protocol PR Cockpit or Active Rest Timer */}
       <section className="w-full max-w-3xl flex-1 flex flex-col justify-center my-2">
-        {isRunning ? (
+        {isRunning && (
           /* CASE A: ACTIVE ZEN REST TIMER */
           <div className="w-full p-6 sm:p-8 rounded-3xl bg-zinc-950 border border-amber-500/30 text-center space-y-6 shadow-2xl relative overflow-hidden my-4 animate-in fade-in zoom-in-95">
             {/* Top Rest Badge */}
@@ -391,15 +391,15 @@ export function CoachGuidedView({ d }: { d: Dash; onShowSpotify?: () => void }) 
               </div>
             </div>
           </div>
-        ) : (
-          /* CASE B: DEFAULT COCKPIT - PROTOCOLO PR PARA CUALQUIER EJERCICIO */
-          <div className="w-full space-y-4">
-            <UniversalProtocolCockpit
-              onStartTimer={handleStartTimer}
-              onOpenVideo={(name) => setSelectedVideoExercise(name)}
-            />
-          </div>
         )}
+
+        {/* CASE B: DEFAULT COCKPIT - PROTOCOLO PR PARA CUALQUIER EJERCICIO (PERSISTENT MOUNT) */}
+        <div className={`w-full space-y-4 ${isRunning ? "hidden" : ""}`}>
+          <UniversalProtocolCockpit
+            onStartTimer={handleStartTimer}
+            onOpenVideo={(name) => setSelectedVideoExercise(name)}
+          />
+        </div>
       </section>
 
       {/* 3. Athlete Profile & Data Portability Modal */}

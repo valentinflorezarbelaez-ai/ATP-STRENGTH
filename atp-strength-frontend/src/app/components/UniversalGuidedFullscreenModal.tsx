@@ -149,16 +149,16 @@ export function UniversalGuidedFullscreenModal({
     return Math.min(100, Math.round((elapsed / restDuration) * 100));
   }, [restDuration, remainingSeconds]);
 
-  // Al abrir el modal, dar la bienvenida amena de la serie
+  // Al abrir el modal o pasar a la siguiente serie, dar la bienvenida amena (solo cuando no está descansando)
   useEffect(() => {
-    if (isOpen && activeSet && (!hasSpokenInitial.current || lastSpokenSetId.current !== activeSet.id)) {
+    if (isOpen && activeSet && !isResting && (!hasSpokenInitial.current || lastSpokenSetId.current !== activeSet.id)) {
       hasSpokenInitial.current = true;
       lastSpokenSetId.current = activeSet.id;
       const platesText = formatBarbellPlatesSpoken(activeSet.weight, selectedBarWeight);
       const spokenText = `¡Hola! Empezamos con ${exerciseName}. ${activeSet.phaseName}, ${activeSet.label}. Cargale ${activeSet.weight} kilos a la barra para ${activeSet.reps} repeticiones. ${platesText}. Cuando termines, tocá Completar Serie y descansamos juntos.`;
       speakText(spokenText);
     }
-  }, [isOpen, activeSet, exerciseName, selectedBarWeight]);
+  }, [isOpen, activeSet, isResting, exerciseName, selectedBarWeight]);
 
   // Countdown timer para el descanso inmersivo
   useEffect(() => {
