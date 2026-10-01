@@ -3,6 +3,50 @@
 import { useState } from "react";
 import dynamic from "next/dynamic";
 import ForgeLanding from "@/app/forge/page";
+import {
+  getAudioPreferences,
+  getAvailableSpanishVoices,
+  saveAudioPreferences,
+  setVoiceGender,
+} from "@/lib/acousticFeedback";
+
+const COACH_VOICE_PROFILE_KEY = "atp_coach_voice_profile";
+const COACH_VOICE_PROFILE = "female-neural-v1";
+
+/**
+ * Places a distinct female neural coach voice (lazy hydration, no setState-in-effect).
+ * One-shot migration so a previously locked AUTO/male URI is replaced.
+ * Athletes can still toggle to male from the cockpit afterwards.
+ */
+function seedDistinctCoachVoice(): void {
+  if (typeof window === "undefined") return;
+  try {
+    if (localStorage.getItem(COACH_VOICE_PROFILE_KEY) === COACH_VOICE_PROFILE) {
+      return;
+    }
+
+    const prefs = getAudioPreferences();
+    const femaleVoices = getAvailableSpanishVoices("FEMALE");
+    const currentUri = prefs.preferredVoiceURI || "";
+    const alternate =
+      femaleVoices.find((voice) => voice.voiceURI !== currentUri) ||
+      femaleVoices[0];
+
+    if (alternate) {
+      saveAudioPreferences({
+        voiceGender: "FEMALE",
+        preferredVoiceURI: alternate.voiceURI,
+        voicePitch: 1.02,
+      });
+    } else {
+      setVoiceGender("FEMALE");
+    }
+
+    localStorage.setItem(COACH_VOICE_PROFILE_KEY, COACH_VOICE_PROFILE);
+  } catch {
+    // localStorage or SpeechSynthesis may be unavailable during hydration
+  }
+}
 
 const ZenDashboardClient = dynamic(
   () =>
@@ -26,6 +70,7 @@ const ZenDashboardClient = dynamic(
 
 export default function ZenDashboard() {
   const [showIntro, setShowIntro] = useState(() => {
+    seedDistinctCoachVoice();
     if (typeof window !== "undefined") {
       return localStorage.getItem("hasEnteredTemple") !== "true";
     }
