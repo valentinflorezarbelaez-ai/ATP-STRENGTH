@@ -40,14 +40,18 @@ export const COACH_CUES = Object.freeze({
   ]),
 });
 
+/** Active coach voice. Replaces the previous chest-pitch es-ES default. */
+export const COACH_VOICE_PROFILE_ID = "latam-femenina-v1";
+
 export const DEFAULT_PREFS = Object.freeze({
   soundEnabled: true,
   voiceEnabled: true,
   voiceVolume: 1.0,
-  voiceRate: 1.05,
-  voicePitch: 0.92,
+  voiceRate: 1.0,
+  voicePitch: 1.0,
   preferredVoiceURI: "",
-  voiceGender: "AUTO",
+  voiceGender: "FEMALE",
+  voiceProfileId: COACH_VOICE_PROFILE_ID,
 });
 
 export function getRandomCue(type, rng = Math.random) {
@@ -175,7 +179,96 @@ export function validateAudioPreferences(prefs = {}) {
     voiceGender: validGenders.includes(prefs.voiceGender)
       ? prefs.voiceGender
       : DEFAULT_PREFS.voiceGender,
+    voiceProfileId: typeof prefs.voiceProfileId === "string" && prefs.voiceProfileId.length > 0
+      ? prefs.voiceProfileId
+      : DEFAULT_PREFS.voiceProfileId,
   };
+}
+
+/**
+ * Moves athletes still on the old AUTO / es-ES chest voice onto the Latin
+ * American female profile. An explicit Mujer or Hombre choice is kept.
+ */
+export function applyCoachVoiceProfile(raw = {}) {
+  if (raw && raw.voiceProfileId === COACH_VOICE_PROFILE_ID) {
+    return validateAudioPreferences(raw);
+  }
+
+  const explicitGender = raw.voiceGender === "MALE" || raw.voiceGender === "FEMALE";
+  if (explicitGender) {
+    return validateAudioPreferences({
+      ...raw,
+      voiceProfileId: COACH_VOICE_PROFILE_ID,
+    });
+  }
+
+  return validateAudioPreferences({
+    ...raw,
+    voiceGender: "FEMALE",
+    voicePitch: DEFAULT_PREFS.voicePitch,
+    voiceRate: DEFAULT_PREFS.voiceRate,
+    preferredVoiceURI: "",
+    voiceProfileId: COACH_VOICE_PROFILE_ID,
+  });
+}
+
+export function normalizeVoiceLocale(lang) {
+  return String(lang || "").toLowerCase();
+}
+
+export function isLatamSpanishLocale(lang) {
+  const code = normalizeVoiceLocale(lang);
+  return (
+    code === "es-mx" ||
+    code === "es-us" ||
+    code === "es-419" ||
+    code === "es-co" ||
+    code === "es-ar" ||
+    code === "es-cl" ||
+    code === "es-pe" ||
+    code === "es-ve"
+  );
+}
+
+/**
+ * Extra rank so the coach prefers a Latin American woman (Dalia, Paloma,
+ * es-US / es-MX) over the previous peninsular Google español voice.
+ */
+export function latamVoiceBonus(voice) {
+  if (!voice) return 0;
+  const name = String(voice.name || "").toLowerCase();
+  const lang = normalizeVoiceLocale(voice.lang);
+  let bonus = 0;
+
+  if (isLatamSpanishLocale(lang)) bonus += 80;
+
+  if (
+    name.includes("dalia") ||
+    name.includes("paloma") ||
+    name.includes("paulina") ||
+    name.includes("ximena") ||
+    name.includes("jimena") ||
+    name.includes("salome") ||
+    name.includes("salomé") ||
+    name.includes("renata")
+  ) {
+    bonus += 70;
+  }
+
+  if (
+    name.includes("estados unidos") ||
+    name.includes("méxico") ||
+    name.includes("mexico") ||
+    name.includes("latinoamérica") ||
+    name.includes("latinoamerica") ||
+    name.includes("latino")
+  ) {
+    bonus += 40;
+  }
+
+  if (lang === "es-es" || lang === "es") bonus -= 25;
+
+  return bonus;
 }
 
 /**

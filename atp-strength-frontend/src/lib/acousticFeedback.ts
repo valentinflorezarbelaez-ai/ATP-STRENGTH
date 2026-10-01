@@ -17,6 +17,9 @@ import {
   validateAudioPreferences,
   normalizeSpeechTextForSpanish,
   detectVoiceGender as coreDetectVoiceGender,
+  applyCoachVoiceProfile,
+  latamVoiceBonus,
+  COACH_VOICE_PROFILE_ID,
 } from "./acousticFeedbackCore.mjs";
 
 export type CoachingEventType =
@@ -34,10 +37,11 @@ export interface CoachAudioPreferences {
   soundEnabled: boolean; // Chimes / Web Audio
   voiceEnabled: boolean; // Spoken coaching cues
   voiceVolume: number;   // 0.0 to 1.0
-  voiceRate: number;     // 0.8 to 1.3 (default 1.02 for natural delivery)
-  voicePitch?: number;   // 0.6 to 1.5 (default 0.92 for warm human chest resonance, 1.02 for female)
+  voiceRate: number;     // 0.8 to 1.3 (default 1.0 for natural delivery)
+  voicePitch?: number;   // 0.6 to 1.5 (1.0 natural female, 0.92 male chest)
   preferredVoiceURI?: string; // Specific voice chosen by athlete
   voiceGender?: VoiceGender;  // "AUTO" | "FEMALE" | "MALE"
+  voiceProfileId?: string; // Coach voice generation; bumps retarget the default voice
 }
 
 export interface TelemetryNarrationParams {
@@ -81,7 +85,12 @@ export function getAudioPreferences(): CoachAudioPreferences {
   try {
     const raw = localStorage.getItem(PREFS_STORAGE_KEY);
     if (!raw) return DEFAULT_PREFS;
-    return validateAudioPreferences(JSON.parse(raw));
+    const parsed = JSON.parse(raw) as Partial<CoachAudioPreferences>;
+    const updated = applyCoachVoiceProfile(parsed);
+    if (parsed?.voiceProfileId !== COACH_VOICE_PROFILE_ID) {
+      localStorage.setItem(PREFS_STORAGE_KEY, JSON.stringify(updated));
+    }
+    return updated;
   } catch {
     return DEFAULT_PREFS;
   }
@@ -137,7 +146,7 @@ export function detectVoiceGender(
 export function getAvailableSpanishVoices(genderPreference: VoiceGender = "AUTO"): SpeechSynthesisVoice[] {
   if (typeof window === "undefined" || !("speechSynthesis" in window)) return [];
   const allVoices = window.speechSynthesis.getVoices();
-  const spanish = allVoices.filter((v) => v.lang.startsWith("es"));
+  const spanish = allVoices.filter((v) => (v.lang || "").toLowerCase().startsWith("es"));
   const pool = spanish.length > 0 ? spanish : allVoices;
 
   const scoreVoice = (v: SpeechSynthesisVoice): number => {
@@ -187,9 +196,9 @@ export function getAvailableSpanishVoices(genderPreference: VoiceGender = "AUTO"
       score += 40;
     }
 
-    // Latin American / Neutral Spanish preference
-    if (v.lang === "es-mx" || v.lang === "es-us" || v.lang === "es-419") score += 20;
-    if (v.lang.startsWith("es")) score += 15;
+    const lang = (v.lang || "").toLowerCase();
+    if (lang.startsWith("es")) score += 15;
+    score += latamVoiceBonus(v);
 
     // Downrank legacy robotic SAPI / desktop synthesizers ONLY when not neural/natural
     if (!name.includes("natural") && !name.includes("neural")) {
@@ -239,9 +248,8 @@ export function getBestHumanVoice(
  * matching human voice on the device, updates pitch appropriately, and persists to localStorage.
  */
 export function setVoiceGender(gender: VoiceGender): CoachAudioPreferences {
-  const current = getAudioPreferences();
   const bestMatching = getBestHumanVoice(undefined, gender);
-  const adaptedPitch = gender === "FEMALE" ? 1.02 : 0.92;
+  const adaptedPitch = gender === "FEMALE" ? 1.0 : 0.92;
 
   return saveAudioPreferences({
     voiceGender: gender,
@@ -328,14 +336,14 @@ export function speakText(rawText: string, customPrefs?: Partial<CoachAudioPrefe
             saveAudioPreferences({ preferredVoiceURI: bestVoice.voiceURI });
           }
         } else {
-          utterance.lang = "es-ES";
+          utterance.lang = "es-US";
         }
 
         // Dynamically tune pitch if user hasn't explicitly overridden it
         const isFemale =
           prefs.voiceGender === "FEMALE" ||
           (bestVoice && detectVoiceGender(bestVoice) === "FEMALE");
-        const defaultPitch = isFemale ? 1.02 : 0.92;
+        const defaultPitch = isFemale ? 1.0 : 0.92;
         utterance.pitch = Math.max(0.6, Math.min(1.5, prefs.voicePitch ?? defaultPitch));
 
         // Chromium Garbage Collection Bug Guard:

@@ -16,6 +16,9 @@ import {
   validateAudioPreferences,
   normalizeSpeechTextForSpanish,
   detectVoiceGender,
+  applyCoachVoiceProfile,
+  latamVoiceBonus,
+  COACH_VOICE_PROFILE_ID,
 } from "../src/lib/acousticFeedbackCore.mjs";
 
 describe("SPEC-0005 Neuro-Acoustic Biofeedback Engine", () => {
@@ -175,7 +178,67 @@ describe("SPEC-0005 Neuro-Acoustic Biofeedback Engine", () => {
     it("validates and preserves voiceGender preferences", () => {
       assert.equal(validateAudioPreferences({ voiceGender: "FEMALE" }).voiceGender, "FEMALE");
       assert.equal(validateAudioPreferences({ voiceGender: "MALE" }).voiceGender, "MALE");
-      assert.equal(validateAudioPreferences({ voiceGender: "INVALID" }).voiceGender, "AUTO");
+      assert.equal(validateAudioPreferences({ voiceGender: "INVALID" }).voiceGender, "FEMALE");
+    });
+
+    it("defaults to the Latin American female coach voice", () => {
+      assert.equal(DEFAULT_PREFS.voiceGender, "FEMALE");
+      assert.equal(DEFAULT_PREFS.voicePitch, 1.0);
+      assert.equal(DEFAULT_PREFS.voiceRate, 1.0);
+      assert.equal(DEFAULT_PREFS.voiceProfileId, COACH_VOICE_PROFILE_ID);
+      assert.equal(validateAudioPreferences({}).voiceProfileId, COACH_VOICE_PROFILE_ID);
+    });
+  });
+
+  describe("REQ-EARS-AUDIO-09: Different Latin American coach voice", () => {
+    it("replaces the old chest-pitch AUTO voice with the female Latam profile", () => {
+      const migrated = applyCoachVoiceProfile({
+        voiceGender: "AUTO",
+        voicePitch: 0.92,
+        voiceRate: 1.05,
+        preferredVoiceURI: "Google español",
+        soundEnabled: true,
+        voiceEnabled: true,
+      });
+      assert.equal(migrated.voiceGender, "FEMALE");
+      assert.equal(migrated.voicePitch, 1.0);
+      assert.equal(migrated.voiceRate, 1.0);
+      assert.equal(migrated.preferredVoiceURI, "");
+      assert.equal(migrated.voiceProfileId, COACH_VOICE_PROFILE_ID);
+      assert.equal(migrated.soundEnabled, true);
+    });
+
+    it("keeps an explicit male or female choice already made by the athlete", () => {
+      const male = applyCoachVoiceProfile({
+        voiceGender: "MALE",
+        voicePitch: 0.92,
+        preferredVoiceURI: "Microsoft Jorge",
+      });
+      assert.equal(male.voiceGender, "MALE");
+      assert.equal(male.preferredVoiceURI, "Microsoft Jorge");
+      assert.equal(male.voiceProfileId, COACH_VOICE_PROFILE_ID);
+
+      const kept = applyCoachVoiceProfile(male);
+      assert.equal(kept.preferredVoiceURI, "Microsoft Jorge");
+      assert.equal(kept.voiceGender, "MALE");
+    });
+
+    it("ranks Dalia and es-US above the previous peninsular Google español voice", () => {
+      const dalia = latamVoiceBonus({
+        name: "Microsoft Dalia Online (Natural) - Spanish (Mexico)",
+        lang: "es-MX",
+      });
+      const googleUs = latamVoiceBonus({
+        name: "Google español de Estados Unidos",
+        lang: "es-US",
+      });
+      const googleEs = latamVoiceBonus({
+        name: "Google español",
+        lang: "es-ES",
+      });
+      assert.ok(dalia > googleUs);
+      assert.ok(googleUs > googleEs);
+      assert.ok(googleEs < 0);
     });
   });
 
