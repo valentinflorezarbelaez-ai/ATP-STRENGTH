@@ -71,9 +71,10 @@ export function CoachGuidedView({ d }: { d: Dash; onShowSpotify?: () => void }) 
       setAvailableVoices(list);
     };
     updateVoices();
-    if (typeof window !== "undefined" && "speechSynthesis" in window) {
-      window.speechSynthesis.onvoiceschanged = updateVoices;
-    }
+    if (typeof window === "undefined" || !("speechSynthesis" in window)) return;
+    const synth = window.speechSynthesis;
+    synth.addEventListener("voiceschanged", updateVoices);
+    return () => synth.removeEventListener("voiceschanged", updateVoices);
   }, [audioPrefs.voiceGender]);
 
   React.useEffect(() => {

@@ -44,8 +44,8 @@ export const DEFAULT_PREFS = Object.freeze({
   soundEnabled: true,
   voiceEnabled: true,
   voiceVolume: 1.0,
-  voiceRate: 1.05,
-  voicePitch: 0.92,
+  voiceRate: 0.98,
+  voicePitch: 1,
   preferredVoiceURI: "",
   voiceGender: "AUTO",
 });
@@ -178,47 +178,164 @@ export function validateAudioPreferences(prefs = {}) {
   };
 }
 
+function foldVoiceText(value) {
+  return String(value || "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase();
+}
+
+function hasVoiceWord(folded, word) {
+  const escaped = word.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  return new RegExp(`(?:^|[^a-z0-9])${escaped}(?:[^a-z0-9]|$)`).test(folded);
+}
+
+const FEMALE_VOICE_WORDS = [
+  "female", "mujer", "femenin",
+  "dalia", "paloma", "elvira", "laura", "monica", "paulina",
+  "angelica", "francisca", "soledad", "jimena", "ximena",
+  "sofia", "lucia", "valentina", "camila", "maria",
+  "carmen", "elena", "helena", "sabina", "victoria", "raquel", "rosa",
+  "conchita", "penelope", "lupe", "hilda", "mia", "samantha", "zira",
+  "juana", "ana", "catalina", "isabel", "mariana", "andrea",
+];
+
+const MALE_VOICE_WORDS = [
+  "male", "hombre", "masculin",
+  "pablo", "jorge", "alvaro", "carlos", "juan", "diego",
+  "miguel", "raul", "mateo", "enrique", "gonzalo", "antonio",
+  "david", "pedro", "fernando", "manuel", "alejandro", "julio", "luis",
+  "javier", "alberto", "ignacio", "tomas", "santiago", "alonso",
+];
+
+/**
+ * Google Cloud / Android Spanish voices encode gender in the variant letter:
+ * A and C are female, B and D are male (Standard, WaveNet, Neural2).
+ */
+function genderFromVoiceVariant(folded) {
+  const match = folded.match(
+    /(?:standard|wavenet|neural2|news|studio|polyglot|neural)[-_\s]?([a-d])(?![a-z0-9])/
+  );
+  if (!match) return "AUTO";
+  return match[1] === "a" || match[1] === "c" ? "FEMALE" : "MALE";
+}
+
 /**
  * Detects whether a browser SpeechSynthesis voice is Female or Male based on
  * international, Spanish, Windows, Apple, and Google voice names and URIs.
  */
 export function detectVoiceGender(voice) {
   if (!voice) return "AUTO";
-  const name = (voice.name || "").toLowerCase();
-  const uri = (voice.voiceURI || "").toLowerCase();
-  const combined = `${name} ${uri}`;
+  const folded = foldVoiceText(`${voice.name || ""} ${voice.voiceURI || ""}`);
+  if (!folded.trim()) return "AUTO";
 
-  const femaleKeywords = [
-    "female", "mujer", "femenin",
-    "dalia", "paloma", "elvira", "laura", "monica", "mónica", "paulina",
-    "angelica", "angélica", "francisca", "soledad", "jimena", "ximena",
-    "sofia", "sofía", "lucia", "lucía", "valentina", "camila", "maria", "maría",
-    "carmen", "elena", "helena", "sabina", "victoria", "raquel", "rosa",
-    "conchita", "penelope", "lupe", "hilda", "mia", "mía", "samantha", "zira",
-    "juana", "ana", "catalina", "isabel", "mariana", "andrea"
-  ];
+  const variant = genderFromVoiceVariant(folded);
+  if (variant !== "AUTO") return variant;
 
-  const maleKeywords = [
-    "male", "hombre", "masculin",
-    "pablo", "jorge", "alvaro", "álvaro", "carlos", "juan", "diego",
-    "miguel", "raul", "raúl", "mateo", "enrique", "gonzalo", "antonio",
-    "david", "pedro", "fernando", "manuel", "alejandro", "julio", "luis",
-    "javier", "alberto", "ignacio", "tomas", "tomás", "santiago", "alonso"
-  ];
-
-  for (const kw of femaleKeywords) {
-    if (combined.includes(kw)) return "FEMALE";
+  for (const word of FEMALE_VOICE_WORDS) {
+    if (hasVoiceWord(folded, word)) return "FEMALE";
   }
-  for (const kw of maleKeywords) {
-    if (combined.includes(kw)) return "MALE";
+  for (const word of MALE_VOICE_WORDS) {
+    if (hasVoiceWord(folded, word)) return "MALE";
   }
 
-  // Google español is typically a natural female voice model on Chromium
-  if (name.includes("google") && name.includes("español") && !combined.includes("male")) {
+  const name = foldVoiceText(voice.name);
+  if (name.includes("google") && (name.includes("espanol") || name.includes("spanish"))) {
     return "FEMALE";
   }
 
   return "AUTO";
+}
+
+export function isNaturalVoice(voice) {
+  if (!voice) return false;
+  const folded = foldVoiceText(`${voice.name || ""} ${voice.voiceURI || ""}`);
+  return /natural|neural|enhanced|wavenet|premium|studio/.test(folded);
+}
+
+/**
+ * Legacy builds stored pitch 0.92 / 1.02 and rate 1.05 automatically.
+ * Those values pitch-shift neural voices and make weights harder to hear.
+ * A pitch or rate outside that set is an explicit athlete choice.
+ */
+export function resolveSpokenDelivery(voice, prefs = {}) {
+  const storedPitch = typeof prefs.voicePitch === "number" ? prefs.voicePitch : 1;
+  const storedRate = typeof prefs.voiceRate === "number" ? prefs.voiceRate : DEFAULT_PREFS.voiceRate;
+  const legacyPitch = storedPitch === 0.92 || storedPitch === 1.02;
+  const legacyRate = storedRate === 1.05 || storedRate === 1.02;
+  const pitch = legacyPitch ? 1 : Math.max(0.6, Math.min(1.5, storedPitch));
+  const rate = legacyRate ? DEFAULT_PREFS.voiceRate : Math.max(0.5, Math.min(2, storedRate));
+  return { pitch, rate, natural: isNaturalVoice(voice) };
+}
+
+export function scoreSpanishVoice(voice, genderPreference = "AUTO") {
+  if (!voice) return -1000;
+  const name = foldVoiceText(voice.name);
+  const uri = foldVoiceText(voice.voiceURI);
+  const lang = foldVoiceText(voice.lang);
+  let score = 0;
+  const detected = detectVoiceGender(voice);
+
+  if (genderPreference === "FEMALE") {
+    if (detected === "FEMALE") score += 300;
+    else if (detected === "MALE") score -= 200;
+  } else if (genderPreference === "MALE") {
+    if (detected === "MALE") score += 300;
+    else if (detected === "FEMALE") score -= 200;
+  }
+
+  if (name.includes("natural") || uri.includes("natural")) score += 120;
+  if (name.includes("neural") || uri.includes("neural")) score += 120;
+  if (name.includes("wavenet") || uri.includes("wavenet")) score += 110;
+  if (name.includes("enhanced") || uri.includes("enhanced")) score += 90;
+  if (name.includes("premium") || uri.includes("premium")) score += 80;
+  if (name.includes("online") || uri.includes("online")) score += 60;
+  if (name.includes("google") || uri.includes("google")) score += 50;
+
+  if (
+    hasVoiceWord(name, "pablo") || hasVoiceWord(name, "jorge") ||
+    hasVoiceWord(name, "alvaro") || hasVoiceWord(name, "dalia") ||
+    hasVoiceWord(name, "paulina") || hasVoiceWord(name, "monica") ||
+    hasVoiceWord(name, "sabina") || hasVoiceWord(name, "elvira")
+  ) {
+    score += 40;
+  }
+
+  if (lang === "es-mx" || lang === "es-us" || lang === "es-419" || lang === "es-co" || lang === "es-ar") {
+    score += 20;
+  }
+  if (lang.startsWith("es")) score += 15;
+
+  if (!isNaturalVoice(voice) && (name.includes("desktop") || name.includes("espeak") || uri.includes("desktop") || uri.includes("espeak"))) {
+    score -= 40;
+  }
+
+  return score;
+}
+
+export function pickBestVoice(voices, options = {}) {
+  const list = Array.isArray(voices) ? voices.filter((voice) => voice && (voice.name || voice.voiceURI)) : [];
+  if (list.length === 0) return null;
+
+  const gender = options.gender || "AUTO";
+  const preferredURI = options.preferredURI || "";
+  if (preferredURI) {
+    const match = list.find((voice) => voice.voiceURI === preferredURI);
+    if (match) {
+      const detected = detectVoiceGender(match);
+      if (gender === "AUTO" || detected === gender || detected === "AUTO") return match;
+    }
+  }
+
+  return [...list].sort(
+    (a, b) => scoreSpanishVoice(b, gender) - scoreSpanishVoice(a, gender)
+  )[0];
+}
+
+export function voiceSwitchCue(gender) {
+  if (gender === "FEMALE") return "Voz de mujer lista. Cargá la barra y vamos.";
+  if (gender === "MALE") return "Voz de hombre lista. Cargá la barra y vamos.";
+  return "Voz automática lista. Uso la más clara de este teléfono.";
 }
 
 /**

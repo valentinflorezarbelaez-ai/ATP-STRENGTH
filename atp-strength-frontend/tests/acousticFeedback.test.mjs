@@ -16,6 +16,9 @@ import {
   validateAudioPreferences,
   normalizeSpeechTextForSpanish,
   detectVoiceGender,
+  pickBestVoice,
+  resolveSpokenDelivery,
+  voiceSwitchCue,
 } from "../src/lib/acousticFeedbackCore.mjs";
 
 describe("SPEC-0005 Neuro-Acoustic Biofeedback Engine", () => {
@@ -199,6 +202,42 @@ describe("SPEC-0005 Neuro-Acoustic Biofeedback Engine", () => {
 
     it("falls back to AUTO for ambiguous voice names", () => {
       assert.equal(detectVoiceGender({ name: "Generic Spanish Synthesizer", voiceURI: "es-es-generic" }), "AUTO");
+      assert.equal(detectVoiceGender({ name: "Mariano" }), "AUTO");
+    });
+
+    it("reads Google Spanish variant letters as gender", () => {
+      assert.equal(detectVoiceGender({ name: "es-ES-Standard-A", lang: "es-ES" }), "FEMALE");
+      assert.equal(detectVoiceGender({ name: "es-US-Neural2-A", lang: "es-US" }), "FEMALE");
+      assert.equal(detectVoiceGender({ name: "es-ES-Standard-B", lang: "es-ES" }), "MALE");
+      assert.equal(detectVoiceGender({ name: "es-MX-Neural2-B", lang: "es-MX" }), "MALE");
+      assert.equal(detectVoiceGender({ name: "es-ES-Wavenet-C", lang: "es-ES" }), "FEMALE");
+      assert.equal(detectVoiceGender({ name: "es-ES-Standard-D", lang: "es-ES" }), "MALE");
+    });
+
+    it("picks a neural voice of the requested gender and keeps its natural pitch", () => {
+      const voices = [
+        { name: "Microsoft Pablo", lang: "es-ES", voiceURI: "pablo" },
+        { name: "Microsoft Dalia Online (Natural)", lang: "es-MX", voiceURI: "dalia" },
+        { name: "eSpeak Spanish", lang: "es-ES", voiceURI: "espeak" },
+      ];
+      assert.equal(pickBestVoice(voices, { gender: "FEMALE" }).voiceURI, "dalia");
+      assert.equal(pickBestVoice(voices, { gender: "MALE" }).voiceURI, "pablo");
+      assert.equal(pickBestVoice(voices, { gender: "FEMALE", preferredURI: "pablo" }).voiceURI, "dalia");
+      assert.equal(pickBestVoice(voices, { gender: "AUTO" }).voiceURI, "dalia");
+
+      const natural = resolveSpokenDelivery(voices[1], { voicePitch: 0.92, voiceRate: 1.05 });
+      assert.equal(natural.pitch, 1);
+      assert.equal(natural.rate, 0.98);
+
+      const custom = resolveSpokenDelivery(voices[1], { voicePitch: 1.2, voiceRate: 0.9 });
+      assert.equal(custom.pitch, 1.2);
+      assert.equal(custom.rate, 0.9);
+    });
+
+    it("speaks an honest preview for each voice mode", () => {
+      assert.match(voiceSwitchCue("FEMALE"), /mujer/i);
+      assert.match(voiceSwitchCue("MALE"), /hombre/i);
+      assert.match(voiceSwitchCue("AUTO"), /automática/i);
     });
   });
 

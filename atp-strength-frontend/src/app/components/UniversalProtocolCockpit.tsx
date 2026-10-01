@@ -30,8 +30,8 @@ import {
   speakText,
   formatBarbellPlatesSpoken,
   getAudioPreferences,
-  toggleVoiceGender,
-  type VoiceGender,
+  cycleVoiceGender,
+  voiceSwitchCue,
 } from "@/lib/acousticFeedback";
 import { UniversalGuidedFullscreenModal } from "@/app/components/UniversalGuidedFullscreenModal";
 
@@ -567,14 +567,9 @@ export function UniversalProtocolCockpit({
 
   const handleToggleVoiceGenderCockpit = () => {
     playTactileClick();
-    const next = toggleVoiceGender();
+    const next = cycleVoiceGender();
     setCockpitAudioPrefs(next);
-    const isFem = next.voiceGender === "FEMALE";
-    speakText(
-      isFem
-        ? "¡Voz femenina del coach activada!"
-        : "¡Voz masculina del coach activada!"
-    );
+    speakText(voiceSwitchCue(next.voiceGender || "AUTO"), next);
   };
 
   const startGuidedMode = () => {
@@ -683,13 +678,31 @@ export function UniversalProtocolCockpit({
               className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border text-xs font-mono font-bold transition-all active:scale-95 cursor-pointer shadow-sm ${
                 cockpitAudioPrefs.voiceGender === "FEMALE"
                   ? "bg-rose-500/15 border-rose-500/40 text-rose-300 hover:bg-rose-500/25"
-                  : "bg-zinc-900 border-zinc-800 text-zinc-300 hover:text-white hover:border-zinc-700"
+                  : cockpitAudioPrefs.voiceGender === "MALE"
+                    ? "bg-amber-500/15 border-amber-500/40 text-amber-300 hover:bg-amber-500/25"
+                    : "bg-cyan-500/10 border-cyan-500/40 text-cyan-300 hover:bg-cyan-500/20"
               }`}
-              title={`Voz activa del coach: ${cockpitAudioPrefs.voiceGender === "FEMALE" ? "Mujer" : "Hombre"}. Tocá para cambiar a voluntad.`}
+              title={
+                cockpitAudioPrefs.voiceGender === "FEMALE"
+                  ? "Voz de mujer. Tocá para pasar a voz de hombre."
+                  : cockpitAudioPrefs.voiceGender === "MALE"
+                    ? "Voz de hombre. Tocá para volver a la voz automática."
+                    : "Voz automática, la más clara del teléfono. Tocá para voz de mujer."
+              }
             >
-              <span className="text-sm">{cockpitAudioPrefs.voiceGender === "FEMALE" ? "👩" : "👨"}</span>
+              <span className="text-sm">
+                {cockpitAudioPrefs.voiceGender === "FEMALE"
+                  ? "👩"
+                  : cockpitAudioPrefs.voiceGender === "MALE"
+                    ? "👨"
+                    : "🎙️"}
+              </span>
               <span className="hidden sm:inline">
-                {cockpitAudioPrefs.voiceGender === "FEMALE" ? "VOZ MUJER" : "VOZ HOMBRE"}
+                {cockpitAudioPrefs.voiceGender === "FEMALE"
+                  ? "VOZ MUJER"
+                  : cockpitAudioPrefs.voiceGender === "MALE"
+                    ? "VOZ HOMBRE"
+                    : "VOZ AUTO"}
               </span>
             </button>
 
