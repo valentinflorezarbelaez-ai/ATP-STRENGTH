@@ -14,6 +14,7 @@ import {
   formatRestCompletedCue,
   formatAutoregulationCue,
   validateAudioPreferences,
+  normalizeSpeechTextForSpanish,
 } from "../src/lib/acousticFeedbackCore.mjs";
 
 describe("SPEC-0005 Neuro-Acoustic Biofeedback Engine", () => {
@@ -168,6 +169,45 @@ describe("SPEC-0005 Neuro-Acoustic Biofeedback Engine", () => {
     it("preserves boolean toggles", () => {
       assert.equal(validateAudioPreferences({ soundEnabled: false }).soundEnabled, false);
       assert.equal(validateAudioPreferences({ voiceEnabled: false }).voiceEnabled, false);
+    });
+  });
+
+  describe("REQ-EARS-AUDIO-07: Spanish Text Normalization for Natural Speech Synthesis", () => {
+    it("converts hyphen/en-dash rep ranges to natural 'a' connector", () => {
+      assert.equal(normalizeSpeechTextForSpanish("10–12 repeticiones"), "10 a 12 repeticiones");
+      assert.equal(normalizeSpeechTextForSpanish("8-10 reps"), "8 a 10 repeticiones");
+      assert.equal(normalizeSpeechTextForSpanish("1–2 reps"), "1 a 2 repeticiones");
+    });
+
+    it("converts athletic decimal weights into natural spoken Spanish", () => {
+      assert.equal(normalizeSpeechTextForSpanish("Cargá 17.5 kilos"), "Cargá 17 kilos y medio");
+      assert.equal(normalizeSpeechTextForSpanish("un disco de 2.5"), "un disco de dos kilos y medio");
+      assert.equal(normalizeSpeechTextForSpanish("un disco de 0.5"), "un disco de medio kilo");
+    });
+
+    it("converts mechanical tempos into fluid cadence speech without spelling letters", () => {
+      assert.equal(
+        normalizeSpeechTextForSpanish("TEMPO 3-1-X-1"),
+        "cadencia 3, 1, explosivo, 1"
+      );
+      assert.equal(
+        normalizeSpeechTextForSpanish("TEMPO 2-0-2-0"),
+        "cadencia 2, 0, 2, 0"
+      );
+    });
+
+    it("strips emojis and cleans HTML entities so voice never reads punctuation marks aloud", () => {
+      const input = "🎯 10–12 REPS · 🔥 RPE 7.5 &middot; Resíntesis de ATP (45s)";
+      const cleaned = normalizeSpeechTextForSpanish(input);
+      assert.equal(cleaned, "10 a 12 repeticiones, RPE 7 y medio, Resíntesis de A T P (45 segundos)");
+    });
+
+    it("converts gym sets-reps multiplier (3x10) to natural spoken Spanish", () => {
+      assert.equal(normalizeSpeechTextForSpanish("Completar 3x10 reps"), "Completar 3 por 10 repeticiones");
+      assert.equal(normalizeSpeechTextForSpanish("Serie 1/4"), "Serie 1 de 4");
+      assert.equal(normalizeSpeechTextForSpanish("+2.5 kg"), "más dos kilos y medio");
+      assert.equal(normalizeSpeechTextForSpanish("17,5 kilos"), "17 kilos y medio");
+      assert.equal(normalizeSpeechTextForSpanish("Test de 1RM"), "Test de una repetición máxima");
     });
   });
 });

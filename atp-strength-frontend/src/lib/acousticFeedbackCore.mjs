@@ -172,3 +172,100 @@ export function validateAudioPreferences(prefs = {}) {
       : DEFAULT_PREFS.preferredVoiceURI,
   };
 }
+
+/**
+ * Normalizes athletic speech text for flawless Spanish speech synthesis:
+ * - Converts number ranges like "10–12" or "10-12" to "10 a 12"
+ * - Converts tempos like "TEMPO 3-1-X-1" to "cadencia 3, 1, explosivo, 1"
+ * - Converts weights like "17.5 kilos" to "17 kilos y medio"
+ * - Converts "0.5" to "medio kilo"
+ * - Converts "2.5" to "dos kilos y medio"
+ * - Converts RPE "RPE 7.5" to "RPE 7 y medio"
+ * - Spells out units ("kg" -> "kilos", "s" -> "segundos", "reps" -> "repeticiones")
+ * - Expands acronyms ("ATP" -> "A T P", "SNC" -> "sistema nervioso central", "PR" -> "récord personal")
+ * - Cleans HTML tags, symbols, dashes, and emojis so voice never stumbles
+ */
+export function normalizeSpeechTextForSpanish(text) {
+  if (!text || typeof text !== "string") return "";
+
+  let res = text;
+
+  // 1. Remove emojis and icons so TTS engines don't read them aloud
+  res = res.replace(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{FE00}-\u{FE0F}]/gu, " ");
+  res = res.replace(/[🎯⏱️🔥⚡💪🏆✨☕❤️🛡️🏋️🧘✅❌✕]/g, " ");
+
+  // 2. Clean HTML tags & entities
+  res = res.replace(/<[^>]*>/g, " ");
+  res = res.replace(/&middot;/g, ", ");
+  res = res.replace(/&mdash;/g, ", ");
+  res = res.replace(/&amp;/g, " y ");
+  res = res.replace(/&bull;/g, ", ");
+  res = res.replace(/[·•—]/g, ", ");
+
+  // 3. Tempo normalization (e.g. "tempo 3-1-X-1" or "tempo 2-0-2-0")
+  res = res.replace(/\btempo\s*(\d+)[\-–—](\d+)[\-–—]([xX\d]+)[\-–—](\d+)\b/gi, (_, e1, e2, e3, e4) => {
+    const third = (e3.toLowerCase() === "x") ? "explosivo" : e3;
+    return `cadencia ${e1}, ${e2}, ${third}, ${e4}`;
+  });
+
+  // 4. Sets and reps notation (e.g. "3x10", "4x5", "3 x 8") -> "3 por 10"
+  res = res.replace(/(\b\d+)\s*[xX]\s*(\d+\b)/g, "$1 por $2");
+
+  // 5. Fractions / Progress notation (e.g. "1/4", "3/5") -> "1 de 4"
+  res = res.replace(/(\b\d+)\s*\/\s*(\d+\b)/g, "$1 de $2");
+
+  // 6. Number ranges with hyphen/en-dash (e.g. "10–12 reps", "8-10", "1–2")
+  res = res.replace(/(\b\d+)\s*[–—\-]\s*(\d+\b)/g, "$1 a $2");
+
+  // 7. Plus sign before numbers (e.g. "+2.5 kg" -> "más 2.5 kg")
+  res = res.replace(/\+\s*(\d+)/g, "más $1");
+
+  // 8. RPE half-values with dot or comma (e.g. "RPE 7.5" or "RPE 7,5" -> "RPE 7 y medio")
+  res = res.replace(/\brpe\s*(\d+)[\.,]5\b/gi, "RPE $1 y medio");
+  res = res.replace(/\brpe\s*(\d+)[\.,](\d+)\b/gi, "RPE $1 coma $2");
+
+  // 9. Specific athletic weights (.5, .25, .75) with dot or comma
+  res = res.replace(/\b0[\.,]5\s*(?:kilos?|kg\.?|kilogramos?)?\b/gi, "medio kilo");
+  res = res.replace(/\b2[\.,]5\s*(?:kilos?|kg\.?|kilogramos?)?\b/gi, "dos kilos y medio");
+  res = res.replace(/\b1[\.,]25\s*(?:kilos?|kg\.?|kilogramos?)?\b/gi, "un kilo con 250 gramos");
+  res = res.replace(/(\b\d+)[\.,]5\s*(?:kilos?|kg\.?|kilogramos?)?\b/gi, "$1 kilos y medio");
+  res = res.replace(/(\b\d+)[\.,]25\s*(?:kilos?|kg\.?|kilogramos?)?\b/gi, "$1 kilos con 250 gramos");
+  res = res.replace(/(\b\d+)[\.,]75\s*(?:kilos?|kg\.?|kilogramos?)?\b/gi, "$1 kilos con 750 gramos");
+  // Any remaining decimal like 13.2 or 13,2 -> 13 coma 2
+  res = res.replace(/(\b\d+)[\.,](\d+)\b/g, "$1 coma $2");
+
+  // 10. Abbreviations with numbers (e.g. "45s", "120s", "3min", "10kg", "8reps")
+  res = res.replace(/(\b\d+)\s*(?:seg\.?|s)\b/gi, "$1 segundos");
+  res = res.replace(/(\b\d+)\s*(?:min\.?|mins)\b/gi, "$1 minutos");
+  res = res.replace(/(\b\d+)\s*(?:kg\.?|kgs|kilos)\b/gi, "$1 kilos");
+  res = res.replace(/(\b\d+)\s*(?:reps?|rep)\b/gi, "$1 repeticiones");
+
+  // 11. Standalone units without numbers
+  res = res.replace(/\bkg\.?\b/gi, "kilos");
+  res = res.replace(/\bkgs\b/gi, "kilos");
+  res = res.replace(/\breps\b/gi, "repeticiones");
+  res = res.replace(/\bsegs\b/gi, "segundos");
+
+  // 12. Singular adjustments
+  res = res.replace(/\b1\s*kilos\b/gi, "un kilo");
+  res = res.replace(/\b1\s*repeticiones\b/gi, "una repetición");
+  res = res.replace(/\b1\s*segundos\b/gi, "un segundo");
+  res = res.replace(/\b1\s*minutos\b/gi, "un minuto");
+
+  // 13. Key Athletic Acronyms
+  res = res.replace(/\bATP\b/g, "A T P");
+  res = res.replace(/\bSNC\b/g, "sistema nervioso central");
+  res = res.replace(/\bPR\b/g, "récord personal");
+  res = res.replace(/\bPAP\b/g, "P A P");
+  res = res.replace(/\b1\s*RM\b/gi, "una repetición máxima");
+  res = res.replace(/(\d+)\s*RM\b/gi, "$1 R M");
+
+  // 14. Clean duplicate spaces, extra commas and trim
+  res = res.replace(/\s+/g, " ");
+  res = res.replace(/\s*,\s*,+/g, ",");
+  res = res.replace(/,\s*\./g, ".");
+  res = res.replace(/\s+([,.:;?!])/g, "$1");
+
+  return res.trim();
+}
+

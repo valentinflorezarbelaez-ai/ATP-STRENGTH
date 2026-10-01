@@ -15,6 +15,7 @@ import {
   formatRestCompletedCue as coreFormatRestCompletedCue,
   formatAutoregulationCue as coreFormatAutoregulationCue,
   validateAudioPreferences,
+  normalizeSpeechTextForSpanish,
 } from "./acousticFeedbackCore.mjs";
 
 export type CoachingEventType =
@@ -191,35 +192,100 @@ export function getBestHumanVoice(preferredURI?: string): SpeechSynthesisVoice |
   return sorted[0] || voices[0] || null;
 }
 
+// Module-level reference pool preventing Chromium V8 GC from prematurely collecting
+// active utterances mid-sentence (the notorious speech cutoff bug)
+const activeUtterances = new Set<SpeechSynthesisUtterance>();
+
+// Listen for browser voice population to lock in athlete's preferred voice without shift
+if (typeof window !== "undefined" && "speechSynthesis" in window) {
+  const syncDefaultVoice = () => {
+    try {
+      const prefs = getAudioPreferences();
+      if (!prefs.preferredVoiceURI) {
+        const best = getBestHumanVoice();
+        if (best && best.voiceURI) {
+          saveAudioPreferences({ preferredVoiceURI: best.voiceURI });
+        }
+      }
+    } catch {
+      // Safe noop if storage or synthesis not ready
+    }
+  };
+
+  if (window.speechSynthesis.onvoiceschanged !== undefined) {
+    window.speechSynthesis.onvoiceschanged = syncDefaultVoice;
+  }
+  syncDefaultVoice();
+}
+
 /**
  * Dispatches spoken feedback safely through browser SpeechSynthesis.
  * Prioritizes natural human voices with warm, resonant chest tone.
+ * Normalizes athletic text for zero-error Spanish pronunciation,
+ * guards against Chromium GC premature termination, and prevents cancel() race conditions.
  */
-export function speakText(text: string, customPrefs?: Partial<CoachAudioPreferences>): void {
+export function speakText(rawText: string, customPrefs?: Partial<CoachAudioPreferences>): void {
   if (typeof window === "undefined" || !("speechSynthesis" in window)) return;
+
+  const text = normalizeSpeechTextForSpanish(rawText);
+  if (!text) return;
 
   try {
     const prefs = { ...getAudioPreferences(), ...customPrefs };
     if (!prefs.voiceEnabled || prefs.voiceVolume <= 0) return;
 
     const synth = window.speechSynthesis;
-    // Cancel any previous queued utterance to prevent audio backlog
-    synth.cancel();
 
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.volume = Math.max(0, Math.min(1, prefs.voiceVolume));
-    utterance.rate = Math.max(0.5, Math.min(2.0, prefs.voiceRate ?? 1.0));
-    utterance.pitch = Math.max(0.6, Math.min(1.5, prefs.voicePitch ?? 0.92));
-
-    const bestVoice = getBestHumanVoice(prefs.preferredVoiceURI);
-    if (bestVoice) {
-      utterance.voice = bestVoice;
-      utterance.lang = bestVoice.lang;
-    } else {
-      utterance.lang = "es-ES";
+    // Guard against stuck paused state in Chromium
+    if (synth.paused) {
+      synth.resume();
     }
 
-    synth.speak(utterance);
+    // Cancel previous utterance to prevent audio backlog
+    synth.cancel();
+
+    // Use a small 25ms timeout so synth.cancel() completes its internal buffer cleanup in WebKit/Chromium
+    setTimeout(() => {
+      try {
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.volume = Math.max(0, Math.min(1, prefs.voiceVolume));
+        utterance.rate = Math.max(0.5, Math.min(2.0, prefs.voiceRate ?? 1.02));
+        utterance.pitch = Math.max(0.6, Math.min(1.5, prefs.voicePitch ?? 0.92));
+
+        const bestVoice = getBestHumanVoice(prefs.preferredVoiceURI);
+        if (bestVoice) {
+          utterance.voice = bestVoice;
+          utterance.lang = bestVoice.lang;
+
+          // If preferred voice was unset, lock in this voice now so it never drifts
+          if (!prefs.preferredVoiceURI && bestVoice.voiceURI) {
+            saveAudioPreferences({ preferredVoiceURI: bestVoice.voiceURI });
+          }
+        } else {
+          utterance.lang = "es-ES";
+        }
+
+        // Chromium Garbage Collection Bug Guard:
+        // SpeechSynthesisUtterance gets garbage-collected if no active reference is held,
+        // causing speech to abruptly cut off mid-sentence.
+        activeUtterances.add(utterance);
+
+        utterance.onend = () => {
+          activeUtterances.delete(utterance);
+        };
+
+        utterance.onerror = (e) => {
+          activeUtterances.delete(utterance);
+          if (e.error !== "interrupted" && e.error !== "canceled") {
+            console.warn("SpeechSynthesis utterance error:", e.error);
+          }
+        };
+
+        synth.speak(utterance);
+      } catch (innerErr) {
+        console.warn("SpeechSynthesis speak failed:", innerErr);
+      }
+    }, 25);
   } catch (err) {
     console.warn("SpeechSynthesis unavailable or rejected:", err);
   }
