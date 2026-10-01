@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import {
   Flame, Sparkles,
-  Play, Pause, RotateCcw,
+  Play, Pause, RotateCcw, Volume2,
   Heart, ArrowRight, Coffee, Eye, Sun, Moon, Laptop, User, Download, Upload, Database, BarChart3, Clock
 } from "lucide-react";
 import { PwaInstallPrompt } from "@/components/PwaInstallPrompt";

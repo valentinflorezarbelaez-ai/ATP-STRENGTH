@@ -237,28 +237,16 @@ export function CoachVoicePicker({
   onPrefsChange?: (prefs: CoachAudioPreferences) => void;
 }) {
   const [prefs, setPrefs] = useState<CoachAudioPreferences>(() => getAudioPreferences());
-  const [availableVoices, setAvailableVoices] = useState<SpeechSynthesisVoice[]>([]);
+  const [voiceEpoch, setVoiceEpoch] = useState(0);
   const [open, setOpen] = useState(variant === "panel");
-  const [mounted, setMounted] = useState(false);
+  const canUseDom = typeof document !== "undefined";
 
   useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  useEffect(() => {
-    const applyPrefs = (next: CoachAudioPreferences) => {
-      setPrefs(next);
-      onPrefsChange?.(next);
-    };
-
-    const syncFromStorage = () => {
-      applyPrefs(getAudioPreferences());
-    };
-
     const onCustom = (event: Event) => {
       const detail = (event as CustomEvent<CoachAudioPreferences>).detail;
-      if (detail) applyPrefs(detail);
-      else syncFromStorage();
+      const next = detail || getAudioPreferences();
+      setPrefs(next);
+      onPrefsChange?.(next);
     };
 
     window.addEventListener(COACH_VOICE_CHANGED_EVENT, onCustom);
@@ -268,20 +256,19 @@ export function CoachVoicePicker({
   }, [onPrefsChange]);
 
   useEffect(() => {
-    const updateVoices = () => {
-      setAvailableVoices(getAvailableSpanishVoices(prefs.voiceGender || "AUTO"));
-    };
-    updateVoices();
     if (typeof window === "undefined" || !("speechSynthesis" in window)) return;
+    const bumpVoices = () => {
+      setVoiceEpoch((epoch) => epoch + 1);
+    };
     if (typeof window.speechSynthesis.addEventListener === "function") {
-      window.speechSynthesis.addEventListener("voiceschanged", updateVoices);
+      window.speechSynthesis.addEventListener("voiceschanged", bumpVoices);
       return () => {
-        window.speechSynthesis.removeEventListener("voiceschanged", updateVoices);
+        window.speechSynthesis.removeEventListener("voiceschanged", bumpVoices);
       };
     }
-    window.speechSynthesis.onvoiceschanged = updateVoices;
+    window.speechSynthesis.onvoiceschanged = bumpVoices;
     return undefined;
-  }, [prefs.voiceGender]);
+  }, []);
 
   useEffect(() => {
     if (!open || variant === "panel") return;
@@ -292,10 +279,16 @@ export function CoachVoicePicker({
     return () => window.removeEventListener("keydown", onKey);
   }, [open, variant]);
 
-  const activeVoice = useMemo(
-    () => getBestHumanVoice(prefs.preferredVoiceURI, prefs.voiceGender || "AUTO"),
-    [prefs.preferredVoiceURI, prefs.voiceGender]
-  );
+  const availableVoices = useMemo(() => {
+    void voiceEpoch;
+    if (typeof window === "undefined" || !("speechSynthesis" in window)) return [];
+    return getAvailableSpanishVoices(prefs.voiceGender || "AUTO");
+  }, [prefs.voiceGender, voiceEpoch]);
+
+  const activeVoice = useMemo(() => {
+    void voiceEpoch;
+    return getBestHumanVoice(prefs.preferredVoiceURI, prefs.voiceGender || "AUTO");
+  }, [prefs.preferredVoiceURI, prefs.voiceGender, voiceEpoch]);
   const displayedGender = resolveDisplayedVoiceGender(prefs, activeVoice);
   const ui = genderUi(displayedGender);
 
@@ -330,7 +323,7 @@ export function CoachVoicePicker({
       } ${className}`}
       aria-haspopup="dialog"
       aria-expanded={open}
-      aria-label="Cambiar voz del entrenamiento"
+      aria-label={`Cambiar voz del entrenamiento. Voz actual: ${ui.short}`}
       title="Cambiar voz del entrenamiento (mujer, hombre o voz del dispositivo)"
     >
       {prefs.voiceEnabled ? (
@@ -348,7 +341,7 @@ export function CoachVoicePicker({
   );
 
   const dialog =
-    open && mounted
+    open && canUseDom
       ? createPortal(
           <div
             className="fixed inset-0 z-[1000000] flex items-end sm:items-center justify-center p-4 bg-black/80 backdrop-blur-sm"

@@ -10,14 +10,9 @@ import {
   Volume2,
   Sparkles,
   Trophy,
-  RotateCcw,
-  Clock,
   ArrowRight,
   Heart,
   Coffee,
-  ShieldCheck,
-  Dumbbell,
-  Zap,
 } from "lucide-react";
 import { AtpEnergyRing } from "@/app/components/AtpEnergyRing";
 import { BarbellPlateVisualizer } from "@/app/components/BarbellPlateVisualizer";
@@ -165,19 +160,21 @@ export function UniversalGuidedFullscreenModal({
     if (!isResting || isTimerPaused) return;
 
     if (remainingSeconds <= 0) {
-      setIsResting(false);
-      playChime(true);
-      if (activeSet) {
-        const nextPlates = formatBarbellPlatesSpoken(activeSet.weight, selectedBarWeight);
-        speakText(
-          `¡Tiempo cumplido! Se siente esa energía. Ahora tocan ${activeSet.weight} kilos en ${activeSet.label} para ${activeSet.reps} repeticiones. ${nextPlates}. ¡A disfrutar la serie!`
-        );
-      } else {
-        speakText(
-          `¡Increíble entrenamiento! Completaste todas las series de ${exerciseName}. Gran esfuerzo hoy, felicitaciones.`
-        );
-      }
-      return;
+      const finishId = window.setTimeout(() => {
+        setIsResting(false);
+        playChime(true);
+        if (activeSet) {
+          const nextPlates = formatBarbellPlatesSpoken(activeSet.weight, selectedBarWeight);
+          speakText(
+            `¡Tiempo cumplido! Se siente esa energía. Ahora tocan ${activeSet.weight} kilos en ${activeSet.label} para ${activeSet.reps} repeticiones. ${nextPlates}. ¡A disfrutar la serie!`
+          );
+        } else {
+          speakText(
+            `¡Increíble entrenamiento! Completaste todas las series de ${exerciseName}. Gran esfuerzo hoy, felicitaciones.`
+          );
+        }
+      }, 0);
+      return () => window.clearTimeout(finishId);
     }
 
     // Avisos amenos durante el descanso
@@ -194,12 +191,7 @@ export function UniversalGuidedFullscreenModal({
     return () => clearInterval(interval);
   }, [isResting, isTimerPaused, remainingSeconds, restDuration, activeSet, exerciseName, selectedBarWeight]);
 
-  const [mounted, setMounted] = useState<boolean>(false);
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  if (!isOpen || !mounted) return null;
+  if (!isOpen || typeof document === "undefined") return null;
 
   // Handler para marcar la serie completada
   const handleCompleteCurrentSet = () => {

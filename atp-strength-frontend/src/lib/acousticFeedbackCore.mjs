@@ -301,6 +301,9 @@ export function pickBestCoachVoice(voices, preferredURI, genderPreference = "AUT
 /**
  * Gender shown in the UI. AUTO follows the actual selected synthesizer
  * instead of pretending the coach is male.
+ * @param {{ voiceGender?: string }} [prefs]
+ * @param {{ name?: string, voiceURI?: string, lang?: string } | null} [voice]
+ * @returns {"AUTO" | "FEMALE" | "MALE"}
  */
 export function resolveDisplayedVoiceGender(prefs = {}, voice = null) {
   const pref = prefs.voiceGender;

@@ -151,7 +151,7 @@ export function resolveDisplayedVoiceGender(
   prefs?: Partial<CoachAudioPreferences> | null,
   voice?: SpeechSynthesisVoice | { name?: string; voiceURI?: string } | null
 ): VoiceGender {
-  return coreResolveDisplayedVoiceGender(prefs || {}, voice || null);
+  return coreResolveDisplayedVoiceGender(prefs || {}, voice ?? null) as VoiceGender;
 }
 
 /**
