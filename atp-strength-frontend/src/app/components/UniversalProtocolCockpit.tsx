@@ -26,6 +26,7 @@ import { BarbellPlateVisualizer } from "@/app/components/BarbellPlateVisualizer"
 import { computeAutoregulatedAdjustment } from "@/lib/rpeEngine.mjs";
 import { evaluateSessionInol } from "@/lib/prilepinEngine.mjs";
 import { speakText, formatBarbellPlatesSpoken } from "@/lib/acousticFeedback";
+import { UniversalGuidedFullscreenModal } from "@/app/components/UniversalGuidedFullscreenModal";
 
 export interface UniversalProtocolCockpitProps {
   onStartTimer: (seconds: number, title: string) => void;
@@ -103,6 +104,7 @@ export function UniversalProtocolCockpit({
   const [selectedBarWeight, setSelectedBarWeight] = useState<number>(() => loadInitialCockpitState().selectedBarWeight);
   const [showInlineDemo, setShowInlineDemo] = useState<boolean>(false);
   const [isGuidedActive, setIsGuidedActive] = useState<boolean>(false);
+  const [showFullscreenGuide, setShowFullscreenGuide] = useState<boolean>(false);
 
   // RPE Records per set: { set_id: rpeValue }
   const [setRpeRecords, setSetRpeRecords] = useState<Record<string, number>>({});
@@ -557,11 +559,12 @@ export function UniversalProtocolCockpit({
   const startGuidedMode = () => {
     playTactileClick();
     playChime(false);
+    setShowFullscreenGuide(true);
     setIsGuidedActive(true);
     const targetSet = activeGuidedSet || allSetsFlat[0];
     if (targetSet) {
       const platesText = formatBarbellPlatesSpoken(targetSet.weight, selectedBarWeight);
-      const cue = `Iniciamos ${activeName}. ${targetSet.phaseName}, ${targetSet.label}. Cargá ${targetSet.weight} kilos para ${targetSet.reps} repeticiones. ${platesText}. Cuando termines, tocá Completar Serie para iniciar tu recuperación de ATP.`;
+      const cue = `¡Hola! Empezamos con ${activeName}. ${targetSet.phaseName}, ${targetSet.label}. Cargá ${targetSet.weight} kilos para ${targetSet.reps} repeticiones. ${platesText}. Cuando termines, tocá Completar Serie y descansamos juntos.`;
       speakText(cue);
     }
   };
@@ -1454,6 +1457,19 @@ export function UniversalProtocolCockpit({
           </div>
         </div>
       </div>
+
+      {/* Modal Inmersivo en Pantalla Completa */}
+      <UniversalGuidedFullscreenModal
+        isOpen={showFullscreenGuide}
+        onClose={() => setShowFullscreenGuide(false)}
+        exerciseName={activeName}
+        prWeight={prWeight}
+        selectedBarWeight={selectedBarWeight}
+        protocolPhases={protocolPhases}
+        completedSets={completedSets}
+        onToggleSetComplete={toggleSetComplete}
+        onResetAllSets={resetAllSets}
+      />
     </div>
   );
 }
