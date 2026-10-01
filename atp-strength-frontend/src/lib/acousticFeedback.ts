@@ -308,7 +308,7 @@ export function speakText(rawText: string, customPrefs?: Partial<CoachAudioPrefe
         const utterance = new SpeechSynthesisUtterance(text);
         utterance.volume = Math.max(0, Math.min(1, prefs.voiceVolume));
 
-        const bestVoice = getBestHumanVoice(prefs.preferredVoiceURI, prefs.voiceGender);
+        const bestVoice = getBestHumanVoice(undefined, "AUTO");
         const delivery = resolveSpokenDelivery(bestVoice, prefs);
         utterance.rate = delivery.rate;
         utterance.pitch = delivery.pitch;
@@ -316,10 +316,6 @@ export function speakText(rawText: string, customPrefs?: Partial<CoachAudioPrefe
         if (bestVoice) {
           utterance.voice = bestVoice;
           utterance.lang = bestVoice.lang.startsWith("es") ? bestVoice.lang : "es-MX";
-
-          if (!prefs.preferredVoiceURI && bestVoice.voiceURI) {
-            saveAudioPreferences({ preferredVoiceURI: bestVoice.voiceURI, voicePitch: 1 });
-          }
         } else {
           utterance.lang = "es-MX";
         }

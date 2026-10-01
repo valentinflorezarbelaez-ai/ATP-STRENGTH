@@ -24,11 +24,6 @@ import { BarbellPlateVisualizer } from "@/app/components/BarbellPlateVisualizer"
 import {
   speakText,
   formatBarbellPlatesSpoken,
-  getAudioPreferences,
-  setVoiceGender,
-  cycleVoiceGender,
-  voiceSwitchCue,
-  type VoiceGender,
 } from "@/lib/acousticFeedback";
 import { playTactileClick, playChime } from "@/lib/zenAudio";
 
@@ -122,16 +117,8 @@ export function UniversalGuidedFullscreenModal({
   const [restDuration, setRestDuration] = useState<number>(60);
   const [remainingSeconds, setRemainingSeconds] = useState<number>(60);
   const [isTimerPaused, setIsTimerPaused] = useState<boolean>(false);
-  const [audioPrefs, setAudioPrefs] = useState(() => getAudioPreferences());
   const hasSpokenInitial = useRef<boolean>(false);
   const lastSpokenSetId = useRef<string | null>(null);
-
-  const handleToggleVoiceGender = (explicitGender?: VoiceGender) => {
-    playTactileClick();
-    const next = explicitGender ? setVoiceGender(explicitGender) : cycleVoiceGender();
-    setAudioPrefs(next);
-    speakText(voiceSwitchCue(next.voiceGender || "AUTO"), next);
-  };
 
   // Mensaje ameno del coach para la serie actual
   const coachWarmMessage = useMemo(() => {
@@ -283,37 +270,6 @@ export function UniversalGuidedFullscreenModal({
           </div>
 
           <div className="flex items-center gap-2">
-            {/* Botón de Selección Rápida de Voz (Mujer / Hombre a voluntad) */}
-            <button
-              type="button"
-              onClick={() => handleToggleVoiceGender()}
-              className={`px-3 py-2 rounded-xl border text-xs font-mono font-bold flex items-center gap-1.5 transition-all active:scale-95 cursor-pointer shadow-sm ${
-                audioPrefs.voiceGender === "FEMALE"
-                  ? "bg-rose-500/20 border-rose-500/50 text-rose-300 hover:bg-rose-500/30 shadow-[0_0_12px_rgba(244,63,94,0.2)]"
-                  : audioPrefs.voiceGender === "MALE"
-                    ? "bg-amber-500/15 border-amber-500/40 text-amber-300 hover:bg-amber-500/25 shadow-[0_0_12px_rgba(245,158,11,0.15)]"
-                    : "bg-cyan-500/15 border-cyan-500/40 text-cyan-300 hover:bg-cyan-500/25"
-              }`}
-              title={
-                audioPrefs.voiceGender === "FEMALE"
-                  ? "Voz de mujer. Tocá para pasar a voz de hombre."
-                  : audioPrefs.voiceGender === "MALE"
-                    ? "Voz de hombre. Tocá para volver a la voz automática."
-                    : "Voz automática, la más clara del teléfono. Tocá para voz de mujer."
-              }
-            >
-              <span className="text-sm">
-                {audioPrefs.voiceGender === "FEMALE" ? "👩" : audioPrefs.voiceGender === "MALE" ? "👨" : "🎙️"}
-              </span>
-              <span className="font-bold">
-                {audioPrefs.voiceGender === "FEMALE"
-                  ? "VOZ MUJER"
-                  : audioPrefs.voiceGender === "MALE"
-                    ? "VOZ HOMBRE"
-                    : "VOZ AUTO"}
-              </span>
-            </button>
-
             <button
               type="button"
               onClick={() => {
