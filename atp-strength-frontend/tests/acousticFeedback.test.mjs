@@ -208,19 +208,26 @@ describe("SPEC-0005 Neuro-Acoustic Biofeedback Engine", () => {
       assert.equal(migrated.soundEnabled, true);
     });
 
-    it("keeps an explicit male or female choice already made by the athlete", () => {
-      const male = applyCoachVoiceProfile({
+    it("replaces a saved male or female voice with the Latam female coach", () => {
+      const migrated = applyCoachVoiceProfile({
+        voiceGender: "MALE",
+        voicePitch: 0.92,
+        preferredVoiceURI: "Microsoft Jorge",
+        voiceProfileId: "latam-femenina-v1",
+      });
+      assert.equal(migrated.voiceGender, "FEMALE");
+      assert.equal(migrated.voicePitch, 1.0);
+      assert.equal(migrated.preferredVoiceURI, "");
+      assert.equal(migrated.voiceProfileId, COACH_VOICE_PROFILE_ID);
+
+      const afterManual = applyCoachVoiceProfile({
+        ...migrated,
         voiceGender: "MALE",
         voicePitch: 0.92,
         preferredVoiceURI: "Microsoft Jorge",
       });
-      assert.equal(male.voiceGender, "MALE");
-      assert.equal(male.preferredVoiceURI, "Microsoft Jorge");
-      assert.equal(male.voiceProfileId, COACH_VOICE_PROFILE_ID);
-
-      const kept = applyCoachVoiceProfile(male);
-      assert.equal(kept.preferredVoiceURI, "Microsoft Jorge");
-      assert.equal(kept.voiceGender, "MALE");
+      assert.equal(afterManual.voiceGender, "MALE");
+      assert.equal(afterManual.preferredVoiceURI, "Microsoft Jorge");
     });
 
     it("ranks Dalia and es-US above the previous peninsular Google español voice", () => {

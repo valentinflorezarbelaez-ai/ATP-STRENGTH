@@ -40,8 +40,8 @@ export const COACH_CUES = Object.freeze({
   ]),
 });
 
-/** Active coach voice. Replaces the previous chest-pitch es-ES default. */
-export const COACH_VOICE_PROFILE_ID = "latam-femenina-v1";
+/** Active coach voice. Forces the Latam female voice over any previously saved choice. */
+export const COACH_VOICE_PROFILE_ID = "latam-femenina-v2";
 
 export const DEFAULT_PREFS = Object.freeze({
   soundEnabled: true,
@@ -186,20 +186,12 @@ export function validateAudioPreferences(prefs = {}) {
 }
 
 /**
- * Moves athletes still on the old AUTO / es-ES chest voice onto the Latin
- * American female profile. An explicit Mujer or Hombre choice is kept.
+ * Replaces whatever coach voice was saved with the Latin American female profile.
+ * A later manual Mujer/Hombre choice is kept once this profile id is already stored.
  */
 export function applyCoachVoiceProfile(raw = {}) {
   if (raw && raw.voiceProfileId === COACH_VOICE_PROFILE_ID) {
     return validateAudioPreferences(raw);
-  }
-
-  const explicitGender = raw.voiceGender === "MALE" || raw.voiceGender === "FEMALE";
-  if (explicitGender) {
-    return validateAudioPreferences({
-      ...raw,
-      voiceProfileId: COACH_VOICE_PROFILE_ID,
-    });
   }
 
   return validateAudioPreferences({
