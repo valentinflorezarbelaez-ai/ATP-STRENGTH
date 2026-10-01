@@ -525,12 +525,12 @@ export function CoachGuidedView({ d }: { d: Dash; onShowSpotify?: () => void }) 
               </div>
 
               <div className="flex items-center justify-between pt-1">
-                <span className="text-[11px] font-mono text-zinc-400">Una sola voz de coach</span>
+                <span className="text-[11px] font-mono text-zinc-400">Voz humana del dispositivo</span>
                 <button
                   type="button"
                   onClick={() => {
                     playTactileClick();
-                    speakText("¡Tiempo cumplido! A la barra con máxima determinación, guerrero.", audioPrefs);
+                    speakText("Tiempo cumplido. A la barra, con calma y fuerza.", audioPrefs);
                   }}
                   className="text-[10px] font-mono text-amber-400 hover:underline cursor-pointer flex items-center gap-1"
                 >

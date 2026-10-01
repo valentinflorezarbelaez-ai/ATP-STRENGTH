@@ -20,6 +20,7 @@ import {
   pickBestVoice as corePickBestVoice,
   scoreSpanishVoice as coreScoreSpanishVoice,
   resolveSpokenDelivery,
+  humanVoiceRank,
   voiceSwitchCue as coreVoiceSwitchCue,
 } from "./acousticFeedbackCore.mjs";
 
@@ -38,7 +39,7 @@ export interface CoachAudioPreferences {
   soundEnabled: boolean; // Chimes / Web Audio
   voiceEnabled: boolean; // Spoken coaching cues
   voiceVolume: number;   // 0.0 to 1.0
-  voiceRate: number;     // 0.5 to 2.0 (0.98 keeps kilos and repeticiones clear)
+  voiceRate: number;     // 0.5 to 2.0 (0.96 is the human pace for a neural voice)
   voicePitch?: number;   // 1 keeps neural voices intact; other values are an explicit choice
   preferredVoiceURI?: string; // Specific voice chosen by athlete
   voiceGender?: VoiceGender;  // "AUTO" | "FEMALE" | "MALE"
@@ -215,6 +216,8 @@ const activeUtterances = new Set<SpeechSynthesisUtterance>();
 let speakToken = 0;
 let pendingSpeak: { text: string; prefs?: Partial<CoachAudioPreferences> } | null = null;
 let keepAliveTimer: ReturnType<typeof setInterval> | null = null;
+let remoteVoiceProbeDone = false;
+let remoteVoiceProbeTimer: ReturnType<typeof setTimeout> | null = null;
 
 function stopKeepAlive(): void {
   if (keepAliveTimer !== null) {
@@ -242,16 +245,21 @@ function armKeepAlive(synth: SpeechSynthesis, token: number): void {
   }, 10000);
 }
 
+function bestLoadedVoiceRank(): number {
+  return humanVoiceRank(getBestHumanVoice(undefined, "AUTO"));
+}
+
 function syncDefaultVoice(): void {
   try {
-    const prefs = getAudioPreferences();
-    if (!prefs.preferredVoiceURI) {
-      const best = getBestHumanVoice(undefined, prefs.voiceGender || "AUTO");
-      if (best && best.voiceURI) {
-        saveAudioPreferences({ preferredVoiceURI: best.voiceURI });
+    if (bestLoadedVoiceRank() >= 3) {
+      remoteVoiceProbeDone = true;
+      if (remoteVoiceProbeTimer !== null) {
+        clearTimeout(remoteVoiceProbeTimer);
+        remoteVoiceProbeTimer = null;
       }
     }
-    if (pendingSpeak && window.speechSynthesis.getVoices().length > 0) {
+    const voicesReady = window.speechSynthesis.getVoices().length > 0;
+    if (pendingSpeak && voicesReady && (remoteVoiceProbeDone || bestLoadedVoiceRank() >= 3)) {
       const job = pendingSpeak;
       pendingSpeak = null;
       speakText(job.text, job.prefs);
@@ -287,8 +295,21 @@ export function speakText(rawText: string, customPrefs?: Partial<CoachAudioPrefe
     const token = ++speakToken;
     stopKeepAlive();
 
-    if (synth.getVoices().length === 0) {
+    const loadedRank = synth.getVoices().length === 0 ? 0 : bestLoadedVoiceRank();
+    const waitingForHumanVoice = loadedRank < 3 && !remoteVoiceProbeDone;
+    if (synth.getVoices().length === 0 || waitingForHumanVoice) {
       pendingSpeak = { text: rawText, prefs: customPrefs };
+      if (waitingForHumanVoice && remoteVoiceProbeTimer === null) {
+        remoteVoiceProbeTimer = setTimeout(() => {
+          remoteVoiceProbeTimer = null;
+          remoteVoiceProbeDone = true;
+          if (!pendingSpeak) return;
+          const job = pendingSpeak;
+          pendingSpeak = null;
+          speakText(job.text, job.prefs);
+        }, 700);
+      }
+      return;
     }
 
     // Guard against stuck paused state in Chromium

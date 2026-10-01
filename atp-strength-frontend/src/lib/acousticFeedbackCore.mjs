@@ -44,7 +44,7 @@ export const DEFAULT_PREFS = Object.freeze({
   soundEnabled: true,
   voiceEnabled: true,
   voiceVolume: 1.0,
-  voiceRate: 0.98,
+  voiceRate: 0.96,
   voicePitch: 1,
   preferredVoiceURI: "",
   voiceGender: "AUTO",
@@ -247,33 +247,59 @@ export function detectVoiceGender(voice) {
   return "AUTO";
 }
 
-export function isNaturalVoice(voice) {
-  if (!voice) return false;
+/**
+ * 5 neural/premium, 4 natural/enhanced, 3 network, 2 plain, 1 compact/robotic.
+ * Chrome's "Google español" and espeak/desktop voices are the robotic tier.
+ */
+export function humanVoiceRank(voice) {
+  if (!voice) return 0;
   const folded = foldVoiceText(`${voice.name || ""} ${voice.voiceURI || ""}`);
-  return /natural|neural|enhanced|wavenet|premium|studio/.test(folded);
+  if (!folded.trim()) return 0;
+  if (/neural2|wavenet|studio|premium/.test(folded)) return 5;
+  if (/natural|enhanced|neural/.test(folded)) return 4;
+  if (/network|online/.test(folded)) return 3;
+  if (/espeak|festival|compact|desktop|(?:^|[^a-z])local(?:[^a-z]|$)|standard|sapi/.test(folded)) return 1;
+  if (folded.includes("google")) return 1;
+  if (voice.localService === false) return 3;
+  return 2;
+}
+
+export function isNaturalVoice(voice) {
+  return humanVoiceRank(voice) >= 4;
+}
+
+const AUTOMATIC_PITCH = new Set([0.92, 1, 1.02]);
+const AUTOMATIC_RATE = new Set([0.92, 0.95, 0.96, 0.98, 1, 1.02, 1.05]);
+
+/** Conversational pace. Compact engines sound less mechanical a little under 1. */
+export function humanSpeechRate(voice) {
+  const rank = humanVoiceRank(voice);
+  if (rank >= 4) return 0.96;
+  if (rank >= 3) return 0.92;
+  return 0.9;
 }
 
 /**
- * Legacy builds stored pitch 0.92 / 1.02 and rate 1.05 automatically.
- * Those values pitch-shift neural voices and make weights harder to hear.
+ * Pitch stays at 1 so neural voices are not shifted into a dull or chipmunk tone.
+ * Stored defaults from older builds (including 0.98) map to a human pace.
  * A pitch or rate outside that set is an explicit athlete choice.
  */
 export function resolveSpokenDelivery(voice, prefs = {}) {
   const storedPitch = typeof prefs.voicePitch === "number" ? prefs.voicePitch : 1;
   const storedRate = typeof prefs.voiceRate === "number" ? prefs.voiceRate : DEFAULT_PREFS.voiceRate;
-  const legacyPitch = storedPitch === 0.92 || storedPitch === 1.02;
-  const legacyRate = storedRate === 1.05 || storedRate === 1.02;
-  const pitch = legacyPitch ? 1 : Math.max(0.6, Math.min(1.5, storedPitch));
-  const rate = legacyRate ? DEFAULT_PREFS.voiceRate : Math.max(0.5, Math.min(2, storedRate));
-  return { pitch, rate, natural: isNaturalVoice(voice) };
+  const natural = isNaturalVoice(voice);
+  const pitch = AUTOMATIC_PITCH.has(storedPitch) ? 1 : Math.max(0.6, Math.min(1.5, storedPitch));
+  const rate = AUTOMATIC_RATE.has(storedRate)
+    ? humanSpeechRate(voice)
+    : Math.max(0.5, Math.min(2, storedRate));
+  return { pitch, rate, natural };
 }
 
 export function scoreSpanishVoice(voice, genderPreference = "AUTO") {
   if (!voice) return -1000;
   const name = foldVoiceText(voice.name);
-  const uri = foldVoiceText(voice.voiceURI);
   const lang = foldVoiceText(voice.lang);
-  let score = 0;
+  let score = humanVoiceRank(voice) * 200;
   const detected = detectVoiceGender(voice);
 
   if (genderPreference === "FEMALE") {
@@ -283,14 +309,6 @@ export function scoreSpanishVoice(voice, genderPreference = "AUTO") {
     if (detected === "MALE") score += 300;
     else if (detected === "FEMALE") score -= 200;
   }
-
-  if (name.includes("natural") || uri.includes("natural")) score += 120;
-  if (name.includes("neural") || uri.includes("neural")) score += 120;
-  if (name.includes("wavenet") || uri.includes("wavenet")) score += 110;
-  if (name.includes("enhanced") || uri.includes("enhanced")) score += 90;
-  if (name.includes("premium") || uri.includes("premium")) score += 80;
-  if (name.includes("online") || uri.includes("online")) score += 60;
-  if (name.includes("google") || uri.includes("google")) score += 50;
 
   if (
     hasVoiceWord(name, "pablo") || hasVoiceWord(name, "jorge") ||
@@ -306,10 +324,6 @@ export function scoreSpanishVoice(voice, genderPreference = "AUTO") {
   }
   if (lang.startsWith("es")) score += 15;
 
-  if (!isNaturalVoice(voice) && (name.includes("desktop") || name.includes("espeak") || uri.includes("desktop") || uri.includes("espeak"))) {
-    score -= 40;
-  }
-
   return score;
 }
 
@@ -323,7 +337,9 @@ export function pickBestVoice(voices, options = {}) {
     const match = list.find((voice) => voice.voiceURI === preferredURI);
     if (match) {
       const detected = detectVoiceGender(match);
-      if (gender === "AUTO" || detected === gender || detected === "AUTO") return match;
+      const genderOk = gender === "AUTO" || detected === gender || detected === "AUTO";
+      const bestRank = list.reduce((highest, voice) => Math.max(highest, humanVoiceRank(voice)), 0);
+      if (genderOk && humanVoiceRank(match) >= bestRank) return match;
     }
   }
 
@@ -425,11 +441,17 @@ export function normalizeSpeechTextForSpanish(text) {
   res = res.replace(/\b1\s*RM\b/gi, "una repetición máxima");
   res = res.replace(/(\d+)\s*RM\b/gi, "$1 R M");
 
-  // 14. Clean duplicate spaces, extra commas and trim
+  // 14. Shouted punctuation makes compact engines jump pitch like a robot.
+  res = res.replace(/¡/g, "");
+  res = res.replace(/!+/g, ".");
+
+  // 15. Clean duplicate spaces, extra commas and trim
   res = res.replace(/\s+/g, " ");
   res = res.replace(/\s*,\s*,+/g, ",");
   res = res.replace(/,\s*\./g, ".");
+  res = res.replace(/\.{2,}/g, ".");
   res = res.replace(/\s+([,.:;?!])/g, "$1");
+  res = res.replace(/\s+\./g, ".");
 
   return res.trim();
 }

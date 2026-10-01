@@ -18,6 +18,7 @@ import {
   detectVoiceGender,
   pickBestVoice,
   resolveSpokenDelivery,
+  humanVoiceRank,
   voiceSwitchCue,
 } from "../src/lib/acousticFeedbackCore.mjs";
 
@@ -227,11 +228,50 @@ describe("SPEC-0005 Neuro-Acoustic Biofeedback Engine", () => {
 
       const natural = resolveSpokenDelivery(voices[1], { voicePitch: 0.92, voiceRate: 1.05 });
       assert.equal(natural.pitch, 1);
-      assert.equal(natural.rate, 0.98);
+      assert.equal(natural.rate, 0.96);
+      assert.equal(natural.natural, true);
+
+      const storedDefault = resolveSpokenDelivery(voices[1], { voicePitch: 1, voiceRate: 0.98 });
+      assert.equal(storedDefault.pitch, 1);
+      assert.equal(storedDefault.rate, 0.96);
+
+      const compact = resolveSpokenDelivery(voices[2], { voicePitch: 1, voiceRate: 0.98 });
+      assert.equal(compact.rate, 0.9);
+      assert.equal(compact.natural, false);
 
       const custom = resolveSpokenDelivery(voices[1], { voicePitch: 1.2, voiceRate: 0.9 });
       assert.equal(custom.pitch, 1.2);
       assert.equal(custom.rate, 0.9);
+    });
+
+    it("prefers a neural or network voice over a compact robotic one", () => {
+      const voices = [
+        { name: "Google español", lang: "es-ES", voiceURI: "es-es-x-eed-local", localService: true },
+        { name: "Google español", lang: "es-ES", voiceURI: "es-es-x-eed-network", localService: false },
+        { name: "eSpeak Spanish", lang: "es-ES", voiceURI: "espeak" },
+        { name: "es-MX-Neural2-A", lang: "es-MX", voiceURI: "neural" },
+        { name: "Microsoft Helena Desktop", lang: "es-MX", voiceURI: "helena-desktop" },
+      ];
+      assert.equal(humanVoiceRank(voices[0]), 1);
+      assert.equal(humanVoiceRank(voices[1]), 3);
+      assert.equal(humanVoiceRank(voices[3]), 5);
+      assert.equal(pickBestVoice(voices, { gender: "AUTO" }).voiceURI, "neural");
+      assert.equal(pickBestVoice(voices, { gender: "AUTO", preferredURI: "espeak" }).voiceURI, "neural");
+
+      const withoutNeural = voices.filter((voice) => voice.voiceURI !== "neural");
+      assert.equal(pickBestVoice(withoutNeural, { gender: "AUTO" }).voiceURI, "es-es-x-eed-network");
+
+      const apple = [
+        { name: "Mónica", lang: "es-ES", voiceURI: "com.apple.voice.compact.es-ES.Monica" },
+        { name: "Paulina", lang: "es-MX", voiceURI: "com.apple.voice.premium.es-MX.Paulina" },
+      ];
+      assert.equal(pickBestVoice(apple, { gender: "AUTO" }).voiceURI, "com.apple.voice.premium.es-MX.Paulina");
+
+      const edge = [
+        { name: "Microsoft Sabina Desktop - Spanish (Mexico)", lang: "es-MX", voiceURI: "sabina-desktop" },
+        { name: "Microsoft Dalia Online (Natural) - Spanish (Mexico)", lang: "es-MX", voiceURI: "dalia-natural" },
+      ];
+      assert.equal(pickBestVoice(edge, { gender: "AUTO" }).voiceURI, "dalia-natural");
     });
 
     it("speaks an honest preview for each voice mode", () => {
@@ -262,6 +302,13 @@ describe("SPEC-0005 Neuro-Acoustic Biofeedback Engine", () => {
       assert.equal(
         normalizeSpeechTextForSpanish("TEMPO 2-0-2-0"),
         "cadencia 2, 0, 2, 0"
+      );
+    });
+
+    it("softens shouted punctuation so compact engines do not spike like a robot", () => {
+      assert.equal(
+        normalizeSpeechTextForSpanish("¡Tiempo cumplido! A la barra."),
+        "Tiempo cumplido. A la barra."
       );
     });
 
