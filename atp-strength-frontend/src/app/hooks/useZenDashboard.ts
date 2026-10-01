@@ -15,6 +15,7 @@ import { enqueueWalEntry } from "@/lib/walSync";
 import { useAtpTimer } from "@/app/hooks/useAtpTimer";
 import { useBackendWal } from "@/app/hooks/useBackendWal";
 import { createWorkoutHandlers } from "@/app/hooks/createWorkoutHandlers";
+import { calculateStrengthLevel, evaluateStrengthCoach } from "@/lib/strengthStandards";
 import {
   SCHEDULE_DAYS,
   ALL_TRACKABLE_EXERCISES,
@@ -165,6 +166,42 @@ export function useZenDashboard() {
   const [historyRevision, setHistoryRevision] = useState(0);
   const [serverHistory, setServerHistory] = useState<HistoryItem[]>([]);
 
+  const [bodyweightKg, setBodyweightKg] = useState<number>(() => {
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem("atp_athlete_bodyweight");
+      if (saved) {
+        const parsed = parseFloat(saved);
+        if (parsed > 0) return parsed;
+      }
+    }
+    return 75;
+  });
+
+  const [customExercises, setCustomExercises] = useState<string[]>(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const saved = localStorage.getItem("atp_custom_exercises");
+        if (saved) return JSON.parse(saved);
+      } catch {}
+    }
+    return [];
+  });
+
+  const handleUpdateBodyweight = useCallback((newBw: number) => {
+    setBodyweightKg(newBw);
+    if (typeof window !== "undefined") {
+      localStorage.setItem("atp_athlete_bodyweight", String(newBw));
+    }
+  }, []);
+
+  const allTrackableExercises = useMemo(() => {
+    const set = new Set<string>();
+    ALL_TRACKABLE_EXERCISES.forEach((e) => set.add(e));
+    Object.keys(maxesMap).forEach((e) => set.add(e));
+    customExercises.forEach((e) => set.add(e));
+    return Array.from(set);
+  }, [maxesMap, customExercises]);
+
   const localHistory = useMemo(() => {
     void historyRevision;
     return getLocalExerciseHistory(selectedProgressEx);
@@ -199,6 +236,17 @@ export function useZenDashboard() {
     void historyRevision;
     return getLocalSupercompensationTrend(selectedProgressEx);
   }, [selectedProgressEx, historyRevision]);
+
+  const selectedExMax = maxesMap[selectedProgressEx] || null;
+  const current1Rm = selectedExMax?.one_rep_max || (localHistory[0]?.e1rm || 0);
+
+  const strengthStandards = useMemo(() => {
+    return calculateStrengthLevel(selectedProgressEx, current1Rm, bodyweightKg);
+  }, [selectedProgressEx, current1Rm, bodyweightKg]);
+
+  const coachEvaluation = useMemo(() => {
+    return evaluateStrengthCoach(selectedProgressEx, localHistory, current1Rm, strengthStandards);
+  }, [selectedProgressEx, localHistory, current1Rm, strengthStandards]);
 
   const activeDay = scheduleDays.find((d) => d.key === selectedDayKey) || scheduleDays[0];
   const activeExercise = activeDay.exercises[activeExerciseIndex] || activeDay.exercises[0] || REST_PLACEHOLDER_EXERCISE;
@@ -425,6 +473,65 @@ export function useZenDashboard() {
     ]
   );
 
+  const handleAddNewExercise = useCallback(
+    async (
+      name: string,
+      initialWeight?: number,
+      initialReps?: number,
+      formula = "epley",
+      notes = "Registro inicial de ejercicio"
+    ) => {
+      const trimmed = name.trim();
+      if (!trimmed) return;
+
+      setCustomExercises((prev) => {
+        if (prev.includes(trimmed)) return prev;
+        const next = [...prev, trimmed];
+        if (typeof window !== "undefined") {
+          localStorage.setItem("atp_custom_exercises", JSON.stringify(next));
+        }
+        return next;
+      });
+
+      setSelectedProgressEx(trimmed);
+
+      if (initialWeight && initialWeight > 0 && initialReps && initialReps > 0) {
+        const updated = computeMetrics(trimmed, initialWeight, initialReps, formula, notes);
+        setMaxesMap((prev) => {
+          const next = { ...prev, [trimmed]: updated };
+          writeMaxesMap(next);
+          return next;
+        });
+
+        logLocalSetHistory({
+          exercise_name: trimmed,
+          load_kg: initialWeight,
+          completed_reps: initialReps,
+          prescribed_reps: initialReps,
+          rpe: 10,
+          e1rm: updated.one_rep_max,
+          notes: notes || "Calibración inicial",
+        });
+        setHistoryRevision((v) => v + 1);
+
+        try {
+          enqueueWalEntry("/api/strength/maxes", {
+            exercise_name: trimmed,
+            lifted_weight: initialWeight,
+            reps_performed: initialReps,
+            formula,
+            notes,
+          });
+          await wal.enqueueFlush();
+          if (wal.backendOnline) await refreshHistory(trimmed);
+        } catch (err) {
+          console.warn("Error registering new exercise:", err);
+        }
+      }
+    },
+    [wal, refreshHistory]
+  );
+
   const handleSaveMax = async () => {
     const w = parseFloat(formWeight);
     const r = parseInt(formReps, 10);
@@ -607,5 +714,11 @@ export function useZenDashboard() {
     currentProgram,
     availablePrograms: [currentProgram],
     ALL_TRACKABLE_EXERCISES,
+    bodyweightKg,
+    handleUpdateBodyweight,
+    allTrackableExercises,
+    handleAddNewExercise,
+    strengthStandards,
+    coachEvaluation,
   };
 }
