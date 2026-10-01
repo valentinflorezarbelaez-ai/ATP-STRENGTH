@@ -17,6 +17,9 @@ import {
   validateAudioPreferences,
   normalizeSpeechTextForSpanish,
   detectVoiceGender as coreDetectVoiceGender,
+  scoreCoachVoice as coreScoreCoachVoice,
+  pickBestCoachVoice as corePickBestCoachVoice,
+  resolveDisplayedVoiceGender as coreResolveDisplayedVoiceGender,
 } from "./acousticFeedbackCore.mjs";
 
 export type CoachingEventType =
@@ -75,6 +78,12 @@ export const COACH_CUES = CORE_COACH_CUES as Record<CoachingEventType, string[]>
 export const DEFAULT_PREFS: CoachAudioPreferences = CORE_DEFAULT_PREFS;
 
 const PREFS_STORAGE_KEY = "atp_coach_audio_prefs";
+export const COACH_VOICE_CHANGED_EVENT = "atp-coach-voice-changed";
+
+function emitVoicePrefs(updated: CoachAudioPreferences): void {
+  if (typeof window === "undefined") return;
+  window.dispatchEvent(new CustomEvent(COACH_VOICE_CHANGED_EVENT, { detail: updated }));
+}
 
 export function getAudioPreferences(): CoachAudioPreferences {
   if (typeof window === "undefined") return DEFAULT_PREFS;
@@ -97,6 +106,7 @@ export function saveAudioPreferences(prefs: Partial<CoachAudioPreferences>): Coa
       console.warn("Failed to persist coach audio preferences:", err);
     }
   }
+  emitVoicePrefs(updated);
   return updated;
 }
 
@@ -130,6 +140,20 @@ export function detectVoiceGender(
   return coreDetectVoiceGender(voice);
 }
 
+export function scoreCoachVoice(
+  voice: SpeechSynthesisVoice | { name?: string; voiceURI?: string; lang?: string } | null | undefined,
+  genderPreference: VoiceGender = "AUTO"
+): number {
+  return coreScoreCoachVoice(voice, genderPreference);
+}
+
+export function resolveDisplayedVoiceGender(
+  prefs?: Partial<CoachAudioPreferences> | null,
+  voice?: SpeechSynthesisVoice | { name?: string; voiceURI?: string } | null
+): VoiceGender {
+  return coreResolveDisplayedVoiceGender(prefs || {}, voice || null);
+}
+
 /**
  * Returns available Spanish voices sorted by natural human quality,
  * with optional gender weighting (FEMALE or MALE priority).
@@ -139,73 +163,9 @@ export function getAvailableSpanishVoices(genderPreference: VoiceGender = "AUTO"
   const allVoices = window.speechSynthesis.getVoices();
   const spanish = allVoices.filter((v) => v.lang.startsWith("es"));
   const pool = spanish.length > 0 ? spanish : allVoices;
-
-  const scoreVoice = (v: SpeechSynthesisVoice): number => {
-    const name = v.name.toLowerCase();
-    const uri = v.voiceURI.toLowerCase();
-    let score = 0;
-
-    const detectedGender = detectVoiceGender(v);
-
-    // Explicit gender prioritization requested by the athlete
-    if (genderPreference === "FEMALE") {
-      if (detectedGender === "FEMALE") score += 300;
-      else if (detectedGender === "MALE") score -= 200;
-    } else if (genderPreference === "MALE") {
-      if (detectedGender === "MALE") score += 300;
-      else if (detectedGender === "FEMALE") score -= 200;
-    }
-
-    // Highest priority: Neural / Natural / Studio / Enhanced
-    if (name.includes("natural") || uri.includes("natural")) score += 120;
-    if (name.includes("neural") || uri.includes("neural")) score += 120;
-    if (name.includes("enhanced") || uri.includes("enhanced")) score += 90;
-    if (name.includes("online") || uri.includes("online")) score += 60;
-    if (name.includes("google") || uri.includes("google")) score += 50;
-
-    // Warm, resonant human coach voice names (both male and female elite models)
-    if (
-      name.includes("pablo") ||
-      name.includes("jorge") ||
-      name.includes("alvaro") ||
-      name.includes("carlos") ||
-      name.includes("juan") ||
-      name.includes("diego") ||
-      name.includes("miguel") ||
-      name.includes("paloma") ||
-      name.includes("dalia") ||
-      name.includes("elvira") ||
-      name.includes("laura") ||
-      name.includes("paulina") ||
-      name.includes("monica") ||
-      name.includes("mónica") ||
-      name.includes("sofia") ||
-      name.includes("sofía") ||
-      name.includes("camila") ||
-      name.includes("valentina")
-    ) {
-      score += 40;
-    }
-
-    // Latin American / Neutral Spanish preference
-    if (v.lang === "es-mx" || v.lang === "es-us" || v.lang === "es-419") score += 20;
-    if (v.lang.startsWith("es")) score += 15;
-
-    // Downrank legacy robotic SAPI / desktop synthesizers ONLY when not neural/natural
-    if (!name.includes("natural") && !name.includes("neural")) {
-      if (
-        name.includes("desktop") ||
-        name.includes("espeak") ||
-        uri.includes("desktop")
-      ) {
-        score -= 40;
-      }
-    }
-
-    return score;
-  };
-
-  return [...pool].sort((a, b) => scoreVoice(b) - scoreVoice(a));
+  return [...pool].sort(
+    (a, b) => scoreCoachVoice(b, genderPreference) - scoreCoachVoice(a, genderPreference)
+  );
 }
 
 /**
@@ -218,20 +178,7 @@ export function getBestHumanVoice(
 ): SpeechSynthesisVoice | null {
   if (typeof window === "undefined" || !("speechSynthesis" in window)) return null;
   const voices = window.speechSynthesis.getVoices();
-  if (voices.length === 0) return null;
-
-  if (preferredURI) {
-    const match = voices.find((v) => v.voiceURI === preferredURI);
-    if (match) {
-      // If athlete didn't restrict gender or the preferred voice matches the requested gender, use it!
-      if (genderPreference === "AUTO" || detectVoiceGender(match) === genderPreference) {
-        return match;
-      }
-    }
-  }
-
-  const sorted = getAvailableSpanishVoices(genderPreference);
-  return sorted[0] || voices[0] || null;
+  return corePickBestCoachVoice(voices, preferredURI, genderPreference);
 }
 
 /**
@@ -239,9 +186,23 @@ export function getBestHumanVoice(
  * matching human voice on the device, updates pitch appropriately, and persists to localStorage.
  */
 export function setVoiceGender(gender: VoiceGender): CoachAudioPreferences {
-  const current = getAudioPreferences();
   const bestMatching = getBestHumanVoice(undefined, gender);
-  const adaptedPitch = gender === "FEMALE" ? 1.02 : 0.92;
+  let adaptedPitch = 1.0;
+  switch (gender) {
+    case "FEMALE":
+      adaptedPitch = 1.02;
+      break;
+    case "MALE":
+      adaptedPitch = 0.92;
+      break;
+    case "AUTO":
+      adaptedPitch = 1.0;
+      break;
+    default: {
+      const _exhaustive: never = gender;
+      return _exhaustive;
+    }
+  }
 
   return saveAudioPreferences({
     voiceGender: gender,
@@ -279,7 +240,9 @@ if (typeof window !== "undefined" && "speechSynthesis" in window) {
     }
   };
 
-  if (window.speechSynthesis.onvoiceschanged !== undefined) {
+  if (typeof window.speechSynthesis.addEventListener === "function") {
+    window.speechSynthesis.addEventListener("voiceschanged", syncDefaultVoice);
+  } else if (window.speechSynthesis.onvoiceschanged !== undefined) {
     window.speechSynthesis.onvoiceschanged = syncDefaultVoice;
   }
   syncDefaultVoice();

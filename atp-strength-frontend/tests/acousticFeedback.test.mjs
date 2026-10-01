@@ -16,6 +16,9 @@ import {
   validateAudioPreferences,
   normalizeSpeechTextForSpanish,
   detectVoiceGender,
+  scoreCoachVoice,
+  pickBestCoachVoice,
+  resolveDisplayedVoiceGender,
 } from "../src/lib/acousticFeedbackCore.mjs";
 
 describe("SPEC-0005 Neuro-Acoustic Biofeedback Engine", () => {
@@ -199,6 +202,76 @@ describe("SPEC-0005 Neuro-Acoustic Biofeedback Engine", () => {
 
     it("falls back to AUTO for ambiguous voice names", () => {
       assert.equal(detectVoiceGender({ name: "Generic Spanish Synthesizer", voiceURI: "es-es-generic" }), "AUTO");
+    });
+
+    it("detects Argentine Elena as female", () => {
+      assert.equal(
+        detectVoiceGender({
+          name: "Microsoft Elena Online (Natural) - Spanish (Argentina)",
+          voiceURI: "Microsoft Elena Online (Natural) - Spanish (Argentina)",
+        }),
+        "FEMALE"
+      );
+    });
+  });
+
+  describe("REQ-EARS-AUDIO-09: Coach Voice Ranking & Displayed Gender", () => {
+    it("prefers Rioplatense Spanish over Spain Spanish in AUTO mode", () => {
+      const elenaAr = {
+        name: "Microsoft Elena Online (Natural) - Spanish (Argentina)",
+        voiceURI: "Microsoft Elena Online (Natural) - Spanish (Argentina)",
+        lang: "es-AR",
+      };
+      const pabloEs = {
+        name: "Microsoft Pablo - Spanish (Spain)",
+        voiceURI: "Microsoft Pablo - Spanish (Spain)",
+        lang: "es-ES",
+      };
+      assert.ok(scoreCoachVoice(elenaAr, "AUTO") > scoreCoachVoice(pabloEs, "AUTO"));
+    });
+
+    it("honors female preference even when a male LatAm voice exists", () => {
+      const dalia = {
+        name: "Microsoft Dalia Online (Natural) - Spanish (Mexico)",
+        voiceURI: "dalia-mx",
+        lang: "es-MX",
+      };
+      const jorge = {
+        name: "Microsoft Jorge Online (Natural) - Spanish (Mexico)",
+        voiceURI: "jorge-mx",
+        lang: "es-MX",
+      };
+      assert.ok(scoreCoachVoice(dalia, "FEMALE") > scoreCoachVoice(jorge, "FEMALE"));
+      const picked = pickBestCoachVoice([jorge, dalia], undefined, "FEMALE");
+      assert.equal(picked?.voiceURI, "dalia-mx");
+    });
+
+    it("keeps the athlete's preferred URI when it matches the requested gender", () => {
+      const voices = [
+        {
+          name: "Microsoft Dalia Online (Natural) - Spanish (Mexico)",
+          voiceURI: "dalia-mx",
+          lang: "es-MX",
+        },
+        {
+          name: "Microsoft Jorge Online (Natural) - Spanish (Mexico)",
+          voiceURI: "jorge-mx",
+          lang: "es-MX",
+        },
+      ];
+      const picked = pickBestCoachVoice(voices, "jorge-mx", "MALE");
+      assert.equal(picked?.voiceURI, "jorge-mx");
+    });
+
+    it("shows AUTO as the detected synthesizer gender instead of defaulting to male", () => {
+      const elenaAr = {
+        name: "Microsoft Elena Online (Natural) - Spanish (Argentina)",
+        voiceURI: "elena-ar",
+        lang: "es-AR",
+      };
+      assert.equal(resolveDisplayedVoiceGender({ voiceGender: "AUTO" }, elenaAr), "FEMALE");
+      assert.equal(resolveDisplayedVoiceGender({ voiceGender: "MALE" }, elenaAr), "MALE");
+      assert.equal(resolveDisplayedVoiceGender({ voiceGender: "FEMALE" }, elenaAr), "FEMALE");
     });
   });
 

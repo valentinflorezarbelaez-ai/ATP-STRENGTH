@@ -43,6 +43,24 @@ test.describe('SPEC-E2E-01: ATP-Strength App Shell & PWA Gateway', () => {
     }
   });
 
+  test('Athlete can open the training voice picker and select female coach voice', async ({ page }) => {
+    await page.addInitScript(() => {
+      window.localStorage.setItem('hasEnteredTemple', 'true');
+    });
+
+    await page.goto('/');
+    await expect(page.locator('text=CARGANDO MOTOR ZEN...')).toBeHidden({ timeout: 20000 }).catch(() => {});
+
+    const voiceChip = page.getByRole('button', { name: /Cambiar voz del entrenamiento/i });
+    await expect(voiceChip).toBeVisible({ timeout: 20000 });
+    await voiceChip.click();
+
+    const dialog = page.getByRole('dialog', { name: /Voz del entrenamiento/i });
+    await expect(dialog).toBeVisible();
+    await dialog.getByRole('button', { name: /^Mujer$/ }).click();
+    await expect(voiceChip).toContainText(/MUJER/i);
+  });
+
   test('Pre-seeded temple visitor directly opens Zen Dashboard Cockpit', async ({ page }) => {
     await page.addInitScript(() => {
       window.localStorage.setItem('hasEnteredTemple', 'true');

@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import {
   Flame, Sparkles,
-  Play, Pause, RotateCcw, Volume2,
+  Play, Pause, RotateCcw,
   Heart, ArrowRight, Coffee, Eye, Sun, Moon, Laptop, User, Download, Upload, Database, BarChart3, Clock
 } from "lucide-react";
 import { PwaInstallPrompt } from "@/components/PwaInstallPrompt";
@@ -12,24 +12,14 @@ import { UniversalProtocolModal } from "@/app/components/UniversalProtocolModal"
 import { UniversalStrengthCalcModal } from "@/app/components/UniversalStrengthCalcModal";
 import { ExerciseVideoModal } from "@/app/components/ExerciseVideoModal";
 import { UniversalProtocolCockpit } from "@/app/components/UniversalProtocolCockpit";
+import { CoachVoicePicker } from "@/app/components/CoachVoicePicker";
 import { getExerciseMedia } from "@/lib/exerciseMediaCatalog";
 import { playTactileClick } from "@/lib/zenAudio";
 import { useWakeLock } from "@/app/hooks/useWakeLock";
 import { getAthleteProfile, setAthleteName, type AthleteProfile } from "@/lib/athleteProfile";
 import { exportBackupJson, exportHistoryCsv, importBackupJsonFile } from "@/lib/dataPortability";
 import type { useZenDashboard } from "@/app/hooks/useZenDashboard";
-import {
-  acousticEngine,
-  getAudioPreferences,
-  saveAudioPreferences,
-  getAvailableSpanishVoices,
-  getBestHumanVoice,
-  speakText,
-  setVoiceGender,
-  detectVoiceGender,
-  type VoiceGender,
-  type CoachAudioPreferences,
-} from "@/lib/acousticFeedback";
+import { acousticEngine } from "@/lib/acousticFeedback";
 
 type Dash = ReturnType<typeof useZenDashboard>;
 
@@ -61,20 +51,7 @@ export function CoachGuidedView({ d }: { d: Dash; onShowSpotify?: () => void }) 
   const [showResetConfirm, setShowResetConfirm] = useState(false);
   const [showUniversalProtocol, setShowUniversalProtocol] = useState(false);
   const [showUniversalCalc, setShowUniversalCalc] = useState(false);
-  const [audioPrefs, setAudioPrefs] = useState<CoachAudioPreferences>(() => getAudioPreferences());
-  const [availableVoices, setAvailableVoices] = useState<SpeechSynthesisVoice[]>([]);
   const hasSpoken10sWarning = React.useRef(false);
-
-  React.useEffect(() => {
-    const updateVoices = () => {
-      const list = getAvailableSpanishVoices(audioPrefs.voiceGender || "AUTO");
-      setAvailableVoices(list);
-    };
-    updateVoices();
-    if (typeof window !== "undefined" && "speechSynthesis" in window) {
-      window.speechSynthesis.onvoiceschanged = updateVoices;
-    }
-  }, [audioPrefs.voiceGender]);
 
   React.useEffect(() => {
     if (isRunning) {
@@ -108,14 +85,6 @@ export function CoachGuidedView({ d }: { d: Dash; onShowSpotify?: () => void }) 
       }
     }
   }, [isRunning, remainingSeconds, d.timerDuration]);
-
-  const toggleVoiceCoach = () => {
-    const next = saveAudioPreferences({ voiceEnabled: !audioPrefs.voiceEnabled });
-    setAudioPrefs(next);
-    if (next.voiceEnabled) {
-      acousticEngine.playSetCompleteCue();
-    }
-  };
 
   return (
     <main className="min-h-screen relative overflow-x-hidden flex flex-col items-center justify-between p-4 md:p-6 pb-32 md:pb-20 font-sans selection:bg-pink-500 selection:text-white">
@@ -251,20 +220,8 @@ export function CoachGuidedView({ d }: { d: Dash; onShowSpotify?: () => void }) 
             )}
           </button>
 
-          {/* Voice Coach Toggle Pill */}
-          <button
-            type="button"
-            onClick={toggleVoiceCoach}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-mono font-medium transition-all active:scale-95 cursor-pointer flex-shrink-0 ${
-              audioPrefs.voiceEnabled
-                ? "bg-amber-500/10 border-amber-500/40 text-amber-400 shadow-sm"
-                : "bg-zinc-900 border-zinc-800 text-zinc-500 hover:text-zinc-300"
-            }`}
-            title={audioPrefs.voiceEnabled ? "Voz Coach activada (clic para silenciar)" : "Voz Coach silenciada (clic para activar)"}
-          >
-            <Volume2 className={`w-3.5 h-3.5 ${audioPrefs.voiceEnabled ? "text-amber-400 animate-pulse" : "text-zinc-500"}`} />
-            <span>VOZ: {audioPrefs.voiceEnabled ? "ON" : "OFF"}</span>
-          </button>
+          {/* Voice Coach Picker */}
+          <CoachVoicePicker variant="chip" className="flex-shrink-0" />
 
           {/* Reset Action */}
           <button
@@ -488,164 +445,7 @@ export function CoachGuidedView({ d }: { d: Dash; onShowSpotify?: () => void }) 
 
             {/* Audio & Biofeedback Coach Panel */}
             <div className="space-y-2 pb-3 border-b border-zinc-900">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-1.5 text-xs font-mono font-medium text-zinc-300">
-                  <Volume2 className="w-3.5 h-3.5 text-amber-400" />
-                  <span>Biofeedback Sonoro & Voz Coach</span>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => {
-                    playTactileClick();
-                    acousticEngine.playSetCompleteCue();
-                  }}
-                  className="text-[10px] font-mono text-amber-400 hover:underline cursor-pointer"
-                >
-                  Probar audio ♫
-                </button>
-              </div>
-
-              <div className="grid grid-cols-2 gap-2">
-                <button
-                  type="button"
-                  onClick={() => {
-                    playTactileClick();
-                    const next = saveAudioPreferences({ voiceEnabled: !audioPrefs.voiceEnabled });
-                    setAudioPrefs(next);
-                  }}
-                  className={`py-2 px-3 rounded-xl border text-xs font-mono font-medium flex items-center justify-between cursor-pointer transition-all ${
-                    audioPrefs.voiceEnabled
-                      ? "bg-amber-500/15 border-amber-500/40 text-amber-300"
-                      : "bg-zinc-900 border-zinc-800 text-zinc-500"
-                  }`}
-                >
-                  <span>Voz Coach:</span>
-                  <span className="font-bold">{audioPrefs.voiceEnabled ? "ACTIVA" : "MUTED"}</span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => {
-                    playTactileClick();
-                    const next = saveAudioPreferences({ soundEnabled: !audioPrefs.soundEnabled });
-                    setAudioPrefs(next);
-                  }}
-                  className={`py-2 px-3 rounded-xl border text-xs font-mono font-medium flex items-center justify-between cursor-pointer transition-all ${
-                    audioPrefs.soundEnabled
-                      ? "bg-amber-500/15 border-amber-500/40 text-amber-300"
-                      : "bg-zinc-900 border-zinc-800 text-zinc-500"
-                  }`}
-                >
-                  <span>Campanas 528Hz:</span>
-                  <span className="font-bold">{audioPrefs.soundEnabled ? "ON" : "OFF"}</span>
-                </button>
-              </div>
-
-              {/* Selector de Voz Humana del Coach */}
-              <div className="space-y-2 pt-2">
-                <div className="flex items-center justify-between">
-                  <span className="text-[11px] font-mono text-zinc-400">Timbre y Voz del Coach</span>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      playTactileClick();
-                      speakText("¡Tiempo cumplido! A la barra con máxima determinación, guerrero.", audioPrefs);
-                    }}
-                    className="text-[10px] font-mono text-amber-400 hover:underline cursor-pointer flex items-center gap-1"
-                  >
-                    <span>🎙️</span>
-                    <span>Probar Voz</span>
-                  </button>
-                </div>
-
-                {/* Segmented Control: Mujer / Hombre / Auto */}
-                <div className="grid grid-cols-3 gap-1 p-1 rounded-xl bg-zinc-900 border border-zinc-800 text-xs font-mono">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      playTactileClick();
-                      const next = setVoiceGender("FEMALE");
-                      setAudioPrefs(next);
-                      speakText("¡Voz femenina activada! Vamos con determinación.", next);
-                    }}
-                    className={`py-1.5 px-2 rounded-lg font-bold flex items-center justify-center gap-1 transition-all cursor-pointer ${
-                      audioPrefs.voiceGender === "FEMALE"
-                        ? "bg-rose-500/20 text-rose-300 border border-rose-500/50 shadow-sm"
-                        : "text-zinc-400 hover:text-zinc-200"
-                    }`}
-                  >
-                    <span>👩</span>
-                    <span>Mujer</span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      playTactileClick();
-                      const next = setVoiceGender("MALE");
-                      setAudioPrefs(next);
-                      speakText("¡Voz masculina activada! A la barra.", next);
-                    }}
-                    className={`py-1.5 px-2 rounded-lg font-bold flex items-center justify-center gap-1 transition-all cursor-pointer ${
-                      audioPrefs.voiceGender === "MALE"
-                        ? "bg-amber-500/20 text-amber-300 border border-amber-500/50 shadow-sm"
-                        : "text-zinc-400 hover:text-zinc-200"
-                    }`}
-                  >
-                    <span>👨</span>
-                    <span>Hombre</span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      playTactileClick();
-                      const next = setVoiceGender("AUTO");
-                      setAudioPrefs(next);
-                      speakText("Modo automático activado.", next);
-                    }}
-                    className={`py-1.5 px-2 rounded-lg font-bold flex items-center justify-center gap-1 transition-all cursor-pointer ${
-                      audioPrefs.voiceGender === "AUTO" || !audioPrefs.voiceGender
-                        ? "bg-cyan-500/20 text-cyan-300 border border-cyan-500/50 shadow-sm"
-                        : "text-zinc-400 hover:text-zinc-200"
-                    }`}
-                  >
-                    <span>⭐</span>
-                    <span>Auto</span>
-                  </button>
-                </div>
-
-                {availableVoices.length > 0 ? (
-                  <select
-                    value={audioPrefs.preferredVoiceURI || getBestHumanVoice(undefined, audioPrefs.voiceGender)?.voiceURI || ""}
-                    onChange={(e) => {
-                      const uri = e.target.value;
-                      const selectedVoice = availableVoices.find((v) => v.voiceURI === uri);
-                      const detectedGender = selectedVoice ? detectVoiceGender(selectedVoice) : audioPrefs.voiceGender;
-                      const next = saveAudioPreferences({
-                        preferredVoiceURI: uri,
-                        voiceGender: detectedGender !== "AUTO" ? detectedGender : audioPrefs.voiceGender,
-                      });
-                      setAudioPrefs(next);
-                      speakText("Voz de coach configurada.", next);
-                    }}
-                    className="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-800 text-xs text-zinc-200 font-mono focus:outline-none focus:border-amber-500/50 cursor-pointer"
-                  >
-                    {availableVoices.map((v) => {
-                      const gender = detectVoiceGender(v);
-                      const icon = gender === "FEMALE" ? "👩" : gender === "MALE" ? "👨" : "🎙️";
-                      const isTop = v.name.includes("Natural") || v.name.includes("Neural");
-                      return (
-                        <option key={v.voiceURI} value={v.voiceURI}>
-                          {icon} {isTop ? `⭐ ${v.name}` : v.name} ({v.lang})
-                        </option>
-                      );
-                    })}
-                  </select>
-                ) : (
-                  <p className="text-[10px] text-zinc-500 font-mono">
-                    Voz humana optimizada (resonancia y cadencia natural activa).
-                  </p>
-                )}
-              </div>
+              <CoachVoicePicker variant="panel" />
             </div>
 
             {/* Athlete Name Field */}

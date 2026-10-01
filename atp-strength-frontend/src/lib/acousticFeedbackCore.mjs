@@ -221,6 +221,93 @@ export function detectVoiceGender(voice) {
   return "AUTO";
 }
 
+const WARM_VOICE_NAMES = Object.freeze([
+  "pablo", "jorge", "alvaro", "álvaro", "carlos", "juan", "diego", "miguel",
+  "paloma", "dalia", "elvira", "laura", "paulina", "monica", "mónica",
+  "sofia", "sofía", "camila", "valentina", "elena", "lucia", "lucía",
+]);
+
+/**
+ * Ranks a synthesizer voice for ATP coaching. Prefers neural/natural models,
+ * the athlete's gender choice, and Rioplatense / LatAm Spanish over Spain SAPI.
+ */
+export function scoreCoachVoice(voice, genderPreference = "AUTO") {
+  if (!voice) return Number.NEGATIVE_INFINITY;
+  const name = (voice.name || "").toLowerCase();
+  const uri = (voice.voiceURI || "").toLowerCase();
+  const lang = (voice.lang || "").toLowerCase().replace(/_/g, "-");
+  let score = 0;
+
+  const detectedGender = detectVoiceGender(voice);
+  if (genderPreference === "FEMALE") {
+    if (detectedGender === "FEMALE") score += 300;
+    else if (detectedGender === "MALE") score -= 200;
+  } else if (genderPreference === "MALE") {
+    if (detectedGender === "MALE") score += 300;
+    else if (detectedGender === "FEMALE") score -= 200;
+  }
+
+  if (name.includes("natural") || uri.includes("natural")) score += 120;
+  if (name.includes("neural") || uri.includes("neural")) score += 120;
+  if (name.includes("enhanced") || uri.includes("enhanced")) score += 90;
+  if (name.includes("online") || uri.includes("online")) score += 60;
+  if (name.includes("google") || uri.includes("google")) score += 50;
+
+  if (WARM_VOICE_NAMES.some((n) => name.includes(n))) score += 40;
+
+  if (lang === "es-ar" || lang === "es-uy" || lang.startsWith("es-ar")) score += 45;
+  else if (
+    lang === "es-mx" ||
+    lang === "es-us" ||
+    lang === "es-419" ||
+    lang === "es-co" ||
+    lang === "es-cl" ||
+    lang === "es-pe"
+  ) {
+    score += 22;
+  }
+  if (name.includes("argentin") || uri.includes("es-ar")) score += 25;
+  if (lang.startsWith("es")) score += 15;
+
+  if (!name.includes("natural") && !name.includes("neural")) {
+    if (name.includes("desktop") || name.includes("espeak") || uri.includes("desktop")) {
+      score -= 40;
+    }
+  }
+
+  return score;
+}
+
+export function pickBestCoachVoice(voices, preferredURI, genderPreference = "AUTO") {
+  if (!Array.isArray(voices) || voices.length === 0) return null;
+
+  if (preferredURI) {
+    const match = voices.find((v) => v.voiceURI === preferredURI);
+    if (match) {
+      if (genderPreference === "AUTO" || detectVoiceGender(match) === genderPreference) {
+        return match;
+      }
+    }
+  }
+
+  const spanish = voices.filter((v) => (v.lang || "").toLowerCase().startsWith("es"));
+  const pool = spanish.length > 0 ? spanish : voices;
+  const ranked = [...pool].sort(
+    (a, b) => scoreCoachVoice(b, genderPreference) - scoreCoachVoice(a, genderPreference)
+  );
+  return ranked[0] || null;
+}
+
+/**
+ * Gender shown in the UI. AUTO follows the actual selected synthesizer
+ * instead of pretending the coach is male.
+ */
+export function resolveDisplayedVoiceGender(prefs = {}, voice = null) {
+  const pref = prefs.voiceGender;
+  if (pref === "FEMALE" || pref === "MALE") return pref;
+  return detectVoiceGender(voice);
+}
+
 /**
  * Normalizes athletic speech text for flawless Spanish speech synthesis:
  * - Converts number ranges like "10–12" or "10-12" to "10 a 12"
