@@ -10,14 +10,9 @@ import {
   Volume2,
   Sparkles,
   Trophy,
-  RotateCcw,
-  Clock,
   ArrowRight,
   Heart,
   Coffee,
-  ShieldCheck,
-  Dumbbell,
-  Zap,
 } from "lucide-react";
 import { AtpEnergyRing } from "@/app/components/AtpEnergyRing";
 import { BarbellPlateVisualizer } from "@/app/components/BarbellPlateVisualizer";
@@ -176,46 +171,54 @@ export function UniversalGuidedFullscreenModal({
     }
   }, [isOpen, activeSet, isResting, exerciseName, selectedBarWeight]);
 
+  // Espejo de los datos que necesita el tick del descanso, para que el intervalo
+  // no se recree en cada segundo y no arrastre valores obsoletos.
+  const restTickRef = useRef({ remainingSeconds, restDuration, activeSet, exerciseName, selectedBarWeight });
+  useEffect(() => {
+    restTickRef.current = { remainingSeconds, restDuration, activeSet, exerciseName, selectedBarWeight };
+  }, [remainingSeconds, restDuration, activeSet, exerciseName, selectedBarWeight]);
+
   // Countdown timer para el descanso inmersivo
   useEffect(() => {
     if (!isResting || isTimerPaused) return;
 
-    if (remainingSeconds <= 0) {
-      setIsResting(false);
-      playChime(true);
-      if (activeSet) {
-        const nextPlates = formatBarbellPlatesSpoken(activeSet.weight, selectedBarWeight);
-        speakText(
-          `¡Tiempo cumplido! Se siente esa energía. Ahora tocan ${activeSet.weight} kilos en ${activeSet.label} para ${activeSet.reps} repeticiones. ${nextPlates}. ¡A disfrutar la serie!`
-        );
-      } else {
-        speakText(
-          `¡Increíble entrenamiento! Completaste todas las series de ${exerciseName}. Gran esfuerzo hoy, felicitaciones.`
-        );
-      }
-      return;
-    }
-
-    // Avisos amenos durante el descanso
-    if (remainingSeconds === 15) {
-      speakText("Nos quedan 15 segunditos, ya casi listos. Acercate a la barra con calma.");
-    } else if (remainingSeconds === Math.floor(restDuration / 2) && restDuration >= 40) {
-      speakText("Mitad del descanso. Respirá hondo por la nariz y oxigená bien los músculos.");
-    }
-
     const interval = setInterval(() => {
-      setRemainingSeconds((prev) => prev - 1);
+      const { remainingSeconds: prev, restDuration: total, activeSet: set, exerciseName: name, selectedBarWeight: bar } =
+        restTickRef.current;
+      const next = prev - 1;
+      restTickRef.current = { ...restTickRef.current, remainingSeconds: next };
+      setRemainingSeconds(next);
+
+      if (next <= 0) {
+        setIsResting(false);
+        playChime(true);
+        if (set) {
+          const nextPlates = formatBarbellPlatesSpoken(set.weight, bar);
+          speakText(
+            `¡Tiempo cumplido! Se siente esa energía. Ahora tocan ${set.weight} kilos en ${set.label} para ${set.reps} repeticiones. ${nextPlates}. ¡A disfrutar la serie!`
+          );
+        } else {
+          speakText(
+            `¡Increíble entrenamiento! Completaste todas las series de ${name}. Gran esfuerzo hoy, felicitaciones.`
+          );
+        }
+        return;
+      }
+
+      // Avisos amenos durante el descanso
+      if (next === 15) {
+        speakText("Nos quedan 15 segunditos, ya casi listos. Acercate a la barra con calma.");
+      } else if (next === Math.floor(total / 2) && total >= 40) {
+        speakText("Mitad del descanso. Respirá hondo por la nariz y oxigená bien los músculos.");
+      }
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [isResting, isTimerPaused, remainingSeconds, restDuration, activeSet, exerciseName, selectedBarWeight]);
+  }, [isResting, isTimerPaused]);
 
-  const [mounted, setMounted] = useState<boolean>(false);
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  if (!isOpen || !mounted) return null;
+  // El modal sólo se abre por interacción del usuario, nunca durante la hidratación,
+  // así que basta con comprobar que exista `document` para montar el portal.
+  if (!isOpen || typeof document === "undefined") return null;
 
   // Handler para marcar la serie completada
   const handleCompleteCurrentSet = () => {
