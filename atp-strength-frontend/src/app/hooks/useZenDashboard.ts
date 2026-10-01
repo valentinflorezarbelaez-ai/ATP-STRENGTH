@@ -1,16 +1,8 @@
 "use client";
 
-import { getPrilepinPrescription } from "@/lib/prilepinEngine.mjs";
-
-const REST_PLACEHOLDER_EXERCISE = {
-  name: "Descanso y Supercompensación",
-  sets: 0,
-  reps: "0 reps",
-  restSeconds: 0,
-  cue: "Regeneración del Sistema Nervioso Central",
-};
-
 import { useState, useEffect, useCallback, useMemo } from "react";
+import { getPrilepinPrescription } from "@/lib/prilepinEngine.mjs";
+import { mergeExerciseHistory } from "@/lib/historyMerge.mjs";
 import { enqueueWalEntry } from "@/lib/walSync";
 import { useAtpTimer } from "@/app/hooks/useAtpTimer";
 import { useBackendWal } from "@/app/hooks/useBackendWal";
@@ -38,6 +30,14 @@ import {
   logLocalSetHistory,
 } from "@/lib/prHistory";
 import { playChime } from "@/lib/zenAudio";
+
+const REST_PLACEHOLDER_EXERCISE = {
+  name: "Descanso y Supercompensación",
+  sets: 0,
+  reps: "0 reps",
+  restSeconds: 0,
+  cue: "Regeneración del Sistema Nervioso Central",
+};
 
 export function useZenDashboard() {
   const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
@@ -207,25 +207,10 @@ export function useZenDashboard() {
     return getLocalExerciseHistory(selectedProgressEx);
   }, [selectedProgressEx, historyRevision]);
 
-  const exerciseHistory = useMemo<HistoryItem[]>(() => {
-    if (serverHistory.length > 0) return serverHistory;
-    return localHistory.map((l) => ({
-      id: l.id,
-      exercise_name: l.exercise_name,
-      set_number: l.set_number,
-      prescribed_reps: l.prescribed_reps ?? l.completed_reps,
-      completed_reps: l.completed_reps,
-      load_kg: l.load_kg,
-      rest_seconds: 180,
-      notes: l.notes,
-      completed: true,
-      e1rm: l.e1rm,
-      rpe: l.rpe,
-      rir: l.rir,
-      is_pr: l.is_pr,
-      timestamp: l.timestamp,
-    }));
-  }, [serverHistory, localHistory]);
+  const exerciseHistory = useMemo<HistoryItem[]>(
+    () => mergeExerciseHistory(localHistory, serverHistory) as HistoryItem[],
+    [serverHistory, localHistory]
+  );
 
   const progressionCurve = useMemo(() => {
     void historyRevision;

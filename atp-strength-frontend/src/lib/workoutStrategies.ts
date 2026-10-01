@@ -56,6 +56,7 @@ export interface HistoryItem {
   rir?: number;
   is_pr?: boolean;
   timestamp?: string;
+  client_sync_id?: string;
 }
 
 export interface SavedSessionProgress {
