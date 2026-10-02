@@ -18,7 +18,13 @@ export function ExerciseVideoModal({
   onClose,
   onStartExercise,
 }: ExerciseVideoModalProps) {
-  const [viewMode, setViewMode] = useState<"video" | "blueprint">("video");
+  const [viewMode, setViewMode] = useState<"video" | "blueprint">(() => {
+    if (typeof navigator !== "undefined" && !navigator.onLine) {
+      return "blueprint";
+    }
+    return "video";
+  });
+  const [isPlaybackAllowed, setIsPlaybackAllowed] = useState(false);
 
   if (!isOpen) return null;
 
@@ -93,6 +99,41 @@ export function ExerciseVideoModal({
         {viewMode === "blueprint" ? (
           <div className="p-3 bg-black">
             <BiomechanicalBlueprint media={media} />
+          </div>
+        ) : !isPlaybackAllowed ? (
+          <div className="relative w-full bg-zinc-950 aspect-video overflow-hidden border-b border-zinc-900 flex flex-col items-center justify-center p-4 text-center group">
+            <div className="absolute inset-0 bg-gradient-to-t from-black via-zinc-950/80 to-transparent pointer-events-none" />
+            <div className="relative z-10 flex flex-col items-center gap-2.5 max-w-xs">
+              <button
+                type="button"
+                onClick={() => setIsPlaybackAllowed(true)}
+                className="w-14 h-14 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 text-black flex items-center justify-center shadow-[0_0_25px_rgba(245,158,11,0.5)] hover:scale-105 active:scale-95 transition-all cursor-pointer"
+                title="Reproducir video de Rogue Fitness"
+              >
+                <Play className="w-6 h-6 fill-black ml-1" />
+              </button>
+              <div className="space-y-0.5">
+                <span className="text-xs font-mono font-bold text-white uppercase tracking-wider block">
+                  Cargar Video Demo HD
+                </span>
+                <span className="text-[10px] font-mono text-amber-400/90 block">
+                  Ahorro de datos activo • Clic para reproducir
+                </span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setViewMode("blueprint")}
+                className="text-[10px] font-mono text-cyan-400 hover:underline flex items-center gap-1 cursor-pointer pt-1"
+              >
+                <Compass className="w-3 h-3" />
+                <span>Ver Blueprint Vectorial 3D (0 datos • Offline)</span>
+              </button>
+            </div>
+            <div className="absolute top-2.5 right-2.5 flex items-center gap-1.5 pointer-events-none">
+              <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-black/70 text-amber-400 border border-amber-400/30 backdrop-blur-sm">
+                Tempo {media.tempo}
+              </span>
+            </div>
           </div>
         ) : (
           <div className="relative w-full bg-black aspect-video overflow-hidden border-b border-zinc-900 group">

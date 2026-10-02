@@ -1,6 +1,6 @@
 // Service Worker for NEURO//STRENGTH (PWA Standalone Engine)
-// Cache Version v6: Complete App Shell, Offline Navigation & Lie-Fi Timeout Defense
-const CACHE_NAME = "neuro-strength-v6";
+// Cache Version v7: Extreme Data Saver & 0-Data Cache-First Shell
+const CACHE_NAME = "neuro-strength-v7";
 
 const PRECACHE_ASSETS = [
   "/",
@@ -108,28 +108,31 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  // 2. Next.js static assets, chunks, icons, webmanifest: Stale-While-Revalidate
+  // 2. Next.js static assets, chunks, images, icons, and webmanifest: Cache-First
+  // Guarantees NEAR ZERO mobile data consumption on repeat visits
   if (
     url.origin === self.location.origin &&
     (url.pathname.startsWith("/_next/static/") ||
       url.pathname.endsWith(".png") ||
+      url.pathname.endsWith(".jpg") ||
+      url.pathname.endsWith(".jpeg") ||
       url.pathname.endsWith(".svg") ||
       url.pathname.endsWith(".webp") ||
       url.pathname.endsWith(".ico") ||
-      url.pathname.endsWith(".webmanifest"))
+      url.pathname.endsWith(".webmanifest") ||
+      url.pathname.startsWith("/hero/") ||
+      url.pathname.startsWith("/anatoly/"))
   ) {
     event.respondWith(
       caches.match(request).then((cached) => {
-        const fetchPromise = fetch(request)
-          .then((networkResponse) => {
-            if (networkResponse && networkResponse.ok) {
-              const clone = networkResponse.clone();
-              caches.open(CACHE_NAME).then((cache) => cache.put(request, clone));
-            }
-            return networkResponse;
-          })
-          .catch(() => cached);
-        return cached || fetchPromise;
+        if (cached) return cached;
+        return fetch(request).then((networkResponse) => {
+          if (networkResponse && networkResponse.ok) {
+            const clone = networkResponse.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(request, clone));
+          }
+          return networkResponse;
+        });
       })
     );
     return;
