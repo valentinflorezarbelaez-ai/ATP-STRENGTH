@@ -575,10 +575,11 @@ export function UniversalProtocolCockpit({
   const [cockpitAudioPrefs, setCockpitAudioPrefs] = useState(() => getAudioPreferences());
   const [showCoachChat, setShowCoachChat] = useState<boolean>(false);
   const [bypassedExercise, setBypassedExercise] = useState<string | null>(null);
+  const [recoveryTrigger, setRecoveryTrigger] = useState(0);
 
   const recoveryStatus = useMemo(() => {
     return checkExerciseRecovery(activeName);
-  }, [activeName]);
+  }, [activeName, recoveryTrigger]);
 
   const recoveryBypassed = bypassedExercise === activeName;
 
@@ -599,6 +600,7 @@ export function UniversalProtocolCockpit({
     playTactileClick();
     bypassExerciseRecoveryLockout(activeName);
     setBypassedExercise(activeName);
+    setRecoveryTrigger((prev) => prev + 1);
     speakText("Bloqueo de recuperación liberado por el atleta. Procedé con cautela.");
   };
 
@@ -657,8 +659,7 @@ export function UniversalProtocolCockpit({
       );
     } else {
       recordExerciseSessionCompletion(activeName);
-      const newStatus = checkExerciseRecovery(activeName);
-      setRecoveryStatus(newStatus);
+      setRecoveryTrigger((prev) => prev + 1);
       const hours = getOptimalRecoveryHours(activeName);
       speakText(
         `¡Ejercicio ${activeName} completado con éxito! Todas las fases liquidadas. Hemos activado tu descanso biológico de ${hours} horas para que tus músculos y sistema nervioso alcancen la máxima supercompensación.`
