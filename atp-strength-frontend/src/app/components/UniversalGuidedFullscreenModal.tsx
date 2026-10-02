@@ -10,14 +10,9 @@ import {
   Volume2,
   Sparkles,
   Trophy,
-  RotateCcw,
-  Clock,
   ArrowRight,
   Heart,
   Coffee,
-  ShieldCheck,
-  Dumbbell,
-  Zap,
   MessageCircle,
   ShieldAlert,
 } from "lucide-react";
@@ -202,22 +197,6 @@ export function UniversalGuidedFullscreenModal({
   useEffect(() => {
     if (!isResting || isTimerPaused) return;
 
-    if (remainingSeconds <= 0) {
-      setIsResting(false);
-      playChime(true);
-      if (activeSet) {
-        const nextPlates = formatBarbellPlatesSpoken(activeSet.weight, selectedBarWeight);
-        speakText(
-          `¡Tiempo cumplido! Se siente esa energía. Ahora tocan ${activeSet.weight} kilos en ${activeSet.label} para ${activeSet.reps} repeticiones. ${nextPlates}. ¡A disfrutar la serie!`
-        );
-      } else {
-        speakText(
-          `¡Increíble entrenamiento! Completaste todas las series de ${exerciseName}. Gran esfuerzo hoy, felicitaciones.`
-        );
-      }
-      return;
-    }
-
     // Avisos amenos durante el descanso
     if (remainingSeconds === 15) {
       speakText("Nos quedan 15 segunditos, ya casi listos. Acercate a la barra con calma.");
@@ -226,16 +205,35 @@ export function UniversalGuidedFullscreenModal({
     }
 
     const interval = setInterval(() => {
-      setRemainingSeconds((prev) => prev - 1);
+      setRemainingSeconds((prev) => {
+        if (prev <= 1) {
+          clearInterval(interval);
+          setIsResting(false);
+          playChime(true);
+          if (activeSet) {
+            const nextPlates = formatBarbellPlatesSpoken(activeSet.weight, selectedBarWeight);
+            speakText(
+              `¡Tiempo cumplido! Se siente esa energía. Ahora tocan ${activeSet.weight} kilos en ${activeSet.label} para ${activeSet.reps} repeticiones. ${nextPlates}. ¡A disfrutar la serie!`
+            );
+          } else {
+            speakText(
+              `¡Increíble entrenamiento! Completaste todas las series de ${exerciseName}. Gran esfuerzo hoy, felicitaciones.`
+            );
+          }
+          return 0;
+        }
+        return prev - 1;
+      });
     }, 1000);
 
     return () => clearInterval(interval);
   }, [isResting, isTimerPaused, remainingSeconds, restDuration, activeSet, exerciseName, selectedBarWeight]);
 
-  const [mounted, setMounted] = useState<boolean>(false);
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  const mounted = React.useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false
+  );
 
   if (!isOpen || !mounted) return null;
 

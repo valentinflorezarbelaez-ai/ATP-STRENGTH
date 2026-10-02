@@ -2,17 +2,11 @@
 
 import React, { useState, useRef, useEffect } from "react";
 import {
-  MessageSquare,
   Send,
   X,
-  Sparkles,
   Volume2,
   Bot,
   User,
-  ShieldCheck,
-  Flame,
-  Clock,
-  HelpCircle,
 } from "lucide-react";
 import { queryCoachKnowledge } from "@/lib/coachKnowledgeBase.mjs";
 import {
@@ -72,6 +66,7 @@ export function CoachChatModal({
   const [input, setInput] = useState("");
   const [audioPrefs, setAudioPrefs] = useState<CoachAudioPreferences>(() => getAudioPreferences());
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const idCounterRef = useRef(1);
 
   const isTitan = audioPrefs.coachPersona === "TITAN" || audioPrefs.voiceGender === "MALE";
   const coachIcon = isTitan ? "🗿" : audioPrefs.coachPersona === "ELITE" || audioPrefs.voiceGender === "FEMALE" ? "👩" : "⚡";
@@ -83,12 +78,9 @@ export function CoachChatModal({
 
   useEffect(() => {
     if (isOpen) {
-      setAudioPrefs(getAudioPreferences());
       scrollToBottom();
     }
   }, [messages, isOpen]);
-
-  if (!isOpen) return null;
 
   const handleSend = (textToSend?: string) => {
     const query = (textToSend || input).trim();
@@ -98,7 +90,7 @@ export function CoachChatModal({
     const timeStr = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
 
     const userMsg: ChatMessage = {
-      id: `u-${Date.now()}`,
+      id: `u-${idCounterRef.current++}`,
       sender: "user",
       text: query,
       timestamp: timeStr,
@@ -120,7 +112,7 @@ export function CoachChatModal({
       });
 
       const coachMsg: ChatMessage = {
-        id: `c-${Date.now()}`,
+        id: `c-${idCounterRef.current++}`,
         sender: "coach",
         text: response.text,
         timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
@@ -136,6 +128,8 @@ export function CoachChatModal({
     playTactileClick();
     speakText(text, audioPrefs);
   };
+
+  if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 z-[120] flex items-center justify-center bg-black/85 backdrop-blur-md p-3 sm:p-4 animate-in fade-in duration-200">

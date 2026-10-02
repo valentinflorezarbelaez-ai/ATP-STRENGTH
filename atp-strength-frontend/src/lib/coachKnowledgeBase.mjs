@@ -54,8 +54,9 @@ export const COACH_KNOWLEDGE_TOPICS = Object.freeze({
 
   RECOVERY_LOCKOUT: {
     patterns: [/bloque/i, /por qu[eé] no me deja/i, /repetir/i, /volver a hacer/i, /rojo/i, /candado/i],
-    getExplanation: (exerciseName = "el ejercicio", remainingHours = 48) => {
-      return `El ejercicio ${exerciseName} está protegido por el protocolo biológico de recuperación. El crecimiento muscular y la consolidación de fuerza ocurren durante el descanso, no en el gimnasio. Si entrenás con micro-desgarros activos y fatiga central acumulada, entrás en sobreentrenamiento y aumentás el riesgo de tendinopatías. Respetá las ${remainingHours} horas restantes para volver más fuerte.`;
+    getExplanation: (exerciseName = "el ejercicio", remainingHours = 48, remainingMinutes = 0) => {
+      const timeStr = remainingMinutes > 0 ? `${remainingHours} horas y ${remainingMinutes} minutos` : `${remainingHours} horas`;
+      return `El ejercicio ${exerciseName} está protegido por el protocolo biológico de recuperación. El crecimiento muscular y la consolidación de fuerza ocurren durante el descanso, no en el gimnasio. Si entrenás con micro-desgarros activos y fatiga central acumulada, entrás en sobreentrenamiento y aumentás el riesgo de tendinopatías. Respetá las ${timeStr} restantes para volver más fuerte.`;
     }
   }
 });
@@ -78,7 +79,7 @@ export function queryCoachKnowledge(userQuery = "", context = {}) {
   if (isLocked && (lower.includes("bloque") || lower.includes("candado") || lower.includes("puedo hacer") || lower.includes("repetir") || lower.includes("por qu"))) {
     return {
       topic: "RECOVERY_LOCKOUT",
-      text: COACH_KNOWLEDGE_TOPICS.RECOVERY_LOCKOUT.getExplanation(currentExercise, remainingHours),
+      text: COACH_KNOWLEDGE_TOPICS.RECOVERY_LOCKOUT.getExplanation(currentExercise, remainingHours, remainingMinutes),
       followUps: [
         "¿Qué ejercicio puedo hacer hoy?",
         "¿Cómo acelero mi recuperación?",

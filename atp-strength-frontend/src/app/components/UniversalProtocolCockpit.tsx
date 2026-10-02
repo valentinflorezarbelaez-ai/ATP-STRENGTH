@@ -33,7 +33,6 @@ import {
   formatBarbellPlatesSpoken,
   getAudioPreferences,
   toggleVoiceGender,
-  type VoiceGender,
 } from "@/lib/acousticFeedback";
 import {
   checkExerciseRecovery,
@@ -41,7 +40,6 @@ import {
   bypassExerciseRecoveryLockout,
   formatRecoverySpokenNotice,
   getOptimalRecoveryHours,
-  type ExerciseRecoveryStatus,
 } from "@/lib/recoveryLockout";
 import { CoachChatModal } from "@/app/components/CoachChatModal";
 import { UniversalGuidedFullscreenModal } from "@/app/components/UniversalGuidedFullscreenModal";
@@ -576,14 +574,13 @@ export function UniversalProtocolCockpit({
 
   const [cockpitAudioPrefs, setCockpitAudioPrefs] = useState(() => getAudioPreferences());
   const [showCoachChat, setShowCoachChat] = useState<boolean>(false);
-  const [recoveryStatus, setRecoveryStatus] = useState<ExerciseRecoveryStatus>(() => checkExerciseRecovery(activeName));
-  const [recoveryBypassed, setRecoveryBypassed] = useState<boolean>(false);
+  const [bypassedExercise, setBypassedExercise] = useState<string | null>(null);
 
-  // Sync recovery status whenever active exercise changes
-  useEffect(() => {
-    setRecoveryStatus(checkExerciseRecovery(activeName));
-    setRecoveryBypassed(false);
+  const recoveryStatus = useMemo(() => {
+    return checkExerciseRecovery(activeName);
   }, [activeName]);
+
+  const recoveryBypassed = bypassedExercise === activeName;
 
   const handleToggleVoiceGenderCockpit = () => {
     playTactileClick();
@@ -601,8 +598,7 @@ export function UniversalProtocolCockpit({
   const handleBypassRecovery = () => {
     playTactileClick();
     bypassExerciseRecoveryLockout(activeName);
-    setRecoveryBypassed(true);
-    setRecoveryStatus(checkExerciseRecovery(activeName));
+    setBypassedExercise(activeName);
     speakText("Bloqueo de recuperación liberado por el atleta. Procedé con cautela.");
   };
 

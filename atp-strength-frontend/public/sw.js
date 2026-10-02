@@ -1,6 +1,6 @@
 // Service Worker for NEURO//STRENGTH (PWA Standalone Engine)
-// Cache Version v5: Complete App Shell, Offline Navigation & Lie-Fi Timeout Defense
-const CACHE_NAME = "neuro-strength-v5";
+// Cache Version v6: Complete App Shell, Offline Navigation & Lie-Fi Timeout Defense
+const CACHE_NAME = "neuro-strength-v6";
 
 const PRECACHE_ASSETS = [
   "/",

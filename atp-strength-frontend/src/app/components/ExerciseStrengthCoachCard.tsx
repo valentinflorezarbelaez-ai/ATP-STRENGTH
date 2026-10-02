@@ -2,19 +2,14 @@
 
 import React, { useState } from "react";
 import {
-  Trophy,
   Award,
   Zap,
-  TrendingUp,
   Target,
-  ArrowRight,
   ShieldCheck,
   Timer,
-  ChevronRight,
   Flame,
   Scale,
   Sparkles,
-  Info,
 } from "lucide-react";
 import type { StrengthLevelResult, CoachEvaluationResult } from "@/lib/strengthStandards";
 

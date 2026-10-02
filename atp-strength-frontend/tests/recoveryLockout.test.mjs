@@ -6,8 +6,6 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
 import {
-  RECOVERY_PROFILES,
-  EXERCISE_RECOVERY_HOURS,
   getOptimalRecoveryHours,
   getExerciseRecoveryStatus,
   formatRecoverySpokenNotice,

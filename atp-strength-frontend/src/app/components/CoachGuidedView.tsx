@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   Flame, Sparkles,
   Play, Pause, RotateCcw, Volume2,
@@ -25,11 +26,8 @@ import {
   getAvailableSpanishVoices,
   getBestHumanVoice,
   speakText,
-  setVoiceGender,
   setCoachPersona,
   detectVoiceGender,
-  type VoiceGender,
-  type CoachPersona,
   type CoachAudioPreferences,
 } from "@/lib/acousticFeedback";
 
@@ -44,6 +42,7 @@ export function CoachGuidedView({
   onShowSpotify?: () => void;
   onOpenForge?: () => void;
 }) {
+  const router = useRouter();
   useWakeLock(d.isRunning);
 
   const {
@@ -183,7 +182,7 @@ export function CoachGuidedView({
               if (onOpenForge) {
                 onOpenForge();
               } else {
-                window.location.href = "/forge";
+                router.push("/forge");
               }
             }}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-amber-500/40 bg-gradient-to-r from-amber-500/15 via-red-500/15 to-amber-500/15 text-amber-300 hover:from-amber-500/25 hover:to-red-500/25 hover:border-amber-400/60 transition-all text-xs font-mono font-bold cursor-pointer shadow-[0_0_14px_rgba(245,158,11,0.2)] active:scale-95 flex-shrink-0"
@@ -223,7 +222,12 @@ export function CoachGuidedView({
             href="https://open.spotify.com/intl-es"
             target="_blank"
             rel="noopener noreferrer"
-            onClick={() => {
+            onClick={(e) => {
+              if (onShowSpotify) {
+                e.preventDefault();
+                onShowSpotify();
+                return;
+              }
               playTactileClick();
               try { window.location.href = "spotify:"; } catch {}
             }}
@@ -778,7 +782,7 @@ export function CoachGuidedView({
                   if (onOpenForge) {
                     onOpenForge();
                   } else {
-                    window.location.href = "/forge";
+                    router.push("/forge");
                   }
                 }}
                 className="w-full py-2.5 px-3 rounded-xl bg-gradient-to-r from-amber-500/20 to-red-500/20 border border-amber-500/40 text-amber-300 hover:text-white text-xs font-mono font-bold flex items-center justify-center gap-2 active:scale-95 transition-all cursor-pointer shadow-sm"

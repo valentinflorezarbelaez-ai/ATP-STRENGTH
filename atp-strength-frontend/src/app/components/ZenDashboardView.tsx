@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { useRouter } from "next/navigation";
 import { PwaInstallPrompt } from "@/components/PwaInstallPrompt";
 import { TelemetrySyncBadge } from "@/app/components/TelemetrySyncBadge";
 import { TimerDisplay } from "@/app/components/TimerDisplay";
@@ -13,14 +14,13 @@ import { UniversalProtocolCockpit } from "@/app/components/UniversalProtocolCock
 import { getExerciseMedia } from "@/lib/exerciseMediaCatalog";
 import { NeuromuscularRadarChart } from "@/app/components/NeuromuscularRadarChart";
 import { NeuromuscularProgressionChart } from "@/app/components/NeuromuscularProgressionChart";
-import { ExerciseStrengthCoachCard } from "@/app/components/ExerciseStrengthCoachCard";
 import { exportBackupJson, exportHistoryCsv, importBackupJsonFile } from "@/lib/dataPortability";
 import { playTactileClick } from "@/lib/zenAudio";
 import {
   Play,
   Flame, Zap, RotateCcw, CheckCircle2,
   ShieldCheck, Maximize2, Layers, Sparkles,
-  TrendingUp, X, Save, Dumbbell, Plus, Search, Scale, History, Calculator,
+  TrendingUp, X, Save, Dumbbell, History, Calculator,
   AlertTriangle, Trophy, Sun, Moon, Laptop,
   Download, Upload, Database, HardDrive, Timer,
 } from "lucide-react";
@@ -37,48 +37,13 @@ export function ZenDashboardView({
   onShowSpotify?: () => void;
   onOpenForge?: () => void;
 }) {
+  const router = useRouter();
   const [showWarmupModal, setShowWarmupModal] = React.useState(false);
   const [showUniversalProtocol, setShowUniversalProtocol] = React.useState(false);
   const [selectedVideoExercise, setSelectedVideoExercise] = React.useState<string | null>(null);
   const [showCatalogModal, setShowCatalogModal] = React.useState(false);
   const [showUniversalCalc, setShowUniversalCalc] = React.useState(false);
   const [backupStatusMsg, setBackupStatusMsg] = React.useState<string | null>(null);
-  const [exerciseSearchQuery, setExerciseSearchQuery] = React.useState("");
-  const [showNewExerciseModal, setShowNewExerciseModal] = React.useState(false);
-  const [newExName, setNewExName] = React.useState("");
-  const [newExWeight, setNewExWeight] = React.useState("100");
-  const [newExReps, setNewExReps] = React.useState("5");
-  const [newExNotes, setNewExNotes] = React.useState("");
-  const [isRegisteringEx, setIsRegisteringEx] = React.useState(false);
-
-  const filteredTrackableExercises = React.useMemo(() => {
-    const list: string[] = Array.from(d.allTrackableExercises || ALL_TRACKABLE_EXERCISES);
-    if (!exerciseSearchQuery.trim()) return list;
-    const q = exerciseSearchQuery.toLowerCase().trim();
-    return list.filter((ex: string) => ex.toLowerCase().includes(q));
-  }, [d.allTrackableExercises, exerciseSearchQuery]);
-
-  const handleRegisterNewExerciseSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newExName.trim()) return;
-    setIsRegisteringEx(true);
-    try {
-      await d.handleAddNewExercise(
-        newExName.trim(),
-        parseFloat(newExWeight) || 0,
-        parseInt(newExReps, 10) || 5,
-        "epley",
-        newExNotes.trim() || "Registro inicial de ejercicio"
-      );
-      setShowNewExerciseModal(false);
-      setNewExName("");
-      setNewExNotes("");
-    } catch (err) {
-      console.error("Error creating new exercise:", err);
-    } finally {
-      setIsRegisteringEx(false);
-    }
-  };
   const {
     currentSet,
     activePhaseStep, setActivePhaseStep,
@@ -146,7 +111,12 @@ export function ZenDashboardView({
                   href="https://open.spotify.com/intl-es"
                   target="_blank"
                   rel="noopener noreferrer"
-                  onClick={() => {
+                  onClick={(e) => {
+                    if (onShowSpotify) {
+                      e.preventDefault();
+                      onShowSpotify();
+                      return;
+                    }
                     try { window.location.href = "spotify:"; } catch {}
                   }}
                   className="px-2.5 py-1 rounded-lg text-[10px] font-mono font-bold bg-emerald-500/15 text-emerald-400 border border-emerald-500/25 hover:bg-emerald-500/25 hover:border-emerald-400/50 transition-all flex items-center gap-1 shadow-[0_0_12px_rgba(16,185,129,0.15)] flex-shrink-0 cursor-pointer"
@@ -174,7 +144,7 @@ export function ZenDashboardView({
                     if (onOpenForge) {
                       onOpenForge();
                     } else {
-                      window.location.href = "/forge";
+                      router.push("/forge");
                     }
                   }}
                   className="px-2.5 py-1 rounded-lg text-[10px] font-mono font-bold bg-amber-500/15 text-amber-400 border border-amber-500/25 hover:bg-amber-500/25 transition-all flex items-center gap-1 flex-shrink-0 cursor-pointer"
