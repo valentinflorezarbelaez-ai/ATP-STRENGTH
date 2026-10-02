@@ -16,6 +16,8 @@ const PRECACHE_ASSETS = [
   "/icon-512.svg",
   "/icon-maskable-192.png",
   "/icon-maskable-512.png",
+  "/hero/warrior_forge_epic.webp",
+  "/audio/160-bpm.mp3",
 ];
 
 // Helper: Fetch with timeout to defeat the "Lie-Fi" hanging connection problem in underground gyms

@@ -25,6 +25,17 @@ export function ExerciseVideoModal({
     return "video";
   });
   const [isPlaybackAllowed, setIsPlaybackAllowed] = useState(false);
+  const [offlineNotice, setOfflineNotice] = useState<string | null>(null);
+
+  const handlePlayClick = () => {
+    if (typeof navigator !== "undefined" && !navigator.onLine) {
+      setOfflineNotice("Sin conexión a internet: mostrando Blueprint biomecánico local (0 datos).");
+      setViewMode("blueprint");
+      return;
+    }
+    setOfflineNotice(null);
+    setIsPlaybackAllowed(true);
+  };
 
   if (!isOpen) return null;
 
@@ -95,6 +106,14 @@ export function ExerciseVideoModal({
           </button>
         </div>
 
+        {/* Offline Notice Banner if user attempted video without internet */}
+        {offlineNotice && (
+          <div className="bg-amber-500/15 border-b border-amber-500/40 px-4 py-2 text-center text-xs font-mono text-amber-300 flex items-center justify-center gap-2 animate-fade-in">
+            <AlertTriangle className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+            <span>{offlineNotice}</span>
+          </div>
+        )}
+
         {/* Media Container: Either Video or Biomechanical Blueprint */}
         {viewMode === "blueprint" ? (
           <div className="p-3 bg-black">
@@ -106,7 +125,7 @@ export function ExerciseVideoModal({
             <div className="relative z-10 flex flex-col items-center gap-2.5 max-w-xs">
               <button
                 type="button"
-                onClick={() => setIsPlaybackAllowed(true)}
+                onClick={handlePlayClick}
                 className="w-14 h-14 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 text-black flex items-center justify-center shadow-[0_0_25px_rgba(245,158,11,0.5)] hover:scale-105 active:scale-95 transition-all cursor-pointer"
                 title="Reproducir video de Rogue Fitness"
               >
