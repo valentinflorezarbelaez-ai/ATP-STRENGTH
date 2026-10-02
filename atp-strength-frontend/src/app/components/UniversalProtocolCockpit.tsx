@@ -588,11 +588,10 @@ export function UniversalProtocolCockpit({
     playTactileClick();
     const next = toggleVoiceGender();
     setCockpitAudioPrefs(next);
-    const isFem = next.voiceGender === "FEMALE";
     speakText(
-      isFem
-        ? "¡Voz Élite activada! Precisión biomecánica."
-        : "¡Voz Titán activada! Estilo La Roca, fuerza bruta y determinación.",
+      next.voiceEnabled
+        ? "¡Voz Titán activada! Estilo La Roca, fuerza bruta y determinación."
+        : "Voz del coach silenciada.",
       next
     );
   };
@@ -726,20 +725,20 @@ export function UniversalProtocolCockpit({
               )}
             </button>
 
-            {/* Botón Selector Rápido de Voz (Élite / Titán a voluntad) */}
+            {/* Botón de Voz Titán Unificada */}
             <button
               type="button"
               onClick={handleToggleVoiceGenderCockpit}
               className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border text-xs font-mono font-bold transition-all active:scale-95 cursor-pointer shadow-sm ${
-                cockpitAudioPrefs.voiceGender === "FEMALE"
-                  ? "bg-rose-500/15 border-rose-500/40 text-rose-300 hover:bg-rose-500/25"
-                  : "bg-amber-500/15 border-amber-500/40 text-amber-300 hover:bg-amber-500/25"
+                cockpitAudioPrefs.voiceEnabled
+                  ? "bg-amber-500/15 border-amber-500/40 text-amber-300 hover:bg-amber-500/25 shadow-[0_0_12px_rgba(245,158,11,0.15)]"
+                  : "bg-zinc-800/40 border-zinc-700/60 text-zinc-500 hover:bg-zinc-800"
               }`}
-              title={`Voz activa del coach: ${cockpitAudioPrefs.voiceGender === "FEMALE" ? "Élite (Mujer)" : "Titán (La Roca)"}. Tocá para cambiar a voluntad.`}
+              title={`Voz del coach: Titán (La Roca). ${cockpitAudioPrefs.voiceEnabled ? "Activa. Tocá para silenciar." : "Silenciada. Tocá para activar."}`}
             >
-              <span className="text-sm">{cockpitAudioPrefs.voiceGender === "FEMALE" ? "👩" : "🗿"}</span>
+              <span className="text-sm">{cockpitAudioPrefs.voiceEnabled ? "🗿" : "🔇"}</span>
               <span className="hidden sm:inline">
-                {cockpitAudioPrefs.voiceGender === "FEMALE" ? "VOZ ÉLITE" : "VOZ LA ROCA"}
+                {cockpitAudioPrefs.voiceEnabled ? "VOZ TITÁN" : "VOZ MUTE"}
               </span>
             </button>
 

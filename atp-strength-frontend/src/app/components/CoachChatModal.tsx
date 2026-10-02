@@ -68,9 +68,9 @@ export function CoachChatModal({
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const idCounterRef = useRef(1);
 
-  const isTitan = audioPrefs.coachPersona === "TITAN" || audioPrefs.voiceGender === "MALE";
-  const coachIcon = isTitan ? "🗿" : audioPrefs.coachPersona === "ELITE" || audioPrefs.voiceGender === "FEMALE" ? "👩" : "⚡";
-  const coachLabel = isTitan ? "COACH TITÁN (LA ROCA)" : "COACH ÉLITE IA";
+  const isTitan = true;
+  const coachIcon = audioPrefs.voiceEnabled ? "🗿" : "🔇";
+  const coachLabel = "COACH TITÁN (LA ROCA)";
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -158,21 +158,21 @@ export function CoachChatModal({
                     const next = toggleVoiceGender();
                     setAudioPrefs(next);
                     speakText(
-                      next.coachPersona === "TITAN" || next.voiceGender === "MALE"
+                      next.voiceEnabled
                         ? "¡Voz Titán activada! Estilo La Roca, fuerza bruta."
-                        : "¡Voz Élite activada! Precisión total.",
+                        : "Voz del coach silenciada.",
                       next
                     );
                   }}
                   className={`px-2 py-0.5 rounded text-[10px] font-mono font-bold border transition-all cursor-pointer flex items-center gap-1 active:scale-95 ${
-                    isTitan
+                    audioPrefs.voiceEnabled
                       ? "bg-amber-500/20 border-amber-500/50 text-amber-300 hover:bg-amber-500/30"
-                      : "bg-rose-500/20 border-rose-500/50 text-rose-300 hover:bg-rose-500/30"
+                      : "bg-zinc-800/40 border-zinc-700/60 text-zinc-500 hover:bg-zinc-800"
                   }`}
-                  title="Cambiar entre voz Titán (La Roca) y voz Élite"
+                  title={audioPrefs.voiceEnabled ? "Voz activa. Tocá para silenciar." : "Voz silenciada. Tocá para activar."}
                 >
                   <span>{coachIcon}</span>
-                  <span>{isTitan ? "TITÁN" : "ÉLITE"}</span>
+                  <span>{audioPrefs.voiceEnabled ? "TITÁN" : "MUTE"}</span>
                 </button>
               </div>
               <h3 className="text-sm font-bold text-white">

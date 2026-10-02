@@ -109,11 +109,11 @@ export const DEFAULT_PREFS = Object.freeze({
   soundEnabled: true,
   voiceEnabled: true,
   voiceVolume: 1.0,
-  voiceRate: 1.05,
-  voicePitch: 1.02,
+  voiceRate: 1.02,
+  voicePitch: 0.74,
   preferredVoiceURI: "",
-  voiceGender: "FEMALE",
-  coachPersona: "AUTO",
+  voiceGender: "MALE",
+  coachPersona: "TITAN",
 });
 
 export function getRandomCue(type, rng = Math.random, persona = "AUTO") {

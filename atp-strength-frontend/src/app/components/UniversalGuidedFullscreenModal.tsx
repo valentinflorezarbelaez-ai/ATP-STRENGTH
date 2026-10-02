@@ -22,9 +22,7 @@ import {
   speakText,
   formatBarbellPlatesSpoken,
   getAudioPreferences,
-  setVoiceGender,
   toggleVoiceGender,
-  type VoiceGender,
 } from "@/lib/acousticFeedback";
 import { playTactileClick, playChime } from "@/lib/zenAudio";
 import { CoachChatModal } from "@/app/components/CoachChatModal";
@@ -141,15 +139,14 @@ export function UniversalGuidedFullscreenModal({
     }
   }, [activeSet, allSets.length, exerciseName]);
 
-  const handleToggleVoiceGender = (explicitGender?: VoiceGender) => {
+  const handleToggleVoiceGender = () => {
     playTactileClick();
-    const next = explicitGender ? setVoiceGender(explicitGender) : toggleVoiceGender();
+    const next = toggleVoiceGender();
     setAudioPrefs(next);
-    const isFem = next.voiceGender === "FEMALE";
     speakText(
-      isFem
-        ? "¡Voz Élite activada! Precisión biomecánica."
-        : "¡Voz Titán activada! Estilo La Roca, fuerza bruta y determinación.",
+      next.voiceEnabled
+        ? "¡Voz Titán activada! Estilo La Roca, fuerza bruta y determinación."
+        : "Voz del coach silenciada.",
       next
     );
   };
@@ -307,20 +304,20 @@ export function UniversalGuidedFullscreenModal({
           </div>
 
           <div className="flex items-center gap-2">
-            {/* Botón de Selección Rápida de Voz (Élite / Titán a voluntad) */}
+            {/* Botón de Voz Titán Unificada */}
             <button
               type="button"
               onClick={() => handleToggleVoiceGender()}
               className={`px-3 py-2 rounded-xl border text-xs font-mono font-bold flex items-center gap-1.5 transition-all active:scale-95 cursor-pointer shadow-sm ${
-                audioPrefs.voiceGender === "FEMALE"
-                  ? "bg-rose-500/20 border-rose-500/50 text-rose-300 hover:bg-rose-500/30 shadow-[0_0_12px_rgba(244,63,94,0.2)]"
-                  : "bg-amber-500/15 border-amber-500/40 text-amber-300 hover:bg-amber-500/25 shadow-[0_0_12px_rgba(245,158,11,0.15)]"
+                audioPrefs.voiceEnabled
+                  ? "bg-amber-500/15 border-amber-500/40 text-amber-300 hover:bg-amber-500/25 shadow-[0_0_12px_rgba(245,158,11,0.15)]"
+                  : "bg-zinc-800/40 border-zinc-700/60 text-zinc-500 hover:bg-zinc-800"
               }`}
-              title={`Voz activa del coach: ${audioPrefs.voiceGender === "FEMALE" ? "Élite (Mujer)" : "Titán (La Roca)"}. Tocá para cambiar a voluntad.`}
+              title={`Voz del coach: Titán (La Roca). ${audioPrefs.voiceEnabled ? "Activa. Tocá para silenciar." : "Silenciada. Tocá para activar."}`}
             >
-              <span className="text-sm">{audioPrefs.voiceGender === "FEMALE" ? "👩" : "🗿"}</span>
+              <span className="text-sm">{audioPrefs.voiceEnabled ? "🗿" : "🔇"}</span>
               <span className="font-bold">
-                {audioPrefs.voiceGender === "FEMALE" ? "VOZ ÉLITE" : "VOZ LA ROCA"}
+                {audioPrefs.voiceEnabled ? "VOZ TITÁN" : "VOZ MUTE"}
               </span>
             </button>
 

@@ -177,7 +177,7 @@ describe("SPEC-0005 Neuro-Acoustic Biofeedback Engine", () => {
     it("validates and preserves voiceGender preferences", () => {
       assert.equal(validateAudioPreferences({ voiceGender: "FEMALE" }).voiceGender, "FEMALE");
       assert.equal(validateAudioPreferences({ voiceGender: "MALE" }).voiceGender, "MALE");
-      assert.equal(validateAudioPreferences({ voiceGender: "INVALID" }).voiceGender, "FEMALE");
+      assert.equal(validateAudioPreferences({ voiceGender: "INVALID" }).voiceGender, "MALE");
     });
   });
 
@@ -292,7 +292,7 @@ describe("SPEC-0005 Neuro-Acoustic Biofeedback Engine", () => {
       assert.equal(elitePrefs.coachPersona, "ELITE");
 
       const fallback = validateAudioPreferences({ coachPersona: "NON_EXISTENT" });
-      assert.equal(fallback.coachPersona, "AUTO");
+      assert.equal(fallback.coachPersona, DEFAULT_PREFS.coachPersona);
     });
   });
 });

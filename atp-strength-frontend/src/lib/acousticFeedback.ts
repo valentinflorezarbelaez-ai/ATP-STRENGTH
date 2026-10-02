@@ -232,7 +232,7 @@ export function getAvailableSpanishVoices(genderPreference: VoiceGender = "AUTO"
  */
 export function getBestHumanVoice(
   preferredURI?: string,
-  genderPreference: VoiceGender = "AUTO"
+  genderPreference: VoiceGender = "MALE"
 ): SpeechSynthesisVoice | null {
   if (typeof window === "undefined" || !("speechSynthesis" in window)) return null;
   const voices = window.speechSynthesis.getVoices();
@@ -241,7 +241,6 @@ export function getBestHumanVoice(
   if (preferredURI) {
     const match = voices.find((v) => v.voiceURI === preferredURI);
     if (match) {
-      // If athlete didn't restrict gender or the preferred voice matches the requested gender, use it!
       if (genderPreference === "AUTO" || detectVoiceGender(match) === genderPreference) {
         return match;
       }
@@ -291,12 +290,18 @@ export function setVoiceGender(gender: VoiceGender): CoachAudioPreferences {
 }
 
 /**
- * Toggles coach voice between FEMALE and MALE at will.
+ * Toggles coach voice muting/activation while preserving the single Titan warrior voice.
  */
 export function toggleVoiceGender(): CoachAudioPreferences {
   const current = getAudioPreferences();
-  const nextGender: VoiceGender = current.voiceGender === "FEMALE" ? "MALE" : "FEMALE";
-  return setVoiceGender(nextGender);
+  const nextEnabled = !current.voiceEnabled;
+  return saveAudioPreferences({
+    voiceEnabled: nextEnabled,
+    voiceGender: "MALE",
+    coachPersona: "TITAN",
+    voicePitch: 0.74,
+    voiceRate: 1.02,
+  });
 }
 
 // Module-level reference pool preventing Chromium V8 GC from prematurely collecting
@@ -315,7 +320,7 @@ if (typeof window !== "undefined" && "speechSynthesis" in window) {
       const currentVoice = prefs.preferredVoiceURI
         ? voices.find((v) => v.voiceURI === prefs.preferredVoiceURI)
         : null;
-      const targetGender = prefs.voiceGender || "FEMALE";
+      const targetGender = prefs.voiceGender || "MALE";
       const genderMismatch = currentVoice && targetGender !== "AUTO" && detectVoiceGender(currentVoice) !== targetGender;
 
       if (!prefs.preferredVoiceURI || !currentVoice || genderMismatch) {
