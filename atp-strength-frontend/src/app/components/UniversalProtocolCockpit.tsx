@@ -590,7 +590,7 @@ export function UniversalProtocolCockpit({
     setCockpitAudioPrefs(next);
     speakText(
       next.voiceEnabled
-        ? "¡Voz Titán activada! Estilo La Roca, fuerza bruta y determinación."
+        ? "Voz del coach activada."
         : "Voz del coach silenciada.",
       next
     );
@@ -725,7 +725,7 @@ export function UniversalProtocolCockpit({
               )}
             </button>
 
-            {/* Botón de Voz Titán Unificada */}
+            {/* Botón de Voz del Coach */}
             <button
               type="button"
               onClick={handleToggleVoiceGenderCockpit}
@@ -734,11 +734,11 @@ export function UniversalProtocolCockpit({
                   ? "bg-amber-500/15 border-amber-500/40 text-amber-300 hover:bg-amber-500/25 shadow-[0_0_12px_rgba(245,158,11,0.15)]"
                   : "bg-zinc-800/40 border-zinc-700/60 text-zinc-500 hover:bg-zinc-800"
               }`}
-              title={`Voz del coach: Titán (La Roca). ${cockpitAudioPrefs.voiceEnabled ? "Activa. Tocá para silenciar." : "Silenciada. Tocá para activar."}`}
+              title={`Voz del coach: ${cockpitAudioPrefs.voiceEnabled ? "Activa. Tocá para silenciar." : "Silenciada. Tocá para activar."}`}
             >
-              <span className="text-sm">{cockpitAudioPrefs.voiceEnabled ? "🗿" : "🔇"}</span>
+              <span className="text-sm">{cockpitAudioPrefs.voiceEnabled ? "🔊" : "🔇"}</span>
               <span className="hidden sm:inline">
-                {cockpitAudioPrefs.voiceEnabled ? "VOZ TITÁN" : "VOZ MUTE"}
+                {cockpitAudioPrefs.voiceEnabled ? "VOZ COACH" : "SILENCIADO"}
               </span>
             </button>
 

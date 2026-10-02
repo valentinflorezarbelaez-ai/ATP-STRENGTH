@@ -145,7 +145,7 @@ export function UniversalGuidedFullscreenModal({
     setAudioPrefs(next);
     speakText(
       next.voiceEnabled
-        ? "¡Voz Titán activada! Estilo La Roca, fuerza bruta y determinación."
+        ? "Voz del coach activada."
         : "Voz del coach silenciada.",
       next
     );
@@ -304,7 +304,7 @@ export function UniversalGuidedFullscreenModal({
           </div>
 
           <div className="flex items-center gap-2">
-            {/* Botón de Voz Titán Unificada */}
+            {/* Botón de Voz del Coach */}
             <button
               type="button"
               onClick={() => handleToggleVoiceGender()}
@@ -313,11 +313,11 @@ export function UniversalGuidedFullscreenModal({
                   ? "bg-amber-500/15 border-amber-500/40 text-amber-300 hover:bg-amber-500/25 shadow-[0_0_12px_rgba(245,158,11,0.15)]"
                   : "bg-zinc-800/40 border-zinc-700/60 text-zinc-500 hover:bg-zinc-800"
               }`}
-              title={`Voz del coach: Titán (La Roca). ${audioPrefs.voiceEnabled ? "Activa. Tocá para silenciar." : "Silenciada. Tocá para activar."}`}
+              title={`Voz del coach: ${audioPrefs.voiceEnabled ? "Activa. Tocá para silenciar." : "Silenciada. Tocá para activar."}`}
             >
-              <span className="text-sm">{audioPrefs.voiceEnabled ? "🗿" : "🔇"}</span>
+              <span className="text-sm">{audioPrefs.voiceEnabled ? "🔊" : "🔇"}</span>
               <span className="font-bold">
-                {audioPrefs.voiceEnabled ? "VOZ TITÁN" : "VOZ MUTE"}
+                {audioPrefs.voiceEnabled ? "VOZ COACH" : "SILENCIADO"}
               </span>
             </button>
 

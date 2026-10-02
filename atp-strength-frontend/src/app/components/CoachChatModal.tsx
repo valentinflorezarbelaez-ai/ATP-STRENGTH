@@ -68,9 +68,8 @@ export function CoachChatModal({
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const idCounterRef = useRef(1);
 
-  const isTitan = true;
-  const coachIcon = audioPrefs.voiceEnabled ? "🗿" : "🔇";
-  const coachLabel = "COACH TITÁN (LA ROCA)";
+  const coachIcon = audioPrefs.voiceEnabled ? "🔊" : "🔇";
+  const coachLabel = "COACH DE FUERZA";
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -137,18 +136,12 @@ export function CoachChatModal({
         {/* Header */}
         <div className="p-4 sm:p-5 border-b border-zinc-900 bg-zinc-900/60 backdrop-blur-xl flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className={`p-2.5 rounded-2xl border ${
-              isTitan
-                ? "bg-amber-500/15 border-amber-500/40 text-amber-400"
-                : "bg-rose-500/15 border-rose-500/40 text-rose-400"
-            }`}>
+            <div className="p-2.5 rounded-2xl border bg-amber-500/15 border-amber-500/40 text-amber-400">
               <Bot className="w-5 h-5" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className={`text-xs font-mono font-bold uppercase tracking-wider ${
-                  isTitan ? "text-amber-400" : "text-rose-400"
-                }`}>
+                <span className="text-xs font-mono font-bold uppercase tracking-wider text-amber-400">
                   {coachLabel}
                 </span>
                 <button
@@ -159,7 +152,7 @@ export function CoachChatModal({
                     setAudioPrefs(next);
                     speakText(
                       next.voiceEnabled
-                        ? "¡Voz Titán activada! Estilo La Roca, fuerza bruta."
+                        ? "Voz del coach activada."
                         : "Voz del coach silenciada.",
                       next
                     );
@@ -172,7 +165,7 @@ export function CoachChatModal({
                   title={audioPrefs.voiceEnabled ? "Voz activa. Tocá para silenciar." : "Voz silenciada. Tocá para activar."}
                 >
                   <span>{coachIcon}</span>
-                  <span>{audioPrefs.voiceEnabled ? "TITÁN" : "MUTE"}</span>
+                  <span>{audioPrefs.voiceEnabled ? "VOZ" : "MUTE"}</span>
                 </button>
               </div>
               <h3 className="text-sm font-bold text-white">
@@ -203,11 +196,7 @@ export function CoachChatModal({
                 className={`flex gap-3 ${isUser ? "justify-end" : "justify-start"} animate-in fade-in slide-in-from-bottom-2 duration-200`}
               >
                 {!isUser && (
-                  <div className={`w-8 h-8 rounded-full border flex items-center justify-center shrink-0 text-sm font-bold shadow-sm ${
-                    isTitan
-                      ? "bg-amber-500/20 border-amber-500/40 text-amber-300"
-                      : "bg-rose-500/20 border-rose-500/40 text-rose-300"
-                  }`}>
+                  <div className="w-8 h-8 rounded-full border flex items-center justify-center shrink-0 text-sm font-bold shadow-sm bg-amber-500/20 border-amber-500/40 text-amber-300">
                     {coachIcon}
                   </div>
                 )}

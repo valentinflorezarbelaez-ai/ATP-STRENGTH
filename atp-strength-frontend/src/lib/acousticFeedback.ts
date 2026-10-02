@@ -232,7 +232,7 @@ export function getAvailableSpanishVoices(genderPreference: VoiceGender = "AUTO"
  */
 export function getBestHumanVoice(
   preferredURI?: string,
-  genderPreference: VoiceGender = "MALE"
+  genderPreference: VoiceGender = "AUTO"
 ): SpeechSynthesisVoice | null {
   if (typeof window === "undefined" || !("speechSynthesis" in window)) return null;
   const voices = window.speechSynthesis.getVoices();
@@ -252,38 +252,15 @@ export function getBestHumanVoice(
 }
 
 /**
- * Activates a dedicated Coach Persona ("TITAN" | "ELITE" | "AUTO").
- * TITAN (La Roca): Deep baritone voice (pitch 0.74, rate 1.02), male priority, high-intensity motivational cues.
- * ELITE (Laura): Crisp technical voice (pitch 1.02, rate 1.05), female priority, high-precision cues.
- * AUTO: System default balanced profile.
+ * Sets clean natural coach voice.
  */
 export function setCoachPersona(_persona?: CoachPersona): CoachAudioPreferences {
   void _persona;
-  const targetGender: VoiceGender = "MALE";
-  const targetPitch = 1.0;
-  const targetRate = 1.0;
-  const bestMatching = getBestHumanVoice(undefined, targetGender);
+  const bestMatching = getBestHumanVoice(undefined, "AUTO");
 
   return saveAudioPreferences({
-    coachPersona: "TITAN",
-    voiceGender: targetGender,
-    preferredVoiceURI: bestMatching?.voiceURI || "",
-    voicePitch: targetPitch,
-    voiceRate: targetRate,
-  });
-}
-
-/**
- * Changes coach voice gender ("FEMALE" | "MALE" | "AUTO"), selects the best
- * matching human voice on the device, updates pitch appropriately, and persists to localStorage.
- */
-export function setVoiceGender(_gender?: VoiceGender): CoachAudioPreferences {
-  void _gender;
-  const bestMatching = getBestHumanVoice(undefined, "MALE");
-
-  return saveAudioPreferences({
-    voiceGender: "MALE",
-    coachPersona: "TITAN",
+    coachPersona: "AUTO",
+    voiceGender: "AUTO",
     preferredVoiceURI: bestMatching?.voiceURI || "",
     voicePitch: 1.0,
     voiceRate: 1.0,
@@ -291,15 +268,31 @@ export function setVoiceGender(_gender?: VoiceGender): CoachAudioPreferences {
 }
 
 /**
- * Toggles coach voice muting/activation while preserving the single Titan warrior voice.
+ * Changes coach voice, selects the best matching human voice on the device, and persists to localStorage.
+ */
+export function setVoiceGender(_gender?: VoiceGender): CoachAudioPreferences {
+  void _gender;
+  const bestMatching = getBestHumanVoice(undefined, "AUTO");
+
+  return saveAudioPreferences({
+    voiceGender: "AUTO",
+    coachPersona: "AUTO",
+    preferredVoiceURI: bestMatching?.voiceURI || "",
+    voicePitch: 1.0,
+    voiceRate: 1.0,
+  });
+}
+
+/**
+ * Toggles coach voice muting/activation cleanly.
  */
 export function toggleVoiceGender(): CoachAudioPreferences {
   const current = getAudioPreferences();
   const nextEnabled = !current.voiceEnabled;
   return saveAudioPreferences({
     voiceEnabled: nextEnabled,
-    voiceGender: "MALE",
-    coachPersona: "TITAN",
+    voiceGender: "AUTO",
+    coachPersona: "AUTO",
     voicePitch: 1.0,
     voiceRate: 1.0,
   });
@@ -321,7 +314,7 @@ if (typeof window !== "undefined" && "speechSynthesis" in window) {
       const currentVoice = prefs.preferredVoiceURI
         ? voices.find((v) => v.voiceURI === prefs.preferredVoiceURI)
         : null;
-      const targetGender = prefs.voiceGender || "MALE";
+      const targetGender = prefs.voiceGender || "AUTO";
       const genderMismatch = currentVoice && targetGender !== "AUTO" && detectVoiceGender(currentVoice) !== targetGender;
 
       if (!prefs.preferredVoiceURI || !currentVoice || genderMismatch) {

@@ -26,7 +26,6 @@ import {
   getAvailableSpanishVoices,
   getBestHumanVoice,
   speakText,
-  setCoachPersona,
   detectVoiceGender,
   type CoachAudioPreferences,
 } from "@/lib/acousticFeedback";
@@ -572,15 +571,15 @@ export function CoachGuidedView({
                 </button>
               </div>
 
-              {/* Selector de Voz Humana del Coach */}
+              {/* Control de Voz Natural del Coach */}
               <div className="space-y-2 pt-2">
                 <div className="flex items-center justify-between">
-                  <span className="text-[11px] font-mono text-zinc-400">Timbre y Voz del Coach</span>
+                  <span className="text-[11px] font-mono text-zinc-400">Voz del Coach</span>
                   <button
                     type="button"
                     onClick={() => {
                       playTactileClick();
-                      speakText("¡Tiempo cumplido! A la barra con máxima determinación, guerrero.", audioPrefs);
+                      speakText("¡Tiempo cumplido! A la barra con buena técnica.", audioPrefs);
                     }}
                     className="text-[10px] font-mono text-amber-400 hover:underline cursor-pointer flex items-center gap-1"
                   >
@@ -589,63 +588,31 @@ export function CoachGuidedView({
                   </button>
                 </div>
 
-                {/* Segmented Control: Titán (La Roca) / Élite / Auto */}
-                <div className="grid grid-cols-3 gap-1 p-1 rounded-xl bg-zinc-900 border border-zinc-800 text-xs font-mono">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      playTactileClick();
-                      const next = setCoachPersona("TITAN");
-                      setAudioPrefs(next);
-                      speakText("¡Modo Titán activado! Estilo La Roca, fuerza bruta y determinación.", next);
-                    }}
-                    className={`py-1.5 px-2 rounded-lg font-bold flex items-center justify-center gap-1 transition-all cursor-pointer ${
-                      audioPrefs.coachPersona === "TITAN" || audioPrefs.voiceGender === "MALE"
-                        ? "bg-amber-500/20 text-amber-300 border border-amber-500/50 shadow-sm"
-                        : "text-zinc-400 hover:text-zinc-200"
-                    }`}
-                    title="Voz de barítono profundo, potencia masculina y arengas motivacionales duras"
-                  >
-                    <span>🗿</span>
-                    <span>Titán</span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      playTactileClick();
-                      const next = setCoachPersona("ELITE");
-                      setAudioPrefs(next);
-                      speakText("¡Modo Élite activado! Precisión biomecánica y cadencia exacta.", next);
-                    }}
-                    className={`py-1.5 px-2 rounded-lg font-bold flex items-center justify-center gap-1 transition-all cursor-pointer ${
-                      audioPrefs.coachPersona === "ELITE" || (audioPrefs.voiceGender === "FEMALE" && audioPrefs.coachPersona !== "TITAN")
-                        ? "bg-rose-500/20 text-rose-300 border border-rose-500/50 shadow-sm"
-                        : "text-zinc-400 hover:text-zinc-200"
-                    }`}
-                    title="Voz femenina técnica, clara y precisa para entrenamientos olímpicos"
-                  >
-                    <span>⚡</span>
-                    <span>Élite</span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      playTactileClick();
-                      const next = setCoachPersona("AUTO");
-                      setAudioPrefs(next);
-                      speakText("Modo balanceado activado.", next);
-                    }}
-                    className={`py-1.5 px-2 rounded-lg font-bold flex items-center justify-center gap-1 transition-all cursor-pointer ${
-                      audioPrefs.coachPersona === "AUTO" || (!audioPrefs.coachPersona && audioPrefs.voiceGender === "AUTO")
-                        ? "bg-cyan-500/20 text-cyan-300 border border-cyan-500/50 shadow-sm"
-                        : "text-zinc-400 hover:text-zinc-200"
-                    }`}
-                    title="Voz y tono balanceados del sintetizador estándar"
-                  >
-                    <span>⭐</span>
-                    <span>Auto</span>
-                  </button>
-                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    playTactileClick();
+                    const next = saveAudioPreferences({ voiceEnabled: !audioPrefs.voiceEnabled });
+                    setAudioPrefs(next);
+                    speakText(
+                      next.voiceEnabled
+                        ? "Voz del coach activada."
+                        : "Voz del coach silenciada.",
+                      next
+                    );
+                  }}
+                  className={`w-full py-2 px-3 rounded-xl border text-xs font-mono font-medium flex items-center justify-between cursor-pointer transition-all ${
+                    audioPrefs.voiceEnabled
+                      ? "bg-amber-500/15 border-amber-500/40 text-amber-300"
+                      : "bg-zinc-900 border-zinc-800 text-zinc-500"
+                  }`}
+                >
+                  <span className="flex items-center gap-1.5">
+                    <span>{audioPrefs.voiceEnabled ? "🔊" : "🔇"}</span>
+                    <span>Voz de Instrucción del Coach:</span>
+                  </span>
+                  <span className="font-bold">{audioPrefs.voiceEnabled ? "ACTIVADA" : "SILENCIADA"}</span>
+                </button>
 
                 {availableVoices.length > 0 ? (
                   <select
