@@ -257,14 +257,15 @@ export function getBestHumanVoice(
  * ELITE (Laura): Crisp technical voice (pitch 1.02, rate 1.05), female priority, high-precision cues.
  * AUTO: System default balanced profile.
  */
-export function setCoachPersona(persona: CoachPersona): CoachAudioPreferences {
-  const targetGender: VoiceGender = persona === "TITAN" ? "MALE" : persona === "ELITE" ? "FEMALE" : "AUTO";
-  const targetPitch = persona === "TITAN" ? 0.74 : persona === "ELITE" ? 1.02 : 0.95;
-  const targetRate = persona === "TITAN" ? 1.02 : persona === "ELITE" ? 1.05 : 1.02;
+export function setCoachPersona(_persona?: CoachPersona): CoachAudioPreferences {
+  void _persona;
+  const targetGender: VoiceGender = "MALE";
+  const targetPitch = 1.0;
+  const targetRate = 1.0;
   const bestMatching = getBestHumanVoice(undefined, targetGender);
 
   return saveAudioPreferences({
-    coachPersona: persona,
+    coachPersona: "TITAN",
     voiceGender: targetGender,
     preferredVoiceURI: bestMatching?.voiceURI || "",
     voicePitch: targetPitch,
@@ -276,16 +277,16 @@ export function setCoachPersona(persona: CoachPersona): CoachAudioPreferences {
  * Changes coach voice gender ("FEMALE" | "MALE" | "AUTO"), selects the best
  * matching human voice on the device, updates pitch appropriately, and persists to localStorage.
  */
-export function setVoiceGender(gender: VoiceGender): CoachAudioPreferences {
-  const bestMatching = getBestHumanVoice(undefined, gender);
-  const adaptedPitch = gender === "FEMALE" ? 1.02 : 0.74;
-  const persona: CoachPersona = gender === "MALE" ? "TITAN" : gender === "FEMALE" ? "ELITE" : "AUTO";
+export function setVoiceGender(_gender?: VoiceGender): CoachAudioPreferences {
+  void _gender;
+  const bestMatching = getBestHumanVoice(undefined, "MALE");
 
   return saveAudioPreferences({
-    voiceGender: gender,
-    coachPersona: persona,
+    voiceGender: "MALE",
+    coachPersona: "TITAN",
     preferredVoiceURI: bestMatching?.voiceURI || "",
-    voicePitch: adaptedPitch,
+    voicePitch: 1.0,
+    voiceRate: 1.0,
   });
 }
 
@@ -299,8 +300,8 @@ export function toggleVoiceGender(): CoachAudioPreferences {
     voiceEnabled: nextEnabled,
     voiceGender: "MALE",
     coachPersona: "TITAN",
-    voicePitch: 0.74,
-    voiceRate: 1.02,
+    voicePitch: 1.0,
+    voiceRate: 1.0,
   });
 }
 

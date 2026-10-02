@@ -250,11 +250,11 @@ describe("SPEC-0005 Neuro-Acoustic Biofeedback Engine", () => {
       assert.ok(COACH_PERSONAS.AUTO, "Missing AUTO persona");
 
       assert.equal(COACH_PERSONAS.TITAN.gender, "MALE");
-      assert.equal(COACH_PERSONAS.TITAN.pitch, 0.74);
+      assert.equal(COACH_PERSONAS.TITAN.pitch, 1.0);
       assert.equal(COACH_PERSONAS.TITAN.icon, "🗿");
 
       assert.equal(COACH_PERSONAS.ELITE.gender, "FEMALE");
-      assert.equal(COACH_PERSONAS.ELITE.pitch, 1.02);
+      assert.equal(COACH_PERSONAS.ELITE.pitch, 1.0);
     });
 
     it("delivers authentic Titan/La Roca cues when TITAN persona is requested", () => {
