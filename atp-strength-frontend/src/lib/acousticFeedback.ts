@@ -7,6 +7,8 @@
 import { playChime, hapticPulse } from "./zenAudio";
 import {
   COACH_CUES as CORE_COACH_CUES,
+  TITAN_COACH_CUES,
+  COACH_PERSONAS,
   DEFAULT_PREFS as CORE_DEFAULT_PREFS,
   getRandomCue as coreGetRandomCue,
   formatTelemetryCue as coreFormatTelemetryCue,
@@ -29,15 +31,19 @@ export type CoachingEventType =
   | "SESSION_VICTORY";
 
 export type VoiceGender = "AUTO" | "FEMALE" | "MALE";
+export type CoachPersona = "AUTO" | "TITAN" | "ELITE";
+
+export { COACH_PERSONAS, TITAN_COACH_CUES };
 
 export interface CoachAudioPreferences {
   soundEnabled: boolean; // Chimes / Web Audio
   voiceEnabled: boolean; // Spoken coaching cues
   voiceVolume: number;   // 0.0 to 1.0
   voiceRate: number;     // 0.8 to 1.3 (default 1.02 for natural delivery)
-  voicePitch?: number;   // 0.6 to 1.5 (default 0.92 for warm human chest resonance, 1.02 for female)
+  voicePitch?: number;   // 0.6 to 1.5 (default 0.74 for Titan baritone, 1.02 for female)
   preferredVoiceURI?: string; // Specific voice chosen by athlete
   voiceGender?: VoiceGender;  // "AUTO" | "FEMALE" | "MALE"
+  coachPersona?: CoachPersona;// "AUTO" | "TITAN" | "ELITE"
 }
 
 export interface TelemetryNarrationParams {
@@ -100,12 +106,12 @@ export function saveAudioPreferences(prefs: Partial<CoachAudioPreferences>): Coa
   return updated;
 }
 
-export function getRandomCue(type: CoachingEventType, rng?: () => number): string {
-  return coreGetRandomCue(type, rng);
+export function getRandomCue(type: CoachingEventType, rng?: () => number, persona: CoachPersona = "AUTO"): string {
+  return coreGetRandomCue(type, rng, persona);
 }
 
-export function formatTelemetryCue(params?: TelemetryNarrationParams, rng?: () => number): string {
-  return coreFormatTelemetryCue(params, rng);
+export function formatTelemetryCue(params?: TelemetryNarrationParams, rng?: () => number, persona: CoachPersona = "AUTO"): string {
+  return coreFormatTelemetryCue(params, rng, persona);
 }
 
 export function formatBarbellPlatesSpoken(weightKg: number, barWeight = 20, isBodyweight = false): string {
@@ -116,8 +122,8 @@ export function formatPreSetBriefing(params?: PreSetBriefingParams): string {
   return coreFormatPreSetBriefing(params);
 }
 
-export function formatRestCompletedCue(params?: RestCompletedParams): string {
-  return coreFormatRestCompletedCue(params);
+export function formatRestCompletedCue(params?: RestCompletedParams, persona: CoachPersona = "AUTO"): string {
+  return coreFormatRestCompletedCue(params, persona);
 }
 
 export function formatAutoregulationCue(params?: AutoregulationParams): string {
@@ -130,12 +136,22 @@ export function detectVoiceGender(
   return coreDetectVoiceGender(voice);
 }
 
+const voiceCache = new Map<VoiceGender, SpeechSynthesisVoice[]>();
+
+export function clearVoiceCache(): void {
+  voiceCache.clear();
+}
+
 /**
  * Returns available Spanish voices sorted by natural human quality,
  * with optional gender weighting (FEMALE or MALE priority).
+ * Cached in memory for 0ms instantaneous lookup during workouts.
  */
 export function getAvailableSpanishVoices(genderPreference: VoiceGender = "AUTO"): SpeechSynthesisVoice[] {
   if (typeof window === "undefined" || !("speechSynthesis" in window)) return [];
+  if (voiceCache.has(genderPreference)) {
+    return voiceCache.get(genderPreference)!;
+  }
   const allVoices = window.speechSynthesis.getVoices();
   const spanish = allVoices.filter((v) => v.lang.startsWith("es"));
   const pool = spanish.length > 0 ? spanish : allVoices;
@@ -154,6 +170,10 @@ export function getAvailableSpanishVoices(genderPreference: VoiceGender = "AUTO"
     } else if (genderPreference === "MALE") {
       if (detectedGender === "MALE") score += 300;
       else if (detectedGender === "FEMALE") score -= 200;
+      // Resonant baritone / Dwayne Johnson style powerhouse male voices
+      if (name.includes("raul") || name.includes("raúl")) score += 160;
+      if (name.includes("jorge") || name.includes("alvaro") || name.includes("álvaro")) score += 150;
+      if (name.includes("pablo") || name.includes("diego") || name.includes("carlos") || name.includes("alonso")) score += 120;
     }
 
     // Highest priority: Neural / Natural / Studio / Enhanced
@@ -163,7 +183,14 @@ export function getAvailableSpanishVoices(genderPreference: VoiceGender = "AUTO"
     if (name.includes("online") || uri.includes("online")) score += 60;
     if (name.includes("google") || uri.includes("google")) score += 50;
 
-    // Warm, resonant human coach voice names (both male and female elite models)
+    // Premier Spanish voice models
+    if (name.includes("laura")) score += 110;
+    if (name.includes("helena")) score += 90;
+    if (name.includes("sabina")) score += 70;
+    if (name.includes("dalia") || name.includes("paloma") || name.includes("elvira")) score += 120;
+    if (name.includes("paulina") || name.includes("monica") || name.includes("mónica")) score += 80;
+
+    // Warm, resonant human coach voice names
     if (
       name.includes("pablo") ||
       name.includes("jorge") ||
@@ -172,13 +199,6 @@ export function getAvailableSpanishVoices(genderPreference: VoiceGender = "AUTO"
       name.includes("juan") ||
       name.includes("diego") ||
       name.includes("miguel") ||
-      name.includes("paloma") ||
-      name.includes("dalia") ||
-      name.includes("elvira") ||
-      name.includes("laura") ||
-      name.includes("paulina") ||
-      name.includes("monica") ||
-      name.includes("mónica") ||
       name.includes("sofia") ||
       name.includes("sofía") ||
       name.includes("camila") ||
@@ -191,21 +211,19 @@ export function getAvailableSpanishVoices(genderPreference: VoiceGender = "AUTO"
     if (v.lang === "es-mx" || v.lang === "es-us" || v.lang === "es-419") score += 20;
     if (v.lang.startsWith("es")) score += 15;
 
-    // Downrank legacy robotic SAPI / desktop synthesizers ONLY when not neural/natural
-    if (!name.includes("natural") && !name.includes("neural")) {
-      if (
-        name.includes("desktop") ||
-        name.includes("espeak") ||
-        uri.includes("desktop")
-      ) {
-        score -= 40;
-      }
+    // Downrank legacy robotic third-party engines
+    if (name.includes("espeak") || uri.includes("espeak")) {
+      score -= 50;
     }
 
     return score;
   };
 
-  return [...pool].sort((a, b) => scoreVoice(b) - scoreVoice(a));
+  const sorted = [...pool].sort((a, b) => scoreVoice(b) - scoreVoice(a));
+  if (sorted.length > 0) {
+    voiceCache.set(genderPreference, sorted);
+  }
+  return sorted;
 }
 
 /**
@@ -235,16 +253,38 @@ export function getBestHumanVoice(
 }
 
 /**
+ * Activates a dedicated Coach Persona ("TITAN" | "ELITE" | "AUTO").
+ * TITAN (La Roca): Deep baritone voice (pitch 0.74, rate 1.02), male priority, high-intensity motivational cues.
+ * ELITE (Laura): Crisp technical voice (pitch 1.02, rate 1.05), female priority, high-precision cues.
+ * AUTO: System default balanced profile.
+ */
+export function setCoachPersona(persona: CoachPersona): CoachAudioPreferences {
+  const targetGender: VoiceGender = persona === "TITAN" ? "MALE" : persona === "ELITE" ? "FEMALE" : "AUTO";
+  const targetPitch = persona === "TITAN" ? 0.74 : persona === "ELITE" ? 1.02 : 0.95;
+  const targetRate = persona === "TITAN" ? 1.02 : persona === "ELITE" ? 1.05 : 1.02;
+  const bestMatching = getBestHumanVoice(undefined, targetGender);
+
+  return saveAudioPreferences({
+    coachPersona: persona,
+    voiceGender: targetGender,
+    preferredVoiceURI: bestMatching?.voiceURI || "",
+    voicePitch: targetPitch,
+    voiceRate: targetRate,
+  });
+}
+
+/**
  * Changes coach voice gender ("FEMALE" | "MALE" | "AUTO"), selects the best
  * matching human voice on the device, updates pitch appropriately, and persists to localStorage.
  */
 export function setVoiceGender(gender: VoiceGender): CoachAudioPreferences {
-  const current = getAudioPreferences();
   const bestMatching = getBestHumanVoice(undefined, gender);
-  const adaptedPitch = gender === "FEMALE" ? 1.02 : 0.92;
+  const adaptedPitch = gender === "FEMALE" ? 1.02 : 0.74;
+  const persona: CoachPersona = gender === "MALE" ? "TITAN" : gender === "FEMALE" ? "ELITE" : "AUTO";
 
   return saveAudioPreferences({
     voiceGender: gender,
+    coachPersona: persona,
     preferredVoiceURI: bestMatching?.voiceURI || "",
     voicePitch: adaptedPitch,
   });
@@ -267,11 +307,21 @@ const activeUtterances = new Set<SpeechSynthesisUtterance>();
 if (typeof window !== "undefined" && "speechSynthesis" in window) {
   const syncDefaultVoice = () => {
     try {
+      clearVoiceCache();
       const prefs = getAudioPreferences();
-      if (!prefs.preferredVoiceURI) {
-        const best = getBestHumanVoice(undefined, prefs.voiceGender || "AUTO");
+      const voices = window.speechSynthesis.getVoices();
+      if (voices.length === 0) return;
+
+      const currentVoice = prefs.preferredVoiceURI
+        ? voices.find((v) => v.voiceURI === prefs.preferredVoiceURI)
+        : null;
+      const targetGender = prefs.voiceGender || "FEMALE";
+      const genderMismatch = currentVoice && targetGender !== "AUTO" && detectVoiceGender(currentVoice) !== targetGender;
+
+      if (!prefs.preferredVoiceURI || !currentVoice || genderMismatch) {
+        const best = getBestHumanVoice(undefined, targetGender);
         if (best && best.voiceURI) {
-          saveAudioPreferences({ preferredVoiceURI: best.voiceURI });
+          saveAudioPreferences({ preferredVoiceURI: best.voiceURI, voiceGender: targetGender });
         }
       }
     } catch {
@@ -290,6 +340,7 @@ if (typeof window !== "undefined" && "speechSynthesis" in window) {
  * Prioritizes natural human voices with warm, resonant tone.
  * Normalizes athletic text for zero-error Spanish pronunciation,
  * guards against Chromium GC premature termination, and prevents cancel() race conditions.
+ * Features zero-latency instant dispatch when synthesizer is idle.
  */
 export function speakText(rawText: string, customPrefs?: Partial<CoachAudioPreferences>): void {
   if (typeof window === "undefined" || !("speechSynthesis" in window)) return;
@@ -308,11 +359,7 @@ export function speakText(rawText: string, customPrefs?: Partial<CoachAudioPrefe
       synth.resume();
     }
 
-    // Cancel previous utterance to prevent audio backlog
-    synth.cancel();
-
-    // Use a small 25ms timeout so synth.cancel() completes its internal buffer cleanup in WebKit/Chromium
-    setTimeout(() => {
+    const dispatch = () => {
       try {
         const utterance = new SpeechSynthesisUtterance(text);
         utterance.volume = Math.max(0, Math.min(1, prefs.voiceVolume));
@@ -331,16 +378,16 @@ export function speakText(rawText: string, customPrefs?: Partial<CoachAudioPrefe
           utterance.lang = "es-ES";
         }
 
-        // Dynamically tune pitch if user hasn't explicitly overridden it
+        // Dynamically tune pitch for persona / gender
         const isFemale =
           prefs.voiceGender === "FEMALE" ||
           (bestVoice && detectVoiceGender(bestVoice) === "FEMALE");
-        const defaultPitch = isFemale ? 1.02 : 0.92;
+        const defaultPitch = prefs.coachPersona === "TITAN"
+          ? 0.74
+          : (prefs.coachPersona === "ELITE" || isFemale ? 1.02 : 0.74);
         utterance.pitch = Math.max(0.6, Math.min(1.5, prefs.voicePitch ?? defaultPitch));
 
         // Chromium Garbage Collection Bug Guard:
-        // SpeechSynthesisUtterance gets garbage-collected if no active reference is held,
-        // causing speech to abruptly cut off mid-sentence.
         activeUtterances.add(utterance);
 
         utterance.onend = () => {
@@ -358,7 +405,15 @@ export function speakText(rawText: string, customPrefs?: Partial<CoachAudioPrefe
       } catch (innerErr) {
         console.warn("SpeechSynthesis speak failed:", innerErr);
       }
-    }, 25);
+    };
+
+    // Instant speech delivery: if idle, speak immediately without delay!
+    if (!synth.speaking && !synth.pending) {
+      dispatch();
+    } else {
+      synth.cancel();
+      setTimeout(dispatch, 15);
+    }
   } catch (err) {
     console.warn("SpeechSynthesis unavailable or rejected:", err);
   }
@@ -377,7 +432,7 @@ export const acousticEngine = {
       const text = formatPreSetBriefing(params);
       setTimeout(() => {
         speakText(text, prefs);
-      }, 300);
+      }, 180);
     }
   },
 
@@ -387,17 +442,17 @@ export const acousticEngine = {
       playChime(false);
     }
     if (prefs.voiceEnabled) {
-      const cue = formatTelemetryCue(params);
+      const cue = formatTelemetryCue(params, Math.random, prefs.coachPersona || "AUTO");
       setTimeout(() => {
         speakText(cue, prefs);
-      }, 350);
+      }, 180);
     }
   },
 
   playRestHalfwayCue(customPrefs?: Partial<CoachAudioPreferences>): void {
     const prefs = { ...getAudioPreferences(), ...customPrefs };
     if (prefs.voiceEnabled) {
-      speakText(getRandomCue("REST_HALFWAY"), prefs);
+      speakText(getRandomCue("REST_HALFWAY", Math.random, prefs.coachPersona || "AUTO"), prefs);
     }
   },
 
@@ -409,8 +464,8 @@ export const acousticEngine = {
     }
     if (prefs.voiceEnabled) {
       setTimeout(() => {
-        speakText(getRandomCue("REST_15S_WARNING"), prefs);
-      }, 200);
+        speakText(getRandomCue("REST_15S_WARNING", Math.random, prefs.coachPersona || "AUTO"), prefs);
+      }, 120);
     }
   },
 
@@ -422,8 +477,8 @@ export const acousticEngine = {
     }
     if (prefs.voiceEnabled) {
       setTimeout(() => {
-        speakText(getRandomCue("REST_10S_WARNING"), prefs);
-      }, 250);
+        speakText(getRandomCue("REST_10S_WARNING", Math.random, prefs.coachPersona || "AUTO"), prefs);
+      }, 120);
     }
   },
 
@@ -434,10 +489,10 @@ export const acousticEngine = {
       hapticPulse([200, 100, 200]);
     }
     if (prefs.voiceEnabled) {
-      const text = formatRestCompletedCue(params);
+      const text = formatRestCompletedCue(params, prefs.coachPersona || "AUTO");
       setTimeout(() => {
         speakText(text, prefs);
-      }, 350);
+      }, 180);
     }
   },
 
@@ -447,7 +502,7 @@ export const acousticEngine = {
       const text = formatAutoregulationCue(params);
       setTimeout(() => {
         speakText(text, prefs);
-      }, 400);
+      }, 200);
     }
   },
 
@@ -459,10 +514,10 @@ export const acousticEngine = {
     if (prefs.voiceEnabled) {
       const text = nextExerciseName
         ? `¡Ejercicio completado! Siguiente movimiento: ${nextExerciseName}.`
-        : getRandomCue("EXERCISE_COMPLETED");
+        : getRandomCue("EXERCISE_COMPLETED", Math.random, prefs.coachPersona || "AUTO");
       setTimeout(() => {
         speakText(text, prefs);
-      }, 400);
+      }, 200);
     }
   },
 
@@ -473,8 +528,8 @@ export const acousticEngine = {
     }
     if (prefs.voiceEnabled) {
       setTimeout(() => {
-        speakText(getRandomCue("SESSION_VICTORY"), prefs);
-      }, 500);
+        speakText(getRandomCue("SESSION_VICTORY", Math.random, prefs.coachPersona || "AUTO"), prefs);
+      }, 250);
     }
   },
 };

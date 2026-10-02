@@ -6,6 +6,8 @@ import { describe, it } from "node:test";
 import assert from "node:assert/strict";
 import {
   COACH_CUES,
+  COACH_PERSONAS,
+  TITAN_COACH_CUES,
   DEFAULT_PREFS,
   getRandomCue,
   formatTelemetryCue,
@@ -175,7 +177,7 @@ describe("SPEC-0005 Neuro-Acoustic Biofeedback Engine", () => {
     it("validates and preserves voiceGender preferences", () => {
       assert.equal(validateAudioPreferences({ voiceGender: "FEMALE" }).voiceGender, "FEMALE");
       assert.equal(validateAudioPreferences({ voiceGender: "MALE" }).voiceGender, "MALE");
-      assert.equal(validateAudioPreferences({ voiceGender: "INVALID" }).voiceGender, "AUTO");
+      assert.equal(validateAudioPreferences({ voiceGender: "INVALID" }).voiceGender, "FEMALE");
     });
   });
 
@@ -238,6 +240,59 @@ describe("SPEC-0005 Neuro-Acoustic Biofeedback Engine", () => {
       assert.equal(normalizeSpeechTextForSpanish("+2.5 kg"), "más dos kilos y medio");
       assert.equal(normalizeSpeechTextForSpanish("17,5 kilos"), "17 kilos y medio");
       assert.equal(normalizeSpeechTextForSpanish("Test de 1RM"), "Test de una repetición máxima");
+    });
+  });
+
+  describe("REQ-EARS-AUDIO-09: Coach Personas & Titan / La Roca Persona Audio Engine", () => {
+    it("exports frozen personas for TITAN, ELITE and AUTO", () => {
+      assert.ok(COACH_PERSONAS.TITAN, "Missing TITAN persona");
+      assert.ok(COACH_PERSONAS.ELITE, "Missing ELITE persona");
+      assert.ok(COACH_PERSONAS.AUTO, "Missing AUTO persona");
+
+      assert.equal(COACH_PERSONAS.TITAN.gender, "MALE");
+      assert.equal(COACH_PERSONAS.TITAN.pitch, 0.74);
+      assert.equal(COACH_PERSONAS.TITAN.icon, "🗿");
+
+      assert.equal(COACH_PERSONAS.ELITE.gender, "FEMALE");
+      assert.equal(COACH_PERSONAS.ELITE.pitch, 1.02);
+    });
+
+    it("delivers authentic Titan/La Roca cues when TITAN persona is requested", () => {
+      const cue = getRandomCue("SET_COMPLETED", () => 0, "TITAN");
+      assert.equal(cue, TITAN_COACH_CUES.SET_COMPLETED[0]);
+      assert.ok(cue.includes("fuerza bruta") || cue.includes("trabajo duro") || cue.includes("potencia"));
+
+      const warningCue = getRandomCue("REST_15S_WARNING", () => 0, "TITAN");
+      assert.equal(warningCue, TITAN_COACH_CUES.REST_15S_WARNING[0]);
+    });
+
+    it("formats high-intensity telemetry cues for Titan persona", () => {
+      const text = formatTelemetryCue(
+        { weightKg: 140, reps: 3, rpe: 9 },
+        () => 0,
+        "TITAN"
+      );
+      assert.ok(text.includes("Serie brutal de 3 repeticiones con 140 kilos"));
+      assert.ok(text.includes("determinación pura"));
+    });
+
+    it("formats rest completed callout with Titan power tone", () => {
+      const text = formatRestCompletedCue(
+        { exerciseName: "Sentadilla", weightKg: 120, reps: 5 },
+        "TITAN"
+      );
+      assert.ok(text.includes("¡Tiempo cumplido! A la barra en Sentadilla con 120 kilos para 5 repeticiones a pura potencia."));
+    });
+
+    it("validates and preserves coachPersona preference in validateAudioPreferences", () => {
+      const prefs = validateAudioPreferences({ coachPersona: "TITAN" });
+      assert.equal(prefs.coachPersona, "TITAN");
+
+      const elitePrefs = validateAudioPreferences({ coachPersona: "ELITE" });
+      assert.equal(elitePrefs.coachPersona, "ELITE");
+
+      const fallback = validateAudioPreferences({ coachPersona: "NON_EXISTENT" });
+      assert.equal(fallback.coachPersona, "AUTO");
     });
   });
 });

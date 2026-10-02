@@ -46,3 +46,6 @@ Thumbs.db
 *.sqlite3
 
 active_server_port.txt
+
+# Temporary screenshots
+fullscreen_guide_evidence*.png

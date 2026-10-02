@@ -18,6 +18,8 @@ import {
   ShieldCheck,
   Dumbbell,
   Zap,
+  MessageCircle,
+  ShieldAlert,
 } from "lucide-react";
 import { AtpEnergyRing } from "@/app/components/AtpEnergyRing";
 import { BarbellPlateVisualizer } from "@/app/components/BarbellPlateVisualizer";
@@ -30,6 +32,11 @@ import {
   type VoiceGender,
 } from "@/lib/acousticFeedback";
 import { playTactileClick, playChime } from "@/lib/zenAudio";
+import { CoachChatModal } from "@/app/components/CoachChatModal";
+import {
+  recordExerciseSessionCompletion,
+  getOptimalRecoveryHours,
+} from "@/lib/recoveryLockout";
 
 export interface UniversalGuidedFullscreenModalProps {
   isOpen: boolean;
@@ -122,8 +129,22 @@ export function UniversalGuidedFullscreenModal({
   const [remainingSeconds, setRemainingSeconds] = useState<number>(60);
   const [isTimerPaused, setIsTimerPaused] = useState<boolean>(false);
   const [audioPrefs, setAudioPrefs] = useState(() => getAudioPreferences());
+  const [showCoachChat, setShowCoachChat] = useState<boolean>(false);
   const hasSpokenInitial = useRef<boolean>(false);
   const lastSpokenSetId = useRef<string | null>(null);
+  const hasRecordedCompletion = useRef<boolean>(false);
+
+  // Trigger biological recovery lockout when all sets are completed
+  useEffect(() => {
+    if (!activeSet && allSets.length > 0 && !hasRecordedCompletion.current) {
+      hasRecordedCompletion.current = true;
+      recordExerciseSessionCompletion(exerciseName);
+      const hours = getOptimalRecoveryHours(exerciseName);
+      speakText(
+        `¡Ejercicio ${exerciseName} completado con éxito! Has finalizado todas las fases. Hemos activado tu descanso biológico de ${hours} horas para que tus músculos y sistema nervioso alcancen la máxima supercompensación.`
+      );
+    }
+  }, [activeSet, allSets.length, exerciseName]);
 
   const handleToggleVoiceGender = (explicitGender?: VoiceGender) => {
     playTactileClick();
@@ -132,8 +153,9 @@ export function UniversalGuidedFullscreenModal({
     const isFem = next.voiceGender === "FEMALE";
     speakText(
       isFem
-        ? "¡Voz femenina del coach activada! Vamos con determinación, guerrero."
-        : "¡Voz masculina del coach activada! A romperla en la barra."
+        ? "¡Voz Élite activada! Precisión biomecánica."
+        : "¡Voz Titán activada! Estilo La Roca, fuerza bruta y determinación.",
+      next
     );
   };
 
@@ -287,7 +309,7 @@ export function UniversalGuidedFullscreenModal({
           </div>
 
           <div className="flex items-center gap-2">
-            {/* Botón de Selección Rápida de Voz (Mujer / Hombre a voluntad) */}
+            {/* Botón de Selección Rápida de Voz (Élite / Titán a voluntad) */}
             <button
               type="button"
               onClick={() => handleToggleVoiceGender()}
@@ -296,12 +318,26 @@ export function UniversalGuidedFullscreenModal({
                   ? "bg-rose-500/20 border-rose-500/50 text-rose-300 hover:bg-rose-500/30 shadow-[0_0_12px_rgba(244,63,94,0.2)]"
                   : "bg-amber-500/15 border-amber-500/40 text-amber-300 hover:bg-amber-500/25 shadow-[0_0_12px_rgba(245,158,11,0.15)]"
               }`}
-              title={`Voz activa del coach: ${audioPrefs.voiceGender === "FEMALE" ? "Mujer" : "Hombre"}. Tocá para cambiar a voluntad.`}
+              title={`Voz activa del coach: ${audioPrefs.voiceGender === "FEMALE" ? "Élite (Mujer)" : "Titán (La Roca)"}. Tocá para cambiar a voluntad.`}
             >
-              <span className="text-sm">{audioPrefs.voiceGender === "FEMALE" ? "👩" : "👨"}</span>
+              <span className="text-sm">{audioPrefs.voiceGender === "FEMALE" ? "👩" : "🗿"}</span>
               <span className="font-bold">
-                {audioPrefs.voiceGender === "FEMALE" ? "VOZ MUJER" : "VOZ HOMBRE"}
+                {audioPrefs.voiceGender === "FEMALE" ? "VOZ ÉLITE" : "VOZ LA ROCA"}
               </span>
+            </button>
+
+            {/* Botón Chat Coach Interactivo */}
+            <button
+              type="button"
+              onClick={() => {
+                playTactileClick();
+                setShowCoachChat(true);
+              }}
+              className="px-3 py-2 rounded-xl bg-gradient-to-r from-emerald-500/15 to-teal-500/15 hover:from-emerald-500/25 hover:to-teal-500/25 border border-emerald-500/40 text-xs font-mono font-bold text-emerald-300 flex items-center gap-1.5 transition-all active:scale-95 cursor-pointer shadow-sm"
+              title="Preguntar al Coach IA sobre técnica, descansos o sensaciones"
+            >
+              <MessageCircle className="w-3.5 h-3.5 text-emerald-400" />
+              <span>CHAT</span>
             </button>
 
             <button
@@ -416,6 +452,19 @@ export function UniversalGuidedFullscreenModal({
                   +30s descanso
                 </button>
               </div>
+
+              {/* Consulta al Coach durante el descanso */}
+              <button
+                type="button"
+                onClick={() => {
+                  playTactileClick();
+                  setShowCoachChat(true);
+                }}
+                className="w-full py-2.5 px-4 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 text-xs font-mono font-medium text-emerald-300 flex items-center justify-center gap-2 cursor-pointer transition-all"
+              >
+                <MessageCircle className="w-3.5 h-3.5 text-emerald-400" />
+                <span>¿Dudas con la técnica o sensaciones? Preguntale al Coach</span>
+              </button>
             </div>
           </div>
         ) : activeSet ? (
@@ -516,6 +565,25 @@ export function UniversalGuidedFullscreenModal({
               </p>
             </div>
 
+            {/* Aviso de descanso biológico de 48h o 72h */}
+            <div className="p-4 rounded-2xl bg-zinc-900/90 border border-emerald-500/40 text-left max-w-lg mx-auto space-y-2">
+              <div className="flex items-center gap-2 text-xs font-mono font-bold text-emerald-400 uppercase">
+                <ShieldAlert className="w-4 h-4 text-emerald-400" />
+                <span>DESCANSO BIOLÓGICO ACTIVADO: {getOptimalRecoveryHours(exerciseName)} HORAS</span>
+              </div>
+              <p className="text-xs text-zinc-300 leading-relaxed font-mono">
+                Para permitir la resíntesis miofibrilar y la recuperación completa del Sistema Nervioso Central (SNC), este ejercicio permanecerá protegido durante las próximas {getOptimalRecoveryHours(exerciseName)} horas.
+              </p>
+              <button
+                type="button"
+                onClick={() => setShowCoachChat(true)}
+                className="w-full py-2 px-3 rounded-lg bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/30 text-xs font-mono font-bold text-emerald-300 flex items-center justify-center gap-1.5 cursor-pointer transition-all"
+              >
+                <MessageCircle className="w-3.5 h-3.5" />
+                <span>Preguntarle al Coach sobre el descanso</span>
+              </button>
+            </div>
+
             <div className="flex flex-col sm:flex-row gap-3 justify-center pt-4">
               <button
                 type="button"
@@ -540,6 +608,16 @@ export function UniversalGuidedFullscreenModal({
       <footer className="w-full max-w-4xl mx-auto p-4 text-center text-xs font-mono text-zinc-500 relative z-10">
         Modo Acompañamiento Inmersivo &middot; Toca ✕ o la tecla Esc para volver
       </footer>
+
+      {/* Modal de Chat con Coach IA */}
+      <CoachChatModal
+        isOpen={showCoachChat}
+        onClose={() => setShowCoachChat(false)}
+        currentExercise={exerciseName}
+        currentWeight={activeSet?.weight}
+        currentReps={activeSet?.reps}
+        currentRpe={activeSet?.targetRpe}
+      />
     </div>,
     document.body
   );

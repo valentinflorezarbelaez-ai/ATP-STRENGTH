@@ -27,15 +27,23 @@ const ZenDashboardClient = dynamic(
 export default function ZenDashboard() {
   const [showIntro, setShowIntro] = useState(() => {
     if (typeof window !== "undefined") {
-      return localStorage.getItem("hasEnteredTemple") !== "true";
+      // Allow automated headless E2E test suites (Playwright) to bypass intro when pre-seeded
+      if (
+        (navigator.webdriver && localStorage.getItem("hasEnteredTemple") === "true") ||
+        new URLSearchParams(window.location.search).get("skipIntro") === "true"
+      ) {
+        return false;
+      }
+      // Clean up legacy permanent lockout from previous builds so real athletes always get the full warrior experience
+      try {
+        localStorage.removeItem("hasEnteredTemple");
+      } catch {}
     }
-    return false;
+    // The Forge, Anthem, and Warrior ritual are an essential gateway before starting
+    return true;
   });
 
   const handleEnter = () => {
-    if (typeof window !== "undefined") {
-      localStorage.setItem("hasEnteredTemple", "true");
-    }
     setShowIntro(false);
   };
 
@@ -43,5 +51,5 @@ export default function ZenDashboard() {
     return <ForgeLanding onEnterDirect={handleEnter} />;
   }
 
-  return <ZenDashboardClient />;
+  return <ZenDashboardClient onOpenForge={() => setShowIntro(true)} />;
 }

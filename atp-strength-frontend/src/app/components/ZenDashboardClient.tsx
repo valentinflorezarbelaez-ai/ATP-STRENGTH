@@ -11,7 +11,7 @@ import { ErrorBoundary } from "@/app/components/ErrorBoundary";
  * Handles view switching between CoachGuidedView and ZenDashboardView.
  * The Spotify button now directly opens Spotify (https://open.spotify.com/intl-es).
  */
-export function ZenDashboardClient() {
+export function ZenDashboardClient({ onOpenForge }: { onOpenForge?: () => void }) {
   const d = useZenDashboard();
 
   const handleOpenSpotifyDirect = () => {
@@ -24,9 +24,17 @@ export function ZenDashboardClient() {
   return (
     <ErrorBoundary>
       {d.coachMode ? (
-        <CoachGuidedView d={d} onShowSpotify={handleOpenSpotifyDirect} />
+        <CoachGuidedView
+          d={d}
+          onShowSpotify={handleOpenSpotifyDirect}
+          onOpenForge={onOpenForge}
+        />
       ) : (
-        <ZenDashboardView d={d} onShowSpotify={handleOpenSpotifyDirect} />
+        <ZenDashboardView
+          d={d}
+          onShowSpotify={handleOpenSpotifyDirect}
+          onOpenForge={onOpenForge}
+        />
       )}
     </ErrorBoundary>
   );

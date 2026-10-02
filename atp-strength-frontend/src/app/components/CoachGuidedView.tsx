@@ -26,14 +26,24 @@ import {
   getBestHumanVoice,
   speakText,
   setVoiceGender,
+  setCoachPersona,
   detectVoiceGender,
   type VoiceGender,
+  type CoachPersona,
   type CoachAudioPreferences,
 } from "@/lib/acousticFeedback";
 
 type Dash = ReturnType<typeof useZenDashboard>;
 
-export function CoachGuidedView({ d }: { d: Dash; onShowSpotify?: () => void }) {
+export function CoachGuidedView({
+  d,
+  onShowSpotify,
+  onOpenForge,
+}: {
+  d: Dash;
+  onShowSpotify?: () => void;
+  onOpenForge?: () => void;
+}) {
   useWakeLock(d.isRunning);
 
   const {
@@ -166,6 +176,23 @@ export function CoachGuidedView({ d }: { d: Dash; onShowSpotify?: () => void }) 
 
         {/* Bottom Row: Smooth Horizontally Scrollable Utility Chips Bar */}
         <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5 -mx-1 px-1 w-full flex-nowrap">
+          <button
+            type="button"
+            onClick={() => {
+              playTactileClick();
+              if (onOpenForge) {
+                onOpenForge();
+              } else {
+                window.location.href = "/forge";
+              }
+            }}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-amber-500/40 bg-gradient-to-r from-amber-500/15 via-red-500/15 to-amber-500/15 text-amber-300 hover:from-amber-500/25 hover:to-red-500/25 hover:border-amber-400/60 transition-all text-xs font-mono font-bold cursor-pointer shadow-[0_0_14px_rgba(245,158,11,0.2)] active:scale-95 flex-shrink-0"
+            title="Entrar a La Forja de los Guerreros y reproducir el Himno"
+          >
+            <Flame className="w-3.5 h-3.5 text-amber-400 fill-amber-400 animate-pulse" />
+            <span>FORJA & HIMNO</span>
+          </button>
+
           <button
             type="button"
             onClick={() => {
@@ -558,55 +585,58 @@ export function CoachGuidedView({ d }: { d: Dash; onShowSpotify?: () => void }) 
                   </button>
                 </div>
 
-                {/* Segmented Control: Mujer / Hombre / Auto */}
+                {/* Segmented Control: Titán (La Roca) / Élite / Auto */}
                 <div className="grid grid-cols-3 gap-1 p-1 rounded-xl bg-zinc-900 border border-zinc-800 text-xs font-mono">
                   <button
                     type="button"
                     onClick={() => {
                       playTactileClick();
-                      const next = setVoiceGender("FEMALE");
+                      const next = setCoachPersona("TITAN");
                       setAudioPrefs(next);
-                      speakText("¡Voz femenina activada! Vamos con determinación.", next);
+                      speakText("¡Modo Titán activado! Estilo La Roca, fuerza bruta y determinación.", next);
                     }}
                     className={`py-1.5 px-2 rounded-lg font-bold flex items-center justify-center gap-1 transition-all cursor-pointer ${
-                      audioPrefs.voiceGender === "FEMALE"
-                        ? "bg-rose-500/20 text-rose-300 border border-rose-500/50 shadow-sm"
-                        : "text-zinc-400 hover:text-zinc-200"
-                    }`}
-                  >
-                    <span>👩</span>
-                    <span>Mujer</span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      playTactileClick();
-                      const next = setVoiceGender("MALE");
-                      setAudioPrefs(next);
-                      speakText("¡Voz masculina activada! A la barra.", next);
-                    }}
-                    className={`py-1.5 px-2 rounded-lg font-bold flex items-center justify-center gap-1 transition-all cursor-pointer ${
-                      audioPrefs.voiceGender === "MALE"
+                      audioPrefs.coachPersona === "TITAN" || audioPrefs.voiceGender === "MALE"
                         ? "bg-amber-500/20 text-amber-300 border border-amber-500/50 shadow-sm"
                         : "text-zinc-400 hover:text-zinc-200"
                     }`}
+                    title="Voz de barítono profundo, potencia masculina y arengas motivacionales duras"
                   >
-                    <span>👨</span>
-                    <span>Hombre</span>
+                    <span>🗿</span>
+                    <span>Titán</span>
                   </button>
                   <button
                     type="button"
                     onClick={() => {
                       playTactileClick();
-                      const next = setVoiceGender("AUTO");
+                      const next = setCoachPersona("ELITE");
                       setAudioPrefs(next);
-                      speakText("Modo automático activado.", next);
+                      speakText("¡Modo Élite activado! Precisión biomecánica y cadencia exacta.", next);
                     }}
                     className={`py-1.5 px-2 rounded-lg font-bold flex items-center justify-center gap-1 transition-all cursor-pointer ${
-                      audioPrefs.voiceGender === "AUTO" || !audioPrefs.voiceGender
+                      audioPrefs.coachPersona === "ELITE" || (audioPrefs.voiceGender === "FEMALE" && audioPrefs.coachPersona !== "TITAN")
+                        ? "bg-rose-500/20 text-rose-300 border border-rose-500/50 shadow-sm"
+                        : "text-zinc-400 hover:text-zinc-200"
+                    }`}
+                    title="Voz femenina técnica, clara y precisa para entrenamientos olímpicos"
+                  >
+                    <span>⚡</span>
+                    <span>Élite</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      playTactileClick();
+                      const next = setCoachPersona("AUTO");
+                      setAudioPrefs(next);
+                      speakText("Modo balanceado activado.", next);
+                    }}
+                    className={`py-1.5 px-2 rounded-lg font-bold flex items-center justify-center gap-1 transition-all cursor-pointer ${
+                      audioPrefs.coachPersona === "AUTO" || (!audioPrefs.coachPersona && audioPrefs.voiceGender === "AUTO")
                         ? "bg-cyan-500/20 text-cyan-300 border border-cyan-500/50 shadow-sm"
                         : "text-zinc-400 hover:text-zinc-200"
                     }`}
+                    title="Voz y tono balanceados del sintetizador estándar"
                   >
                     <span>⭐</span>
                     <span>Auto</span>
@@ -736,6 +766,26 @@ export function CoachGuidedView({ d }: { d: Dash; onShowSpotify?: () => void }) 
                   }}
                 />
               </label>
+            </div>
+
+            {/* Direct Access to La Forja & Anthem */}
+            <div className="pt-2 border-t border-zinc-900">
+              <button
+                type="button"
+                onClick={() => {
+                  playTactileClick();
+                  setShowProfileModal(false);
+                  if (onOpenForge) {
+                    onOpenForge();
+                  } else {
+                    window.location.href = "/forge";
+                  }
+                }}
+                className="w-full py-2.5 px-3 rounded-xl bg-gradient-to-r from-amber-500/20 to-red-500/20 border border-amber-500/40 text-amber-300 hover:text-white text-xs font-mono font-bold flex items-center justify-center gap-2 active:scale-95 transition-all cursor-pointer shadow-sm"
+              >
+                <Flame className="w-4 h-4 text-amber-400 fill-amber-400 animate-pulse" />
+                <span>IR A LA FORJA & REPRODUCIR HIMNO</span>
+              </button>
             </div>
 
             {backupMsg && (

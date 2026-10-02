@@ -28,7 +28,15 @@ import type { useZenDashboard } from "@/app/hooks/useZenDashboard";
 
 type Dash = ReturnType<typeof useZenDashboard>;
 
-export function ZenDashboardView({ d }: { d: Dash; onShowSpotify?: () => void }) {
+export function ZenDashboardView({
+  d,
+  onShowSpotify,
+  onOpenForge,
+}: {
+  d: Dash;
+  onShowSpotify?: () => void;
+  onOpenForge?: () => void;
+}) {
   const [showWarmupModal, setShowWarmupModal] = React.useState(false);
   const [showUniversalProtocol, setShowUniversalProtocol] = React.useState(false);
   const [selectedVideoExercise, setSelectedVideoExercise] = React.useState<string | null>(null);
@@ -160,13 +168,20 @@ export function ZenDashboardView({ d }: { d: Dash; onShowSpotify?: () => void })
                 >
                   CALC COMPLETO
                 </a>
-                <a
-                  href="/forge"
-                  className="px-2.5 py-1 rounded-lg text-[10px] font-mono font-bold bg-amber-500/15 text-amber-400 border border-amber-500/25 hover:bg-amber-500/25 transition-all flex items-center gap-1 flex-shrink-0"
-                  title="La Forja de los Guerreros"
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (onOpenForge) {
+                      onOpenForge();
+                    } else {
+                      window.location.href = "/forge";
+                    }
+                  }}
+                  className="px-2.5 py-1 rounded-lg text-[10px] font-mono font-bold bg-amber-500/15 text-amber-400 border border-amber-500/25 hover:bg-amber-500/25 transition-all flex items-center gap-1 flex-shrink-0 cursor-pointer"
+                  title="La Forja de los Guerreros y el Himno"
                 >
-                  ⚔️ FORJA
-                </a>
+                  ⚔️ FORJA & HIMNO
+                </button>
               </div>
               <p className="text-[11px] sm:text-xs text-zinc-400 font-mono tracking-tight mt-0.5">
                 MOTOR ZEN DE RESÍNTESIS DE ATP & FUERZA MÁXIMA

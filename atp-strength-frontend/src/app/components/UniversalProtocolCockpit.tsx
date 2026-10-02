@@ -20,6 +20,8 @@ import {
   Trophy,
   Volume2,
   Maximize2,
+  ShieldAlert,
+  MessageCircle,
 } from "lucide-react";
 import { playTactileClick, playChime } from "@/lib/zenAudio";
 import { getExerciseMedia } from "@/lib/exerciseMediaCatalog";
@@ -33,6 +35,15 @@ import {
   toggleVoiceGender,
   type VoiceGender,
 } from "@/lib/acousticFeedback";
+import {
+  checkExerciseRecovery,
+  recordExerciseSessionCompletion,
+  bypassExerciseRecoveryLockout,
+  formatRecoverySpokenNotice,
+  getOptimalRecoveryHours,
+  type ExerciseRecoveryStatus,
+} from "@/lib/recoveryLockout";
+import { CoachChatModal } from "@/app/components/CoachChatModal";
 import { UniversalGuidedFullscreenModal } from "@/app/components/UniversalGuidedFullscreenModal";
 
 export interface UniversalProtocolCockpitProps {
@@ -564,6 +575,15 @@ export function UniversalProtocolCockpit({
   }, [allSetsFlat, completedSets]);
 
   const [cockpitAudioPrefs, setCockpitAudioPrefs] = useState(() => getAudioPreferences());
+  const [showCoachChat, setShowCoachChat] = useState<boolean>(false);
+  const [recoveryStatus, setRecoveryStatus] = useState<ExerciseRecoveryStatus>(() => checkExerciseRecovery(activeName));
+  const [recoveryBypassed, setRecoveryBypassed] = useState<boolean>(false);
+
+  // Sync recovery status whenever active exercise changes
+  useEffect(() => {
+    setRecoveryStatus(checkExerciseRecovery(activeName));
+    setRecoveryBypassed(false);
+  }, [activeName]);
 
   const handleToggleVoiceGenderCockpit = () => {
     playTactileClick();
@@ -572,13 +592,30 @@ export function UniversalProtocolCockpit({
     const isFem = next.voiceGender === "FEMALE";
     speakText(
       isFem
-        ? "¡Voz femenina del coach activada!"
-        : "¡Voz masculina del coach activada!"
+        ? "¡Voz Élite activada! Precisión biomecánica."
+        : "¡Voz Titán activada! Estilo La Roca, fuerza bruta y determinación.",
+      next
     );
+  };
+
+  const handleBypassRecovery = () => {
+    playTactileClick();
+    bypassExerciseRecoveryLockout(activeName);
+    setRecoveryBypassed(true);
+    setRecoveryStatus(checkExerciseRecovery(activeName));
+    speakText("Bloqueo de recuperación liberado por el atleta. Procedé con cautela.");
   };
 
   const startGuidedMode = () => {
     playTactileClick();
+    if (recoveryStatus.isLocked && !recoveryBypassed) {
+      playChime(false);
+      speakText(
+        formatRecoverySpokenNotice(activeName, recoveryStatus.remainingHours, recoveryStatus.remainingMinutes)
+      );
+      return;
+    }
+
     playChime(false);
     setShowFullscreenGuide(true);
     setIsGuidedActive(true);
@@ -623,8 +660,12 @@ export function UniversalProtocolCockpit({
         `¡Excelente serie! Iniciamos ${currentRest} segundos de descanso para resíntesis de ATP. Próxima serie: ${nextSet.phaseBadge}, con ${nextSet.weight} kilos.`
       );
     } else {
+      recordExerciseSessionCompletion(activeName);
+      const newStatus = checkExerciseRecovery(activeName);
+      setRecoveryStatus(newStatus);
+      const hours = getOptimalRecoveryHours(activeName);
       speakText(
-        `¡Ejercicio ${activeName} completado con éxito! Todas las fases liquidadas. Supercompensación registrada.`
+        `¡Ejercicio ${activeName} completado con éxito! Todas las fases liquidadas. Hemos activado tu descanso biológico de ${hours} horas para que tus músculos y sistema nervioso alcancen la máxima supercompensación.`
       );
       playChime(true);
       setIsGuidedActive(false);
@@ -659,14 +700,25 @@ export function UniversalProtocolCockpit({
               className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-mono font-black transition-all active:scale-95 cursor-pointer shadow-lg ${
                 isGuidedActive
                   ? "bg-rose-500/20 border border-rose-500/50 text-rose-300 animate-pulse shadow-rose-500/10"
+                  : recoveryStatus.isLocked && !recoveryBypassed
+                  ? "bg-rose-500/20 border border-rose-500/50 text-rose-300 hover:bg-rose-500/30 shadow-rose-500/20"
                   : "bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-black border border-amber-400 shadow-amber-500/25"
               }`}
-              title="Iniciar acompañamiento guiado paso a paso con voz y descansos"
+              title={
+                recoveryStatus.isLocked && !recoveryBypassed
+                  ? `Bloqueo biológico activo: descansá ${recoveryStatus.remainingHours}h más para óptima recuperación.`
+                  : "Iniciar acompañamiento guiado paso a paso con voz y descansos"
+              }
             >
               {isGuidedActive ? (
                 <>
                   <RotateCcw className="w-4 h-4 text-rose-400" />
                   <span>PAUSAR GUÍA</span>
+                </>
+              ) : recoveryStatus.isLocked && !recoveryBypassed ? (
+                <>
+                  <ShieldAlert className="w-4 h-4 text-rose-400" />
+                  <span>RECUPERANDO ({recoveryStatus.remainingHours}H)</span>
                 </>
               ) : (
                 <>
@@ -676,21 +728,35 @@ export function UniversalProtocolCockpit({
               )}
             </button>
 
-            {/* Botón Selector Rápido de Voz (Mujer / Hombre a voluntad) */}
+            {/* Botón Selector Rápido de Voz (Élite / Titán a voluntad) */}
             <button
               type="button"
               onClick={handleToggleVoiceGenderCockpit}
               className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border text-xs font-mono font-bold transition-all active:scale-95 cursor-pointer shadow-sm ${
                 cockpitAudioPrefs.voiceGender === "FEMALE"
                   ? "bg-rose-500/15 border-rose-500/40 text-rose-300 hover:bg-rose-500/25"
-                  : "bg-zinc-900 border-zinc-800 text-zinc-300 hover:text-white hover:border-zinc-700"
+                  : "bg-amber-500/15 border-amber-500/40 text-amber-300 hover:bg-amber-500/25"
               }`}
-              title={`Voz activa del coach: ${cockpitAudioPrefs.voiceGender === "FEMALE" ? "Mujer" : "Hombre"}. Tocá para cambiar a voluntad.`}
+              title={`Voz activa del coach: ${cockpitAudioPrefs.voiceGender === "FEMALE" ? "Élite (Mujer)" : "Titán (La Roca)"}. Tocá para cambiar a voluntad.`}
             >
-              <span className="text-sm">{cockpitAudioPrefs.voiceGender === "FEMALE" ? "👩" : "👨"}</span>
+              <span className="text-sm">{cockpitAudioPrefs.voiceGender === "FEMALE" ? "👩" : "🗿"}</span>
               <span className="hidden sm:inline">
-                {cockpitAudioPrefs.voiceGender === "FEMALE" ? "VOZ MUJER" : "VOZ HOMBRE"}
+                {cockpitAudioPrefs.voiceGender === "FEMALE" ? "VOZ ÉLITE" : "VOZ LA ROCA"}
               </span>
+            </button>
+
+            {/* Botón Chat Interactivo con Coach IA */}
+            <button
+              type="button"
+              onClick={() => {
+                playTactileClick();
+                setShowCoachChat(true);
+              }}
+              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-gradient-to-r from-emerald-500/15 to-teal-500/15 hover:from-emerald-500/25 hover:to-teal-500/25 border border-emerald-500/40 text-xs font-mono font-bold text-emerald-300 transition-all active:scale-95 cursor-pointer shadow-[0_0_12px_rgba(16,185,129,0.15)]"
+              title="Abrir Chat con el Coach de Fuerza IA: preguntá técnica, descansos o dudas"
+            >
+              <MessageCircle className="w-3.5 h-3.5 text-emerald-400" />
+              <span>CHAT COACH</span>
             </button>
 
             {/* Botón Reabrir / Expandir Pantalla Completa si la guía está activa */}
@@ -1257,6 +1323,118 @@ export function UniversalProtocolCockpit({
         </div>
       </div>
 
+      {/* TARJETA DE BLOQUEO BIOMECÁNICO DE RECUPERACIÓN (48H / 72H) */}
+      {recoveryStatus.isLocked && !recoveryBypassed && (
+        <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-br from-rose-950/30 via-zinc-950 to-zinc-900 border-2 border-rose-500/60 shadow-[0_0_35px_rgba(244,63,94,0.2)] space-y-4 animate-in fade-in slide-in-from-top-2">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-rose-500/25 pb-3">
+            <div className="flex items-center gap-2.5">
+              <span className="p-2 rounded-xl bg-rose-500/20 text-rose-400 border border-rose-500/40">
+                <ShieldAlert className="w-5 h-5 animate-pulse" />
+              </span>
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="text-[11px] font-mono font-bold text-rose-400 uppercase tracking-widest">
+                    BLOQUEO BIOLÓGICO DE RECUPERACIÓN ACTIVO
+                  </span>
+                  <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-rose-500/20 border border-rose-500/40 text-rose-300">
+                    {recoveryStatus.recoveryHoursTotal}H DESCANSO
+                  </span>
+                </div>
+                <h4 className="text-sm sm:text-base font-black text-white font-mono uppercase mt-0.5">
+                  {activeName} &middot; MÚSCULO Y SNC EN FASE DE REPARACIÓN
+                </h4>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2 flex-wrap">
+              <button
+                type="button"
+                onClick={() => {
+                  playTactileClick();
+                  speakText(
+                    formatRecoverySpokenNotice(activeName, recoveryStatus.remainingHours, recoveryStatus.remainingMinutes)
+                  );
+                }}
+                className="px-3 py-1.5 rounded-xl bg-zinc-900 border border-zinc-800 hover:border-rose-400/50 text-xs font-mono text-zinc-200 hover:text-white flex items-center gap-1.5 cursor-pointer shadow-sm transition-all"
+                title="Escuchar explicación por voz"
+              >
+                <Volume2 className="w-3.5 h-3.5 text-rose-400" />
+                <span>Escuchar</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  playTactileClick();
+                  setShowCoachChat(true);
+                }}
+                className="px-3 py-1.5 rounded-xl bg-emerald-500/15 border border-emerald-500/40 hover:bg-emerald-500/25 text-xs font-mono font-bold text-emerald-300 flex items-center gap-1.5 cursor-pointer transition-all"
+                title="Preguntarle al Coach por qué debes descansar"
+              >
+                <MessageCircle className="w-3.5 h-3.5 text-emerald-400" />
+                <span>Preguntar al Coach</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={handleBypassRecovery}
+                className="px-3 py-1.5 rounded-xl bg-zinc-900/90 border border-zinc-700 hover:border-amber-400 text-xs font-mono text-zinc-400 hover:text-amber-300 cursor-pointer transition-all"
+                title="Desbloquear manualmente bajo tu propio criterio"
+              >
+                ⚠️ Forzar Desbloqueo
+              </button>
+            </div>
+          </div>
+
+          {/* Contador y Barra de Progreso de Recuperación */}
+          <div className="space-y-2">
+            <div className="flex items-center justify-between text-xs font-mono">
+              <span className="text-zinc-400">
+                Tiempo restante para supercompensación óptima:
+              </span>
+              <span className="font-bold text-rose-400 text-sm">
+                Restan {recoveryStatus.remainingHours}h {recoveryStatus.remainingMinutes}m
+              </span>
+            </div>
+
+            {/* Barra de progreso visual */}
+            <div className="w-full h-3 rounded-full bg-zinc-900 border border-zinc-800 overflow-hidden relative">
+              <div
+                className="h-full bg-gradient-to-r from-rose-500 via-amber-500 to-emerald-500 transition-all duration-500"
+                style={{ width: `${recoveryStatus.recoveryPercent}%` }}
+              />
+            </div>
+            <div className="flex items-center justify-between text-[10px] font-mono text-zinc-500">
+              <span>0h (Agotamiento agudo)</span>
+              <span className="text-amber-400 font-bold">{recoveryStatus.recoveryPercent}% recuperado</span>
+              <span>{recoveryStatus.recoveryHoursTotal}h (Supercompensación 100%)</span>
+            </div>
+          </div>
+
+          {/* Fundamento Biomecánico y Alternativas Sugeridas */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs font-mono">
+            <div className="p-3 rounded-xl bg-zinc-900/80 border border-zinc-800 space-y-1">
+              <span className="text-[11px] font-bold text-rose-400 block uppercase">
+                🔬 Razón Biológica & Fisiológica:
+              </span>
+              <p className="text-zinc-300 leading-relaxed text-[11px]">
+                {recoveryStatus.scientificRationale}
+              </p>
+            </div>
+
+            <div className="p-3 rounded-xl bg-zinc-900/80 border border-zinc-800 space-y-1">
+              <span className="text-[11px] font-bold text-emerald-400 block uppercase">
+                💪 Alternativa Recomendada Hoy:
+              </span>
+              <p className="text-zinc-300 leading-relaxed text-[11px]">
+                Para no frenar tus ganancias, entrená hoy:{" "}
+                <strong className="text-emerald-300">{recoveryStatus.suggestedAlternativeMuscles.join(", ")}</strong>.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* 3. PROTOCOLO EXACTO PASO A PASO (LAS 6 FASES) */}
       <div className="space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
@@ -1524,6 +1702,16 @@ export function UniversalProtocolCockpit({
         completedSets={completedSets}
         onToggleSetComplete={toggleSetComplete}
         onResetAllSets={resetAllSets}
+      />
+
+      {/* Modal de Chat con Coach IA */}
+      <CoachChatModal
+        isOpen={showCoachChat}
+        onClose={() => setShowCoachChat(false)}
+        currentExercise={activeName}
+        isLocked={recoveryStatus.isLocked}
+        remainingHours={recoveryStatus.remainingHours}
+        remainingMinutes={recoveryStatus.remainingMinutes}
       />
     </div>
   );

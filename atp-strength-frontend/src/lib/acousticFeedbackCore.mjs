@@ -40,33 +40,107 @@ export const COACH_CUES = Object.freeze({
   ]),
 });
 
+export const COACH_PERSONAS = Object.freeze({
+  TITAN: Object.freeze({
+    id: "TITAN",
+    name: "La Roca / Titán",
+    gender: "MALE",
+    icon: "🗿",
+    pitch: 0.74,
+    rate: 1.02,
+    cueStyle: "INTENSE_MOTIVATIONAL",
+  }),
+  ELITE: Object.freeze({
+    id: "ELITE",
+    name: "Laura / Élite",
+    gender: "FEMALE",
+    icon: "⚡",
+    pitch: 1.02,
+    rate: 1.05,
+    cueStyle: "TECHNICAL_PRECISE",
+  }),
+  AUTO: Object.freeze({
+    id: "AUTO",
+    name: "Automático",
+    gender: "AUTO",
+    icon: "⭐",
+    pitch: 0.95,
+    rate: 1.02,
+    cueStyle: "BALANCED",
+  }),
+});
+
+export const TITAN_COACH_CUES = Object.freeze({
+  SET_COMPLETED: Object.freeze([
+    "¡Eso es fuerza bruta! A recuperar que todavía falta.",
+    "¡Gran serie! El trabajo duro siempre paga. Respira profundo.",
+    "¡Potencia pura! Sos el más enfocado de esta sala.",
+    "¡Liquidada esa serie! Dominaste la barra por completo.",
+    "¡Eso se llama determinación! Aire en el diafragma y a recuperar.",
+  ]),
+  EXERCISE_COMPLETED: Object.freeze([
+    "¡Ejercicio destruido! Excelente ritmo, vamos al siguiente sin aflojar.",
+    "¡Movimiento liquidado! Así entrena un verdadero guerrero.",
+  ]),
+  REST_HALFWAY: Object.freeze([
+    "Mitad del descanso. Hidratación, foco y recuperación de ATP.",
+    "50% de la recuperación lista. Mente fría y respiración profunda.",
+  ]),
+  REST_15S_WARNING: Object.freeze([
+    "15 segundos. Ajusta el cinturón, la mente fría y el corazón caliente.",
+    "15 segundos. Andá a la barra, mostrá quién manda.",
+    "15 segundos. Foco total, no viniste a pasear.",
+  ]),
+  REST_10S_WARNING: Object.freeze([
+    "Diez segundos. Posición firme frente a la barra.",
+    "Diez segundos. Concentración absoluta.",
+  ]),
+  REST_COMPLETED: Object.freeze([
+    "¡Tiempo cumplido! A la barra con determinación asesina, ¡vamos!",
+    "¡Descanso terminado! Momento de atacar los discos con todo.",
+    "¡Se acabó el descanso! A romperla en esta serie.",
+  ]),
+  SESSION_VICTORY: Object.freeze([
+    "¡Entrenamiento liquidado! Sangre, sudor y respeto. ¡Orgulloso de esta sesión!",
+  ]),
+});
+
 export const DEFAULT_PREFS = Object.freeze({
   soundEnabled: true,
   voiceEnabled: true,
   voiceVolume: 1.0,
   voiceRate: 1.05,
-  voicePitch: 0.92,
+  voicePitch: 1.02,
   preferredVoiceURI: "",
-  voiceGender: "AUTO",
+  voiceGender: "FEMALE",
+  coachPersona: "AUTO",
 });
 
-export function getRandomCue(type, rng = Math.random) {
-  const bank = COACH_CUES[type];
+export function getRandomCue(type, rng = Math.random, persona = "AUTO") {
+  const bank = (persona === "TITAN" && TITAN_COACH_CUES[type])
+    ? TITAN_COACH_CUES[type]
+    : COACH_CUES[type];
   if (!bank || bank.length === 0) return "";
   const index = Math.floor(rng() * bank.length);
   return bank[index];
 }
 
-export function formatTelemetryCue(params, rng = Math.random) {
-  if (!params) return getRandomCue("SET_COMPLETED", rng);
+export function formatTelemetryCue(params, rng = Math.random, persona = "AUTO") {
+  if (!params) return getRandomCue("SET_COMPLETED", rng, persona);
   const { weightKg, reps, rpe } = params;
   if (weightKg && weightKg > 0 && reps && reps > 0) {
+    if (persona === "TITAN") {
+      if (rpe && rpe >= 8) {
+        return `¡Serie brutal de ${reps} repeticiones con ${weightKg} kilos a RPE ${rpe}! Eso es determinación pura. A recuperar.`;
+      }
+      return `¡Serie de ${reps} repeticiones con ${weightKg} kilos liquidada! A recuperar como un titán.`;
+    }
     if (rpe && rpe >= 6.5) {
       return `¡Serie de ${reps} repeticiones con ${weightKg} kilos a RPE ${rpe} completada! A recuperar.`;
     }
     return `¡Serie de ${reps} repeticiones con ${weightKg} kilos completada! Buen trabajo.`;
   }
-  return getRandomCue("SET_COMPLETED", rng);
+  return getRandomCue("SET_COMPLETED", rng, persona);
 }
 
 export function formatBarbellPlatesSpoken(weightKg, barWeight = 20, isBodyweight = false) {
@@ -127,17 +201,29 @@ export function formatPreSetBriefing(params = {}) {
   return text;
 }
 
-export function formatRestCompletedCue(params = {}) {
+export function formatRestCompletedCue(params = {}, persona = "AUTO") {
   const { exerciseName = "", weightKg = 0, reps = 0, platesSpoken = "" } = params;
   let text = "¡Tiempo de descanso cumplido!";
-  if (exerciseName && weightKg > 0) {
-    text += ` A la barra en ${exerciseName} con ${weightKg} kilos`;
-    if (reps > 0) text += ` para ${reps} repeticiones`;
-    text += ".";
-  } else if (weightKg > 0) {
-    text += ` A la barra con ${weightKg} kilos.`;
+  if (persona === "TITAN") {
+    if (exerciseName && weightKg > 0) {
+      text = `¡Tiempo cumplido! A la barra en ${exerciseName} con ${weightKg} kilos`;
+      if (reps > 0) text += ` para ${reps} repeticiones a pura potencia`;
+      text += ".";
+    } else if (weightKg > 0) {
+      text = `¡A la barra con ${weightKg} kilos, con determinación!`;
+    } else {
+      text = "¡A la barra, a comerse los discos!";
+    }
   } else {
-    text += " A la barra, ¡vamos guerrero!";
+    if (exerciseName && weightKg > 0) {
+      text += ` A la barra en ${exerciseName} con ${weightKg} kilos`;
+      if (reps > 0) text += ` para ${reps} repeticiones`;
+      text += ".";
+    } else if (weightKg > 0) {
+      text += ` A la barra con ${weightKg} kilos.`;
+    } else {
+      text += " A la barra, ¡vamos guerrero!";
+    }
   }
   if (platesSpoken) {
     text += ` ${platesSpoken}.`;
@@ -157,6 +243,7 @@ export function formatAutoregulationCue({ direction, deltaKg, nextWeightKg, rpe 
 
 export function validateAudioPreferences(prefs = {}) {
   const validGenders = ["AUTO", "FEMALE", "MALE"];
+  const validPersonas = ["AUTO", "TITAN", "ELITE"];
   return {
     soundEnabled: typeof prefs.soundEnabled === "boolean" ? prefs.soundEnabled : DEFAULT_PREFS.soundEnabled,
     voiceEnabled: typeof prefs.voiceEnabled === "boolean" ? prefs.voiceEnabled : DEFAULT_PREFS.voiceEnabled,
@@ -175,6 +262,9 @@ export function validateAudioPreferences(prefs = {}) {
     voiceGender: validGenders.includes(prefs.voiceGender)
       ? prefs.voiceGender
       : DEFAULT_PREFS.voiceGender,
+    coachPersona: validPersonas.includes(prefs.coachPersona)
+      ? prefs.coachPersona
+      : (prefs.voiceGender === "MALE" ? "TITAN" : (prefs.voiceGender === "FEMALE" ? "ELITE" : DEFAULT_PREFS.coachPersona)),
   };
 }
 
@@ -233,14 +323,21 @@ export function detectVoiceGender(voice) {
  * - Expands acronyms ("ATP" -> "A T P", "SNC" -> "sistema nervioso central", "PR" -> "récord personal")
  * - Cleans HTML tags, symbols, dashes, and emojis so voice never stumbles
  */
+const normalizationCache = new Map();
+const MAX_CACHE_SIZE = 128;
+
 export function normalizeSpeechTextForSpanish(text) {
   if (!text || typeof text !== "string") return "";
+
+  if (normalizationCache.has(text)) {
+    return normalizationCache.get(text);
+  }
 
   let res = text;
 
   // 1. Remove emojis and icons so TTS engines don't read them aloud
   res = res.replace(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{FE00}-\u{FE0F}]/gu, " ");
-  res = res.replace(/[🎯⏱️🔥⚡💪🏆✨☕❤️🛡️🏋️🧘✅❌✕]/g, " ");
+  res = res.replace(/[🎯⏱️🔥⚡💪🏆✨☕❤️🛡️🏋️🧘✅❌✕🗿🦁]/g, " ");
 
   // 2. Clean HTML tags & entities
   res = res.replace(/<[^>]*>/g, " ");
@@ -314,6 +411,12 @@ export function normalizeSpeechTextForSpanish(text) {
   res = res.replace(/,\s*\./g, ".");
   res = res.replace(/\s+([,.:;?!])/g, "$1");
 
-  return res.trim();
+  const trimmed = res.trim();
+  if (normalizationCache.size >= MAX_CACHE_SIZE) {
+    const firstKey = normalizationCache.keys().next().value;
+    normalizationCache.delete(firstKey);
+  }
+  normalizationCache.set(text, trimmed);
+  return trimmed;
 }
 
