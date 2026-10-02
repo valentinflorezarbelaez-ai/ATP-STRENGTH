@@ -578,6 +578,7 @@ export function UniversalProtocolCockpit({
   const [recoveryTrigger, setRecoveryTrigger] = useState(0);
 
   const recoveryStatus = useMemo(() => {
+    void recoveryTrigger;
     return checkExerciseRecovery(activeName);
   }, [activeName, recoveryTrigger]);
 

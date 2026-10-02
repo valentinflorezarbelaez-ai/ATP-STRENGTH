@@ -15,6 +15,9 @@ export function ServiceWorkerRegister() {
     const registerSw = async () => {
       try {
         const reg = await navigator.serviceWorker.register("/sw.js");
+        try {
+          await reg.update();
+        } catch {}
         if (reg.waiting) {
           reg.waiting.postMessage({ type: "SKIP_WAITING" });
         }
