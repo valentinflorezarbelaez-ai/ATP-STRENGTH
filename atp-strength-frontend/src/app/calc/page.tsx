@@ -55,6 +55,7 @@ export default function UniversalCalcPage() {
       <div className="flex-1 flex items-center justify-center my-6">
         <UniversalStrengthCalcModal
           isOpen={true}
+          embedded
           onClose={() => {
             router.push("/");
           }}

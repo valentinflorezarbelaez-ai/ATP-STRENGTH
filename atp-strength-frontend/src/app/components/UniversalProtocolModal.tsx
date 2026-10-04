@@ -707,8 +707,8 @@ export function UniversalProtocolModal({
 
                       <button
                         onClick={() => handleStartRest(step)}
-                        className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-700/80 text-xs font-mono font-bold text-zinc-200 active:scale-95 transition-all cursor-pointer"
-                        title="Iniciar descanso para esta serie"
+                        className="inline-flex items-center gap-1.5 min-h-11 px-3 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-700/80 text-xs font-mono font-bold text-zinc-200 active:scale-95 transition-all cursor-pointer"
+                        aria-label={`Iniciar descanso de ${step.restSeconds} segundos`}
                       >
                         <Clock className="w-3.5 h-3.5 text-amber-400" />
                         <span>{step.restSeconds}s</span>

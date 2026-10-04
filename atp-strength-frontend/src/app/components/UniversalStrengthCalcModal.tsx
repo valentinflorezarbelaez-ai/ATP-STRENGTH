@@ -25,6 +25,7 @@ export interface UniversalStrengthCalcModalProps {
   isOpen: boolean;
   onClose: () => void;
   onStartTimer?: (seconds: number, title: string) => void;
+  embedded?: boolean;
 }
 
 type ExperienceLevel = "beginner" | "intermediate" | "advanced";
@@ -222,6 +223,7 @@ export function UniversalStrengthCalcModal({
   isOpen,
   onClose,
   onStartTimer,
+  embedded = false,
 }: UniversalStrengthCalcModalProps) {
   const [activeTab, setActiveTab] = useState<ActiveTab>("calc");
   const [inputMode, setInputMode] = useState<InputMode>("submax");
@@ -304,8 +306,20 @@ export function UniversalStrengthCalcModal({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/85 backdrop-blur-md overflow-hidden p-0 sm:p-6 animate-in fade-in duration-200">
-      <div className="w-full sm:max-w-3xl h-[100dvh] sm:h-auto sm:max-h-[88vh] rounded-t-2xl sm:rounded-2xl bg-zinc-950 border-t sm:border border-zinc-800 shadow-2xl shadow-amber-500/10 overflow-hidden flex flex-col">
+    <div
+      className={
+        embedded
+          ? "relative w-full max-w-4xl mx-auto"
+          : "fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/85 backdrop-blur-md overflow-hidden p-0 sm:p-6 animate-in fade-in duration-200"
+      }
+    >
+      <div
+        className={
+          embedded
+            ? "w-full rounded-2xl bg-zinc-950 border border-zinc-800 shadow-2xl overflow-hidden flex flex-col"
+            : "w-full sm:max-w-3xl h-[100dvh] sm:h-auto sm:max-h-[88vh] rounded-t-2xl sm:rounded-2xl bg-zinc-950 border-t sm:border border-zinc-800 shadow-2xl shadow-amber-500/10 overflow-hidden flex flex-col"
+        }
+      >
         {/* Encabezado Oscuro Obsidian */}
         <div className="sticky top-0 z-20 bg-zinc-950/95 backdrop-blur-xl border-b border-zinc-800 px-4 py-3 sm:px-5 sm:py-4 flex items-center justify-between flex-shrink-0">
           <div className="flex items-center gap-2.5 sm:gap-3">
@@ -707,10 +721,10 @@ export function UniversalStrengthCalcModal({
                                         e.stopPropagation();
                                         handleStartRest(set.rest, phase.name);
                                       }}
-                                      className="flex items-center justify-center w-8 h-8 mx-auto rounded-lg bg-amber-500/15 border border-amber-500/30 text-amber-400 hover:bg-amber-500 hover:text-zinc-950 active:scale-90 transition-all cursor-pointer shadow-sm"
-                                      title={`Iniciar descanso de ${set.rest}s`}
+                                      aria-label={`Iniciar descanso de ${formatRest(set.rest)}`}
+                                      className="inline-flex items-center justify-center min-h-11 min-w-11 mx-auto rounded-lg bg-amber-500/15 border border-amber-500/30 text-amber-400 hover:bg-amber-500 hover:text-zinc-950 active:scale-95 transition-all cursor-pointer"
                                     >
-                                      <Clock className="w-3.5 h-3.5" />
+                                      <Clock className="w-4 h-4" />
                                     </button>
                                   </div>
                                 );

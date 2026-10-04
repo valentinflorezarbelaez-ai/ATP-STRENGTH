@@ -655,6 +655,7 @@ export function useZenDashboard() {
     showVictoryModal,
     setShowVictoryModal,
     timerDuration: timer.timerDuration,
+    restActive: timer.restActive,
     remainingSeconds: timer.remainingSeconds,
     isRunning: timer.isRunning,
     setIsRunning: timer.setIsRunning,

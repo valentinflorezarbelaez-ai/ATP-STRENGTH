@@ -48,8 +48,8 @@ export function CoachGuidedView({
   const {
     remainingSeconds,
     isRunning,
+    restActive,
     timerTitle,
-    timerDuration,
     handleStartTimer,
     togglePlayPause,
     skipRest,
@@ -366,7 +366,7 @@ export function CoachGuidedView({
 
       {/* 2. Main Guided Area: Universal Protocol PR Cockpit or Active Rest Timer */}
       <section className="order-2 w-full max-w-3xl flex-1 flex flex-col justify-center my-2">
-        {(isRunning || (remainingSeconds > 0 && remainingSeconds < timerDuration)) && (
+        {restActive && (
           <RestClock
             remainingSeconds={remainingSeconds}
             isRunning={isRunning}
@@ -376,7 +376,7 @@ export function CoachGuidedView({
           />
         )}
 
-        <div className={`w-full space-y-4 ${isRunning || (remainingSeconds > 0 && remainingSeconds < timerDuration) ? "hidden" : ""}`}>
+        <div className={`w-full space-y-4 ${restActive ? "hidden" : ""}`}>
           <UniversalProtocolCockpit
             onStartTimer={handleStartTimer}
             onOpenVideo={(name) => setSelectedVideoExercise(name)}
@@ -711,6 +711,7 @@ export function CoachGuidedView({
         isOpen={showUniversalCalc}
         onClose={() => setShowUniversalCalc(false)}
         onStartTimer={(seconds, title) => {
+          setShowUniversalCalc(false);
           handleStartTimer(seconds, title);
         }}
       />

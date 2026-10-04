@@ -51,7 +51,7 @@ export function ZenDashboardView({
     showProgressModal, setShowProgressModal,
     showResetModal, setShowResetModal,
     showVictoryModal, setShowVictoryModal,
-    timerDuration, remainingSeconds, isRunning, timerTitle,
+    remainingSeconds, isRunning, restActive, timerTitle,
     maxesMap, selectedProgressEx, setSelectedProgressEx,
     formFormula, setFormFormula, formWeight, setFormWeight,
     formReps, setFormReps, formNotes, setFormNotes,
@@ -68,7 +68,7 @@ export function ZenDashboardView({
   } = d;
 
   const sessionStats = React.useMemo(() => calculateSessionStats(), [calculateSessionStats]);
-  const restOpen = isRunning || (remainingSeconds > 0 && remainingSeconds < timerDuration);
+  const restOpen = restActive;
 
   return (
     <main className="min-h-screen relative overflow-x-hidden flex flex-col items-center p-4 md:p-8 pb-32 md:pb-8 font-sans selection:bg-pink-500 selection:text-white">
@@ -1009,6 +1009,7 @@ export function ZenDashboardView({
         isOpen={showUniversalCalc}
         onClose={() => setShowUniversalCalc(false)}
         onStartTimer={(seconds, title) => {
+          setShowUniversalCalc(false);
           handleStartTimer(seconds, title);
         }}
       />

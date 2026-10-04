@@ -37,6 +37,7 @@ export function useAtpTimer(initialSeconds = 180) {
   const [timerDuration, setTimerDuration] = useState(initialSeconds);
   const [remainingSeconds, setRemainingSeconds] = useState(initialSeconds);
   const [isRunning, setIsRunning] = useState(false);
+  const [restActive, setRestActive] = useState(false);
   const [timerTitle, setTimerTitle] = useState("Resíntesis de ATP-PCr");
   const sessionRef = useRef<AbsoluteSession | null>(null);
   const completedRef = useRef(false);
@@ -99,6 +100,7 @@ export function useAtpTimer(initialSeconds = 180) {
     setTimerDuration(duration);
     setRemainingSeconds(duration);
     setIsRunning(true);
+    setRestActive(true);
 
     // Request notification permission smoothly on first explicit timer start
     if (
@@ -127,6 +129,7 @@ export function useAtpTimer(initialSeconds = 180) {
       setIsRunning(resumed.status === "RUNNING");
       if (resumed.status === "COMPLETE") {
         setRemainingSeconds(0);
+        setRestActive(false);
         triggerPhaseCompleteHaptic();
         playChime(false);
       }
@@ -136,12 +139,14 @@ export function useAtpTimer(initialSeconds = 180) {
   const handleResetTimer = useCallback(() => {
     sessionRef.current = null;
     setIsRunning(false);
+    setRestActive(false);
     setRemainingSeconds(timerDuration);
   }, [timerDuration]);
 
   const skipRest = useCallback(() => {
     sessionRef.current = null;
     setIsRunning(false);
+    setRestActive(false);
     setRemainingSeconds(0);
   }, []);
 
@@ -211,6 +216,7 @@ export function useAtpTimer(initialSeconds = 180) {
       if (tick.status === "COMPLETE" && !completedRef.current) {
         completedRef.current = true;
         setIsRunning(false);
+        setRestActive(false);
         triggerPhaseCompleteHaptic();
         playChime(false);
 
@@ -251,6 +257,7 @@ export function useAtpTimer(initialSeconds = 180) {
     remainingSeconds,
     setRemainingSeconds,
     isRunning,
+    restActive,
     setIsRunning,
     timerTitle,
     handleStartTimer,
