@@ -627,27 +627,27 @@ button, a, [role="button"], input[type="button"], input[type="submit"] {
   position: relative;
   display: inline-flex;
   align-items: center;
-  padding: 1rem 2.5rem;
-  border: 1px solid rgba(204,164,59,0.4);
-  background: rgba(204,164,59,0.08);
-  color: #cca43b;
-  font-size: 0.8rem;
+  justify-content: center;
+  min-height: 3.25rem;
+  padding: 0.9rem 2.4rem;
+  border: 0;
+  border-radius: 999px;
+  background: #cca43b;
+  color: #14120c;
+  font-size: 0.78rem;
   font-weight: 700;
-  letter-spacing: 0.3em;
+  letter-spacing: 0.18em;
   text-transform: uppercase;
   cursor: pointer;
   overflow: hidden;
-  transition: all 0.4s ease;
-  backdrop-filter: blur(8px);
+  transition: transform 0.2s ease, background-color 0.2s ease;
   font-family: ui-monospace, monospace;
 }
 
 .forge-enter-btn:hover {
-  border-color: rgba(204,164,59,0.8);
-  background: rgba(204,164,59,0.15);
-  color: #ffd700;
-  transform: translateY(-2px);
-  box-shadow: 0 8px 32px rgba(204,164,59,0.2), inset 0 1px 0 rgba(255,215,0,0.1);
+  background: #e0c36a;
+  color: #14120c;
+  transform: translateY(-1px);
 }
 
 .forge-enter-btn:active {
@@ -655,10 +655,7 @@ button, a, [role="button"], input[type="button"], input[type="submit"] {
 }
 
 .forge-enter-btn-glow {
-  position: absolute;
-  inset: -1px;
-  background: linear-gradient(45deg, transparent, rgba(204,164,59,0.1), transparent);
-  animation: btn-glow-sweep 3s ease-in-out infinite;
+  display: none;
 }
 
 @keyframes btn-glow-sweep {
@@ -686,7 +683,7 @@ button, a, [role="button"], input[type="button"], input[type="submit"] {
 @media (max-width: 640px) {
   .forge-title-sub { font-size: 0.6rem; letter-spacing: 0.3em; }
   .forge-subtitle { font-size: 0.55rem; letter-spacing: 0.4em; }
-  .forge-enter-btn { padding: 0.85rem 1.8rem; font-size: 0.7rem; }
+  .forge-enter-btn { padding: 0.9rem 1.6rem; font-size: 0.72rem; letter-spacing: 0.14em; }
   .forge-mantra { font-size: 0.5rem; letter-spacing: 0.3em; }
 }
 
@@ -704,20 +701,16 @@ button, a, [role="button"], input[type="button"], input[type="submit"] {
   gap: 0.65rem;
   padding: 0.5rem 1rem;
   background: rgba(12, 12, 12, 0.85);
-  border: 1px solid rgba(204, 164, 59, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 9999px;
   backdrop-filter: blur(16px);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.7), 0 0 15px rgba(204, 164, 59, 0.2);
-  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-  cursor: pointer;
+  box-shadow: none;
+  transition: border-color 0.2s ease;
   user-select: none;
 }
 
 .forge-audio-pill:hover {
-  border-color: rgba(255, 215, 0, 0.85);
-  box-shadow: 0 4px 25px rgba(0, 0, 0, 0.9), 0 0 25px rgba(255, 215, 0, 0.4);
-  transform: translateY(-2px);
-  background: rgba(20, 18, 14, 0.95);
+  border-color: rgba(255, 255, 255, 0.16);
 }
 
 .forge-audio-pill:active {
@@ -725,8 +718,7 @@ button, a, [role="button"], input[type="button"], input[type="submit"] {
 }
 
 .forge-audio-pill.active {
-  border-color: rgba(255, 215, 0, 0.65);
-  box-shadow: 0 0 20px rgba(255, 215, 0, 0.25), inset 0 0 12px rgba(204, 164, 59, 0.15);
+  border-color: rgba(255, 255, 255, 0.16);
 }
 
 .forge-audio-bars {

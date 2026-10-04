@@ -670,9 +670,9 @@ export function UniversalProtocolCockpit({
   };
 
   return (
-    <div className="space-y-5 sm:space-y-6 animate-in fade-in duration-300">
+    <div className="flex flex-col gap-5 sm:gap-6 animate-in fade-in duration-300">
       {/* 1. Selector de Ejercicio & Configuración del PR */}
-      <div className="p-4 sm:p-5 rounded-2xl bg-zinc-950 border border-zinc-800 shadow-2xl space-y-4">
+      <div className="order-1 p-4 sm:p-5 rounded-2xl bg-zinc-950 border border-zinc-800 shadow-2xl space-y-4">
         {/* Cabecera del Motor */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-zinc-900">
           <div>
@@ -680,12 +680,13 @@ export function UniversalProtocolCockpit({
               <span className="p-1.5 rounded-lg bg-amber-500/10 text-amber-400 border border-amber-500/20">
                 <Dumbbell className="w-4 h-4" />
               </span>
-              <h3 className="text-sm font-mono font-bold text-zinc-100 uppercase tracking-wider">
-                MOTOR UNIVERSAL DE PR &middot; CUALQUIER EJERCICIO
+              <p className="text-[11px] font-mono tracking-[0.16em] text-amber-400">AHORA</p>
+              <h3 className="mt-1 text-xl sm:text-2xl font-semibold tracking-tight text-zinc-50">
+                {activeName}
               </h3>
             </div>
-            <p className="text-xs text-zinc-400 mt-1 leading-relaxed">
-              Autoregulación en tiempo real (Tuchscherer RTS), sobrecarga ondulada y control de fatiga neural (INOL Prilepin).
+            <p className="text-sm text-zinc-400 mt-1 leading-relaxed">
+              Tocá el reloj de la serie para empezar el descanso.
             </p>
           </div>
 
@@ -725,98 +726,6 @@ export function UniversalProtocolCockpit({
               )}
             </button>
 
-            {/* Botón de Voz del Coach */}
-            <button
-              type="button"
-              onClick={handleToggleVoiceGenderCockpit}
-              className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border text-xs font-mono font-bold transition-all active:scale-95 cursor-pointer shadow-sm ${
-                cockpitAudioPrefs.voiceEnabled
-                  ? "bg-amber-500/15 border-amber-500/40 text-amber-300 hover:bg-amber-500/25 shadow-[0_0_12px_rgba(245,158,11,0.15)]"
-                  : "bg-zinc-800/40 border-zinc-700/60 text-zinc-500 hover:bg-zinc-800"
-              }`}
-              title={`Voz del coach: ${cockpitAudioPrefs.voiceEnabled ? "Activa. Tocá para silenciar." : "Silenciada. Tocá para activar."}`}
-            >
-              <span className="text-sm">{cockpitAudioPrefs.voiceEnabled ? "🔊" : "🔇"}</span>
-              <span className="hidden sm:inline">
-                {cockpitAudioPrefs.voiceEnabled ? "VOZ COACH" : "SILENCIADO"}
-              </span>
-            </button>
-
-            {/* Botón Chat Interactivo con Coach IA */}
-            <button
-              type="button"
-              onClick={() => {
-                playTactileClick();
-                setShowCoachChat(true);
-              }}
-              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-gradient-to-r from-emerald-500/15 to-teal-500/15 hover:from-emerald-500/25 hover:to-teal-500/25 border border-emerald-500/40 text-xs font-mono font-bold text-emerald-300 transition-all active:scale-95 cursor-pointer shadow-[0_0_12px_rgba(16,185,129,0.15)]"
-              title="Abrir Chat con el Coach de Fuerza IA: preguntá técnica, descansos o dudas"
-            >
-              <MessageCircle className="w-3.5 h-3.5 text-emerald-400" />
-              <span>CHAT COACH</span>
-            </button>
-
-            {/* Botón Reabrir / Expandir Pantalla Completa si la guía está activa */}
-            {isGuidedActive && (
-              <button
-                type="button"
-                onClick={() => {
-                  playTactileClick();
-                  setShowFullscreenGuide(true);
-                }}
-                className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/50 text-xs font-mono font-bold text-amber-300 transition-all active:scale-95 cursor-pointer shadow-[0_0_12px_rgba(245,158,11,0.2)]"
-                title="Abrir guía inmersiva de pantalla completa"
-              >
-                <Maximize2 className="w-3.5 h-3.5 text-amber-400" />
-                <span>EXPANDIR GUÍA</span>
-              </button>
-            )}
-
-            {/* Botón Ver Demo & Técnica */}
-            <button
-              type="button"
-              onClick={() => {
-                playTactileClick();
-                if (onOpenVideo) {
-                  onOpenVideo(activeName);
-                } else {
-                  setShowInlineDemo(!showInlineDemo);
-                }
-              }}
-              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/40 text-xs font-mono font-bold text-amber-300 transition-all active:scale-95 cursor-pointer shadow-[0_0_12px_rgba(245,158,11,0.15)]"
-              title="Ver video técnico y biomecánica del ejercicio"
-            >
-              <Play className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
-              <span>DEMO & TÉCNICA</span>
-            </button>
-
-            {/* Botón Metrónomo de Tempo */}
-            <button
-              type="button"
-              onClick={() => {
-                playTactileClick();
-                setShowTempoMetronome(!showTempoMetronome);
-              }}
-              className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border text-xs font-mono font-bold transition-all active:scale-95 cursor-pointer ${
-                showTempoMetronome
-                  ? "bg-cyan-500/20 border-cyan-500/50 text-cyan-300"
-                  : "bg-zinc-900 border-zinc-800 text-zinc-400 hover:text-zinc-200"
-              }`}
-              title="Abrir asistente de cadencia de tempo mecánico"
-            >
-              <Timer className="w-3.5 h-3.5 text-cyan-400" />
-              <span>TEMPO 3-1-X-1</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={resetAllSets}
-              className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-zinc-800 bg-zinc-900 hover:border-amber-500/40 text-xs font-mono text-zinc-400 hover:text-amber-400 transition-all cursor-pointer"
-              title="Reiniciar casillas y autoregulaciones"
-            >
-              <RotateCcw className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">Limpiar</span>
-            </button>
           </div>
         </div>
 
@@ -1296,7 +1205,7 @@ export function UniversalProtocolCockpit({
       </div>
 
       {/* 2. Resumen de Cargas & Medidor de Fatiga Neural (INOL Prilepin) */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3 text-center font-mono">
+      <div className="order-4 grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3 text-center font-mono">
         <div className="p-3 rounded-xl bg-zinc-950 border border-zinc-900">
           <span className="text-[10px] text-zinc-500 block uppercase">1RM Real</span>
           <span className="text-lg sm:text-xl font-black text-zinc-200">{prWeight} kg</span>
@@ -1322,7 +1231,7 @@ export function UniversalProtocolCockpit({
 
       {/* TARJETA DE BLOQUEO BIOMECÁNICO DE RECUPERACIÓN (48H / 72H) */}
       {recoveryStatus.isLocked && !recoveryBypassed && (
-        <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-br from-rose-950/30 via-zinc-950 to-zinc-900 border-2 border-rose-500/60 shadow-[0_0_35px_rgba(244,63,94,0.2)] space-y-4 animate-in fade-in slide-in-from-top-2">
+        <div className="order-5 p-4 sm:p-5 rounded-2xl bg-gradient-to-br from-rose-950/30 via-zinc-950 to-zinc-900 border-2 border-rose-500/60 shadow-[0_0_35px_rgba(244,63,94,0.2)] space-y-4">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-rose-500/25 pb-3">
             <div className="flex items-center gap-2.5">
               <span className="p-2 rounded-xl bg-rose-500/20 text-rose-400 border border-rose-500/40">
@@ -1433,15 +1342,14 @@ export function UniversalProtocolCockpit({
       )}
 
       {/* 3. PROTOCOLO EXACTO PASO A PASO (LAS 6 FASES) */}
-      <div className="space-y-4">
+      <div className="order-2 space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
-          <span className="text-xs font-mono font-bold text-zinc-300 uppercase flex items-center gap-2">
+          <span className="text-sm font-semibold text-zinc-100 flex items-center gap-2">
             <Flame className="w-4 h-4 text-amber-400 flex-shrink-0" />
-            <span>PROTOCOLO EXACTO PARA:</span>
-            <span className="text-amber-400 font-black">{activeName}</span>
+            <span>{activeName}</span>
           </span>
-          <span className="text-[10px] font-mono text-zinc-500">
-            Tocá el reloj de cada serie para iniciar el descanso de ATP
+          <span className="text-xs text-zinc-400">
+            Tocá el reloj de la serie para empezar el descanso.
           </span>
         </div>
 
@@ -1565,7 +1473,7 @@ export function UniversalProtocolCockpit({
                               playTactileClick();
                               onStartTimer(set.rest, `${activeName} · ${phase.name}`);
                             }}
-                            className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-amber-500/15 border border-amber-500/30 text-amber-400 hover:bg-amber-500 hover:text-zinc-950 text-xs font-mono font-bold transition-all shadow-sm active:scale-95"
+                            className="flex items-center gap-1.5 min-h-11 px-3 py-2 rounded-lg bg-amber-500/15 border border-amber-500/30 text-amber-400 hover:bg-amber-500 hover:text-zinc-950 text-xs font-mono font-bold transition-all shadow-sm active:scale-95"
                             title={`Iniciar descanso de ${set.rest} segundos`}
                           >
                             <Clock className="w-3.5 h-3.5" />
@@ -1621,8 +1529,103 @@ export function UniversalProtocolCockpit({
         </div>
       </div>
 
+      <div className="order-3 flex flex-wrap items-center gap-2">
+            {/* Botón de Voz del Coach */}
+            <button
+              type="button"
+              onClick={handleToggleVoiceGenderCockpit}
+              className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border text-xs font-mono font-bold transition-all active:scale-95 cursor-pointer shadow-sm ${
+                cockpitAudioPrefs.voiceEnabled
+                  ? "bg-amber-500/15 border-amber-500/40 text-amber-300 hover:bg-amber-500/25 shadow-[0_0_12px_rgba(245,158,11,0.15)]"
+                  : "bg-zinc-800/40 border-zinc-700/60 text-zinc-500 hover:bg-zinc-800"
+              }`}
+              title={`Voz del coach: ${cockpitAudioPrefs.voiceEnabled ? "Activa. Tocá para silenciar." : "Silenciada. Tocá para activar."}`}
+            >
+              <span className="text-sm">{cockpitAudioPrefs.voiceEnabled ? "🔊" : "🔇"}</span>
+              <span className="hidden sm:inline">
+                {cockpitAudioPrefs.voiceEnabled ? "VOZ COACH" : "SILENCIADO"}
+              </span>
+            </button>
+
+            {/* Botón Chat Interactivo con Coach IA */}
+            <button
+              type="button"
+              onClick={() => {
+                playTactileClick();
+                setShowCoachChat(true);
+              }}
+              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-gradient-to-r from-emerald-500/15 to-teal-500/15 hover:from-emerald-500/25 hover:to-teal-500/25 border border-emerald-500/40 text-xs font-mono font-bold text-emerald-300 transition-all active:scale-95 cursor-pointer shadow-[0_0_12px_rgba(16,185,129,0.15)]"
+              title="Abrir Chat con el Coach de Fuerza IA: preguntá técnica, descansos o dudas"
+            >
+              <MessageCircle className="w-3.5 h-3.5 text-emerald-400" />
+              <span>CHAT COACH</span>
+            </button>
+
+            {/* Botón Reabrir / Expandir Pantalla Completa si la guía está activa */}
+            {isGuidedActive && (
+              <button
+                type="button"
+                onClick={() => {
+                  playTactileClick();
+                  setShowFullscreenGuide(true);
+                }}
+                className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/50 text-xs font-mono font-bold text-amber-300 transition-all active:scale-95 cursor-pointer shadow-[0_0_12px_rgba(245,158,11,0.2)]"
+                title="Abrir guía inmersiva de pantalla completa"
+              >
+                <Maximize2 className="w-3.5 h-3.5 text-amber-400" />
+                <span>EXPANDIR GUÍA</span>
+              </button>
+            )}
+
+            {/* Botón Ver Demo & Técnica */}
+            <button
+              type="button"
+              onClick={() => {
+                playTactileClick();
+                if (onOpenVideo) {
+                  onOpenVideo(activeName);
+                } else {
+                  setShowInlineDemo(!showInlineDemo);
+                }
+              }}
+              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/40 text-xs font-mono font-bold text-amber-300 transition-all active:scale-95 cursor-pointer shadow-[0_0_12px_rgba(245,158,11,0.15)]"
+              title="Ver video técnico y biomecánica del ejercicio"
+            >
+              <Play className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
+              <span>DEMO & TÉCNICA</span>
+            </button>
+
+            {/* Botón Metrónomo de Tempo */}
+            <button
+              type="button"
+              onClick={() => {
+                playTactileClick();
+                setShowTempoMetronome(!showTempoMetronome);
+              }}
+              className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border text-xs font-mono font-bold transition-all active:scale-95 cursor-pointer ${
+                showTempoMetronome
+                  ? "bg-cyan-500/20 border-cyan-500/50 text-cyan-300"
+                  : "bg-zinc-900 border-zinc-800 text-zinc-400 hover:text-zinc-200"
+              }`}
+              title="Abrir asistente de cadencia de tempo mecánico"
+            >
+              <Timer className="w-3.5 h-3.5 text-cyan-400" />
+              <span>TEMPO 3-1-X-1</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={resetAllSets}
+              className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-zinc-800 bg-zinc-900 hover:border-amber-500/40 text-xs font-mono text-zinc-400 hover:text-amber-400 transition-all cursor-pointer"
+              title="Reiniciar casillas y autoregulaciones"
+            >
+              <RotateCcw className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">Limpiar</span>
+            </button>
+      </div>
+
       {/* 4. SOBRECARGA ONDULADA (4 SEMANAS) */}
-      <div className="p-4 sm:p-5 rounded-2xl bg-zinc-950 border border-zinc-900 space-y-4 shadow-xl">
+      <div className="order-6 p-4 sm:p-5 rounded-2xl bg-zinc-950 border border-zinc-900 space-y-4 shadow-xl">
         <div className="flex items-center gap-2">
           <span className="p-1.5 rounded-lg bg-violet-500/10 text-violet-400 border border-violet-500/20">
             <TrendingUp className="w-4 h-4" />
@@ -1664,7 +1667,7 @@ export function UniversalProtocolCockpit({
       </div>
 
       {/* 5. DOCTRINA BIOMECÁNICA DE FUERZA MÁXIMA */}
-      <div className="p-4 sm:p-5 rounded-2xl bg-zinc-950 border border-zinc-900 space-y-3">
+      <div className="order-7 p-4 sm:p-5 rounded-2xl bg-zinc-950 border border-zinc-900 space-y-3">
         <h4 className="text-xs font-mono font-bold text-amber-400 uppercase tracking-wider flex items-center gap-1.5">
           <Award className="w-4 h-4" /> REGLAS DE ORO DE LA FUERZA ABSOLUTA
         </h4>

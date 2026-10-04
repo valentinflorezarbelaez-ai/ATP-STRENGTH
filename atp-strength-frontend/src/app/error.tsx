@@ -31,23 +31,16 @@ export default function GlobalErrorBoundary({
         </div>
 
         {/* Header */}
-        <span className="text-[10px] font-mono tracking-widest text-amber-400 uppercase bg-amber-500/10 px-3 py-1 rounded-full border border-amber-500/20 mb-3">
-          ESCUDO DE RESILIENCIA NEUROMUSCULAR
-        </span>
-        <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-white mb-2">
-          Estabilización de Emergencia
+        <h1 className="text-xl sm:text-2xl font-semibold tracking-tight text-white mb-2">
+          Algo se interrumpió
         </h1>
-        <p className="text-xs sm:text-sm text-zinc-400 leading-relaxed mb-6">
-          Se detectó una fluctuación inesperada en la vista. No te preocupes: tus series,
-          pesos y marcas históricas permanecen <span className="text-emerald-400 font-semibold">100% blindados</span> en el almacenamiento seguro WAL offline.
+        <p className="text-sm text-zinc-400 leading-relaxed mb-6">
+          Tus series y marcas siguen en este dispositivo. Podés volver al entrenamiento.
         </p>
 
         {/* Error Details (Folded / Safe) */}
         {error?.message && (
           <div className="w-full mb-6 p-3 rounded-xl bg-zinc-900/60 border border-zinc-800 text-left">
-            <span className="text-[10px] font-mono text-zinc-400 uppercase block mb-1">
-              Registro del Incidente
-            </span>
             <p className="text-xs font-mono text-rose-300/90 break-words line-clamp-3">
               {error.message}
             </p>
@@ -62,7 +55,7 @@ export default function GlobalErrorBoundary({
             className="w-full py-3.5 px-4 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-black font-semibold text-sm flex items-center justify-center gap-2 shadow-lg shadow-amber-500/20 transition-all active:scale-[0.98] cursor-pointer"
           >
             <RefreshCw className="w-4 h-4 animate-spin-reverse" />
-            <span>Reanudar Entrenamiento</span>
+            <span>Volver al entrenamiento</span>
           </button>
 
           <button
@@ -75,7 +68,7 @@ export default function GlobalErrorBoundary({
             className="w-full py-3 px-4 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-zinc-300 font-medium text-xs flex items-center justify-center gap-2 transition-all active:scale-[0.98] cursor-pointer"
           >
             <Database className="w-3.5 h-3.5 text-zinc-400" />
-            <span>Recargar Aplicación Completa</span>
+            <span>Recargar</span>
           </button>
 
           <Link
@@ -83,14 +76,13 @@ export default function GlobalErrorBoundary({
             className="w-full py-2.5 px-4 text-xs font-mono text-zinc-400 hover:text-zinc-300 flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
           >
             <Home className="w-3.5 h-3.5" />
-            <span>Volver al Templo Principal</span>
+            <span>Ir al inicio</span>
           </Link>
         </div>
 
         {/* Footer Guarantee */}
-        <div className="mt-6 pt-4 border-t border-zinc-900/80 w-full flex items-center justify-center gap-2 text-[10px] font-mono text-zinc-400">
-          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
-          <span>OFFLINE-FIRST WAL ENGINE • SIN PÉRDIDA DE DATOS</span>
+        <div className="mt-6 pt-4 border-t border-zinc-900/80 w-full text-center text-xs text-zinc-500">
+          Tus marcas siguen en este dispositivo.
         </div>
       </div>
     </div>

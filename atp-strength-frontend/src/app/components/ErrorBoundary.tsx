@@ -38,11 +38,11 @@ function ErrorFallback({ error, onReset }: FallbackProps) {
         </div>
 
         <div className="space-y-2">
-          <h2 className="text-xl font-bold tracking-tight text-white uppercase">
-            Recuperación de Estado
+          <h2 className="text-xl font-semibold tracking-tight text-white">
+            La sesión se detuvo
           </h2>
-          <p className="text-xs text-zinc-400 leading-relaxed">
-            Se detectó una inconsistencia en los datos temporales de la sesión. Podés restablecer el estado o recargar.
+          <p className="text-sm text-zinc-400 leading-relaxed">
+            Podés volver a intentar. Tus marcas siguen en este dispositivo.
           </p>
           {error?.message && (
             <div className="p-2.5 rounded-xl bg-zinc-900 border border-zinc-800 text-[11px] font-mono text-zinc-500 truncate">
@@ -54,20 +54,20 @@ function ErrorFallback({ error, onReset }: FallbackProps) {
         <div className="flex flex-col gap-2 pt-2">
           <button
             type="button"
-            onClick={handleReset}
-            className="w-full py-3 px-4 rounded-xl bg-amber-500 hover:bg-amber-400 text-black text-xs font-mono font-bold flex items-center justify-center gap-2 transition-all active:scale-95 cursor-pointer shadow-lg shadow-amber-500/10"
+            onClick={handleReload}
+            className="w-full min-h-11 py-3 px-4 rounded-xl bg-amber-500 hover:bg-amber-400 text-black text-sm font-semibold flex items-center justify-center gap-2 transition-all active:scale-95 cursor-pointer"
           >
-            <RotateCcw className="w-4 h-4" />
-            <span>RESTABLECER A DÍA A (RECOMENDADO)</span>
+            <RefreshCw className="w-4 h-4" />
+            <span>Volver a intentar</span>
           </button>
 
           <button
             type="button"
-            onClick={handleReload}
-            className="w-full py-2.5 px-4 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-zinc-300 text-xs font-mono font-medium flex items-center justify-center gap-2 transition-all active:scale-95 cursor-pointer"
+            onClick={handleReset}
+            className="w-full min-h-11 py-2.5 px-4 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-zinc-300 text-sm flex items-center justify-center gap-2 transition-all active:scale-95 cursor-pointer"
           >
-            <RefreshCw className="w-3.5 h-3.5" />
-            <span>REINTENTAR RECARGA</span>
+            <RotateCcw className="w-4 h-4" />
+            <span>Empezar de nuevo</span>
           </button>
         </div>
       </div>

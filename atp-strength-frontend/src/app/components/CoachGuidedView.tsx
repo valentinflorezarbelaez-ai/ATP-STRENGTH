@@ -8,6 +8,7 @@ import {
   Heart, ArrowRight, Coffee, Eye, Sun, Moon, Laptop, User, Download, Upload, Database, BarChart3, Clock
 } from "lucide-react";
 import { PwaInstallPrompt } from "@/components/PwaInstallPrompt";
+import { OFFLINE_MARKS_NOTE } from "@/app/components/TelemetrySyncBadge";
 import { AtpEnergyRing } from "@/app/components/AtpEnergyRing";
 import { UniversalProtocolModal } from "@/app/components/UniversalProtocolModal";
 import { UniversalStrengthCalcModal } from "@/app/components/UniversalStrengthCalcModal";
@@ -126,7 +127,7 @@ export function CoachGuidedView({
   };
 
   return (
-    <main className="min-h-screen relative overflow-x-hidden flex flex-col items-center justify-between p-4 md:p-6 pb-32 md:pb-20 font-sans selection:bg-pink-500 selection:text-white">
+    <main className="min-h-screen relative overflow-x-hidden flex flex-col items-center p-4 md:p-6 pb-32 md:pb-20 font-sans selection:bg-pink-500 selection:text-white">
       {/* Ambient Radial Mesh Backgrounds (Apple Music + Tidal Luxury Style) */}
       <div className="ambient-mesh-light" aria-hidden="true">
         <div className="ambient-orb-1" />
@@ -135,7 +136,7 @@ export function CoachGuidedView({
       </div>
 
       {/* 1. Top Coach Header (Mobile-First Architecture) */}
-      <header className="w-full max-w-3xl flex flex-col gap-2.5 border-b border-zinc-900/80 pb-3 mb-4">
+      <header className="order-1 w-full max-w-3xl flex flex-col gap-2.5 pb-3 mb-2">
         {/* Top Row: Brand & MODO PRO Button */}
         <div className="flex items-center justify-between w-full">
           <div className="flex items-center gap-2.5">
@@ -152,7 +153,7 @@ export function CoachGuidedView({
                 </span>
               </div>
               <p className="text-[11px] text-zinc-400 font-sans">
-                Aplica la sobrecarga y resíntesis ATP a cualquier ejercicio
+                {d.activeExercise?.name ?? "Tu ejercicio"}
               </p>
             </div>
           </div>
@@ -172,8 +173,16 @@ export function CoachGuidedView({
           </button>
         </div>
 
-        {/* Bottom Row: Smooth Horizontally Scrollable Utility Chips Bar */}
-        <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5 -mx-1 px-1 w-full flex-nowrap">
+        </header>
+
+        {d.backendOnline === false && (
+          <p className="order-1 w-full max-w-3xl mb-3 text-sm leading-relaxed text-zinc-300" role="status">
+            {OFFLINE_MARKS_NOTE}
+          </p>
+        )}
+
+        {/* Herramientas, debajo de la serie para no competir con el ejercicio */}
+        <div className="order-3 mt-6 w-full max-w-3xl flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5 -mx-1 px-1 flex-nowrap">
           <button
             type="button"
             onClick={() => {
@@ -187,7 +196,7 @@ export function CoachGuidedView({
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-amber-500/40 bg-gradient-to-r from-amber-500/15 via-red-500/15 to-amber-500/15 text-amber-300 hover:from-amber-500/25 hover:to-red-500/25 hover:border-amber-400/60 transition-all text-xs font-mono font-bold cursor-pointer shadow-[0_0_14px_rgba(245,158,11,0.2)] active:scale-95 flex-shrink-0"
             title="Entrar a La Forja de los Guerreros y reproducir el Himno"
           >
-            <Flame className="w-3.5 h-3.5 text-amber-400 fill-amber-400 animate-pulse" />
+            <Flame className="w-3.5 h-3.5 text-amber-400" />
             <span>FORJA & HIMNO</span>
           </button>
 
@@ -307,14 +316,15 @@ export function CoachGuidedView({
             <span className="font-mono text-xs">RESET</span>
           </button>
         </div>
-      </header>
 
       {/* PWA Standalone Install Banner */}
-      <PwaInstallPrompt />
+      <div className="order-4 w-full max-w-3xl">
+        <PwaInstallPrompt />
+      </div>
 
       {/* Reset Popover Menu */}
       {showResetConfirm && (
-        <div className="w-full max-w-3xl mb-4 p-4 rounded-2xl bg-zinc-950 border border-red-500/30 text-xs space-y-3 animate-in fade-in slide-in-from-top-2">
+        <div className="order-2 w-full max-w-3xl mb-4 p-4 rounded-2xl bg-zinc-950 border border-red-500/30 text-xs space-y-3">
           <div className="flex items-center justify-between">
             <span className="font-bold text-red-400 uppercase tracking-wide">¿Reiniciar progreso de entrenamiento?</span>
             <button
@@ -351,7 +361,7 @@ export function CoachGuidedView({
       )}
 
       {/* 2. Main Guided Area: Universal Protocol PR Cockpit or Active Rest Timer */}
-      <section className="w-full max-w-3xl flex-1 flex flex-col justify-center my-2">
+      <section className="order-2 w-full max-w-3xl flex-1 flex flex-col justify-center my-2">
         {isRunning && (
           /* CASE A: ACTIVE ZEN REST TIMER */
           <div className="w-full p-6 sm:p-8 rounded-3xl bg-zinc-950 border border-amber-500/30 text-center space-y-6 shadow-2xl relative overflow-hidden my-4 animate-in fade-in zoom-in-95">

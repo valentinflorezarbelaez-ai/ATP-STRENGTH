@@ -17,14 +17,11 @@ export default function GlobalError({
           <div className="w-16 h-16 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center mx-auto mb-5 text-amber-400">
             <ShieldAlert className="w-8 h-8" />
           </div>
-          <span className="text-[10px] font-mono tracking-widest text-amber-400 uppercase bg-amber-500/10 px-3 py-1 rounded-full border border-amber-500/20 mb-3 inline-block">
-            SISTEMA NEUROMUSCULAR
-          </span>
-          <h1 className="text-xl font-bold text-white mb-2">
-            Reinicio del Entorno
+          <h1 className="text-xl font-semibold text-white mb-2">
+            Algo se interrumpió
           </h1>
-          <p className="text-xs text-zinc-400 mb-6 leading-relaxed">
-            Se reinicializó el contenedor visual para garantizar la integridad de la sesión.
+          <p className="text-sm text-zinc-400 mb-6 leading-relaxed">
+            Tus marcas siguen en este dispositivo. Volvé a intentar.
           </p>
           <button
             type="button"

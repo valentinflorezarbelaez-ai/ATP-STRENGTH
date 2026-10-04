@@ -73,7 +73,7 @@ export function ZenDashboardView({
   const sessionStats = React.useMemo(() => calculateSessionStats(), [calculateSessionStats]);
 
   return (
-    <main className="min-h-screen relative overflow-x-hidden flex flex-col items-center justify-between p-4 md:p-8 pb-32 md:pb-8 font-sans selection:bg-pink-500 selection:text-white">
+    <main className="min-h-screen relative overflow-x-hidden flex flex-col items-center p-4 md:p-8 pb-32 md:pb-8 font-sans selection:bg-pink-500 selection:text-white">
       {/* Ambient Radial Mesh Backgrounds (Apple Music + Tidal Luxury Style) */}
       <div className="ambient-mesh-light" aria-hidden="true">
         <div className="ambient-orb-1" />
@@ -90,7 +90,7 @@ export function ZenDashboardView({
       )}
 
       {/* Top Header */}
-      <header className="w-full max-w-6xl flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-zinc-900 pb-5 mb-6">
+      <header className="order-1 w-full max-w-6xl flex items-center justify-between gap-4 pb-4 mb-2">
         <div className="flex items-center justify-between w-full md:w-auto">
           <div className="flex items-center gap-3">
             <div className="p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-400 glow-zen-gold">
@@ -105,72 +105,86 @@ export function ZenDashboardView({
                   PRO-V1
                 </span>
               </div>
-              {/* Responsive Chip Action Bar — Smooth Horizontal Scroll on Mobile */}
-              <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5 -mx-1 px-1 sm:mx-0 sm:px-0 flex-nowrap sm:flex-wrap">
-                <a
-                  href="https://open.spotify.com/intl-es"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  onClick={(e) => {
-                    if (onShowSpotify) {
-                      e.preventDefault();
-                      onShowSpotify();
-                      return;
-                    }
-                    try { window.location.href = "spotify:"; } catch {}
-                  }}
-                  className="px-2.5 py-1 rounded-lg text-[10px] font-mono font-bold bg-emerald-500/15 text-emerald-400 border border-emerald-500/25 hover:bg-emerald-500/25 hover:border-emerald-400/50 transition-all flex items-center gap-1 shadow-[0_0_12px_rgba(16,185,129,0.15)] flex-shrink-0 cursor-pointer"
-                  title="Abrir Spotify directamente"
-                >
-                  🎵 SPOTIFY
-                </a>
-                <div
-                  className="px-3 py-1 rounded-lg text-[10px] font-mono font-bold border border-amber-400 bg-amber-500 text-black flex items-center gap-1.5 shadow-[0_0_12px_rgba(245,158,11,0.3)] flex-shrink-0"
-                  title="Protocolo Universal PR activo para cualquier ejercicio libre"
-                >
-                  <Sparkles className="w-3 h-3 text-black fill-black" />
-                  <span>⚡ PROTOCOLO PR (CUALQUIER EJERCICIO)</span>
-                </div>
-                <a
-                  href="/calc"
-                  className="px-2.5 py-1 rounded-lg text-[10px] font-mono font-bold bg-zinc-950 border border-zinc-800 text-zinc-300 hover:text-amber-400 hover:border-amber-500/50 transition-all flex items-center gap-1 flex-shrink-0"
-                  title="Calculadora Universal y Progresiones en Pantalla Completa"
-                >
-                  CALC COMPLETO
-                </a>
-                <button
-                  type="button"
-                  onClick={() => {
-                    if (onOpenForge) {
-                      onOpenForge();
-                    } else {
-                      router.push("/forge");
-                    }
-                  }}
-                  className="px-2.5 py-1 rounded-lg text-[10px] font-mono font-bold bg-amber-500/15 text-amber-400 border border-amber-500/25 hover:bg-amber-500/25 transition-all flex items-center gap-1 flex-shrink-0 cursor-pointer"
-                  title="La Forja de los Guerreros y el Himno"
-                >
-                  ⚔️ FORJA & HIMNO
-                </button>
-              </div>
-              <p className="text-[11px] sm:text-xs text-zinc-400 font-mono tracking-tight mt-0.5">
+              <p className="text-[11px] sm:text-xs text-zinc-400 mt-1">
                 MOTOR ZEN DE RESÍNTESIS DE ATP & FUERZA MÁXIMA
               </p>
             </div>
           </div>
-
           <button
-            onClick={() => setZenFocusMode(true)}
-            className="md:hidden p-2 rounded-xl bg-zinc-950 border border-zinc-800 text-zinc-400 hover:text-amber-400 cursor-pointer"
-            title="Aislamiento Visual True Black"
+            type="button"
+            onClick={d.toggleCoachMode}
+            className="min-h-11 shrink-0 px-3 py-2 rounded-xl border border-amber-500/30 text-xs font-medium text-amber-300 hover:bg-amber-500/10 cursor-pointer"
           >
-            <Maximize2 className="w-4 h-4" />
+            MODO COACH
           </button>
         </div>
+      </header>
 
-        {/* Acciones de Cabecera (Totalmente visibles y adaptativas en móvil sin quiebres) */}
-        <div className="flex items-center gap-2.5 w-full md:w-auto overflow-x-auto no-scrollbar py-1 flex-nowrap">
-          {/* Qobuz / Apple Music Tri-Mode Aspect Toggle */}
+      {backendOnline === false && (
+        <p className="order-2 w-full max-w-6xl mb-3 text-sm leading-relaxed text-zinc-300" role="status">
+          Sin conexión. Tus marcas siguen en este dispositivo.
+        </p>
+      )}
+
+      {(isRunning || remainingSeconds < timerDuration) && (
+        <div className="order-2 w-full max-w-6xl mb-4 p-5 rounded-2xl bg-zinc-950 border border-amber-500/30">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-xs font-medium text-amber-400 flex items-center gap-2">
+              <Zap className="w-4 h-4 text-amber-400" /> Descanso
+            </span>
+            <span className="text-xs text-zinc-400">
+              {isRunning ? "En curso" : "En pausa"}
+            </span>
+          </div>
+          <div className="flex items-end justify-between gap-4">
+            <div>
+              <div className="text-4xl font-semibold font-mono text-white tracking-tight tabular-nums">
+                {formatTime(remainingSeconds)}
+              </div>
+              <p className="text-sm text-zinc-400 mt-1">{timerTitle || activeExercise?.name}</p>
+            </div>
+            <button
+              type="button"
+              onClick={() => setZenFocusMode(true)}
+              className="min-h-11 px-4 py-2.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-black font-semibold text-sm transition-all active:scale-95 cursor-pointer"
+            >
+              Ver reloj
+            </button>
+          </div>
+        </div>
+      )}
+
+      <nav aria-label="Herramientas" className="order-last w-full max-w-6xl mt-8 flex items-center gap-2.5 overflow-x-auto no-scrollbar py-1 flex-nowrap">
+          <button
+            type="button"
+            onClick={() => {
+              if (onOpenForge) onOpenForge();
+              else router.push("/forge");
+            }}
+            className="min-h-11 px-3 py-2 rounded-xl border border-zinc-800 text-xs text-zinc-300 hover:text-amber-300 cursor-pointer"
+          >
+            Forja
+          </button>
+          <a
+            href="/calc"
+            className="min-h-11 px-3 py-2 rounded-xl border border-zinc-800 text-xs text-zinc-300 hover:text-amber-300 inline-flex items-center"
+          >
+            Calculadora
+          </a>
+          <a
+            href="https://open.spotify.com/intl-es"
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={(e) => {
+              if (onShowSpotify) {
+                e.preventDefault();
+                onShowSpotify();
+              }
+            }}
+            className="min-h-11 px-3 py-2 rounded-xl border border-zinc-800 text-xs text-zinc-300 hover:text-amber-300 inline-flex items-center"
+          >
+            Spotify
+          </a>
           <button
             type="button"
             onClick={d.toggleTheme}
@@ -201,18 +215,6 @@ export function ZenDashboardView({
             )}
           </button>
 
-          {/* Botón Cambiar a MODO COACH GUIADO */}
-          <button
-            type="button"
-            onClick={d.toggleCoachMode}
-            className="flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl bg-gradient-to-r from-amber-500/20 to-amber-600/20 hover:from-amber-500/30 hover:to-amber-600/30 border border-amber-500/40 text-xs font-mono font-bold text-amber-300 shadow-lg shadow-amber-500/5 transition-all transform active:scale-95 cursor-pointer"
-            title="Cambiar a Modo Coach Guiado (Paso a Paso)"
-          >
-            <Sparkles className="w-4 h-4 text-amber-400 flex-shrink-0" />
-            <span className="tracking-wide">MODO COACH</span>
-          </button>
-
-          {/* Botón FUERZA / PROGRESO */}
           <button
             onClick={() => {
               if (activeExercise) setSelectedProgressEx(activeExercise.name);
@@ -246,102 +248,64 @@ export function ZenDashboardView({
           </button>
 
           <TelemetrySyncBadge pendingWalCount={pendingWalCount} backendOnline={backendOnline} />
-        </div>
-      </header>
+      </nav>
 
-      {/* PWA In-App Install Prompt Banner */}
-      <PwaInstallPrompt />
+      <div className="order-last w-full max-w-6xl">
+        <PwaInstallPrompt />
+      </div>
 
       {/* Main Grid Layout */}
-      <div className="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-12 gap-6 flex-1 items-start">
-        {/* Left Column: Protocolo Universal PR para Cualquier Ejercicio */}
+      <div className="order-3 w-full max-w-6xl grid grid-cols-1 lg:grid-cols-12 gap-6 flex-1 items-start">
         <section className="flex flex-col gap-5 lg:col-span-7">
-          {/* Directiva de Oro del Protocolo Universal PR */}
-          <div className="rounded-2xl border border-amber-500/25 bg-gradient-to-b from-amber-500/10 via-zinc-950 to-zinc-950 p-4 shadow-xl space-y-3">
+          <div className="order-1">
+            <UniversalProtocolCockpit
+              onStartTimer={handleStartTimer}
+              onOpenVideo={(name) => setSelectedVideoExercise(name)}
+            />
+          </div>
+          <div className="order-2 rounded-2xl border border-amber-500/25 bg-gradient-to-b from-amber-500/10 via-zinc-950 to-zinc-950 p-4 space-y-3">
             <div className="flex items-center justify-between border-b border-zinc-800/80 pb-2">
               <div className="flex items-center gap-2">
                 <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-                <span className="text-xs font-extrabold text-white uppercase tracking-wider font-mono">
-                  Directiva de Oro · Protocolo Universal PR
+                <span className="text-xs font-semibold text-white">
+                  Cómo entrenar hoy
                 </span>
               </div>
-              <span className="text-[10px] font-mono text-zinc-500">SSOT OFICIAL</span>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 text-xs">
               <div className="p-2.5 rounded-xl bg-zinc-900/60 border border-zinc-800 space-y-1">
-                <span className="text-[11px] font-bold text-amber-400 flex items-center gap-1 font-mono">
-                  <Dumbbell className="w-3 h-3" /> 1. ¿Cuántos hacer?
+                <span className="text-[11px] font-medium text-amber-400 flex items-center gap-1">
+                  <Dumbbell className="w-3 h-3" /> Cuántos
                 </span>
-                <p className="text-[10px] text-zinc-300 leading-tight">
-                  <strong className="text-white">3 ejercicios clave</strong> por día (1 Principal pesado + 1 Secundario angular + 1 Blindaje).
+                <p className="text-[11px] text-zinc-300 leading-snug">
+                  3 ejercicios: uno pesado, uno angular y uno de blindaje.
                 </p>
               </div>
 
               <div className="p-2.5 rounded-xl bg-zinc-900/60 border border-zinc-800 space-y-1">
-                <span className="text-[11px] font-bold text-amber-400 flex items-center gap-1 font-mono">
-                  <Timer className="w-3 h-3" /> 2. ¿Cuánto descansar?
+                <span className="text-[11px] font-medium text-amber-400 flex items-center gap-1">
+                  <Timer className="w-3 h-3" /> Descanso
                 </span>
-                <p className="text-[10px] text-zinc-300 leading-tight">
-                  <strong className="text-amber-300">4-5 min</strong> en series pesadas (ATP-PCr 99%), <strong className="text-zinc-200">2-3 min</strong> en aproximación, <strong className="text-zinc-200">2 min</strong> accesorios.
+                <p className="text-[11px] text-zinc-300 leading-snug">
+                  4-5 min en series pesadas, 2-3 min en aproximación, 2 min en accesorios.
                 </p>
               </div>
 
               <div className="p-2.5 rounded-xl bg-zinc-900/60 border border-zinc-800 space-y-1">
-                <span className="text-[11px] font-bold text-amber-400 flex items-center gap-1 font-mono">
-                  <Zap className="w-3 h-3" /> 3. ¿Y demás?
+                <span className="text-[11px] font-medium text-amber-400 flex items-center gap-1">
+                  <Zap className="w-3 h-3" /> Esfuerzo
                 </span>
-                <p className="text-[10px] text-zinc-300 leading-tight">
-                  <strong className="text-amber-300">RIR 1-2</strong> (cero fallo concéntrico), tempo <strong className="text-zinc-200">3-1-X-1</strong> y +2.5 kg cuando RPE ≤ 7.
+                <p className="text-[11px] text-zinc-300 leading-snug">
+                  Dejá 1 o 2 repeticiones en recámara. Subí 2.5 kg cuando se sienta fácil.
                 </p>
               </div>
             </div>
           </div>
-
-          <UniversalProtocolCockpit
-            onStartTimer={handleStartTimer}
-            onOpenVideo={(name) => setSelectedVideoExercise(name)}
-          />
         </section>
 
         {/* Right Column: Sesión del Día + Estado del Descanso ATP + Guía Neuromuscular */}
         <section className="lg:col-span-5 flex flex-col gap-5">
-          {/* Tarjeta de Resíntesis de ATP Activa (Aparece si el temporizador está corriendo) */}
-          {(isRunning || remainingSeconds < timerDuration) && (
-            <div className="p-5 rounded-2xl bg-gradient-to-br from-amber-950/40 via-zinc-950 to-black border border-amber-500/40 shadow-2xl shadow-amber-950/30 animate-pulse">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-xs font-mono font-bold text-amber-400 uppercase flex items-center gap-2">
-                  <Zap className="w-4 h-4 text-amber-400" /> Resíntesis de ATP en Curso
-                </span>
-                <span className="text-xs font-mono text-zinc-400">
-                  {isRunning ? "Recuperando" : "En Pausa"}
-                </span>
-              </div>
-
-              <div className="flex items-center justify-between my-3">
-                <div>
-                  <div className="text-4xl font-black font-mono text-white tracking-tight">
-                    {formatTime(remainingSeconds)}
-                  </div>
-                  <div className="text-xs font-mono text-amber-400 mt-1">
-                    Saturación Fosfágeno: {atpSaturationPercent}%
-                  </div>
-                </div>
-
-                <button
-                  onClick={() => setZenFocusMode(true)}
-                  className="px-4 py-2.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-black font-mono font-bold text-xs uppercase tracking-wider transition-all shadow-md shadow-amber-400/20 active:scale-95 cursor-pointer"
-                >
-                  Ver Reloj Zen
-                </button>
-              </div>
-
-              <div className="text-[11px] text-zinc-400 font-mono">
-                El sistema fosfágeno restaura el 98% de ATP intracelular. Respira con calma.
-              </div>
-            </div>
-          )}
-
           {/* Card de Accesos Rápidos & Dominio Universal */}
           <div className="p-5 rounded-2xl bg-zinc-950 border border-zinc-900 shadow-2xl space-y-4">
             <div className="flex items-center justify-between border-b border-zinc-900 pb-2">

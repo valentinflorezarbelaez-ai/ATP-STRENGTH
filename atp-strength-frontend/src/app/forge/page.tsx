@@ -324,29 +324,6 @@ export default function ForgeLanding({ onEnterDirect }: ForgeLandingProps) {
     }
   }, [trackIdx, currentTrack.src, startAudio, isPlaying]);
 
-  // Attempt play on mount and listen to first user gesture
-  useEffect(() => {
-    startAudio();
-
-    const handleUserInteraction = () => {
-      if (audioRef.current && audioRef.current.paused) {
-        startAudio();
-      }
-    };
-
-    window.addEventListener("pointerdown", handleUserInteraction);
-    window.addEventListener("touchstart", handleUserInteraction);
-    window.addEventListener("click", handleUserInteraction);
-    window.addEventListener("keydown", handleUserInteraction);
-
-    return () => {
-      window.removeEventListener("pointerdown", handleUserInteraction);
-      window.removeEventListener("touchstart", handleUserInteraction);
-      window.removeEventListener("click", handleUserInteraction);
-      window.removeEventListener("keydown", handleUserInteraction);
-    };
-  }, [startAudio]);
-
   // Rotate quotes
   useEffect(() => {
     const interval = setInterval(() => {
@@ -406,11 +383,7 @@ export default function ForgeLanding({ onEnterDirect }: ForgeLandingProps) {
   return (
     <div
       ref={containerRef}
-      onClick={() => {
-        if (!isPlaying) startAudio();
-      }}
-      className={`forge-container ${entering ? "forge-exit" : ""} cursor-pointer`}
-      title={!isPlaying ? "Tocar la pantalla para activar el himno" : undefined}
+      className={`forge-container ${entering ? "forge-exit" : ""}`}
     >
       {/* Audio Engine */}
       <audio
@@ -430,7 +403,7 @@ export default function ForgeLanding({ onEnterDirect }: ForgeLandingProps) {
       >
         <button
           onClick={handlePrevTrack}
-          className="text-[#cca43b] hover:text-[#ffd700] p-1 text-xs transition-colors cursor-pointer"
+          className="min-h-11 min-w-11 text-white/35 hover:text-white/70 text-xs transition-colors cursor-pointer"
           title="Pista anterior"
           aria-label="Pista anterior"
         >
@@ -450,21 +423,21 @@ export default function ForgeLanding({ onEnterDirect }: ForgeLandingProps) {
             <div className="forge-audio-bar" />
           </div>
           <div className="text-left flex flex-col max-w-[150px] sm:max-w-[200px]">
-            <span className="text-[10px] font-bold tracking-wider uppercase font-mono text-[#ffd700] truncate">
+            <span className="text-[10px] font-medium tracking-wide font-mono text-white/55 truncate">
               {currentTrack.title}
             </span>
-            <span className="text-[9px] text-[#cca43b]/80 truncate font-mono">
+            <span className="text-[9px] text-white/35 truncate font-mono">
               {currentTrack.composer}
             </span>
           </div>
-          <span className="text-xs text-[#cca43b]">
+          <span className="text-xs text-white/40">
             {isPlaying ? "🔊" : "🔇"}
           </span>
         </button>
 
         <button
           onClick={handleNextTrack}
-          className="text-[#cca43b] hover:text-[#ffd700] p-1 text-xs transition-colors cursor-pointer"
+          className="min-h-11 min-w-11 text-white/35 hover:text-white/70 text-xs transition-colors cursor-pointer"
           title="Siguiente pista"
           aria-label="Siguiente pista"
         >
@@ -536,38 +509,21 @@ export default function ForgeLanding({ onEnterDirect }: ForgeLandingProps) {
           EL TEMPLO DEL HIERRO
         </p>
 
-        {/* Soundtrack Quick Selector / Play Trigger */}
-        <div className="flex flex-wrap items-center justify-center gap-2 my-3 z-20">
-          {!isPlaying ? (
-            <button
-              onClick={toggleAudio}
-              className="px-5 py-2.5 rounded-full border border-amber-400/60 bg-amber-500/15 hover:bg-amber-500/25 text-amber-300 font-mono text-xs tracking-widest uppercase flex items-center gap-2 shadow-[0_0_20px_rgba(251,191,36,0.35)] animate-pulse cursor-pointer transition-all hover:scale-105"
-            >
-              <span className="text-base">⚔️</span>
-              <span>ACTIVAR HIMNO: {currentTrack.title}</span>
-              <span className="text-sm">▶</span>
-            </button>
-          ) : (
-            <div className="flex items-center gap-2 bg-black/60 border border-amber-500/30 rounded-full px-4 py-1.5 backdrop-blur-md">
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
-              <span className="text-[11px] font-mono text-amber-300 tracking-wider">
-                {currentTrack.tag}: <strong className="text-white">{currentTrack.title}</strong>
-              </span>
-              <button
-                onClick={handleNextTrack}
-                className="text-xs text-amber-400 hover:text-amber-200 ml-2 font-mono underline cursor-pointer"
-              >
-                Cambiar pista ⏭
-              </button>
-            </div>
-          )}
+        <div className="z-20 mt-2 mb-1">
+          <button
+            type="button"
+            onClick={toggleAudio}
+            className="min-h-11 px-3 text-xs text-white/45 hover:text-white/80 cursor-pointer"
+          >
+            {isPlaying ? `Himno: ${currentTrack.title}` : "Poner el himno"}
+          </button>
         </div>
 
         {/* Rotating Quotes with Manual Navigation Controls */}
-        <div className="forge-quote-container relative flex items-center justify-center gap-2 max-w-2xl mx-auto w-full px-4">
+        <div className="forge-quote-container relative flex items-center justify-center gap-3 max-w-2xl mx-auto w-full px-4">
           <button
             onClick={handlePrevQuote}
-            className="w-8 h-8 rounded-full bg-white/5 hover:bg-white/15 text-[#ffd700] flex items-center justify-center text-xs transition-colors cursor-pointer shrink-0 z-20"
+            className="min-h-11 min-w-11 rounded-full text-white/35 hover:text-white/70 flex items-center justify-center text-xs transition-colors cursor-pointer shrink-0 z-20"
             title="Frase anterior"
             aria-label="Frase anterior"
           >
@@ -581,7 +537,7 @@ export default function ForgeLanding({ onEnterDirect }: ForgeLandingProps) {
 
           <button
             onClick={handleNextQuote}
-            className="w-8 h-8 rounded-full bg-white/5 hover:bg-white/15 text-[#ffd700] flex items-center justify-center text-xs transition-colors cursor-pointer shrink-0 z-20"
+            className="min-h-11 min-w-11 rounded-full text-white/35 hover:text-white/70 flex items-center justify-center text-xs transition-colors cursor-pointer shrink-0 z-20"
             title="Siguiente frase"
             aria-label="Siguiente frase"
           >
@@ -590,7 +546,7 @@ export default function ForgeLanding({ onEnterDirect }: ForgeLandingProps) {
         </div>
 
         {/* Enter Button */}
-        <button onClick={handleEnter} className="forge-enter-btn group mt-4 z-20">
+        <button onClick={handleEnter} className="forge-enter-btn group mt-8 z-20">
           <span className="forge-enter-btn-glow" />
           <span className="forge-enter-btn-text">
             ENTRAR AL TEMPLO
