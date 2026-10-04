@@ -1,8 +1,137 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import ForgeLanding from "@/app/forge/page";
+
+type Gate = "forge" | "temple";
+type ThemeMode = "light" | "dark" | "system";
+
+interface BootState {
+  gate: Gate;
+  templeMounted: boolean;
+  presented: boolean;
+}
+
+function readThemeMode(): ThemeMode {
+  if (typeof window === "undefined") return "dark";
+  try {
+    const saved = localStorage.getItem("neuro_strength_theme");
+    if (saved === "light" || saved === "dark" || saved === "system") return saved;
+  } catch {
+    // Private mode or blocked storage keeps the product default.
+  }
+  return "dark";
+}
+
+function prefersDark(mode: ThemeMode): boolean {
+  switch (mode) {
+    case "dark":
+      return true;
+    case "light":
+      return false;
+    case "system":
+      if (typeof window === "undefined" || typeof window.matchMedia !== "function") {
+        return true;
+      }
+      return window.matchMedia("(prefers-color-scheme: dark)").matches;
+    default: {
+      const unreachable: never = mode;
+      return unreachable;
+    }
+  }
+}
+
+function applyThemeClass(): void {
+  if (typeof document === "undefined") return;
+  document.documentElement.classList.toggle("dark", prefersDark(readThemeMode()));
+}
+
+function readBootState(): BootState {
+  const skip =
+    typeof window !== "undefined" &&
+    ((navigator.webdriver && localStorage.getItem("hasEnteredTemple") === "true") ||
+      new URLSearchParams(window.location.search).get("skipIntro") === "true");
+
+  if (typeof window !== "undefined" && !skip) {
+    // Legacy builds locked the ritual away forever. Real sessions always enter through the forge.
+    try {
+      localStorage.removeItem("hasEnteredTemple");
+    } catch {
+      // The ritual still plays if storage is unavailable.
+    }
+  }
+
+  applyThemeClass();
+
+  return {
+    gate: skip ? "temple" : "forge",
+    templeMounted: skip,
+    presented: skip,
+  };
+}
+
+function prefersReducedMotion(): boolean {
+  return (
+    typeof window !== "undefined" &&
+    typeof window.matchMedia === "function" &&
+    window.matchMedia("(prefers-reduced-motion: reduce)").matches
+  );
+}
+
+function TempleLoading() {
+  return (
+    <main
+      className="min-h-dvh flex items-center justify-center px-6 py-16"
+      style={{ backgroundColor: "#0c0d11", color: "#f1f3f7" }}
+      role="status"
+      aria-live="polite"
+      aria-busy="true"
+    >
+      <div className="w-full max-w-sm flex flex-col items-center text-center">
+        <div
+          className="relative mb-8 flex h-14 w-14 items-center justify-center"
+          aria-hidden="true"
+        >
+          <span
+            className="absolute inset-0 rounded-full"
+            style={{ border: "1px solid rgba(204, 164, 59, 0.28)" }}
+          />
+          <span
+            className="absolute inset-1.5 rounded-full motion-safe:animate-spin"
+            style={{
+              border: "1px solid transparent",
+              borderTopColor: "#cca43b",
+            }}
+          />
+          <span
+            className="h-1.5 w-1.5 rounded-full"
+            style={{ backgroundColor: "#cca43b" }}
+          />
+        </div>
+
+        <p
+          className="font-mono text-[11px] tracking-[0.22em] sm:tracking-[0.28em]"
+          style={{ color: "#cca43b" }}
+        >
+          NEURO//STRENGTH
+        </p>
+        <h1
+          className="mt-3 text-[1.65rem] font-semibold tracking-tight"
+          style={{ color: "#f7f4ec" }}
+        >
+          Preparando el templo
+        </h1>
+        <p
+          className="mt-3 text-sm leading-relaxed"
+          style={{ color: "#b7b1a6" }}
+        >
+          El motor Zen se está abriendo. Tus marcas siguen guardadas en este dispositivo.
+        </p>
+      </div>
+    </main>
+  );
+}
 
 const ZenDashboardClient = dynamic(
   () =>
@@ -11,45 +140,77 @@ const ZenDashboardClient = dynamic(
     ),
   {
     ssr: false,
-    loading: () => (
-      <main className="min-h-screen bg-black text-zinc-100 flex flex-col items-center justify-center p-4">
-        <div className="flex items-center gap-3 animate-pulse">
-          <div className="w-8 h-8 rounded-full bg-amber-500/20 border border-amber-500/40" />
-          <span className="text-sm font-mono tracking-widest text-amber-400">
-            CARGANDO MOTOR ZEN...
-          </span>
-        </div>
-      </main>
-    ),
+    loading: () => <TempleLoading />,
   }
 );
 
 export default function ZenDashboard() {
-  const [showIntro, setShowIntro] = useState(() => {
-    if (typeof window !== "undefined") {
-      // Allow automated headless E2E test suites (Playwright) to bypass intro when pre-seeded
-      if (
-        (navigator.webdriver && localStorage.getItem("hasEnteredTemple") === "true") ||
-        new URLSearchParams(window.location.search).get("skipIntro") === "true"
-      ) {
-        return false;
-      }
-      // Clean up legacy permanent lockout from previous builds so real athletes always get the full warrior experience
-      try {
-        localStorage.removeItem("hasEnteredTemple");
-      } catch {}
+  const [boot] = useState(readBootState);
+  const [gate, setGate] = useState<Gate>(boot.gate);
+  const [templeMounted, setTempleMounted] = useState(boot.templeMounted);
+  const [presented, setPresented] = useState(boot.presented);
+  const templeRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    applyThemeClass();
+    if (typeof window.matchMedia !== "function") return;
+    if (readThemeMode() !== "system") return;
+
+    const media = window.matchMedia("(prefers-color-scheme: dark)");
+    const onChange = () => applyThemeClass();
+    media.addEventListener("change", onChange);
+    return () => media.removeEventListener("change", onChange);
+  }, []);
+
+  useEffect(() => {
+    if (gate !== "forge") return;
+    void import("@/app/components/ZenDashboardClient");
+  }, [gate]);
+
+  useEffect(() => {
+    if (gate !== "temple") return;
+    const node = templeRef.current;
+    if (!node) return;
+    if (node.contains(document.activeElement)) return;
+    node.focus({ preventScroll: true });
+  }, [gate]);
+
+  const handleEnter = useCallback(() => {
+    setTempleMounted(true);
+    setGate("temple");
+    if (prefersReducedMotion()) {
+      setPresented(true);
+      return;
     }
-    // The Forge, Anthem, and Warrior ritual are an essential gateway before starting
-    return true;
-  });
+    setPresented(false);
+    requestAnimationFrame(() => setPresented(true));
+  }, []);
 
-  const handleEnter = () => {
-    setShowIntro(false);
-  };
+  const handleOpenForge = useCallback(() => {
+    setPresented(false);
+    setGate("forge");
+  }, []);
 
-  if (showIntro) {
-    return <ForgeLanding onEnterDirect={handleEnter} />;
-  }
+  return (
+    <>
+      {gate === "forge" ? <ForgeLanding onEnterDirect={handleEnter} /> : null}
 
-  return <ZenDashboardClient onOpenForge={() => setShowIntro(true)} />;
+      {templeMounted ? (
+        <div
+          ref={templeRef}
+          tabIndex={-1}
+          hidden={gate !== "temple"}
+          className={
+            gate === "temple"
+              ? `outline-none transition-opacity duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none ${
+                  presented ? "opacity-100" : "opacity-0"
+                }`
+              : undefined
+          }
+        >
+          <ZenDashboardClient onOpenForge={handleOpenForge} />
+        </div>
+      ) : null}
+    </>
+  );
 }
