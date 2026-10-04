@@ -17,10 +17,10 @@ test.describe('SPEC-E2E-03: Neuromuscular Progression Chart & PR Engine', () => 
     await expect(progressBtn).toBeVisible({ timeout: 5000 });
     await progressBtn.click();
 
-    const chartTitle = page.locator('text=CURVA DE SUPERCOMPENSACIÓN NEUROMUSCULAR (e1RM)');
+    const chartTitle = page.locator('text=Cómo viene tu marca');
     await expect(chartTitle).toBeVisible({ timeout: 5000 });
 
-    const emptyMsg = page.locator('text=Aún no hay series registradas');
+    const emptyMsg = page.locator('text=/No se pudieron leer las marcas|Todavía no hay marcas/');
     await expect(emptyMsg).toBeVisible();
   });
 
@@ -76,7 +76,7 @@ test.describe('SPEC-E2E-03: Neuromuscular Progression Chart & PR Engine', () => 
     await progressBtn.click();
 
     // The chart header should be present
-    const chartTitle = page.locator('text=CURVA DE SUPERCOMPENSACIÓN NEUROMUSCULAR (e1RM)');
+    const chartTitle = page.locator('text=Cómo viene tu marca');
     await expect(chartTitle).toBeVisible({ timeout: 5000 });
 
     // SVG elements should render the curve

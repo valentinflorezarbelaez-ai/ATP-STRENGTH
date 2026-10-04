@@ -4,7 +4,7 @@ import React from "react";
 import { useRouter } from "next/navigation";
 import { PwaInstallPrompt } from "@/components/PwaInstallPrompt";
 import { TelemetrySyncBadge } from "@/app/components/TelemetrySyncBadge";
-import { TimerDisplay } from "@/app/components/TimerDisplay";
+import { RestClock } from "@/app/components/RestClock";
 import { WarmupCalculatorModal } from "@/app/components/WarmupCalculatorModal";
 import { UniversalProtocolModal } from "@/app/components/UniversalProtocolModal";
 import { UniversalStrengthCalcModal } from "@/app/components/UniversalStrengthCalcModal";
@@ -19,7 +19,7 @@ import { playTactileClick } from "@/lib/zenAudio";
 import {
   Play,
   Flame, Zap, RotateCcw, CheckCircle2,
-  ShieldCheck, Maximize2, Layers, Sparkles,
+  ShieldCheck, Sparkles,
   TrendingUp, X, Save, Dumbbell, History, Calculator,
   AlertTriangle, Trophy, Sun, Moon, Laptop,
   Download, Upload, Database, HardDrive, Timer,
@@ -45,11 +45,9 @@ export function ZenDashboardView({
   const [showUniversalCalc, setShowUniversalCalc] = React.useState(false);
   const [backupStatusMsg, setBackupStatusMsg] = React.useState<string | null>(null);
   const {
-    currentSet,
-    activePhaseStep, setActivePhaseStep,
+    setActivePhaseStep,
     completedSetsMap,
     backendOnline, pendingWalCount,
-    zenFocusMode, setZenFocusMode,
     showProgressModal, setShowProgressModal,
     showResetModal, setShowResetModal,
     showVictoryModal, setShowVictoryModal,
@@ -58,19 +56,19 @@ export function ZenDashboardView({
     formFormula, setFormFormula, formWeight, setFormWeight,
     formReps, setFormReps, formNotes, setFormNotes,
     isSavingMax, exerciseHistory,
-    progressionCurve, supercompensationTrend,
+    progressionCurve, supercompensationTrend, marksRead,
     activeDay, activeExercise, activeExMax,
     liveCalc, currentExMax,
-    atpSaturationPercent,
     totalDaySets,
-    handleStartTimer, togglePlayPause, handleResetTimer, skipRest,
+    handleStartTimer, togglePlayPause, skipRest,
     handleResetExercise, handleResetDay,
     handleSaveMax,
-    formatTime, playChime, calculateSessionStats,
+    calculateSessionStats,
     ALL_TRACKABLE_EXERCISES,
   } = d;
 
   const sessionStats = React.useMemo(() => calculateSessionStats(), [calculateSessionStats]);
+  const restOpen = isRunning || (remainingSeconds > 0 && remainingSeconds < timerDuration);
 
   return (
     <main className="min-h-screen relative overflow-x-hidden flex flex-col items-center p-4 md:p-8 pb-32 md:pb-8 font-sans selection:bg-pink-500 selection:text-white">
@@ -105,8 +103,8 @@ export function ZenDashboardView({
                   PRO-V1
                 </span>
               </div>
-              <p className="text-[11px] sm:text-xs text-zinc-400 mt-1">
-                MOTOR ZEN DE RESÍNTESIS DE ATP & FUERZA MÁXIMA
+              <p className="text-sm text-zinc-400 mt-1">
+                Sesión de fuerza
               </p>
             </div>
           </div>
@@ -126,31 +124,15 @@ export function ZenDashboardView({
         </p>
       )}
 
-      {(isRunning || remainingSeconds < timerDuration) && (
-        <div className="order-2 w-full max-w-6xl mb-4 p-5 rounded-2xl bg-zinc-950 border border-amber-500/30">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-xs font-medium text-amber-400 flex items-center gap-2">
-              <Zap className="w-4 h-4 text-amber-400" /> Descanso
-            </span>
-            <span className="text-xs text-zinc-400">
-              {isRunning ? "En curso" : "En pausa"}
-            </span>
-          </div>
-          <div className="flex items-end justify-between gap-4">
-            <div>
-              <div className="text-4xl font-semibold font-mono text-white tracking-tight tabular-nums">
-                {formatTime(remainingSeconds)}
-              </div>
-              <p className="text-sm text-zinc-400 mt-1">{timerTitle || activeExercise?.name}</p>
-            </div>
-            <button
-              type="button"
-              onClick={() => setZenFocusMode(true)}
-              className="min-h-11 px-4 py-2.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-black font-semibold text-sm transition-all active:scale-95 cursor-pointer"
-            >
-              Ver reloj
-            </button>
-          </div>
+      {restOpen && (
+        <div className="order-2 w-full max-w-3xl mb-4 pb-24 md:pb-0">
+          <RestClock
+            remainingSeconds={remainingSeconds}
+            isRunning={isRunning}
+            onReady={skipRest}
+            onTogglePause={togglePlayPause}
+            onAddThirty={() => handleStartTimer(remainingSeconds + 30, timerTitle)}
+          />
         </div>
       )}
 
@@ -230,21 +212,10 @@ export function ZenDashboardView({
           <button
             type="button"
             onClick={() => setShowResetModal(true)}
-            className="flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl border border-zinc-800 bg-zinc-950 hover:bg-zinc-900 hover:border-amber-500/50 text-xs font-mono text-zinc-300 hover:text-amber-400 transition-all active:scale-95 cursor-pointer"
-            title="Reiniciar progreso de entrenamiento"
+            className="min-h-11 flex items-center justify-center gap-1.5 px-3 rounded-xl border border-zinc-800 bg-zinc-950 text-sm text-zinc-200 cursor-pointer"
           >
             <RotateCcw className="w-4 h-4 text-amber-400 flex-shrink-0" />
-            <span className="font-bold">RESET</span>
-          </button>
-
-          {/* Botón Aislamiento Zen Desktop */}
-          <button
-            onClick={() => setZenFocusMode(true)}
-            className="hidden md:flex items-center gap-1.5 px-3 py-2.5 rounded-xl bg-zinc-950 border border-zinc-800 hover:border-amber-500/50 text-xs font-mono text-zinc-300 hover:text-amber-400 transition-all cursor-pointer"
-            title="Aislamiento Visual True Black"
-          >
-            <Maximize2 className="w-3.5 h-3.5" />
-            <span>Aislamiento Zen</span>
+            <span>Reiniciar</span>
           </button>
 
           <TelemetrySyncBadge pendingWalCount={pendingWalCount} backendOnline={backendOnline} />
@@ -255,7 +226,7 @@ export function ZenDashboardView({
       </div>
 
       {/* Main Grid Layout */}
-      <div className="order-3 w-full max-w-6xl grid grid-cols-1 lg:grid-cols-12 gap-6 flex-1 items-start">
+      <div className={`order-3 w-full max-w-6xl grid grid-cols-1 lg:grid-cols-12 gap-6 flex-1 items-start ${restOpen ? "hidden" : ""}`}>
         <section className="flex flex-col gap-5 lg:col-span-7">
           <div className="order-1">
             <UniversalProtocolCockpit
@@ -307,86 +278,28 @@ export function ZenDashboardView({
         {/* Right Column: Sesión del Día + Estado del Descanso ATP + Guía Neuromuscular */}
         <section className="lg:col-span-5 flex flex-col gap-5">
           {/* Card de Accesos Rápidos & Dominio Universal */}
-          <div className="p-5 rounded-2xl bg-zinc-950 border border-zinc-900 shadow-2xl space-y-4">
-            <div className="flex items-center justify-between border-b border-zinc-900 pb-2">
-              <span className="text-xs font-mono font-bold text-amber-400 uppercase flex items-center gap-2">
-                <Sparkles className="w-4 h-4" /> MOTOR UNIVERSAL · ACCESOS RÁPIDOS
-              </span>
-              <span className="text-[10px] font-mono text-zinc-500">DOMINIO TOTAL</span>
-            </div>
-            <p className="text-xs text-zinc-400 leading-relaxed font-mono">
-              El entrenamiento no se ata a rutinas cerradas ni divisiones rígidas. Elegí o escribí cualquier ejercicio en el panel principal, ingresá tu PR y ejecutá la sobrecarga con tiempos de recuperación ATP precisos.
-            </p>
-            <div className="grid grid-cols-2 gap-2 text-center text-xs font-mono">
+          <div className="p-5 rounded-2xl bg-zinc-950 border border-zinc-800 space-y-3">
+            <p className="text-sm font-medium text-zinc-100">Otras pantallas</p>
+            <div className="grid grid-cols-1 gap-2">
               <a
                 href="/calc"
-                className="p-3 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-zinc-200 hover:text-amber-400 transition-all font-bold"
+                className="min-h-11 px-3 rounded-xl bg-zinc-900 border border-zinc-800 text-sm text-zinc-100 inline-flex items-center"
               >
-                ⚡ Pantalla Completa (/calc)
+                Calculadora completa
               </a>
               <button
                 type="button"
                 onClick={() => setShowUniversalCalc(true)}
-                className="p-3 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/30 text-amber-300 font-bold transition-all cursor-pointer"
+                className="min-h-11 px-3 rounded-xl bg-amber-400 text-black text-sm font-semibold cursor-pointer"
               >
-                📊 Abrir Modal Fases
+                Abrir calculadora
               </button>
-            </div>
-          </div>
-
-          {/* Card Guía Fisiológica de las 6 Fases Neuromusculares */}
-          <div className="p-5 rounded-2xl bg-zinc-950 border border-zinc-900 shadow-2xl space-y-3">
-            <div className="flex items-center justify-between border-b border-zinc-900 pb-2">
-              <span className="text-xs font-mono font-bold text-zinc-200 uppercase flex items-center gap-2">
-                <Layers className="w-4 h-4 text-amber-400" /> FISIOLOGÍA DE LAS 6 FASES
-              </span>
               <button
                 type="button"
                 onClick={() => setShowUniversalProtocol(true)}
-                className="text-[11px] font-mono text-amber-400 hover:underline cursor-pointer"
+                className="min-h-11 px-3 rounded-xl border border-zinc-700 text-sm text-zinc-100 cursor-pointer"
               >
-                Ver Guía Completa
-              </button>
-            </div>
-
-            <p className="text-xs text-zinc-400 font-mono leading-relaxed">
-              Cada ejercicio seleccionado sigue la secuencia neuromuscular óptima para reclutar unidades motoras de alto umbral sin fatiga metabólica prematura:
-            </p>
-
-            <div className="space-y-2 font-mono text-xs">
-              <div className="p-2.5 rounded-xl bg-black border border-zinc-800/80 flex items-center justify-between">
-                <span className="text-zinc-300 font-bold">F1: Activación SNC</span>
-                <span className="text-amber-400 font-bold">20% PR · 10 reps (Barra)</span>
-              </div>
-              <div className="p-2.5 rounded-xl bg-black border border-zinc-800/80 flex items-center justify-between">
-                <span className="text-zinc-300 font-bold">F2: Aproximación Ligera</span>
-                <span className="text-amber-400 font-bold">45% PR · 5 reps</span>
-              </div>
-              <div className="p-2.5 rounded-xl bg-black border border-zinc-800/80 flex items-center justify-between">
-                <span className="text-zinc-300 font-bold">F3: Aproximación Media</span>
-                <span className="text-amber-400 font-bold">65% PR · 3 reps</span>
-              </div>
-              <div className="p-2.5 rounded-xl bg-black border border-zinc-800/80 flex items-center justify-between">
-                <span className="text-zinc-300 font-bold">F4: Potenciación PAP</span>
-                <span className="text-amber-400 font-bold">85% PR · 1 rep</span>
-              </div>
-              <div className="p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-between">
-                <span className="text-white font-bold">F5: Efectivas de Fuerza</span>
-                <span className="text-amber-300 font-bold">3×3-5 @ RPE 8-9 (4-5 min)</span>
-              </div>
-              <div className="p-2.5 rounded-xl bg-black border border-zinc-800/80 flex items-center justify-between">
-                <span className="text-zinc-300 font-bold">F6: Back-Off Hipertrofia</span>
-                <span className="text-amber-400 font-bold">70% PR · 8-10 reps (2 min)</span>
-              </div>
-            </div>
-
-            <div className="pt-2">
-              <button
-                type="button"
-                onClick={() => setShowUniversalProtocol(true)}
-                className="w-full py-2.5 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 border border-amber-500/30 font-mono text-xs font-bold transition-all text-center cursor-pointer shadow-sm"
-              >
-                ⚡ LEER PROTOCOLO UNIVERSAL DETALLADO
+                Ver la guía
               </button>
             </div>
           </div>
@@ -400,21 +313,17 @@ export function ZenDashboardView({
             {/* Header del Modal */}
             <div className="flex items-center justify-between border-b border-zinc-900 pb-4 mb-5">
               <div>
-                <div className="flex items-center gap-2">
-                  <h2 className="text-lg sm:text-xl font-black text-white tracking-wider uppercase">
-                    PROGRESO & CARGAS OBJETIVO
-                  </h2>
-                  <span className="px-2 py-0.5 rounded bg-amber-500/20 border border-amber-500/40 text-[10px] font-mono text-amber-400 font-bold">
-                    MOTOR 1RM / TM
-                  </span>
-                </div>
-                <p className="text-xs text-zinc-400 font-mono mt-0.5">
-                  Cálculo fisiológico de cargas para el protocolo secuencial ATP
+                <h2 className="text-lg sm:text-xl font-semibold text-white">
+                  Progreso
+                </h2>
+                <p className="text-sm text-zinc-400 mt-0.5">
+                  Tus marcas y las cargas de hoy.
                 </p>
               </div>
               <button
                 onClick={() => setShowProgressModal(false)}
-                className="p-2 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-zinc-400 hover:text-white border border-zinc-800 transition-colors cursor-pointer"
+                aria-label="Cerrar progreso"
+                className="min-h-11 min-w-11 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-zinc-200 border border-zinc-800 cursor-pointer inline-flex items-center justify-center"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -431,7 +340,7 @@ export function ZenDashboardView({
                     <button
                       key={ex}
                       onClick={() => setSelectedProgressEx(ex)}
-                      className={`px-3.5 py-2 rounded-xl text-xs font-mono font-bold whitespace-nowrap transition-all border cursor-pointer ${
+                      className={`min-h-11 px-3.5 rounded-xl text-sm font-medium whitespace-nowrap transition-all border cursor-pointer ${
                         isSelected
                           ? "bg-amber-400 text-black border-amber-400 shadow-md shadow-amber-400/20"
                           : hasRecord
@@ -452,11 +361,10 @@ export function ZenDashboardView({
                 <button
                   type="button"
                   onClick={() => setSelectedVideoExercise(selectedProgressEx)}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-amber-500/40 bg-amber-500/10 hover:bg-amber-500/20 text-xs font-mono font-bold text-amber-300 transition-all active:scale-95 cursor-pointer shadow-[0_0_10px_rgba(245,158,11,0.15)]"
-                  title="Ver video técnico"
+                  className="inline-flex items-center gap-1.5 min-h-11 px-3 rounded-xl border border-amber-500/40 bg-amber-500/10 text-sm font-medium text-amber-200 cursor-pointer"
                 >
                   <Play className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
-                  <span>VER TÉCNICA</span>
+                  <span>Ver técnica</span>
                 </button>
               </div>
 
@@ -464,7 +372,7 @@ export function ZenDashboardView({
               <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5">
                 <div className="p-4 rounded-2xl bg-zinc-900/60 border border-zinc-800">
                   <div className="text-[10px] font-mono text-zinc-400 uppercase tracking-wider mb-1">
-                    1RM Actual (Máximo)
+                    Tu máximo
                   </div>
                   <div className="text-2xl font-black font-mono text-amber-400">
                     {currentExMax ? `${currentExMax.one_rep_max} kg` : "Sin registro"}
@@ -478,16 +386,16 @@ export function ZenDashboardView({
 
                 <div className="p-4 rounded-2xl bg-zinc-900/60 border border-zinc-800">
                   <div className="flex items-center justify-between text-[10px] font-mono text-zinc-400 uppercase tracking-wider mb-1">
-                    <span>Training Max (TM)</span>
+                    <span>Carga de trabajo</span>
                     <span className="px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-400 font-bold">
-                      90% de 1RM
+                      90%
                     </span>
                   </div>
                   <div className="text-2xl font-black font-mono text-white">
                     {currentExMax ? `${currentExMax.training_max} kg` : "—"}
                   </div>
                   <div className="text-[11px] text-zinc-500 font-mono mt-1">
-                    Margen para evitar sobretensión del SNC
+                    El 90% de tu máximo.
                   </div>
                 </div>
 
@@ -703,9 +611,7 @@ export function ZenDashboardView({
                 >
                   <Save className="w-4 h-4 text-black" />
                   <span>
-                    {isSavingMax
-                      ? "Guardando en PostgreSQL..."
-                      : "💾 GUARDAR MARCA Y RECALCULAR CARGAS"}
+                    {isSavingMax ? "Guardando…" : "Guardar marca"}
                   </span>
                 </button>
               </div>
@@ -716,6 +622,7 @@ export function ZenDashboardView({
                 curvePoints={progressionCurve}
                 trend={supercompensationTrend}
                 current1Rm={currentExMax?.one_rep_max}
+                marksRead={marksRead}
               />
 
               {/* Historial Reciente de Series */}
@@ -726,8 +633,8 @@ export function ZenDashboardView({
                       <History className="w-4 h-4 text-amber-400" />
                       <span>Historial de Series & Calibraciones ({exerciseHistory.length})</span>
                     </div>
-                    <span className="text-[10px] text-zinc-500 font-mono">
-                      Soberanía Local + WAL
+                    <span className="text-sm text-zinc-500">
+                      En este dispositivo
                     </span>
                   </div>
                   <div className="space-y-1.5 max-h-48 overflow-y-auto pr-1">
@@ -766,7 +673,7 @@ export function ZenDashboardView({
                   <div className="flex items-center gap-2">
                     <HardDrive className="w-4 h-4 text-cyan-400" />
                     <span className="text-xs font-mono font-bold text-white uppercase tracking-wider">
-                      SOBERANÍA DE DATOS // RESPALDO & RESTAURACIÓN
+                      Copias en este dispositivo
                     </span>
                   </div>
                   {backupStatusMsg && (
@@ -776,7 +683,7 @@ export function ZenDashboardView({
                   )}
                 </div>
                 <p className="text-xs text-zinc-400">
-                  Tus marcas, progresiones y series te pertenecen. Descargá copias criptográficas locales o restaurá tu perfil completo en 1 clic.
+                  Descargá un archivo o volvé a cargar uno. Queda en este aparato.
                 </p>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs font-mono">
                   <button
@@ -787,10 +694,10 @@ export function ZenDashboardView({
                       setBackupStatusMsg("Copia JSON descargada ✓");
                       setTimeout(() => setBackupStatusMsg(null), 4000);
                     }}
-                    className="py-2.5 px-3 rounded-xl bg-zinc-900/90 hover:bg-zinc-800 border border-zinc-700/80 text-zinc-200 hover:text-white flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-sm active:scale-95"
+                    className="min-h-11 px-3 rounded-xl bg-zinc-900 border border-zinc-700 text-zinc-100 flex items-center justify-center gap-1.5 cursor-pointer"
                   >
                     <Download className="w-3.5 h-3.5 text-amber-400" />
-                    <span>Backup JSON</span>
+                    <span>Descargar JSON</span>
                   </button>
                   <button
                     type="button"
@@ -800,12 +707,12 @@ export function ZenDashboardView({
                       setBackupStatusMsg("Historial CSV descargado ✓");
                       setTimeout(() => setBackupStatusMsg(null), 4000);
                     }}
-                    className="py-2.5 px-3 rounded-xl bg-zinc-900/90 hover:bg-zinc-800 border border-zinc-700/80 text-zinc-200 hover:text-white flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-sm active:scale-95"
+                    className="min-h-11 px-3 rounded-xl bg-zinc-900 border border-zinc-700 text-zinc-100 flex items-center justify-center gap-1.5 cursor-pointer"
                   >
                     <Database className="w-3.5 h-3.5 text-cyan-400" />
-                    <span>Exportar CSV</span>
+                    <span>Descargar CSV</span>
                   </button>
-                  <label className="py-2.5 px-3 rounded-xl bg-zinc-900/90 hover:bg-zinc-800 border border-dashed border-zinc-700 text-zinc-300 hover:text-white flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-sm active:scale-95 text-center">
+                  <label className="min-h-11 px-3 rounded-xl bg-zinc-900 border border-dashed border-zinc-700 text-zinc-100 flex items-center justify-center gap-1.5 cursor-pointer">
                     <Upload className="w-3.5 h-3.5 text-emerald-400" />
                     <span>Restaurar JSON</span>
                     <input
@@ -853,10 +760,10 @@ export function ZenDashboardView({
             <div className="p-3.5 rounded-xl bg-amber-500/5 border border-amber-500/20 text-xs text-zinc-300 space-y-1">
               <div className="flex items-center gap-1.5 text-amber-400 font-bold">
                 <AlertTriangle className="w-4 h-4 flex-shrink-0" />
-                <span>¿Deseas reiniciar las series registradas?</span>
+                <span>¿Reiniciar el entrenamiento de hoy?</span>
               </div>
-              <p className="text-[11px] text-zinc-400 leading-relaxed">
-                Esta acción desmarcará las series completadas para que puedas volver a ejecutarlas desde cero. Tus marcas 1RM no se perderán.
+              <p className="text-sm text-zinc-300 leading-relaxed">
+                Se borran las series marcadas de hoy. Las marcas guardadas en este dispositivo se quedan.
               </p>
             </div>
 
@@ -1025,27 +932,6 @@ export function ZenDashboardView({
         </div>
       )}
 
-      {zenFocusMode && activeExercise && (
-        <TimerDisplay
-          variant="zen-fullscreen"
-          title={timerTitle}
-          remainingSeconds={remainingSeconds}
-          durationSeconds={timerDuration}
-          isRunning={isRunning}
-          atpSaturationPercent={atpSaturationPercent}
-          exerciseName={activeExercise.name}
-          currentSet={currentSet}
-          activePhaseStep={activePhaseStep}
-          prescriptions={activeExMax?.prescriptions}
-          exerciseReps={activeExercise.reps}
-          onTogglePlayPause={togglePlayPause}
-          onReset={handleResetTimer}
-          onSkip={skipRest}
-          onPlayChime={() => playChime(false)}
-          onCloseZen={() => setZenFocusMode(false)}
-        />
-      )}
-
       {/* Footer */}
       <footer className="w-full max-w-6xl border-t border-zinc-900 pt-5 mt-8 flex flex-col md:flex-row items-center justify-between text-xs text-zinc-400 font-mono gap-3">
         <div className="flex items-center gap-2">
@@ -1055,53 +941,17 @@ export function ZenDashboardView({
         <div>NEURO//STRENGTH // High Performance Framework</div>
       </footer>
 
-      {/* Floating Sticky Mini-Timer on Mobile when active */}
-      {isRunning && remainingSeconds > 0 && (
-        <div
-          onClick={() => setZenFocusMode(true)}
-          className="md:hidden fixed bottom-[72px] left-3 right-3 z-40 p-3 rounded-2xl bg-zinc-950/95 border border-amber-500/50 shadow-2xl shadow-amber-500/20 backdrop-blur-xl flex items-center justify-between cursor-pointer animate-in slide-in-from-bottom-2"
-        >
-          <div className="flex items-center gap-2.5 min-w-0">
-            <span className="relative flex h-2.5 w-2.5 flex-shrink-0">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75" />
-              <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-amber-500" />
-            </span>
-            <div className="min-w-0">
-              <span className="text-[10px] font-mono text-zinc-400 block uppercase">Resíntesis ATP Activa</span>
-              <span className="text-xs font-mono font-bold text-amber-300 truncate block">
-                {timerTitle || "Recuperación Neural"}
-              </span>
-            </div>
-          </div>
-          <div className="flex items-center gap-2 flex-shrink-0">
-            <span className="text-base font-mono font-black text-amber-400">
-              {formatTime(remainingSeconds)}
-            </span>
-            <button
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                skipRest();
-              }}
-              className="px-2.5 py-1.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-[10px] font-mono font-bold text-zinc-300 hover:text-white active:scale-95 transition-all"
-            >
-              Saltar
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* Barra Móvil Inferior Fija: acceso 100% permanente a Progreso de Fuerza y Reset */}
+      {/* Barra móvil */}
       <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-zinc-950/95 border-t border-zinc-800/80 backdrop-blur-xl px-3 py-2.5 pb-[max(0.625rem,env(safe-area-inset-bottom))] shadow-2xl flex items-center justify-between gap-2">
         <button
           onClick={() => {
             if (activeExercise) setSelectedProgressEx(activeExercise.name);
             setShowProgressModal(true);
           }}
-          className="flex-1 flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl bg-gradient-to-r from-amber-500/20 to-amber-600/10 border border-amber-500/40 text-amber-300 text-xs font-mono font-bold active:scale-95 transition-all shadow-md shadow-amber-500/10 cursor-pointer"
+          className="flex-1 min-h-11 flex items-center justify-center gap-1.5 px-3 rounded-xl border border-amber-500/40 text-amber-200 text-sm font-medium cursor-pointer"
         >
           <TrendingUp className="w-4 h-4 text-amber-400 flex-shrink-0" />
-          <span>PROGRESO 1RM</span>
+          <span>Progreso</span>
           {activeExMax && (
             <span className="ml-1 px-1.5 py-0.5 rounded bg-amber-500/20 text-[10px] text-amber-300 font-bold">
               {activeExMax.one_rep_max}kg
@@ -1111,19 +961,10 @@ export function ZenDashboardView({
 
         <button
           onClick={() => setShowResetModal(true)}
-          className="flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl bg-zinc-900/90 hover:bg-zinc-800 border border-zinc-800 text-zinc-300 hover:text-amber-400 text-xs font-mono active:scale-95 transition-all cursor-pointer"
-          title="Reiniciar progreso"
+          className="min-h-11 flex items-center justify-center gap-1.5 px-3 rounded-xl bg-zinc-900 border border-zinc-800 text-zinc-100 text-sm cursor-pointer"
         >
           <RotateCcw className="w-4 h-4 text-amber-400 flex-shrink-0" />
-          <span>RESET</span>
-        </button>
-
-        <button
-          onClick={() => setZenFocusMode(true)}
-          className="p-2.5 rounded-xl bg-zinc-900/90 hover:bg-zinc-800 border border-zinc-800 text-zinc-300 active:scale-95 transition-all cursor-pointer"
-          title="Aislamiento Visual True Black"
-        >
-          <Maximize2 className="w-4 h-4 text-amber-400" />
+          <span>Reiniciar</span>
         </button>
       </div>
           {/* Modal de Video Técnico Biomecánico HD */}

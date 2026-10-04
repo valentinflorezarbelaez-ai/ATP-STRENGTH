@@ -216,11 +216,11 @@ export function NeuromuscularRadarChart({
             <Scale className="w-4 h-4" />
           </div>
           <div>
-            <h4 className="text-xs sm:text-sm font-bold font-mono uppercase text-white tracking-wider">
-              PENTÁGONO DE SIMETRÍA NEUROMUSCULAR
+            <h4 className="text-sm font-semibold text-white">
+              Equilibrio entre ejercicios
             </h4>
-            <p className="text-[10px] text-zinc-400 font-mono">
-              Evaluación bioenergética de los 5 grandes patrones de fuerza
+            <p className="text-sm text-zinc-400">
+              Sentadilla, banca, peso muerto, press y dominadas.
             </p>
           </div>
         </div>
@@ -240,7 +240,7 @@ export function NeuromuscularRadarChart({
             viewBox="0 0 350 340"
             className="w-full max-w-[320px] aspect-square"
             role="img"
-            aria-label="Gráfico de radar de simetría neuromuscular"
+            aria-label="Equilibrio entre los ejercicios principales"
           >
             <defs>
               <linearGradient id="radar-athlete-fill" x1="0%" y1="0%" x2="100%" y2="100%">

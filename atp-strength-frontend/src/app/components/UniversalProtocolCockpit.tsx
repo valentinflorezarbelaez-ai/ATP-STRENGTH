@@ -388,9 +388,9 @@ export function UniversalProtocolCockpit({
       },
       {
         id: "p4",
-        name: "Fase 4 · Series Efectivas con Autoregulación en Vivo (Tuchscherer)",
+        name: "Fase 4 · Serie fuerte",
         pct: "80–85%",
-        badge: "ZONA DIANA DE FUERZA",
+        badge: "Serie fuerte",
         colorClass: "text-orange-400 border-orange-500/30 bg-orange-500/10",
         desc: "Núcleo de máxima tensión mecánica miofibrilar. Seleccioná el RPE real de cada serie para autoregular la siguiente carga al vuelo.",
         sets: [
@@ -524,28 +524,28 @@ export function UniversalProtocolCockpit({
         focus: "Acumulación",
         mult: 1.0,
         load: roundWeight(effectiveMax * 0.82),
-        note: "Consolidación de técnica y adaptación neural",
+        note: "Afianzar la técnica",
       },
       {
         week: "Semana 2",
         focus: "Sobrecarga +2.5%",
         mult: 1.025,
         load: roundWeight(effectiveMax * 0.82 * 1.025),
-        note: "Incremento controlado de carga",
+        note: "Un poco más de peso",
       },
       {
         week: "Semana 3",
         focus: "Pico de Fuerza +5.0%",
         mult: 1.05,
         load: roundWeight(effectiveMax * 0.82 * 1.05),
-        note: "Máxima tensión miofibrilar del microciclo",
+        note: "La semana más pesada",
       },
       {
         week: "Semana 4",
         focus: "Descarga (-40%)",
         mult: 0.6,
         load: roundWeight(effectiveMax * 0.82 * 0.6),
-        note: "Regeneración de tendones, colágeno y mielina",
+        note: "Bajar la carga para recuperar",
       },
     ];
   }, [effectiveMax]);
@@ -1345,7 +1345,9 @@ export function UniversalProtocolCockpit({
             return (
               <div
                 key={phase.id}
-                className="p-4 sm:p-5 rounded-2xl bg-zinc-950 border border-zinc-900 hover:border-zinc-800 transition-all space-y-3 shadow-xl"
+                className={`p-4 sm:p-5 rounded-2xl bg-zinc-950 border transition-all space-y-3 shadow-xl ${
+                  isFase4 ? "border-amber-400/60" : "border-zinc-900 hover:border-zinc-800"
+                }`}
               >
                 {/* Encabezado de la fase */}
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 pb-2 border-b border-zinc-900">
@@ -1357,6 +1359,9 @@ export function UniversalProtocolCockpit({
                       <h4 className="text-base font-semibold tracking-tight text-zinc-100">
                         {phase.name}
                       </h4>
+                      {isFase4 ? (
+                        <p className="text-sm text-amber-300 mt-1">Esta es la serie fuerte.</p>
+                      ) : null}
                     </div>
                   </div>
                 </div>
@@ -1489,7 +1494,7 @@ export function UniversalProtocolCockpit({
                                       set.nextSetId
                                     )
                                   }
-                                  className={`px-3 py-2 rounded-xl text-xs font-mono font-bold whitespace-nowrap transition-all min-h-[40px] flex items-center justify-center cursor-pointer select-none ${
+                                  className={`px-3 py-2 rounded-xl text-xs font-mono font-bold whitespace-nowrap transition-all min-h-11 flex items-center justify-center cursor-pointer select-none ${
                                     loggedRpe === option.rpe
                                       ? "bg-amber-400 text-zinc-950 font-black shadow-md shadow-amber-400/20"
                                       : "bg-zinc-800/80 hover:bg-zinc-700 text-zinc-300 border border-zinc-700/60 active:scale-95"
@@ -1516,7 +1521,7 @@ export function UniversalProtocolCockpit({
             <button
               type="button"
               onClick={handleToggleVoiceGenderCockpit}
-              className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border text-xs font-mono font-bold transition-all active:scale-95 cursor-pointer shadow-sm ${
+              className={`inline-flex items-center min-h-11 gap-1.5 px-3 rounded-xl border text-xs font-mono font-bold transition-all active:scale-95 cursor-pointer shadow-sm ${
                 cockpitAudioPrefs.voiceEnabled
                   ? "bg-amber-500/15 border-amber-500/40 text-amber-300 hover:bg-amber-500/25 shadow-[0_0_12px_rgba(245,158,11,0.15)]"
                   : "bg-zinc-800/40 border-zinc-700/60 text-zinc-500 hover:bg-zinc-800"
@@ -1524,8 +1529,8 @@ export function UniversalProtocolCockpit({
               title={`Voz del coach: ${cockpitAudioPrefs.voiceEnabled ? "Activa. Tocá para silenciar." : "Silenciada. Tocá para activar."}`}
             >
               <span className="text-sm">{cockpitAudioPrefs.voiceEnabled ? "🔊" : "🔇"}</span>
-              <span className="hidden sm:inline">
-                {cockpitAudioPrefs.voiceEnabled ? "VOZ COACH" : "SILENCIADO"}
+              <span>
+                {cockpitAudioPrefs.voiceEnabled ? "Voz" : "Voz en silencio"}
               </span>
             </button>
 
@@ -1536,11 +1541,11 @@ export function UniversalProtocolCockpit({
                 playTactileClick();
                 setShowCoachChat(true);
               }}
-              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-gradient-to-r from-emerald-500/15 to-teal-500/15 hover:from-emerald-500/25 hover:to-teal-500/25 border border-emerald-500/40 text-xs font-mono font-bold text-emerald-300 transition-all active:scale-95 cursor-pointer shadow-[0_0_12px_rgba(16,185,129,0.15)]"
+              className="inline-flex items-center min-h-11 gap-1.5 px-3 rounded-xl bg-gradient-to-r from-emerald-500/15 to-teal-500/15 hover:from-emerald-500/25 hover:to-teal-500/25 border border-emerald-500/40 text-xs font-mono font-bold text-emerald-300 transition-all active:scale-95 cursor-pointer shadow-[0_0_12px_rgba(16,185,129,0.15)]"
               title="Abrir Chat con el Coach de Fuerza IA: preguntá técnica, descansos o dudas"
             >
               <MessageCircle className="w-3.5 h-3.5 text-emerald-400" />
-              <span>CHAT COACH</span>
+              <span>Chat</span>
             </button>
 
             {/* Botón Reabrir / Expandir Pantalla Completa si la guía está activa */}
@@ -1551,7 +1556,7 @@ export function UniversalProtocolCockpit({
                   playTactileClick();
                   setShowFullscreenGuide(true);
                 }}
-                className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/50 text-xs font-mono font-bold text-amber-300 transition-all active:scale-95 cursor-pointer shadow-[0_0_12px_rgba(245,158,11,0.2)]"
+                className="inline-flex items-center min-h-11 gap-1.5 px-3 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/50 text-xs font-mono font-bold text-amber-300 transition-all active:scale-95 cursor-pointer shadow-[0_0_12px_rgba(245,158,11,0.2)]"
                 title="Abrir guía inmersiva de pantalla completa"
               >
                 <Maximize2 className="w-3.5 h-3.5 text-amber-400" />
@@ -1570,11 +1575,11 @@ export function UniversalProtocolCockpit({
                   setShowInlineDemo(!showInlineDemo);
                 }
               }}
-              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/40 text-xs font-mono font-bold text-amber-300 transition-all active:scale-95 cursor-pointer shadow-[0_0_12px_rgba(245,158,11,0.15)]"
+              className="inline-flex items-center min-h-11 gap-1.5 px-3 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/40 text-xs font-mono font-bold text-amber-300 transition-all active:scale-95 cursor-pointer shadow-[0_0_12px_rgba(245,158,11,0.15)]"
               title="Ver video técnico y biomecánica del ejercicio"
             >
               <Play className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
-              <span>DEMO & TÉCNICA</span>
+              <span>Ver técnica</span>
             </button>
 
             {/* Botón Metrónomo de Tempo */}
@@ -1584,7 +1589,7 @@ export function UniversalProtocolCockpit({
                 playTactileClick();
                 setShowTempoMetronome(!showTempoMetronome);
               }}
-              className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border text-xs font-mono font-bold transition-all active:scale-95 cursor-pointer ${
+              className={`inline-flex items-center min-h-11 gap-1.5 px-3 rounded-xl border text-xs font-mono font-bold transition-all active:scale-95 cursor-pointer ${
                 showTempoMetronome
                   ? "bg-cyan-500/20 border-cyan-500/50 text-cyan-300"
                   : "bg-zinc-900 border-zinc-800 text-zinc-400 hover:text-zinc-200"
@@ -1592,17 +1597,17 @@ export function UniversalProtocolCockpit({
               title="Abrir asistente de cadencia de tempo mecánico"
             >
               <Timer className="w-3.5 h-3.5 text-cyan-400" />
-              <span>TEMPO 3-1-X-1</span>
+              <span>Tempo</span>
             </button>
 
             <button
               type="button"
               onClick={resetAllSets}
-              className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-zinc-800 bg-zinc-900 hover:border-amber-500/40 text-xs font-mono text-zinc-400 hover:text-amber-400 transition-all cursor-pointer"
+              className="flex items-center min-h-11 gap-1.5 px-3 rounded-xl border border-zinc-800 bg-zinc-900 hover:border-amber-500/40 text-sm text-zinc-300 cursor-pointer"
               title="Reiniciar casillas y autoregulaciones"
             >
               <RotateCcw className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">Limpiar</span>
+              <span>Limpiar</span>
             </button>
       </div>
 
@@ -1613,7 +1618,7 @@ export function UniversalProtocolCockpit({
             <TrendingUp className="w-4 h-4" />
           </span>
           <h4 className="text-xs sm:text-sm font-mono font-bold text-zinc-100 uppercase tracking-wider">
-            PLAN DE SOBRECARGA ONDULADA (4 SEMANAS)
+            Plan de 4 semanas
           </h4>
         </div>
         <p className="text-xs text-zinc-400 leading-relaxed">
@@ -1651,24 +1656,24 @@ export function UniversalProtocolCockpit({
       {/* 5. DOCTRINA BIOMECÁNICA DE FUERZA MÁXIMA */}
       <div className="order-7 p-4 sm:p-5 rounded-2xl bg-zinc-950 border border-zinc-900 space-y-3">
         <h4 className="text-xs font-mono font-bold text-amber-400 uppercase tracking-wider flex items-center gap-1.5">
-          <Award className="w-4 h-4" /> REGLAS DE ORO DE LA FUERZA ABSOLUTA
+          <Award className="w-4 h-4" /> Cómo hacer la serie
         </h4>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs text-zinc-400">
           <div className="p-3 rounded-xl bg-zinc-900/50 border border-zinc-800 space-y-1">
-            <strong className="text-zinc-200 block">1. Aceleración Compensatoria (CAT)</strong>
-            <span>Acelerá cada repetición concéntrica con 100% de intención. Recluta unidades motoras Tipo IIb sin deformar la técnica.</span>
+            <strong className="text-zinc-200 block">1. Empujá rápido</strong>
+            <span>Subí la barra con intención, sin romper la técnica.</span>
           </div>
           <div className="p-3 rounded-xl bg-zinc-900/50 border border-zinc-800 space-y-1">
-            <strong className="text-zinc-200 block">2. Corte al 20% de Caída de Velocidad</strong>
-            <span>Si una repetición sube claramente más lenta que la primera, dejá la barra. Luchar repeticiones agónicas solo degrada el SNC.</span>
+            <strong className="text-zinc-200 block">2. Si sale lenta, cortá</strong>
+            <span>Si una repetición sube mucho más lenta que la primera, dejá la barra.</span>
           </div>
           <div className="p-3 rounded-xl bg-zinc-900/50 border border-zinc-800 space-y-1">
-            <strong className="text-zinc-200 block">3. Bracing Neumático 360°</strong>
-            <span>Inhalá expandiendo el torso hacia el suelo pélvico para blindar la columna lumbar con presión intraabdominal rígida.</span>
+            <strong className="text-zinc-200 block">3. Inflá el abdomen</strong>
+            <span>Antes de bajar, tomá aire y afirmá la cintura.</span>
           </div>
           <div className="p-3 rounded-xl bg-zinc-900/50 border border-zinc-800 space-y-1">
-            <strong className="text-zinc-200 block">4. Resíntesis de ATP Completa (3–5 min)</strong>
-            <span>No apures el descanso en las series de Fase 4. La fosfocreatina necesita mínimo 180 a 240 segundos para recargar al 95–98%.</span>
+            <strong className="text-zinc-200 block">4. Descansá la serie fuerte</strong>
+            <span>En la serie fuerte, esperá de 3 a 5 minutos.</span>
           </div>
         </div>
       </div>

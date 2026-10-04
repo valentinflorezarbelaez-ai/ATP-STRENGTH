@@ -410,30 +410,23 @@ export default function ForgeLanding({ onEnterDirect }: ForgeLandingProps) {
           ⏮
         </button>
 
-        <button
-          onClick={toggleAudio}
-          className="flex items-center gap-2 cursor-pointer"
-          title={isPlaying ? "Pausar música" : "Reproducir música"}
-        >
-          <div className={`forge-audio-bars ${!isPlaying ? "paused" : ""}`}>
+        <div className="flex items-center gap-2 min-h-11 min-w-0">
+          <div className={`forge-audio-bars ${!isPlaying ? "paused" : ""}`} aria-hidden="true">
             <div className="forge-audio-bar" />
             <div className="forge-audio-bar" />
             <div className="forge-audio-bar" />
             <div className="forge-audio-bar" />
             <div className="forge-audio-bar" />
           </div>
-          <div className="text-left flex flex-col max-w-[150px] sm:max-w-[200px]">
-            <span className="text-[10px] font-medium tracking-wide font-mono text-white/55 truncate">
+          <div className="text-left flex flex-col max-w-[150px] sm:max-w-[200px] min-w-0">
+            <span className="text-xs font-medium font-mono text-white/70 truncate">
               {currentTrack.title}
             </span>
-            <span className="text-[9px] text-white/35 truncate font-mono">
+            <span className="text-[11px] text-white/40 truncate font-mono">
               {currentTrack.composer}
             </span>
           </div>
-          <span className="text-xs text-white/40">
-            {isPlaying ? "🔊" : "🔇"}
-          </span>
-        </button>
+        </div>
 
         <button
           onClick={handleNextTrack}

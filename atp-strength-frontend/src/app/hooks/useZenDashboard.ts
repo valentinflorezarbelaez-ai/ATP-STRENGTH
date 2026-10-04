@@ -165,6 +165,7 @@ export function useZenDashboard() {
   const [isSavingMax, setIsSavingMax] = useState(false);
   const [historyRevision, setHistoryRevision] = useState(0);
   const [serverHistory, setServerHistory] = useState<HistoryItem[]>([]);
+  const [marksRead, setMarksRead] = useState<"pending" | "ready" | "failed">("pending");
 
   const [bodyweightKg, setBodyweightKg] = useState<number>(() => {
     if (typeof window !== "undefined") {
@@ -335,9 +336,14 @@ export function useZenDashboard() {
         const res = await fetch(
           `${apiUrl}/api/strength/history?exercise_name=${encodeURIComponent(exName)}&limit=15`
         );
-        if (res.ok) setServerHistory(await res.json());
+        if (!res.ok) {
+          setMarksRead("failed");
+          return;
+        }
+        setServerHistory(await res.json());
+        setMarksRead("ready");
       } catch {
-        /* offline-first */
+        setMarksRead("failed");
       }
     },
     [apiUrl]
@@ -411,12 +417,16 @@ export function useZenDashboard() {
         const res = await fetch(
           `${apiUrl}/api/strength/history?exercise_name=${encodeURIComponent(selectedProgressEx)}&limit=15`
         );
-        if (res.ok && !ignore) {
-          const serverData: HistoryItem[] = await res.json();
-          setServerHistory(serverData);
+        if (ignore) return;
+        if (!res.ok) {
+          setMarksRead("failed");
+          return;
         }
+        const serverData: HistoryItem[] = await res.json();
+        setServerHistory(serverData);
+        setMarksRead("ready");
       } catch {
-        /* offline-first fallback preserves local sets */
+        if (!ignore) setMarksRead("failed");
       }
     })();
     return () => {
@@ -670,6 +680,7 @@ export function useZenDashboard() {
     exerciseHistory,
     progressionCurve,
     supercompensationTrend,
+    marksRead,
     activeDay,
     activeExercise,
     activeExMax,

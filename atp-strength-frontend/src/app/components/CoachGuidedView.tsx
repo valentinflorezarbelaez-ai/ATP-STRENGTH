@@ -4,12 +4,12 @@ import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   Flame, Sparkles,
-  Play, Pause, RotateCcw, Volume2,
-  Heart, ArrowRight, Coffee, Eye, Sun, Moon, Laptop, User, Download, Upload, Database, BarChart3, Clock
+  RotateCcw, Volume2,
+  Eye, Sun, Moon, Laptop, User, Download, Upload, Database, BarChart3
 } from "lucide-react";
 import { PwaInstallPrompt } from "@/components/PwaInstallPrompt";
 import { OFFLINE_MARKS_NOTE } from "@/app/components/TelemetrySyncBadge";
-import { AtpEnergyRing } from "@/app/components/AtpEnergyRing";
+import { RestClock } from "@/app/components/RestClock";
 import { UniversalProtocolModal } from "@/app/components/UniversalProtocolModal";
 import { UniversalStrengthCalcModal } from "@/app/components/UniversalStrengthCalcModal";
 import { ExerciseVideoModal } from "@/app/components/ExerciseVideoModal";
@@ -49,14 +49,13 @@ export function CoachGuidedView({
     remainingSeconds,
     isRunning,
     timerTitle,
-    atpSaturationPercent,
+    timerDuration,
     handleStartTimer,
     togglePlayPause,
     skipRest,
     handleResetDay,
     handleResetExercise,
     toggleCoachMode,
-    playChime,
   } = d;
 
   const [selectedVideoExercise, setSelectedVideoExercise] = useState<string | null>(null);
@@ -302,7 +301,7 @@ export function CoachGuidedView({
             title={audioPrefs.voiceEnabled ? "Voz Coach activada (clic para silenciar)" : "Voz Coach silenciada (clic para activar)"}
           >
             <Volume2 className={`w-3.5 h-3.5 ${audioPrefs.voiceEnabled ? "text-amber-400" : "text-zinc-500"}`} />
-            <span>VOZ: {audioPrefs.voiceEnabled ? "ON" : "OFF"}</span>
+            <span>Voz: {audioPrefs.voiceEnabled ? "activada" : "silencio"}</span>
           </button>
 
           {/* Reset Action */}
@@ -313,7 +312,7 @@ export function CoachGuidedView({
             title="Reiniciar progreso"
           >
             <RotateCcw className="w-3.5 h-3.5 text-amber-400" />
-            <span className="font-mono text-xs">RESET</span>
+            <span className="font-mono text-xs">Reiniciar</span>
           </button>
         </div>
 
@@ -324,13 +323,18 @@ export function CoachGuidedView({
 
       {/* Reset Popover Menu */}
       {showResetConfirm && (
-        <div className="order-2 w-full max-w-3xl mb-4 p-4 rounded-2xl bg-zinc-950 border border-red-500/30 text-xs space-y-3">
-          <div className="flex items-center justify-between">
-            <span className="font-bold text-red-400 uppercase tracking-wide">¿Reiniciar progreso de entrenamiento?</span>
+        <div className="order-2 w-full max-w-3xl mb-4 p-4 rounded-2xl bg-zinc-950 border border-red-500/30 text-sm space-y-3">
+          <div className="flex items-start justify-between gap-3">
+            <div className="space-y-1">
+              <p className="font-semibold text-zinc-100">¿Reiniciar el entrenamiento de hoy?</p>
+              <p className="text-sm text-zinc-400 leading-relaxed">
+                Se borran las series marcadas de hoy. Las marcas guardadas en este dispositivo se quedan.
+              </p>
+            </div>
             <button
               type="button"
               onClick={() => setShowResetConfirm(false)}
-              className="text-zinc-500 hover:text-zinc-300 font-mono text-sm cursor-pointer"
+              className="min-h-11 shrink-0 px-3 rounded-xl border border-zinc-800 text-sm text-zinc-300 cursor-pointer"
             >
               Cerrar
             </button>
@@ -342,9 +346,9 @@ export function CoachGuidedView({
                 handleResetExercise();
                 setShowResetConfirm(false);
               }}
-              className="flex-1 py-2 px-3 rounded-xl bg-zinc-900 border border-zinc-800 text-zinc-300 hover:text-amber-400 font-mono cursor-pointer"
+              className="flex-1 min-h-11 px-3 rounded-xl bg-zinc-900 border border-zinc-800 text-sm text-zinc-100 cursor-pointer"
             >
-              Reiniciar Ejercicio
+              Este ejercicio
             </button>
             <button
               type="button"
@@ -352,9 +356,9 @@ export function CoachGuidedView({
                 handleResetDay();
                 setShowResetConfirm(false);
               }}
-              className="flex-1 py-2 px-3 rounded-xl bg-red-950/40 border border-red-500/40 text-red-300 hover:bg-red-900/50 font-mono cursor-pointer"
+              className="flex-1 min-h-11 px-3 rounded-xl bg-red-950/40 border border-red-500/40 text-sm text-red-200 cursor-pointer"
             >
-              Reiniciar Todo
+              Todo el día
             </button>
           </div>
         </div>
@@ -362,82 +366,17 @@ export function CoachGuidedView({
 
       {/* 2. Main Guided Area: Universal Protocol PR Cockpit or Active Rest Timer */}
       <section className="order-2 w-full max-w-3xl flex-1 flex flex-col justify-center my-2">
-        {isRunning && (
-          /* CASE A: ACTIVE ZEN REST TIMER */
-          <div className="w-full p-6 sm:p-8 rounded-3xl bg-zinc-950 border border-amber-500/30 text-center space-y-6 shadow-2xl relative overflow-hidden my-4 animate-in fade-in zoom-in-95">
-            {/* Top Rest Badge */}
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Coffee className="w-4 h-4 text-amber-400" />
-                <span className="text-sm font-medium text-amber-300">
-                  Descanso
-                </span>
-              </div>
-              <span className="text-xs font-mono text-zinc-400">
-                {timerTitle || "Descanso Activo"}
-              </span>
-            </div>
-
-            {/* Apple Fitness-grade Radial ATP Energy Ring */}
-            <AtpEnergyRing
-              remainingSeconds={remainingSeconds}
-              atpSaturationPercent={atpSaturationPercent}
-              timerTitle={timerTitle}
-            />
-
-            {/* Mindful Breathing Guide */}
-            <div className="p-4 rounded-2xl bg-zinc-900/70 border border-zinc-800/80 space-y-1.5 max-w-md mx-auto">
-              <div className="flex items-center justify-center gap-2 text-xs font-semibold text-zinc-300">
-                <Heart className="w-3.5 h-3.5 text-rose-400" />
-                <span>Respiración de recuperación</span>
-              </div>
-              <p className="text-xs text-zinc-400 leading-relaxed">
-                Inhalá profundo por la nariz en 4s, sostené 4s y exhalá lento. Relajá hombros y mandíbula para optimizar el flujo de oxígeno.
-              </p>
-            </div>
-
-            {/* Primary Rest Actions */}
-            <div className="space-y-2.5 pt-2">
-              <button
-                type="button"
-                onClick={skipRest}
-                className="w-full h-14 rounded-2xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-black font-black text-base uppercase tracking-wider shadow-xl shadow-amber-500/10 active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer"
-              >
-                <span>¡Listo, a la barra!</span>
-                <ArrowRight className="w-5 h-5" />
-              </button>
-
-              <div className="flex gap-2">
-                <button
-                  type="button"
-                  onClick={togglePlayPause}
-                  className="flex-1 py-2.5 rounded-xl bg-zinc-900 border border-zinc-800 hover:bg-zinc-800 text-xs font-mono font-medium text-zinc-300 flex items-center justify-center gap-1.5 cursor-pointer"
-                >
-                  {isRunning ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5" />}
-                  <span>{isRunning ? "Pausar" : "Reanudar"}</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleStartTimer(remainingSeconds + 30, timerTitle)}
-                  className="py-2.5 px-4 rounded-xl bg-zinc-900 border border-zinc-800 hover:bg-zinc-800 text-xs font-mono font-medium text-zinc-300 cursor-pointer"
-                >
-                  +30s
-                </button>
-                <button
-                  type="button"
-                  onClick={() => playChime(false)}
-                  className="p-2.5 rounded-xl bg-zinc-900 border border-zinc-800 hover:bg-zinc-800 text-zinc-300 hover:text-amber-400 cursor-pointer"
-                  title="Probar sonido 528 Hz"
-                >
-                  <Volume2 className="w-4 h-4" />
-                </button>
-              </div>
-            </div>
-          </div>
+        {(isRunning || (remainingSeconds > 0 && remainingSeconds < timerDuration)) && (
+          <RestClock
+            remainingSeconds={remainingSeconds}
+            isRunning={isRunning}
+            onReady={skipRest}
+            onTogglePause={togglePlayPause}
+            onAddThirty={() => handleStartTimer(remainingSeconds + 30, timerTitle)}
+          />
         )}
 
-        {/* CASE B: DEFAULT COCKPIT - PROTOCOLO PR PARA CUALQUIER EJERCICIO (PERSISTENT MOUNT) */}
-        <div className={`w-full space-y-4 ${isRunning ? "hidden" : ""}`}>
+        <div className={`w-full space-y-4 ${isRunning || (remainingSeconds > 0 && remainingSeconds < timerDuration) ? "hidden" : ""}`}>
           <UniversalProtocolCockpit
             onStartTimer={handleStartTimer}
             onOpenVideo={(name) => setSelectedVideoExercise(name)}
@@ -455,8 +394,8 @@ export function CoachGuidedView({
                   <User className="w-4 h-4" />
                 </div>
                 <div>
-                  <h3 className="text-sm font-bold text-white uppercase tracking-wider">Perfil de Atleta</h3>
-                  <span className="text-[10px] font-mono text-zinc-500">ID: {athlete.id}</span>
+                  <h3 className="text-sm font-semibold text-white">Perfil</h3>
+                  <span className="text-[11px] text-zinc-500">En este dispositivo</span>
                 </div>
               </div>
               <button
@@ -465,9 +404,10 @@ export function CoachGuidedView({
                   playTactileClick();
                   setShowProfileModal(false);
                 }}
-                className="text-zinc-500 hover:text-zinc-300 font-mono text-xs cursor-pointer p-1"
+                aria-label="Cerrar perfil"
+                className="min-h-11 min-w-11 px-3 rounded-xl border border-zinc-800 text-sm text-zinc-300 cursor-pointer"
               >
-                Cerrar ✕
+                Cerrar
               </button>
             </div>
 
@@ -528,101 +468,71 @@ export function CoachGuidedView({
 
             {/* Audio & Biofeedback Coach Panel */}
             <div className="space-y-2 pb-3 border-b border-zinc-900">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-1.5 text-xs font-mono font-medium text-zinc-300">
-                  <Volume2 className="w-3.5 h-3.5 text-amber-400" />
-                  <span>Biofeedback Sonoro & Voz Coach</span>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => {
-                    playTactileClick();
-                    acousticEngine.playSetCompleteCue();
-                  }}
-                  className="text-[10px] font-mono text-amber-400 hover:underline cursor-pointer"
-                >
-                  Probar audio ♫
-                </button>
+              <div className="flex items-center gap-1.5 text-sm font-medium text-zinc-200">
+                <Volume2 className="w-4 h-4 text-amber-400" />
+                <span>Sonido</span>
               </div>
+
+              <button
+                type="button"
+                onClick={() => {
+                  playTactileClick();
+                  const next = saveAudioPreferences({ voiceEnabled: !audioPrefs.voiceEnabled });
+                  setAudioPrefs(next);
+                  speakText(
+                    next.voiceEnabled ? "Voz del coach activada." : "Voz del coach silenciada.",
+                    next
+                  );
+                }}
+                className={`w-full min-h-11 px-3 rounded-xl border text-sm font-medium flex items-center justify-between cursor-pointer ${
+                  audioPrefs.voiceEnabled
+                    ? "bg-amber-500/15 border-amber-500/40 text-amber-300"
+                    : "bg-zinc-900 border-zinc-800 text-zinc-400"
+                }`}
+              >
+                <span>Voz del coach</span>
+                <span>{audioPrefs.voiceEnabled ? "Activada" : "Silencio"}</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  playTactileClick();
+                  const next = saveAudioPreferences({ soundEnabled: !audioPrefs.soundEnabled });
+                  setAudioPrefs(next);
+                }}
+                className={`w-full min-h-11 px-3 rounded-xl border text-sm font-medium flex items-center justify-between cursor-pointer ${
+                  audioPrefs.soundEnabled
+                    ? "bg-amber-500/15 border-amber-500/40 text-amber-300"
+                    : "bg-zinc-900 border-zinc-800 text-zinc-400"
+                }`}
+              >
+                <span>Campanas</span>
+                <span>{audioPrefs.soundEnabled ? "Prendidas" : "Apagadas"}</span>
+              </button>
 
               <div className="grid grid-cols-2 gap-2">
                 <button
                   type="button"
                   onClick={() => {
                     playTactileClick();
-                    const next = saveAudioPreferences({ voiceEnabled: !audioPrefs.voiceEnabled });
-                    setAudioPrefs(next);
+                    acousticEngine.playSetCompleteCue();
                   }}
-                  className={`py-2 px-3 rounded-xl border text-xs font-mono font-medium flex items-center justify-between cursor-pointer transition-all ${
-                    audioPrefs.voiceEnabled
-                      ? "bg-amber-500/15 border-amber-500/40 text-amber-300"
-                      : "bg-zinc-900 border-zinc-800 text-zinc-500"
-                  }`}
+                  className="min-h-11 px-3 rounded-xl border border-zinc-800 text-sm text-zinc-200 cursor-pointer"
                 >
-                  <span>Voz Coach:</span>
-                  <span className="font-bold">{audioPrefs.voiceEnabled ? "ACTIVA" : "MUTED"}</span>
+                  Probar campana
                 </button>
-
                 <button
                   type="button"
                   onClick={() => {
                     playTactileClick();
-                    const next = saveAudioPreferences({ soundEnabled: !audioPrefs.soundEnabled });
-                    setAudioPrefs(next);
+                    speakText("Tiempo cumplido. A la barra.", audioPrefs);
                   }}
-                  className={`py-2 px-3 rounded-xl border text-xs font-mono font-medium flex items-center justify-between cursor-pointer transition-all ${
-                    audioPrefs.soundEnabled
-                      ? "bg-amber-500/15 border-amber-500/40 text-amber-300"
-                      : "bg-zinc-900 border-zinc-800 text-zinc-500"
-                  }`}
+                  className="min-h-11 px-3 rounded-xl border border-zinc-800 text-sm text-zinc-200 cursor-pointer"
                 >
-                  <span>Campanas 528Hz:</span>
-                  <span className="font-bold">{audioPrefs.soundEnabled ? "ON" : "OFF"}</span>
+                  Probar voz
                 </button>
               </div>
-
-              {/* Control de Voz Natural del Coach */}
-              <div className="space-y-2 pt-2">
-                <div className="flex items-center justify-between">
-                  <span className="text-[11px] font-mono text-zinc-400">Voz del Coach</span>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      playTactileClick();
-                      speakText("¡Tiempo cumplido! A la barra con buena técnica.", audioPrefs);
-                    }}
-                    className="text-[10px] font-mono text-amber-400 hover:underline cursor-pointer flex items-center gap-1"
-                  >
-                    <span>🎙️</span>
-                    <span>Probar Voz</span>
-                  </button>
-                </div>
-
-                <button
-                  type="button"
-                  onClick={() => {
-                    playTactileClick();
-                    const next = saveAudioPreferences({ voiceEnabled: !audioPrefs.voiceEnabled });
-                    setAudioPrefs(next);
-                    speakText(
-                      next.voiceEnabled
-                        ? "Voz del coach activada."
-                        : "Voz del coach silenciada.",
-                      next
-                    );
-                  }}
-                  className={`w-full py-2 px-3 rounded-xl border text-xs font-mono font-medium flex items-center justify-between cursor-pointer transition-all ${
-                    audioPrefs.voiceEnabled
-                      ? "bg-amber-500/15 border-amber-500/40 text-amber-300"
-                      : "bg-zinc-900 border-zinc-800 text-zinc-500"
-                  }`}
-                >
-                  <span className="flex items-center gap-1.5">
-                    <span>{audioPrefs.voiceEnabled ? "🔊" : "🔇"}</span>
-                    <span>Voz de Instrucción del Coach:</span>
-                  </span>
-                  <span className="font-bold">{audioPrefs.voiceEnabled ? "ACTIVADA" : "SILENCIADA"}</span>
-                </button>
 
                 {availableVoices.length > 0 ? (
                   <select
@@ -638,7 +548,7 @@ export function CoachGuidedView({
                       setAudioPrefs(next);
                       speakText("Voz de coach configurada.", next);
                     }}
-                    className="w-full px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-800 text-xs text-zinc-200 font-mono focus:outline-none focus:border-amber-500/50 cursor-pointer"
+                    className="w-full min-h-11 px-3 rounded-xl bg-zinc-900 border border-zinc-800 text-sm text-zinc-200 cursor-pointer"
                   >
                     {availableVoices.map((v) => {
                       const gender = detectVoiceGender(v);
@@ -652,25 +562,24 @@ export function CoachGuidedView({
                     })}
                   </select>
                 ) : (
-                  <p className="text-[10px] text-zinc-500 font-mono">
-                    Voz humana optimizada (resonancia y cadencia natural activa).
+                  <p className="text-sm text-zinc-500">
+                    La voz usa la del teléfono.
                   </p>
                 )}
-              </div>
             </div>
 
             {/* Athlete Name Field */}
             <div className="space-y-1.5">
-              <label className="text-[11px] font-mono text-zinc-400 uppercase tracking-wider block">
-                Nombre del Atleta
+              <label className="text-sm text-zinc-400 block">
+                Nombre
               </label>
               <div className="flex gap-2">
                 <input
                   type="text"
                   value={athleteNameInput}
                   onChange={(e) => setAthleteNameInput(e.target.value)}
-                  className="flex-1 px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-800 text-xs text-white font-medium focus:outline-none focus:border-amber-500/50"
-                  placeholder="Tu nombre o alias"
+                  className="flex-1 min-h-11 px-3 rounded-xl bg-zinc-900 border border-zinc-800 text-sm text-white"
+                  placeholder="Tu nombre"
                 />
                 <button
                   type="button"
@@ -683,7 +592,7 @@ export function CoachGuidedView({
                       setTimeout(() => setBackupMsg(null), 3000);
                     } catch {}
                   }}
-                  className="px-3.5 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-black text-xs font-mono font-bold transition-all active:scale-95 cursor-pointer"
+                  className="min-h-11 px-4 rounded-xl bg-amber-400 hover:bg-amber-300 text-black text-sm font-semibold cursor-pointer"
                 >
                   Guardar
                 </button>
@@ -692,8 +601,8 @@ export function CoachGuidedView({
 
             {/* Data Portability */}
             <div className="space-y-2 pt-2 border-t border-zinc-900">
-              <span className="text-[10px] font-mono text-zinc-400 uppercase tracking-wider block">
-                Copias de Seguridad Criptográficas (JSON / CSV)
+              <span className="text-sm text-zinc-300 block">
+                Copias en este dispositivo
               </span>
               <div className="grid grid-cols-2 gap-2">
                 <button
@@ -703,7 +612,7 @@ export function CoachGuidedView({
                     exportBackupJson();
                     setBackupMsg("Copia de seguridad (.json) descargada");
                   }}
-                  className="py-2.5 px-3 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-zinc-300 hover:text-white text-xs font-mono font-medium flex items-center justify-center gap-1.5 active:scale-95 transition-all cursor-pointer"
+                  className="min-h-11 px-3 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-zinc-100 text-sm flex items-center justify-center gap-1.5 cursor-pointer"
                 >
                   <Download className="w-3.5 h-3.5 text-amber-400" />
                   <span>Descargar JSON</span>
@@ -716,7 +625,7 @@ export function CoachGuidedView({
                     exportHistoryCsv();
                     setBackupMsg("Historial (.csv) descargado");
                   }}
-                  className="py-2.5 px-3 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-zinc-300 hover:text-white text-xs font-mono font-medium flex items-center justify-center gap-1.5 active:scale-95 transition-all cursor-pointer"
+                  className="min-h-11 px-3 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-zinc-100 text-sm flex items-center justify-center gap-1.5 cursor-pointer"
                 >
                   <Database className="w-3.5 h-3.5 text-cyan-400" />
                   <span>Historial CSV</span>
@@ -724,7 +633,7 @@ export function CoachGuidedView({
               </div>
 
               {/* Restore JSON */}
-              <label className="w-full py-2.5 px-3 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-dashed border-zinc-700 text-zinc-400 hover:text-zinc-200 text-xs font-mono font-medium flex items-center justify-center gap-1.5 active:scale-95 transition-all cursor-pointer block text-center">
+              <label className="w-full min-h-11 px-3 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-dashed border-zinc-700 text-zinc-200 text-sm flex items-center justify-center gap-1.5 cursor-pointer">
                 <Upload className="w-3.5 h-3.5 text-emerald-400 inline mr-1" />
                 <span>Restaurar Copia JSON</span>
                 <input
@@ -762,10 +671,10 @@ export function CoachGuidedView({
                     router.push("/forge");
                   }
                 }}
-                className="w-full py-2.5 px-3 rounded-xl bg-gradient-to-r from-amber-500/20 to-red-500/20 border border-amber-500/40 text-amber-300 hover:text-white text-xs font-mono font-bold flex items-center justify-center gap-2 active:scale-95 transition-all cursor-pointer shadow-sm"
+                className="w-full min-h-11 px-3 rounded-xl border border-amber-500/40 text-amber-200 text-sm font-medium flex items-center justify-center gap-2 cursor-pointer"
               >
-                <Flame className="w-4 h-4 text-amber-400 fill-amber-400 animate-pulse" />
-                <span>IR A LA FORJA & REPRODUCIR HIMNO</span>
+                <Flame className="w-4 h-4 text-amber-400" />
+                <span>Ir a la forja</span>
               </button>
             </div>
 
@@ -806,41 +715,6 @@ export function CoachGuidedView({
         }}
       />
 
-      {/* Floating Sticky Mobile Mini-Timer HUD */}
-      {isRunning && (
-        <div className="fixed bottom-4 left-4 right-4 z-40 max-w-md mx-auto p-3 rounded-2xl bg-zinc-950/95 border border-amber-500/40 shadow-2xl backdrop-blur-xl flex items-center justify-between gap-3 animate-in slide-in-from-bottom-4 duration-200">
-          <div className="flex items-center gap-2.5 overflow-hidden">
-            <div className="w-8 h-8 rounded-xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-400 flex-shrink-0 animate-pulse">
-              <Clock className="w-4 h-4" />
-            </div>
-            <div className="overflow-hidden">
-              <span className="text-[10px] font-mono text-zinc-400 truncate block">
-                {timerTitle || "Descanso ATP"}
-              </span>
-              <span className="font-mono text-base font-black text-amber-400">
-                {Math.floor(remainingSeconds / 60)}:{(remainingSeconds % 60).toString().padStart(2, "0")}
-              </span>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-1.5 flex-shrink-0">
-            <button
-              type="button"
-              onClick={togglePlayPause}
-              className="px-2.5 py-1.5 rounded-lg bg-zinc-900 border border-zinc-800 text-xs font-mono font-bold text-zinc-200 active:scale-95 cursor-pointer"
-            >
-              {isRunning ? "PAUSA" : "SEGUIR"}
-            </button>
-            <button
-              type="button"
-              onClick={skipRest}
-              className="px-2.5 py-1.5 rounded-lg bg-amber-500 text-black text-xs font-mono font-bold active:scale-95 shadow-md shadow-amber-500/20 cursor-pointer"
-            >
-              LISTO
-            </button>
-          </div>
-        </div>
-      )}
     </main>
   );
 }

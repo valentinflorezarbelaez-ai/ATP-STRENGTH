@@ -17,6 +17,22 @@ export interface NeuromuscularProgressionChartProps {
   trend: SupercompensationTrend;
   current1Rm?: number;
   className?: string;
+  marksRead?: "pending" | "ready" | "failed";
+}
+
+function plainMarkStatus(
+  label: string,
+  marksRead: "pending" | "ready" | "failed"
+): string {
+  if (marksRead === "failed") return "No se pudieron leer";
+  if (marksRead === "pending") return "Leyendo";
+  if (label === "Sin registros aún") return "Todavía no hay marcas";
+  if (label === "Línea Base Calibrada") return "Primera marca";
+  if (label === "Supercompensación Activa (PR)") return "Marca nueva";
+  if (label === "Progresión Ascendente") return "Vas subiendo";
+  if (label === "Sobretensión / Fatiga Neural") return "Venís cargado";
+  if (label === "Fuerza Consolidada") return "Estable";
+  return label;
 }
 
 export function NeuromuscularProgressionChart({
@@ -25,6 +41,7 @@ export function NeuromuscularProgressionChart({
   trend,
   current1Rm,
   className = "",
+  marksRead = "ready",
 }: NeuromuscularProgressionChartProps) {
   const [activePointId, setActivePointId] = useState<string | null>(null);
 
@@ -103,15 +120,12 @@ export function NeuromuscularProgressionChart({
         <div>
           <div className="flex items-center gap-2">
             <TrendingUp className="w-4 h-4 text-amber-400" />
-            <h3 className="text-xs sm:text-sm font-mono font-bold text-white uppercase tracking-wider">
-              CURVA DE SUPERCOMPENSACIÓN NEUROMUSCULAR (e1RM)
+            <h3 className="text-sm font-semibold text-white">
+              Cómo viene tu marca
             </h3>
-            <span className="px-2 py-0.5 rounded bg-amber-500/10 border border-amber-500/30 text-[10px] font-mono font-bold text-amber-400">
-              SPEC-0009
-            </span>
           </div>
-          <p className="text-[11px] text-zinc-400 font-mono mt-0.5">
-            Evolución histórica de 1RM estimada y picos de adaptación para <strong className="text-zinc-200">{exerciseName}</strong>
+          <p className="text-sm text-zinc-400 mt-0.5">
+            {exerciseName}
           </p>
         </div>
 
@@ -123,7 +137,7 @@ export function NeuromuscularProgressionChart({
             {trend.status === "SUPERCOMPENSATION_PEAK" && <Sparkles className="w-3.5 h-3.5 text-amber-400 animate-pulse" />}
             {trend.status === "PROGRESSION_POSITIVE" && <TrendingUp className="w-3.5 h-3.5 text-emerald-400" />}
             {trend.status === "CONSOLIDATING" && <Zap className="w-3.5 h-3.5 text-cyan-400" />}
-            <span>{trend.statusLabel}</span>
+            <span>{plainMarkStatus(trend.statusLabel, marksRead)}</span>
           </span>
         </div>
       </div>
@@ -181,14 +195,20 @@ export function NeuromuscularProgressionChart({
       </div>
 
       {/* Main Progression Curve or Empty State */}
+      {marksRead === "failed" && curvePoints.length > 0 ? (
+        <p className="text-sm text-zinc-300" role="status">
+          No se pudieron leer las marcas. Estas son las de este dispositivo.
+        </p>
+      ) : null}
       {curvePoints.length === 0 ? (
         <div className="py-10 px-4 rounded-xl bg-zinc-900/40 border border-dashed border-zinc-800 text-center space-y-2">
           <Info className="w-6 h-6 text-zinc-600 mx-auto" />
-          <p className="text-xs font-mono text-zinc-400">
-            Aún no hay series registradas en el historial de <strong className="text-amber-400">{exerciseName}</strong>.
-          </p>
-          <p className="text-[11px] text-zinc-500 max-w-md mx-auto">
-            Completá tus series en el Cockpit o registrá una calibración de 1RM para comenzar a visualizar tu curva de supercompensación neuromuscular.
+          <p className="text-sm text-zinc-200" role="status">
+            {marksRead === "failed"
+              ? "No se pudieron leer las marcas."
+              : marksRead === "pending"
+              ? "Leyendo las marcas…"
+              : `Todavía no hay marcas de ${exerciseName}.`}
           </p>
         </div>
       ) : curvePoints.length === 1 ? (

@@ -1,13 +1,33 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import { UniversalStrengthCalcModal } from "@/app/components/UniversalStrengthCalcModal";
+import { RestClock } from "@/app/components/RestClock";
 
 export default function UniversalCalcPage() {
   const router = useRouter();
+  const [restSeconds, setRestSeconds] = useState<number | null>(null);
+  const [restRunning, setRestRunning] = useState(false);
+
+  useEffect(() => {
+    if (!restRunning) return undefined;
+    const id = window.setInterval(() => {
+      setRestSeconds((current) => {
+        if (current === null) return null;
+        if (current <= 1) {
+          setRestRunning(false);
+          return 0;
+        }
+        return current - 1;
+      });
+    }, 1000);
+    return () => window.clearInterval(id);
+  }, [restRunning]);
+
+  const restOpen = restSeconds !== null && (restRunning || restSeconds > 0);
 
   return (
     <main className="min-h-screen bg-black text-zinc-100 flex flex-col justify-between p-4 sm:p-8">
@@ -20,10 +40,10 @@ export default function UniversalCalcPage() {
       <header className="max-w-4xl mx-auto w-full flex items-center justify-between py-4 border-b border-zinc-900">
         <Link
           href="/"
-          className="flex items-center gap-2 text-xs font-mono text-zinc-400 hover:text-amber-400 transition-colors"
+          className="inline-flex items-center gap-2 min-h-11 px-3 rounded-xl border border-zinc-800 text-sm text-zinc-100"
         >
           <ArrowLeft className="w-4 h-4" />
-          <span>VOLVER AL TEMPLO ZEN</span>
+          <span>Volver a la sesión</span>
         </Link>
         <div className="flex items-center gap-2">
           <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
@@ -38,10 +58,27 @@ export default function UniversalCalcPage() {
           onClose={() => {
             router.push("/");
           }}
-          onStartTimer={(sec, title) => {
-            console.log("Temporizador solicitado:", sec, title);
+          onStartTimer={(sec) => {
+            setRestSeconds(sec);
+            setRestRunning(true);
           }}
         />
+        {restOpen && restSeconds !== null ? (
+          <div className="fixed inset-0 z-[60] bg-black flex items-center justify-center p-4">
+            <div className="w-full max-w-md">
+              <RestClock
+                remainingSeconds={restSeconds}
+                isRunning={restRunning}
+                onReady={() => {
+                  setRestRunning(false);
+                  setRestSeconds(null);
+                }}
+                onTogglePause={() => setRestRunning((running) => !running)}
+                onAddThirty={() => setRestSeconds((current) => (current ?? 0) + 30)}
+              />
+            </div>
+          </div>
+        ) : null}
       </div>
 
       <footer className="max-w-4xl mx-auto w-full py-4 text-center border-t border-zinc-900 text-xs font-mono text-zinc-500">

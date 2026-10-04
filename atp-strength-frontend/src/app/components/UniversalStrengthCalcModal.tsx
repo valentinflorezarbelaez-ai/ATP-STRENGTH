@@ -11,10 +11,8 @@ import {
   Target,
   Clock,
   BarChart3,
-  HeartPulse,
   Award,
   ChevronDown,
-  Scale,
 } from "lucide-react";
 import { NeuromuscularRadarChart } from "@/app/components/NeuromuscularRadarChart";
 
@@ -323,15 +321,15 @@ export function UniversalStrengthCalcModal({
                   UNIVERSAL
                 </span>
               </div>
-              <p className="text-[9px] sm:text-[10px] font-mono text-zinc-400 tracking-tight">
-                CUALQUIER EJERCICIO • ADAPTACIÓN NEURAL • RECUPERACIÓN ATP
+              <p className="text-sm text-zinc-400">
+                Calculadora de cargas
               </p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-2 rounded-xl border border-zinc-800 hover:border-zinc-600 text-zinc-400 hover:text-zinc-100 transition-all cursor-pointer"
-            aria-label="Cerrar modal"
+            className="min-h-11 min-w-11 rounded-xl border border-zinc-800 text-zinc-200 cursor-pointer inline-flex items-center justify-center"
+            aria-label="Cerrar calculadora"
           >
             <X className="w-5 h-5" />
           </button>
@@ -342,62 +340,57 @@ export function UniversalStrengthCalcModal({
           <button
             type="button"
             onClick={() => setActiveTab("calc")}
-            className={`flex flex-col sm:flex-row items-center justify-center gap-1 py-1.5 sm:py-2 px-1 rounded-lg text-[9px] sm:text-xs font-mono font-bold transition-all cursor-pointer ${
+            className={`flex items-center justify-center gap-1 min-h-11 px-1 rounded-lg text-sm font-medium cursor-pointer ${
               activeTab === "calc"
-                ? "bg-amber-500/20 border border-amber-500/50 text-amber-300 shadow-sm"
-                : "text-zinc-400 hover:text-zinc-200"
+                ? "bg-amber-500/20 border border-amber-500/50 text-amber-300"
+                : "text-zinc-300"
             }`}
           >
-            <Zap className="w-3.5 h-3.5 text-amber-400 flex-shrink-0" />
-            <span>FASES</span>
+            <span>Fases</span>
           </button>
           <button
             type="button"
             onClick={() => setActiveTab("protocol")}
-            className={`flex flex-col sm:flex-row items-center justify-center gap-1 py-1.5 sm:py-2 px-1 rounded-lg text-[9px] sm:text-xs font-mono font-bold transition-all cursor-pointer ${
+            className={`flex items-center justify-center gap-1 min-h-11 px-1 rounded-lg text-sm font-medium cursor-pointer ${
               activeTab === "protocol"
-                ? "bg-cyan-500/20 border border-cyan-500/50 text-cyan-300 shadow-sm"
-                : "text-zinc-400 hover:text-zinc-200"
+                ? "bg-cyan-500/20 border border-cyan-500/50 text-cyan-300"
+                : "text-zinc-300"
             }`}
           >
-            <Target className="w-3.5 h-3.5 text-cyan-400 flex-shrink-0" />
-            <span>TEST PR</span>
+            <span>Marca</span>
           </button>
           <button
             type="button"
             onClick={() => setActiveTab("radar")}
-            className={`flex flex-col sm:flex-row items-center justify-center gap-1 py-1.5 sm:py-2 px-1 rounded-lg text-[9px] sm:text-xs font-mono font-bold transition-all cursor-pointer ${
+            className={`flex items-center justify-center gap-1 min-h-11 px-1 rounded-lg text-sm font-medium cursor-pointer ${
               activeTab === "radar"
-                ? "bg-emerald-500/20 border border-emerald-500/50 text-emerald-300 shadow-sm"
-                : "text-zinc-400 hover:text-zinc-200"
+                ? "bg-emerald-500/20 border border-emerald-500/50 text-emerald-300"
+                : "text-zinc-300"
             }`}
           >
-            <Scale className="w-3.5 h-3.5 text-emerald-400 flex-shrink-0" />
-            <span>SIMETRÍA</span>
+            <span>Equilibrio</span>
           </button>
           <button
             type="button"
             onClick={() => setActiveTab("coach")}
-            className={`flex flex-col sm:flex-row items-center justify-center gap-1 py-1.5 sm:py-2 px-1 rounded-lg text-[9px] sm:text-xs font-mono font-bold transition-all cursor-pointer ${
+            className={`flex items-center justify-center gap-1 min-h-11 px-1 rounded-lg text-sm font-medium cursor-pointer ${
               activeTab === "coach"
-                ? "bg-orange-500/20 border border-orange-500/50 text-orange-300 shadow-sm"
-                : "text-zinc-400 hover:text-zinc-200"
+                ? "bg-orange-500/20 border border-orange-500/50 text-orange-300"
+                : "text-zinc-300"
             }`}
           >
-            <HeartPulse className="w-3.5 h-3.5 text-orange-400 flex-shrink-0" />
-            <span>COACH</span>
+            <span>Coach</span>
           </button>
           <button
             type="button"
             onClick={() => setActiveTab("roadmap")}
-            className={`flex flex-col sm:flex-row items-center justify-center gap-1 py-1.5 sm:py-2 px-1 rounded-lg text-[9px] sm:text-xs font-mono font-bold transition-all cursor-pointer ${
+            className={`flex items-center justify-center gap-1 min-h-11 px-1 rounded-lg text-sm font-medium cursor-pointer ${
               activeTab === "roadmap"
-                ? "bg-violet-500/20 border border-violet-500/50 text-violet-300 shadow-sm"
-                : "text-zinc-400 hover:text-zinc-200"
+                ? "bg-violet-500/20 border border-violet-500/50 text-violet-300"
+                : "text-zinc-300"
             }`}
           >
-            <TrendingUp className="w-3.5 h-3.5 text-violet-400 flex-shrink-0" />
-            <span>ONDAS</span>
+            <span>Semanas</span>
           </button>
         </div>
 
@@ -538,22 +531,22 @@ export function UniversalStrengthCalcModal({
                 <div className="space-y-0.5">
                   <div className="text-xs font-mono font-bold text-zinc-200 flex items-center gap-1.5">
                     <Shield className="w-3.5 h-3.5 text-amber-400" />
-                    <span>90% Training Max (Escudo de Longevidad)</span>
+                    <span>Trabajar al 90%</span>
                   </div>
-                  <p className="text-[10px] text-zinc-400">
-                    Basa las series efectivas en el 90% del 1RM para preservar articulaciones, tendones y prevenir el agotamiento neural.
+                  <p className="text-sm text-zinc-400">
+                    Las series salen del 90% de tu máximo.
                   </p>
                 </div>
                 <button
                   type="button"
                   onClick={() => setUseTrainingMax(!useTrainingMax)}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-mono font-bold transition-all cursor-pointer ${
+                  className={`min-h-11 px-4 rounded-xl text-sm font-semibold cursor-pointer ${
                     useTrainingMax
-                      ? "bg-amber-500 text-zinc-950 shadow-md shadow-amber-500/20"
-                      : "bg-zinc-800 text-zinc-400"
+                      ? "bg-amber-400 text-black"
+                      : "bg-zinc-800 text-zinc-200"
                   }`}
                 >
-                  {useTrainingMax ? "ACTIVO (REC)" : "DESACTIVADO (100%)"}
+                  {useTrainingMax ? "Al 90%" : "Al máximo"}
                 </button>
               </div>
 

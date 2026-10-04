@@ -10,10 +10,9 @@ import {
   Layers,
   Save,
   Copy,
-  Filter,
 } from "lucide-react";
 import { BarbellPlateVisualizer } from "./BarbellPlateVisualizer";
-import { playChime, playTactileClick } from "@/lib/zenAudio";
+import { playTactileClick } from "@/lib/zenAudio";
 
 export interface UniversalProtocolModalProps {
   isOpen: boolean;
@@ -186,30 +185,23 @@ export function UniversalProtocolModal({
   const [prWeight, setPrWeight] = useState<number>(() => getSavedExercisePr("Press de Banca Plano", 100));
   const [equipment, setEquipment] = useState<EquipmentType>("barbell");
   const [goal, setGoal] = useState<GoalType>("strength");
-  const [selectedCategoryTab, setSelectedCategoryTab] = useState<"all" | "banca" | "potencia" | "fuerza" | "maquinas" | "otro">("banca");
-  const [customExerciseName, setCustomExerciseName] = useState<string>("");
-  const [customPrWeight, setCustomPrWeight] = useState<number>(0);
   const barWeight = 20;
   const [completedSteps, setCompletedSteps] = useState<Record<string, boolean>>({});
   const [copiedNotification, setCopiedNotification] = useState<boolean>(false);
   const [savedNotification, setSavedNotification] = useState<boolean>(false);
 
-  // Local rest timer state
-  const [timerRunning, setTimerRunning] = useState<boolean>(false);
-  const [timerRemaining, setTimerRemaining] = useState<number>(0);
-  const [timerLabel, setTimerLabel] = useState<string>("");
-
-  // Flattened list for suggestions and search
   const allExercises = useMemo(() => {
     return CATEGORIZED_EXERCISES.flatMap((cat) => cat.exercises);
   }, []);
 
-  // Filtered exercises for the chips
-  const visibleExercises = useMemo(() => {
-    if (selectedCategoryTab === "all") return allExercises;
-    const cat = CATEGORIZED_EXERCISES.find((c) => c.id === selectedCategoryTab);
-    return cat ? cat.exercises : allExercises;
-  }, [selectedCategoryTab, allExercises]);
+  useEffect(() => {
+    if (!isOpen) return undefined;
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [isOpen, onClose]);
 
   // Is current exercise an Olympic / Explosive lift?
   const isCurrentOlympic = useMemo(() => {
@@ -235,50 +227,6 @@ export function UniversalProtocolModal({
   }, [exerciseName, allExercises]);
 
 
-
-  // Timer countdown effect
-  useEffect(() => {
-    if (!timerRunning || timerRemaining <= 0) return;
-    const interval = setInterval(() => {
-      setTimerRemaining((prev) => {
-        if (prev <= 1) {
-          setTimerRunning(false);
-          playChime(true);
-          if (typeof navigator !== "undefined" && navigator.vibrate) {
-            navigator.vibrate([300, 150, 300, 150, 400]);
-          }
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
-    return () => clearInterval(interval);
-  }, [timerRunning, timerRemaining]);
-
-  // Handle clicking an exercise chip
-  const handleSelectExercise = (item: ExerciseItem) => {
-    playTactileClick();
-    setExerciseName(item.name);
-    setEquipment(item.equipment);
-    if (item.isOlympic) {
-      setGoal("strength");
-    }
-
-    // Check if user already has a saved 1RM for this exercise
-    let foundPr = item.defaultPr;
-    if (typeof window !== "undefined") {
-      try {
-        const savedMaxes = localStorage.getItem("neuro_strength_maxes");
-        if (savedMaxes) {
-          const parsed = JSON.parse(savedMaxes);
-          if (parsed[item.name]?.one_rep_max) {
-            foundPr = parsed[item.name].one_rep_max;
-          }
-        }
-      } catch {}
-    }
-    setPrWeight(foundPr);
-  };
 
   // Rounding helper
   const roundWeight = useCallback((rawWeight: number): number => {
@@ -446,10 +394,8 @@ export function UniversalProtocolModal({
     playTactileClick();
     if (onStartTimer) {
       onStartTimer(step.restSeconds, `${exerciseName} - ${step.title}`);
+      onClose();
     }
-    setTimerRemaining(step.restSeconds);
-    setTimerLabel(step.title);
-    setTimerRunning(true);
   };
 
   const toggleSetComplete = (id: string) => {
@@ -494,12 +440,6 @@ export function UniversalProtocolModal({
     }
   };
 
-  const formatSeconds = (sec: number) => {
-    const m = Math.floor(sec / 60);
-    const s = sec % 60;
-    return `${m}:${s < 10 ? "0" : ""}${s}`;
-  };
-
   return (
     <div
       onClick={onClose}
@@ -518,8 +458,10 @@ export function UniversalProtocolModal({
       >
         {/* Close Button */}
         <button
+          type="button"
           onClick={onClose}
-          className="absolute top-4 right-4 sm:top-5 sm:right-5 w-9 h-9 rounded-full bg-zinc-900 border border-zinc-800 text-zinc-400 hover:text-white flex items-center justify-center text-sm cursor-pointer transition-all hover:bg-zinc-800 z-10"
+          aria-label="Cerrar guía"
+          className="absolute top-4 right-4 sm:top-5 sm:right-5 min-h-11 min-w-11 rounded-full bg-zinc-900 border border-zinc-800 text-zinc-200 flex items-center justify-center cursor-pointer z-10"
         >
           <X className="w-4 h-4" />
         </button>
@@ -572,11 +514,10 @@ export function UniversalProtocolModal({
                 <span>¿CUÁL ES TU PR / 1RM? (KG)</span>
                 <button
                   onClick={handleSavePrToStorage}
-                  className="text-[10px] font-mono text-amber-400 hover:text-amber-300 flex items-center gap-1 cursor-pointer"
-                  title="Guardar este PR en la memoria de la aplicación"
+                  className="inline-flex items-center gap-1.5 min-h-11 px-3 rounded-xl text-sm font-medium text-amber-200 cursor-pointer"
                 >
-                  <Save className="w-3 h-3" />
-                  <span>{savedNotification ? "¡GUARDADO!" : "GUARDAR PR"}</span>
+                  <Save className="w-4 h-4" />
+                  <span>{savedNotification ? "Guardada" : "Guardar marca"}</span>
                 </button>
               </label>
               <div className="flex items-center gap-2">
@@ -607,179 +548,6 @@ export function UniversalProtocolModal({
             </div>
           </div>
 
-          {/* Fila 2: CATÁLOGO CATEGORIZADO DE EJERCICIOS */}
-          <div className="space-y-2 pt-2 border-t border-zinc-900">
-            {/* Pestañas de Categoría */}
-            <div className="flex items-center justify-between flex-wrap gap-2">
-              <span className="text-xs font-mono font-bold text-zinc-400 flex items-center gap-1.5">
-                <Filter className="w-3.5 h-3.5 text-amber-400" />
-                <span>CATÁLOGO DE MOVIMIENTOS ({allExercises.length})</span>
-              </span>
-              <div className="flex gap-1.5 flex-wrap">
-                <button
-                  onClick={() => setSelectedCategoryTab("banca")}
-                  className={`px-2.5 py-1 rounded-lg text-xs font-mono font-bold transition-all cursor-pointer ${
-                    selectedCategoryTab === "banca"
-                      ? "bg-red-500/20 text-red-300 border border-red-500/50 shadow-[0_0_10px_rgba(239,68,68,0.2)]"
-                      : "bg-zinc-900/80 text-zinc-400 hover:text-zinc-200 border border-zinc-800"
-                  }`}
-                >
-                  🛡️ Variantes de Banca ({CATEGORIZED_EXERCISES[0].exercises.length})
-                </button>
-                <button
-                  onClick={() => setSelectedCategoryTab("potencia")}
-                  className={`px-2.5 py-1 rounded-lg text-xs font-mono font-bold transition-all cursor-pointer ${
-                    selectedCategoryTab === "potencia"
-                      ? "bg-amber-500/20 text-amber-300 border border-amber-500/50 shadow-[0_0_10px_rgba(245,158,11,0.2)]"
-                      : "bg-zinc-900/80 text-zinc-400 hover:text-zinc-200 border border-zinc-800"
-                  }`}
-                >
-                  ⚡ Potencia & Balística ({CATEGORIZED_EXERCISES[1].exercises.length})
-                </button>
-                <button
-                  onClick={() => setSelectedCategoryTab("fuerza")}
-                  className={`px-2.5 py-1 rounded-lg text-xs font-mono font-bold transition-all cursor-pointer ${
-                    selectedCategoryTab === "fuerza"
-                      ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/50 shadow-[0_0_10px_rgba(16,185,129,0.2)]"
-                      : "bg-zinc-900/80 text-zinc-400 hover:text-zinc-200 border border-zinc-800"
-                  }`}
-                >
-                  🏋️ Fuerza Máxima ({CATEGORIZED_EXERCISES[2].exercises.length})
-                </button>
-                <button
-                  onClick={() => setSelectedCategoryTab("maquinas")}
-                  className={`px-2.5 py-1 rounded-lg text-xs font-mono font-bold transition-all cursor-pointer ${
-                    selectedCategoryTab === "maquinas"
-                      ? "bg-purple-500/20 text-purple-300 border border-purple-500/50 shadow-[0_0_10px_rgba(168,85,247,0.2)]"
-                      : "bg-zinc-900/80 text-zinc-400 hover:text-zinc-200 border border-zinc-800"
-                  }`}
-                >
-                  ⚙️ Máquinas ({CATEGORIZED_EXERCISES[3].exercises.length})
-                </button>
-                <button
-                  onClick={() => setSelectedCategoryTab("all")}
-                  className={`px-2.5 py-1 rounded-lg text-xs font-mono transition-all cursor-pointer ${
-                    selectedCategoryTab === "all"
-                      ? "bg-zinc-700 text-white border border-zinc-500"
-                      : "bg-zinc-900/80 text-zinc-500 hover:text-zinc-300 border border-zinc-800"
-                  }`}
-                >
-                  Todos ({allExercises.length})
-                </button>
-                <button
-                  onClick={() => setSelectedCategoryTab("otro")}
-                  className={`px-2.5 py-1 rounded-lg text-xs font-mono font-bold transition-all cursor-pointer ${
-                    selectedCategoryTab === "otro"
-                      ? "bg-gradient-to-r from-cyan-500/25 to-amber-500/25 text-cyan-300 border border-cyan-500/50 shadow-[0_0_10px_rgba(6,182,212,0.25)]"
-                      : "bg-zinc-900/80 text-zinc-400 hover:text-zinc-200 border border-zinc-800"
-                  }`}
-                >
-                  🌐 Otro (Libre)
-                </button>
-              </div>
-            </div>
-
-            {/* Chips de la categoría activa OR Custom input */}
-            {selectedCategoryTab === "otro" ? (
-              <div className="rounded-xl bg-zinc-900/40 border border-zinc-800/60 p-4 space-y-3">
-                <div className="flex items-center gap-2 mb-1">
-                  <span className="text-lg">🌐</span>
-                  <span className="text-xs font-mono font-bold text-cyan-400 tracking-wider uppercase">EJERCICIO LIBRE — CUALQUIER MOVIMIENTO</span>
-                </div>
-                <p className="text-[11px] text-zinc-400 leading-relaxed">
-                  Escribí el nombre del ejercicio que quieras (máquina, barra, mancuerna, calistenia, lo que sea) y tu PR estimado o peso de trabajo. El protocolo se calcula automáticamente.
-                </p>
-                <div className="space-y-2">
-                  <div>
-                    <label className="block text-[10px] font-mono font-bold tracking-widest uppercase text-zinc-500 mb-1">Nombre del Ejercicio</label>
-                    <input
-                      type="text"
-                      value={customExerciseName}
-                      onChange={(e) => {
-                        setCustomExerciseName(e.target.value);
-                        setExerciseName(e.target.value || "Ejercicio Personalizado");
-                      }}
-                      placeholder="Ej: Sentadilla Hack, Curl Martillo, Hip Thrust..."
-                      className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 font-mono text-sm text-zinc-100 outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 transition-all placeholder:text-zinc-600"
-                      aria-label="Custom exercise name"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-[10px] font-mono font-bold tracking-widest uppercase text-zinc-500 mb-1">PR / Peso Máximo Estimado (kg)</label>
-                    <input
-                      type="number"
-                      value={customPrWeight || ""}
-                      onChange={(e) => {
-                        const val = parseFloat(e.target.value) || 0;
-                        setCustomPrWeight(val);
-                        setPrWeight(val || 50);
-                      }}
-                      placeholder="70"
-                      min={1}
-                      max={999}
-                      step={0.5}
-                      inputMode="decimal"
-                      className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 font-mono text-2xl font-bold text-center text-zinc-100 outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 transition-all placeholder:text-zinc-600 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                      aria-label="Custom PR weight"
-                    />
-                  </div>
-                  <div className="grid grid-cols-3 gap-2">
-                    <button
-                      onClick={() => { setEquipment("barbell"); }}
-                      className={`py-2 px-2 rounded-xl text-xs font-mono font-bold border transition-all text-center cursor-pointer ${
-                        equipment === "barbell"
-                          ? "bg-amber-500/20 border-amber-500/50 text-amber-300"
-                          : "bg-zinc-900 border-zinc-800 text-zinc-400 hover:bg-zinc-800"
-                      }`}
-                    >
-                      🏋️ Barra
-                    </button>
-                    <button
-                      onClick={() => { setEquipment("dumbbell"); }}
-                      className={`py-2 px-2 rounded-xl text-xs font-mono font-bold border transition-all text-center cursor-pointer ${
-                        equipment === "dumbbell"
-                          ? "bg-amber-500/20 border-amber-500/50 text-amber-300"
-                          : "bg-zinc-900 border-zinc-800 text-zinc-400 hover:bg-zinc-800"
-                      }`}
-                    >
-                      💪 Mancuerna
-                    </button>
-                    <button
-                      onClick={() => { setEquipment("machine"); }}
-                      className={`py-2 px-2 rounded-xl text-xs font-mono font-bold border transition-all text-center cursor-pointer ${
-                        equipment === "machine"
-                          ? "bg-amber-500/20 border-amber-500/50 text-amber-300"
-                          : "bg-zinc-900 border-zinc-800 text-zinc-400 hover:bg-zinc-800"
-                      }`}
-                    >
-                      ⚙️ Máquina
-                    </button>
-                  </div>
-                </div>
-              </div>
-            ) : (
-              <div className="flex flex-wrap gap-1.5 max-h-48 overflow-y-auto p-1.5 rounded-xl bg-zinc-900/40 border border-zinc-800/60">
-                {visibleExercises.map((ex) => {
-                  const isSelected = exerciseName === ex.name || exerciseName === ex.shortName;
-                  return (
-                    <button
-                      key={ex.name}
-                      onClick={() => handleSelectExercise(ex)}
-                      className={`px-2.5 py-1.5 rounded-xl text-xs font-mono font-medium transition-all text-left flex items-center gap-1.5 cursor-pointer ${
-                        isSelected
-                          ? "bg-gradient-to-r from-amber-500/30 to-orange-500/20 text-amber-300 border border-amber-500/60 shadow-[0_0_12px_rgba(245,158,11,0.25)] scale-[1.02]"
-                          : "bg-zinc-900/90 hover:bg-zinc-800 text-zinc-300 hover:text-white border border-zinc-800"
-                      }`}
-                    >
-                      <span>{ex.isOlympic ? "⚡" : ex.equipment === "machine" ? "⚙️" : ex.name.includes("Banca") || ex.name.includes("Press") ? "🛡️" : "🏋️"}</span>
-                      <span>{ex.shortName}</span>
-                      <span className="text-[10px] text-zinc-500 font-mono">({ex.defaultPr}k)</span>
-                    </button>
-                  );
-                })}
-              </div>
-            )}
-          </div>
 
           {/* Fila 3: Selector de Implemento + Enfoque */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2 border-t border-zinc-900">
@@ -859,33 +627,7 @@ export function UniversalProtocolModal({
           </div>
         </div>
 
-        {/* TEMPORIZADOR DE DESCANSO EN VIVO (Si está activo) */}
-        {timerRunning && (
-          <div className="mb-5 p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-between gap-4 animate-in slide-in-from-top-2">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-400 font-bold animate-pulse">
-                <Clock className="w-5 h-5" />
-              </div>
-              <div>
-                <div className="text-xs font-mono text-zinc-400">DESCANSO EN CURSO</div>
-                <div className="text-sm font-bold text-zinc-100">{timerLabel || "Resíntesis de Fosfocreatina"}</div>
-              </div>
-            </div>
-            <div className="flex items-center gap-3">
-              <div className="text-2xl sm:text-3xl font-mono font-black text-amber-400 tracking-wider">
-                {formatSeconds(timerRemaining)}
-              </div>
-              <button
-                onClick={() => setTimerRunning(false)}
-                className="px-3 py-1.5 rounded-xl bg-zinc-900 border border-zinc-800 text-xs font-mono text-zinc-400 hover:text-white cursor-pointer"
-              >
-                SALTAR
-              </button>
-            </div>
-          </div>
-        )}
-
-        {/* TABLA VISUAL DE PROTOCOLO: Warmup -> Activación -> Efectivas */}
+        {/* TABLA VISUAL DE PROTOCOLO */}
         <div className="space-y-3 mb-6">
           <div className="flex items-center justify-between">
             <h3 className="text-xs font-mono font-bold text-zinc-400 tracking-wider uppercase flex items-center gap-2">

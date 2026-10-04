@@ -52,7 +52,7 @@ test.describe('SPEC-E2E-01: ATP-Strength App Shell & PWA Gateway', () => {
     await page.goto('/');
     const heading = page.locator('h1:has-text("NEURO//STRENGTH")');
     await expect(heading).toBeVisible({ timeout: 10000 });
-    await expect(page.locator('text=MOTOR ZEN DE RESÍNTESIS DE ATP & FUERZA MÁXIMA')).toBeVisible();
+    await expect(page.locator('text=Sesión de fuerza')).toBeVisible();
   });
 
   test('Full-screen calculator page (/calc) renders and calculates e1RM dynamically', async ({ page }) => {
