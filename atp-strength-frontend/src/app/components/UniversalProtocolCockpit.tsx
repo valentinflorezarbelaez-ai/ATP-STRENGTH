@@ -3,7 +3,6 @@
 import React, { useState, useMemo, useEffect } from "react";
 import {
   Target,
-  Flame,
   Activity,
   Shield,
   Clock,
@@ -11,7 +10,6 @@ import {
   CheckCircle2,
   RotateCcw,
   Sparkles,
-  Dumbbell,
   Award,
   Play,
   ShieldCheck,
@@ -674,18 +672,13 @@ export function UniversalProtocolCockpit({
       {/* 1. Selector de Ejercicio & Configuración del PR */}
       <div className="order-1 p-4 sm:p-5 rounded-2xl bg-zinc-950 border border-zinc-800 shadow-2xl space-y-4">
         {/* Cabecera del Motor */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-zinc-900">
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
           <div>
-            <div className="flex items-center gap-2">
-              <span className="p-1.5 rounded-lg bg-amber-500/10 text-amber-400 border border-amber-500/20">
-                <Dumbbell className="w-4 h-4" />
-              </span>
-              <p className="text-[11px] font-mono tracking-[0.16em] text-amber-400">AHORA</p>
-              <h3 className="mt-1 text-xl sm:text-2xl font-semibold tracking-tight text-zinc-50">
-                {activeName}
-              </h3>
-            </div>
-            <p className="text-sm text-zinc-400 mt-1 leading-relaxed">
+            <p className="text-[11px] font-medium tracking-[0.18em] text-amber-400">AHORA</p>
+            <h3 className="mt-1 text-2xl sm:text-3xl font-semibold tracking-tight text-zinc-50">
+              {activeName}
+            </h3>
+            <p className="text-sm text-zinc-400 mt-1.5 leading-relaxed">
               Tocá el reloj de la serie para empezar el descanso.
             </p>
           </div>
@@ -695,12 +688,12 @@ export function UniversalProtocolCockpit({
             <button
               type="button"
               onClick={isGuidedActive ? stopGuidedMode : startGuidedMode}
-              className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-mono font-black transition-all active:scale-95 cursor-pointer shadow-lg ${
+              className={`inline-flex items-center justify-center gap-2 min-h-11 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all active:scale-95 cursor-pointer ${
                 isGuidedActive
-                  ? "bg-rose-500/20 border border-rose-500/50 text-rose-300 animate-pulse shadow-rose-500/10"
+                  ? "bg-rose-500/15 border border-rose-500/50 text-rose-200"
                   : recoveryStatus.isLocked && !recoveryBypassed
-                  ? "bg-rose-500/20 border border-rose-500/50 text-rose-300 hover:bg-rose-500/30 shadow-rose-500/20"
-                  : "bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-black border border-amber-400 shadow-amber-500/25"
+                  ? "bg-rose-500/15 border border-rose-500/50 text-rose-200 hover:bg-rose-500/25"
+                  : "bg-amber-400 hover:bg-amber-300 text-black"
               }`}
               title={
                 recoveryStatus.isLocked && !recoveryBypassed
@@ -1002,10 +995,12 @@ export function UniversalProtocolCockpit({
           </div>
         )}
 
-        {/* Chips de Ejercicios Frecuentes */}
+      </div>
+
+      <div className="order-3 p-4 sm:p-5 rounded-2xl bg-zinc-950 border border-zinc-800 space-y-4">
         <div className="space-y-2">
-          <label className="text-[10px] font-mono font-bold text-zinc-500 uppercase tracking-wider block">
-            1. SELECCIONÁ UN EJERCICIO O ESCRIBÍ EL TUYO
+          <label className="text-sm font-medium text-zinc-300 block">
+            Ejercicio
           </label>
           <div className="flex items-center gap-1.5 flex-wrap">
             {COMMON_EXERCISES.map((ex) => {
@@ -1020,7 +1015,7 @@ export function UniversalProtocolCockpit({
                     setExerciseName(ex.name);
                     setPrWeight(ex.defaultPr);
                   }}
-                  className={`px-3 py-2 rounded-xl text-xs font-mono font-medium transition-all cursor-pointer min-h-[38px] flex items-center justify-center ${
+                  className={`px-3 py-2 rounded-xl text-sm font-medium transition-all cursor-pointer min-h-11 flex items-center justify-center ${
                     isSelected
                       ? "bg-amber-500 text-zinc-950 font-bold shadow-md shadow-amber-500/20 scale-[1.02]"
                       : "bg-zinc-900/60 text-zinc-400 hover:text-zinc-200 border border-zinc-800/80 active:scale-95"
@@ -1036,7 +1031,7 @@ export function UniversalProtocolCockpit({
                 playTactileClick();
                 setIsCustom(true);
               }}
-              className={`px-3.5 py-2 rounded-xl text-xs font-mono font-medium transition-all cursor-pointer min-h-[38px] flex items-center justify-center ${
+              className={`px-3.5 py-2 rounded-xl text-sm font-medium transition-all cursor-pointer min-h-11 flex items-center justify-center ${
                 isCustom
                   ? "bg-amber-500 text-zinc-950 font-bold shadow-md shadow-amber-500/20 scale-[1.02]"
                   : "bg-zinc-900/60 text-zinc-400 hover:text-zinc-200 border border-zinc-800/80 active:scale-95"
@@ -1054,7 +1049,7 @@ export function UniversalProtocolCockpit({
                 value={customExercise}
                 onChange={(e) => setCustomExercise(e.target.value)}
                 placeholder="Escribí cualquier ejercicio (ej. Prensa Inclinada 45°, Press Arnold, Hip Thrust...)"
-                className="w-full bg-zinc-900 border border-amber-500/40 rounded-xl px-4 py-2.5 text-xs font-mono text-zinc-100 placeholder:text-zinc-600 outline-none focus:border-amber-500 shadow-inner"
+                className="w-full min-h-11 bg-zinc-900 border border-amber-500/40 rounded-xl px-4 py-2.5 text-sm text-zinc-100 placeholder:text-zinc-500 focus:border-amber-500"
               />
             </div>
           )}
@@ -1063,8 +1058,8 @@ export function UniversalProtocolCockpit({
         {/* Configuración de PR / 1RM con Steppers Móviles */}
         <div className="grid grid-cols-1 sm:grid-cols-12 gap-4 items-end pt-2 border-t border-zinc-900">
           <div className="sm:col-span-6 space-y-1.5">
-            <label className="text-[10px] font-mono font-bold text-zinc-500 uppercase tracking-wider block">
-              2. TU PR / 1-REP MAX ACTUAL (KG)
+            <label className="text-sm font-medium text-zinc-300 block">
+              Tu máximo (kg)
             </label>
             <div className="flex items-center gap-2">
               <input
@@ -1075,7 +1070,7 @@ export function UniversalProtocolCockpit({
                 min={5}
                 max={999}
                 step={0.5}
-                className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-2.5 font-mono text-xl font-bold text-center text-amber-400 outline-none focus:border-amber-500"
+                className="w-full min-h-11 bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-2.5 font-mono text-xl font-semibold text-center text-amber-300 tabular-nums focus:border-amber-500"
               />
               <span className="text-xs font-mono font-bold text-zinc-400">KG</span>
             </div>
@@ -1125,7 +1120,7 @@ export function UniversalProtocolCockpit({
               className="flex-1 px-3 py-3 rounded-xl border border-cyan-500/30 bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-300 text-xs font-mono font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer active:scale-95 min-h-[46px]"
             >
               <Target className="w-4 h-4 text-cyan-400" />
-              <span>{showSubmaxCalc ? "Ocultar Calculador" : "¿No sabes tu PR? Calcular"}</span>
+              <span>{showSubmaxCalc ? "Ocultar cálculo" : "¿No sabés tu máximo? Calcular"}</span>
             </button>
 
             {/* Toggle Escudo 90% TM */}
@@ -1143,7 +1138,7 @@ export function UniversalProtocolCockpit({
               title="Calcula las series efectivas sobre el 90% del 1RM para proteger articulaciones y tendones"
             >
               <Shield className="w-4 h-4 text-amber-400" />
-              <span>{useTrainingMax ? "Escudo 90% TM (ON)" : "100% 1RM (OFF)"}</span>
+              <span>{useTrainingMax ? "Trabajar al 90%" : "Usar el máximo"}</span>
             </button>
           </div>
         </div>
@@ -1207,20 +1202,20 @@ export function UniversalProtocolCockpit({
       {/* 2. Resumen de Cargas & Medidor de Fatiga Neural (INOL Prilepin) */}
       <div className="order-4 grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3 text-center font-mono">
         <div className="p-3 rounded-xl bg-zinc-950 border border-zinc-900">
-          <span className="text-[10px] text-zinc-500 block uppercase">1RM Real</span>
+          <span className="text-[11px] text-zinc-400 block">Máximo</span>
           <span className="text-lg sm:text-xl font-black text-zinc-200">{prWeight} kg</span>
         </div>
         <div className="p-3 rounded-xl bg-zinc-950 border border-amber-500/30">
-          <span className="text-[10px] text-amber-400 block uppercase">Base Trabajo (TM)</span>
+          <span className="text-[11px] text-amber-400 block">Carga de trabajo</span>
           <span className="text-lg sm:text-xl font-black text-amber-400">{roundWeight(effectiveMax)} kg</span>
         </div>
         <div className="p-3 rounded-xl bg-zinc-950 border border-orange-500/30">
-          <span className="text-[10px] text-orange-400 block uppercase">Carga 85% Diana</span>
+          <span className="text-[11px] text-orange-300 block">Serie fuerte</span>
           <span className="text-lg sm:text-xl font-black text-orange-400">{primaryWorkWeight} kg</span>
         </div>
         <div className="p-3 rounded-xl bg-zinc-950 border border-cyan-500/30">
           <div className="flex items-center justify-center gap-1 text-[10px] text-cyan-400 uppercase">
-            <span>INOL Prilepin</span>
+            <span>Fatiga de hoy</span>
           </div>
           <span className="text-lg sm:text-xl font-black text-cyan-400">
             {sessionInol.totalInol}
@@ -1235,19 +1230,19 @@ export function UniversalProtocolCockpit({
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-rose-500/25 pb-3">
             <div className="flex items-center gap-2.5">
               <span className="p-2 rounded-xl bg-rose-500/20 text-rose-400 border border-rose-500/40">
-                <ShieldAlert className="w-5 h-5 animate-pulse" />
+                <ShieldAlert className="w-5 h-5" />
               </span>
               <div>
                 <div className="flex items-center gap-2">
-                  <span className="text-[11px] font-mono font-bold text-rose-400 uppercase tracking-widest">
-                    BLOQUEO BIOLÓGICO DE RECUPERACIÓN ACTIVO
+                  <span className="text-[11px] font-medium text-rose-300">
+                    Todavía en recuperación
                   </span>
                   <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-rose-500/20 border border-rose-500/40 text-rose-300">
                     {recoveryStatus.recoveryHoursTotal}H DESCANSO
                   </span>
                 </div>
-                <h4 className="text-sm sm:text-base font-black text-white font-mono uppercase mt-0.5">
-                  {activeName} &middot; MÚSCULO Y SNC EN FASE DE REPARACIÓN
+                <h4 className="text-sm sm:text-base font-semibold text-white mt-0.5">
+                  {activeName} necesita más descanso
                 </h4>
               </div>
             </div>
@@ -1342,17 +1337,7 @@ export function UniversalProtocolCockpit({
       )}
 
       {/* 3. PROTOCOLO EXACTO PASO A PASO (LAS 6 FASES) */}
-      <div className="order-2 space-y-4">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
-          <span className="text-sm font-semibold text-zinc-100 flex items-center gap-2">
-            <Flame className="w-4 h-4 text-amber-400 flex-shrink-0" />
-            <span>{activeName}</span>
-          </span>
-          <span className="text-xs text-zinc-400">
-            Tocá el reloj de la serie para empezar el descanso.
-          </span>
-        </div>
-
+      <div className="order-2 space-y-3">
         <div className="space-y-3">
           {protocolPhases.map((phase) => {
             const isFase4 = phase.id === "p4";
@@ -1369,13 +1354,10 @@ export function UniversalProtocolCockpit({
                       <span className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded-full border ${phase.colorClass}`}>
                         {phase.badge} &middot; {phase.pct}
                       </span>
-                      <h4 className="text-xs sm:text-sm font-mono font-bold text-zinc-200">
+                      <h4 className="text-base font-semibold tracking-tight text-zinc-100">
                         {phase.name}
                       </h4>
                     </div>
-                    <p className="text-[11px] text-zinc-400 mt-1 leading-relaxed">
-                      {phase.desc}
-                    </p>
                   </div>
                 </div>
 
@@ -1394,7 +1376,7 @@ export function UniversalProtocolCockpit({
                             key={bar.id}
                             type="button"
                             onClick={() => setSelectedBarWeight(bar.weight)}
-                            className={`px-3 py-1.5 rounded-lg text-xs font-mono font-bold transition-all min-h-[38px] flex items-center justify-center cursor-pointer select-none ${
+                            className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all min-h-11 flex items-center justify-center cursor-pointer select-none ${
                               selectedBarWeight === bar.weight
                                 ? "bg-amber-500 text-zinc-950 font-black shadow-md shadow-amber-500/20"
                                 : "bg-zinc-900 text-zinc-400 hover:text-zinc-200 border border-zinc-800"
@@ -1428,7 +1410,7 @@ export function UniversalProtocolCockpit({
                           isDone
                             ? "bg-emerald-500/10 border-emerald-500/40 text-emerald-300 shadow-sm"
                             : isGuidedCurrent
-                            ? "bg-amber-500/15 border-2 border-amber-400 text-amber-200 ring-2 ring-amber-400/40 shadow-[0_0_20px_rgba(245,158,11,0.25)] animate-pulse"
+                            ? "bg-amber-500/15 border-2 border-amber-400 text-amber-100"
                             : "bg-zinc-900/60 border-zinc-800/80 hover:bg-zinc-900 hover:border-zinc-700"
                         }`}
                       >
@@ -1455,13 +1437,13 @@ export function UniversalProtocolCockpit({
                                 <span className="text-zinc-500">&times;</span>
                                 <span className="font-bold text-zinc-100">{set.reps} reps</span>
                                 {isGuidedCurrent && (
-                                  <span className="px-1.5 py-0.5 rounded text-[9px] font-mono font-black bg-amber-400 text-black shadow-sm animate-pulse">
+                                  <span className="px-1.5 py-0.5 rounded text-[11px] font-medium bg-amber-400 text-black">
                                     SERIE ACTUAL
                                   </span>
                                 )}
                               </div>
-                              <span className="text-[10px] font-mono text-zinc-500 block">
-                                Tempo {set.tempo} &middot; Descanso {set.rest}s &middot; Target RPE {set.targetRpe}
+                              <span className="text-xs text-zinc-400 block">
+                                Tempo {set.tempo} · Descanso {set.rest}s · Esfuerzo {set.targetRpe}
                               </span>
                             </div>
                           </div>

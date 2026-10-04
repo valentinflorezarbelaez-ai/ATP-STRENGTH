@@ -152,7 +152,7 @@ export function CoachGuidedView({
                   PROTOCOLO PR
                 </span>
               </div>
-              <p className="text-[11px] text-zinc-400 font-sans">
+              <p className="text-sm text-zinc-300 font-sans">
                 {d.activeExercise?.name ?? "Tu ejercicio"}
               </p>
             </div>
@@ -165,7 +165,7 @@ export function CoachGuidedView({
               playTactileClick();
               toggleCoachMode();
             }}
-            className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-gradient-to-r from-amber-500/20 to-amber-600/20 hover:from-amber-500/30 hover:to-amber-600/30 border border-amber-500/40 text-xs font-mono font-bold text-amber-300 shadow-lg shadow-amber-500/5 transition-all transform active:scale-95 cursor-pointer flex-shrink-0"
+            className="flex items-center gap-1.5 min-h-11 px-3.5 rounded-xl border border-zinc-700 text-sm font-medium text-zinc-200 hover:border-amber-500/40 hover:text-amber-200 transition-all active:scale-95 cursor-pointer flex-shrink-0"
             title="Cambiar a Modo Pro (Dashboard Analítico)"
           >
             <Eye className="w-4 h-4 text-amber-400 flex-shrink-0" />
@@ -193,7 +193,7 @@ export function CoachGuidedView({
                 router.push("/forge");
               }
             }}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-amber-500/40 bg-gradient-to-r from-amber-500/15 via-red-500/15 to-amber-500/15 text-amber-300 hover:from-amber-500/25 hover:to-red-500/25 hover:border-amber-400/60 transition-all text-xs font-mono font-bold cursor-pointer shadow-[0_0_14px_rgba(245,158,11,0.2)] active:scale-95 flex-shrink-0"
+            className="flex items-center gap-1.5 min-h-11 px-3 rounded-xl border border-amber-500/40 bg-gradient-to-r from-amber-500/15 via-red-500/15 to-amber-500/15 text-amber-300 hover:from-amber-500/25 hover:to-red-500/25 hover:border-amber-400/60 transition-all text-xs font-mono font-bold cursor-pointer shadow-[0_0_14px_rgba(245,158,11,0.2)] active:scale-95 flex-shrink-0"
             title="Entrar a La Forja de los Guerreros y reproducir el Himno"
           >
             <Flame className="w-3.5 h-3.5 text-amber-400" />
@@ -206,7 +206,7 @@ export function CoachGuidedView({
               playTactileClick();
               setShowUniversalProtocol(true);
             }}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-amber-500/30 bg-amber-500/10 text-amber-300 hover:bg-amber-500/20 hover:border-amber-400/50 transition-all text-xs font-mono font-bold cursor-pointer shadow-[0_0_12px_rgba(245,158,11,0.15)] flex-shrink-0"
+            className="flex items-center gap-1.5 min-h-11 px-3 rounded-xl border border-amber-500/30 bg-amber-500/10 text-amber-300 hover:bg-amber-500/20 hover:border-amber-400/50 transition-all text-xs font-mono font-bold cursor-pointer shadow-[0_0_12px_rgba(245,158,11,0.15)] flex-shrink-0"
             title="Guía completa del Protocolo Universal PR"
           >
             <span>⚡</span>
@@ -219,7 +219,7 @@ export function CoachGuidedView({
               playTactileClick();
               setShowUniversalCalc(true);
             }}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-zinc-800 bg-zinc-950 text-zinc-300 hover:text-amber-400 hover:border-amber-500/50 transition-all text-xs font-mono font-bold cursor-pointer shadow-sm active:scale-95 flex-shrink-0"
+            className="flex items-center gap-1.5 min-h-11 px-3 rounded-xl border border-zinc-800 bg-zinc-950 text-zinc-300 hover:text-amber-400 hover:border-amber-500/50 transition-all text-xs font-mono font-bold cursor-pointer shadow-sm active:scale-95 flex-shrink-0"
             title="Calculadora Universal de Fases Neuromusculares"
           >
             <BarChart3 className="w-3.5 h-3.5 text-amber-400" />
@@ -239,7 +239,7 @@ export function CoachGuidedView({
               playTactileClick();
               try { window.location.href = "spotify:"; } catch {}
             }}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-emerald-500/30 bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20 hover:border-emerald-400/50 transition-all text-xs font-mono font-bold cursor-pointer shadow-[0_0_12px_rgba(16,185,129,0.15)] flex-shrink-0"
+            className="flex items-center gap-1.5 min-h-11 px-3 rounded-xl border border-emerald-500/30 bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20 hover:border-emerald-400/50 transition-all text-xs font-mono font-bold cursor-pointer shadow-[0_0_12px_rgba(16,185,129,0.15)] flex-shrink-0"
             title="Abrir Spotify directamente"
           >
             <span>🎵</span>
@@ -252,7 +252,7 @@ export function CoachGuidedView({
               playTactileClick();
               setShowProfileModal(true);
             }}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-black/10 dark:border-white/15 bg-white/80 dark:bg-white/5 backdrop-blur-xl hover:bg-black/5 dark:hover:bg-white/10 text-xs font-mono font-medium transition-all active:scale-95 cursor-pointer shadow-sm flex-shrink-0"
+            className="flex items-center gap-1.5 min-h-11 px-3 rounded-xl border border-black/10 dark:border-white/15 bg-white/80 dark:bg-white/5 backdrop-blur-xl hover:bg-black/5 dark:hover:bg-white/10 text-xs font-mono font-medium transition-all active:scale-95 cursor-pointer shadow-sm flex-shrink-0"
             title="Perfil de Atleta y Copias de Seguridad"
           >
             <User className="w-3.5 h-3.5 text-amber-400" />
@@ -263,7 +263,7 @@ export function CoachGuidedView({
           <button
             type="button"
             onClick={d.toggleTheme}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-black/10 dark:border-white/15 bg-white/80 dark:bg-white/5 backdrop-blur-xl hover:bg-black/5 dark:hover:bg-white/10 text-xs font-mono font-medium transition-all active:scale-95 cursor-pointer shadow-sm flex-shrink-0"
+            className="flex items-center gap-1.5 min-h-11 px-3 rounded-xl border border-black/10 dark:border-white/15 bg-white/80 dark:bg-white/5 backdrop-blur-xl hover:bg-black/5 dark:hover:bg-white/10 text-xs font-mono font-medium transition-all active:scale-95 cursor-pointer shadow-sm flex-shrink-0"
             title={
               d.themeMode === 'dark'
                 ? "Modo Oscuro. Clic para Modo Sistema"
@@ -294,14 +294,14 @@ export function CoachGuidedView({
           <button
             type="button"
             onClick={toggleVoiceCoach}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-mono font-medium transition-all active:scale-95 cursor-pointer flex-shrink-0 ${
+            className={`flex items-center gap-1.5 min-h-11 px-3 rounded-xl border text-xs font-mono font-medium transition-all active:scale-95 cursor-pointer flex-shrink-0 ${
               audioPrefs.voiceEnabled
                 ? "bg-amber-500/10 border-amber-500/40 text-amber-400 shadow-sm"
                 : "bg-zinc-900 border-zinc-800 text-zinc-500 hover:text-zinc-300"
             }`}
             title={audioPrefs.voiceEnabled ? "Voz Coach activada (clic para silenciar)" : "Voz Coach silenciada (clic para activar)"}
           >
-            <Volume2 className={`w-3.5 h-3.5 ${audioPrefs.voiceEnabled ? "text-amber-400 animate-pulse" : "text-zinc-500"}`} />
+            <Volume2 className={`w-3.5 h-3.5 ${audioPrefs.voiceEnabled ? "text-amber-400" : "text-zinc-500"}`} />
             <span>VOZ: {audioPrefs.voiceEnabled ? "ON" : "OFF"}</span>
           </button>
 
@@ -309,7 +309,7 @@ export function CoachGuidedView({
           <button
             type="button"
             onClick={() => setShowResetConfirm(!showResetConfirm)}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-zinc-950 border border-zinc-800 text-zinc-400 hover:text-amber-400 transition-all cursor-pointer flex-shrink-0"
+            className="flex items-center gap-1.5 min-h-11 px-3 rounded-xl bg-zinc-950 border border-zinc-800 text-zinc-400 hover:text-amber-400 transition-all cursor-pointer flex-shrink-0"
             title="Reiniciar progreso"
           >
             <RotateCcw className="w-3.5 h-3.5 text-amber-400" />
@@ -368,9 +368,9 @@ export function CoachGuidedView({
             {/* Top Rest Badge */}
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <Coffee className="w-4 h-4 text-amber-400 animate-pulse" />
-                <span className="text-xs font-mono font-bold text-amber-400 uppercase tracking-wider">
-                  Descanso &amp; Resíntesis ATP
+                <Coffee className="w-4 h-4 text-amber-400" />
+                <span className="text-sm font-medium text-amber-300">
+                  Descanso
                 </span>
               </div>
               <span className="text-xs font-mono text-zinc-400">
@@ -388,7 +388,7 @@ export function CoachGuidedView({
             {/* Mindful Breathing Guide */}
             <div className="p-4 rounded-2xl bg-zinc-900/70 border border-zinc-800/80 space-y-1.5 max-w-md mx-auto">
               <div className="flex items-center justify-center gap-2 text-xs font-semibold text-zinc-300">
-                <Heart className="w-3.5 h-3.5 text-rose-400 animate-pulse" />
+                <Heart className="w-3.5 h-3.5 text-rose-400" />
                 <span>Respiración de recuperación</span>
               </div>
               <p className="text-xs text-zinc-400 leading-relaxed">
