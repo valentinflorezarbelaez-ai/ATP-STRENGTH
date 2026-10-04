@@ -380,6 +380,7 @@ export function CoachGuidedView({
           <UniversalProtocolCockpit
             onStartTimer={handleStartTimer}
             onOpenVideo={(name) => setSelectedVideoExercise(name)}
+            onCommitExercise={d.commitSessionExercise}
           />
         </div>
       </section>

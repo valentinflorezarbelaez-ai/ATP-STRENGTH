@@ -38,6 +38,7 @@ import {
   logLocalSetHistory,
 } from "@/lib/prHistory";
 import { playChime } from "@/lib/zenAudio";
+import { readDeviceMaxes, resolveExerciseKey } from "@/lib/sessionExercise";
 
 export function useZenDashboard() {
   const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
@@ -483,6 +484,32 @@ export function useZenDashboard() {
     ]
   );
 
+  const commitSessionExercise = useCallback((name: string, pr: number) => {
+    const stored = readDeviceMaxes();
+    const key = resolveExerciseKey(name, [...Object.keys(stored), ...customExercises]);
+    if (!key || !(pr > 0)) return name.trim();
+    const updated = computeMetrics(key, pr, 1, "direct", "PR de la sesión");
+    writeMaxesMap({ ...stored, [key]: updated });
+    setMaxesMap((prev) => ({ ...prev, [key]: updated }));
+
+    const catalogHit = ALL_TRACKABLE_EXERCISES.some((entry) => entry === key);
+    if (!catalogHit) {
+      setCustomExercises((prev) => {
+        if (prev.some((entry) => entry.toLocaleLowerCase("es") === key.toLocaleLowerCase("es"))) {
+          return prev;
+        }
+        const next = [...prev, key];
+        try {
+          localStorage.setItem("atp_custom_exercises", JSON.stringify(next));
+        } catch {
+          /* el dispositivo puede rechazar la escritura */
+        }
+        return next;
+      });
+    }
+    return key;
+  }, [customExercises]);
+
   const handleAddNewExercise = useCallback(
     async (
       name: string,
@@ -729,6 +756,7 @@ export function useZenDashboard() {
     bodyweightKg,
     handleUpdateBodyweight,
     allTrackableExercises,
+    commitSessionExercise,
     handleAddNewExercise,
     strengthStandards,
     coachEvaluation,

@@ -232,6 +232,7 @@ export function ZenDashboardView({
             <UniversalProtocolCockpit
               onStartTimer={handleStartTimer}
               onOpenVideo={(name) => setSelectedVideoExercise(name)}
+              onCommitExercise={d.commitSessionExercise}
             />
           </div>
           <div className="order-2 rounded-2xl border border-amber-500/25 bg-gradient-to-b from-amber-500/10 via-zinc-950 to-zinc-950 p-4 space-y-3">

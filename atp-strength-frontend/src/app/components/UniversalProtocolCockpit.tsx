@@ -2,9 +2,7 @@
 
 import React, { useState, useMemo, useEffect } from "react";
 import {
-  Target,
   Activity,
-  Shield,
   Clock,
   TrendingUp,
   CheckCircle2,
@@ -41,22 +39,13 @@ import {
 } from "@/lib/recoveryLockout";
 import { CoachChatModal } from "@/app/components/CoachChatModal";
 import { UniversalGuidedFullscreenModal } from "@/app/components/UniversalGuidedFullscreenModal";
+import { SessionExerciseGate } from "@/app/components/SessionExerciseGate";
 
 export interface UniversalProtocolCockpitProps {
   onStartTimer: (seconds: number, title: string) => void;
   onOpenVideo?: (exerciseName: string) => void;
+  onCommitExercise?: (name: string, pr: number) => string;
 }
-
-const COMMON_EXERCISES = [
-  { name: "Press de Banca Plano", defaultPr: 100, category: "Empuje" },
-  { name: "Sentadilla Trasera", defaultPr: 130, category: "Piernas" },
-  { name: "Peso Muerto Convencional", defaultPr: 160, category: "Cadena Posterior" },
-  { name: "Press Militar Estricto", defaultPr: 65, category: "Empuje Vertical" },
-  { name: "Dominadas Lastradas", defaultPr: 90, category: "Tracción" },
-  { name: "Prensa 45° Pesada", defaultPr: 240, category: "Máquinas" },
-  { name: "Hip Thrust con Barra", defaultPr: 170, category: "Cadena Posterior" },
-  { name: "Remo con Barra 45°", defaultPr: 90, category: "Tracción" },
-];
 
 const BAR_OPTIONS = [
   { id: "olympic-20", name: "Barra Olímpica (20 kg)", weight: 20 },
@@ -69,53 +58,29 @@ function roundWeight(weight: number): number {
   return Math.max(5, Math.round(weight / 0.5) * 0.5);
 }
 
-interface CockpitSavedState {
-  exerciseName: string;
-  prWeight: number;
-  useTrainingMax: boolean;
-  selectedBarWeight: number;
-}
-
-function loadInitialCockpitState(): CockpitSavedState {
-  if (typeof window === "undefined") {
-    return {
-      exerciseName: "Press de Banca Plano",
-      prWeight: 100,
-      useTrainingMax: true,
-      selectedBarWeight: 20,
-    };
-  }
+function loadSavedBarWeight(): number {
+  if (typeof window === "undefined") return 20;
   try {
     const saved = localStorage.getItem("atp_universal_cockpit_state_v2");
-    if (saved) {
-      const parsed = JSON.parse(saved);
-      return {
-        exerciseName: parsed.exerciseName || "Press de Banca Plano",
-        prWeight: typeof parsed.prWeight === "number" ? parsed.prWeight : 100,
-        useTrainingMax: parsed.useTrainingMax !== undefined ? Boolean(parsed.useTrainingMax) : true,
-        selectedBarWeight: typeof parsed.selectedBarWeight === "number" ? parsed.selectedBarWeight : 20,
-      };
-    }
-  } catch {}
-  return {
-    exerciseName: "Press de Banca Plano",
-    prWeight: 100,
-    useTrainingMax: true,
-    selectedBarWeight: 20,
-  };
+    if (!saved) return 20;
+    const parsed = JSON.parse(saved) as { selectedBarWeight?: number };
+    return typeof parsed.selectedBarWeight === "number" ? parsed.selectedBarWeight : 20;
+  } catch {
+    return 20;
+  }
 }
 
 export function UniversalProtocolCockpit({
   onStartTimer,
   onOpenVideo,
+  onCommitExercise,
 }: UniversalProtocolCockpitProps) {
-  const [exerciseName, setExerciseName] = useState<string>(() => loadInitialCockpitState().exerciseName);
-  const [customExercise, setCustomExercise] = useState<string>("");
-  const [isCustom, setIsCustom] = useState<boolean>(false);
-  const [prWeight, setPrWeight] = useState<number>(() => loadInitialCockpitState().prWeight);
-  const [useTrainingMax, setUseTrainingMax] = useState<boolean>(() => loadInitialCockpitState().useTrainingMax);
+  const [sessionStarted, setSessionStarted] = useState(false);
+  const [exerciseName, setExerciseName] = useState("");
+  const [prWeight, setPrWeight] = useState(0);
+  const useTrainingMax = true;
   const [completedSets, setCompletedSets] = useState<Record<string, boolean>>({});
-  const [selectedBarWeight, setSelectedBarWeight] = useState<number>(() => loadInitialCockpitState().selectedBarWeight);
+  const [selectedBarWeight, setSelectedBarWeight] = useState<number>(loadSavedBarWeight);
   const [showInlineDemo, setShowInlineDemo] = useState<boolean>(false);
   const [isGuidedActive, setIsGuidedActive] = useState<boolean>(false);
   const [showFullscreenGuide, setShowFullscreenGuide] = useState<boolean>(false);
@@ -138,28 +103,25 @@ export function UniversalProtocolCockpit({
   const [metronomeStep, setMetronomeStep] = useState<number>(0);
   const [isMetronomeActive, setIsMetronomeActive] = useState<boolean>(false);
 
-  // Submax Calculator helper
-  const [showSubmaxCalc, setShowSubmaxCalc] = useState<boolean>(false);
-  const [subWeight, setSubWeight] = useState<number>(80);
-  const [subReps, setSubReps] = useState<number>(5);
-  const [subRir, setSubRir] = useState<number>(2);
-
-  // Save state
   useEffect(() => {
+    if (!sessionStarted) return;
     try {
       localStorage.setItem(
         "atp_universal_cockpit_state_v2",
         JSON.stringify({
-          exerciseName: isCustom ? customExercise : exerciseName,
+          exerciseName,
           prWeight,
           useTrainingMax,
           selectedBarWeight,
+          started: true,
         })
       );
-    } catch {}
-  }, [exerciseName, customExercise, isCustom, prWeight, useTrainingMax, selectedBarWeight]);
+    } catch {
+      /* el dispositivo puede rechazar la escritura */
+    }
+  }, [sessionStarted, exerciseName, prWeight, useTrainingMax, selectedBarWeight]);
 
-  const activeName = isCustom ? customExercise || "Ejercicio Personalizado" : exerciseName;
+  const activeName = exerciseName || "Ejercicio";
   const exerciseMedia = useMemo(() => getExerciseMedia(activeName), [activeName]);
 
   // Working max based on 90% TM or 100% 1RM
@@ -168,21 +130,15 @@ export function UniversalProtocolCockpit({
     return useTrainingMax ? raw * 0.9 : raw;
   }, [prWeight, useTrainingMax]);
 
-  // Quick weight adjustment helpers for mobile
-  const adjustPr = (delta: number) => {
-    playTactileClick();
-    setPrWeight((prev) => Math.max(5, Math.round((prev + delta) * 2) / 2));
-  };
-
-  // Submaximal calculation apply
-  const applySubmax = () => {
-    const totalReps = subReps + subRir;
-    const brzycki = subWeight * (36 / (37 - totalReps));
-    const epley = subWeight * (1 + totalReps / 30);
-    const est1RM = Math.round((brzycki * 0.5 + epley * 0.5) * 10) / 10;
-    setPrWeight(est1RM);
-    setShowSubmaxCalc(false);
-    playChime(true);
+  const confirmSession = (name: string, pr: number) => {
+    const storedName = onCommitExercise ? onCommitExercise(name, pr) : name.trim();
+    setExerciseName(storedName);
+    setPrWeight(pr);
+    setCompletedSets({});
+    setSetRpeRecords({});
+    setSetWeightOverrides({});
+    setAutoregAlert(null);
+    setSessionStarted(true);
   };
 
   // Interactive Tempo Metronome Loop
@@ -667,6 +623,10 @@ export function UniversalProtocolCockpit({
     }
   };
 
+  if (!sessionStarted) {
+    return <SessionExerciseGate onConfirm={confirmSession} />;
+  }
+
   return (
     <div className="flex flex-col gap-5 sm:gap-6 animate-in fade-in duration-300">
       {/* 1. Selector de Ejercicio & Configuración del PR */}
@@ -995,208 +955,6 @@ export function UniversalProtocolCockpit({
           </div>
         )}
 
-      </div>
-
-      <div className="order-3 p-4 sm:p-5 rounded-2xl bg-zinc-950 border border-zinc-800 space-y-4">
-        <div className="space-y-2">
-          <label className="text-sm font-medium text-zinc-300 block">
-            Ejercicio
-          </label>
-          <div className="flex items-center gap-1.5 flex-wrap">
-            {COMMON_EXERCISES.map((ex) => {
-              const isSelected = !isCustom && exerciseName === ex.name;
-              return (
-                <button
-                  key={ex.name}
-                  type="button"
-                  onClick={() => {
-                    playTactileClick();
-                    setIsCustom(false);
-                    setExerciseName(ex.name);
-                    setPrWeight(ex.defaultPr);
-                  }}
-                  className={`px-3 py-2 rounded-xl text-sm font-medium transition-all cursor-pointer min-h-11 flex items-center justify-center ${
-                    isSelected
-                      ? "bg-amber-500 text-zinc-950 font-bold shadow-md shadow-amber-500/20 scale-[1.02]"
-                      : "bg-zinc-900/60 text-zinc-400 hover:text-zinc-200 border border-zinc-800/80 active:scale-95"
-                  }`}
-                >
-                  {ex.name}
-                </button>
-              );
-            })}
-            <button
-              type="button"
-              onClick={() => {
-                playTactileClick();
-                setIsCustom(true);
-              }}
-              className={`px-3.5 py-2 rounded-xl text-sm font-medium transition-all cursor-pointer min-h-11 flex items-center justify-center ${
-                isCustom
-                  ? "bg-amber-500 text-zinc-950 font-bold shadow-md shadow-amber-500/20 scale-[1.02]"
-                  : "bg-zinc-900/60 text-zinc-400 hover:text-zinc-200 border border-zinc-800/80 active:scale-95"
-              }`}
-            >
-              ✍️ Otro Ejercicio...
-            </button>
-          </div>
-
-          {/* Campo para ejercicio personalizado */}
-          {isCustom && (
-            <div className="pt-2">
-              <input
-                type="text"
-                value={customExercise}
-                onChange={(e) => setCustomExercise(e.target.value)}
-                placeholder="Escribí cualquier ejercicio (ej. Prensa Inclinada 45°, Press Arnold, Hip Thrust...)"
-                className="w-full min-h-11 bg-zinc-900 border border-amber-500/40 rounded-xl px-4 py-2.5 text-sm text-zinc-100 placeholder:text-zinc-500 focus:border-amber-500"
-              />
-            </div>
-          )}
-        </div>
-
-        {/* Configuración de PR / 1RM con Steppers Móviles */}
-        <div className="grid grid-cols-1 sm:grid-cols-12 gap-4 items-end pt-2 border-t border-zinc-900">
-          <div className="sm:col-span-6 space-y-1.5">
-            <label className="text-sm font-medium text-zinc-300 block">
-              Tu máximo (kg)
-            </label>
-            <div className="flex items-center gap-2">
-              <input
-                type="number"
-                value={prWeight || ""}
-                onChange={(e) => setPrWeight(parseFloat(e.target.value) || 0)}
-                placeholder="100"
-                min={5}
-                max={999}
-                step={0.5}
-                className="w-full min-h-11 bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-2.5 font-mono text-xl font-semibold text-center text-amber-300 tabular-nums focus:border-amber-500"
-              />
-              <span className="text-xs font-mono font-bold text-zinc-400">KG</span>
-            </div>
-
-            {/* Steppers táctiles de ajuste rápido (+/- kg) */}
-            <div className="grid grid-cols-4 gap-1.5 pt-1">
-              <button
-                type="button"
-                onClick={() => adjustPr(-5)}
-                className="py-2.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-xs font-mono text-zinc-300 font-bold active:scale-95 transition-all min-h-[44px] flex items-center justify-center cursor-pointer select-none"
-                title="Restar 5 kg"
-              >
-                -5 kg
-              </button>
-              <button
-                type="button"
-                onClick={() => adjustPr(-2.5)}
-                className="py-2.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-xs font-mono text-zinc-300 font-bold active:scale-95 transition-all min-h-[44px] flex items-center justify-center cursor-pointer select-none"
-                title="Restar 2.5 kg"
-              >
-                -2.5 kg
-              </button>
-              <button
-                type="button"
-                onClick={() => adjustPr(2.5)}
-                className="py-2.5 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 text-xs font-mono text-amber-300 font-bold active:scale-95 transition-all min-h-[44px] flex items-center justify-center cursor-pointer select-none"
-                title="Sumar 2.5 kg"
-              >
-                +2.5 kg
-              </button>
-              <button
-                type="button"
-                onClick={() => adjustPr(5)}
-                className="py-2.5 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 text-xs font-mono text-amber-300 font-bold active:scale-95 transition-all min-h-[44px] flex items-center justify-center cursor-pointer select-none"
-                title="Sumar 5 kg"
-              >
-                +5 kg
-              </button>
-            </div>
-          </div>
-
-          <div className="sm:col-span-6 flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
-            {/* Botón calcular submáximo */}
-            <button
-              type="button"
-              onClick={() => setShowSubmaxCalc(!showSubmaxCalc)}
-              className="flex-1 px-3 py-3 rounded-xl border border-cyan-500/30 bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-300 text-xs font-mono font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer active:scale-95 min-h-[46px]"
-            >
-              <Target className="w-4 h-4 text-cyan-400" />
-              <span>{showSubmaxCalc ? "Ocultar cálculo" : "¿No sabés tu máximo? Calcular"}</span>
-            </button>
-
-            {/* Toggle Escudo 90% TM */}
-            <button
-              type="button"
-              onClick={() => {
-                playTactileClick();
-                setUseTrainingMax(!useTrainingMax);
-              }}
-              className={`px-3 py-3 rounded-xl border text-xs font-mono font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer active:scale-95 min-h-[46px] ${
-                useTrainingMax
-                  ? "bg-amber-500/15 border-amber-500/50 text-amber-300 shadow-md shadow-amber-500/10"
-                  : "bg-zinc-900 border-zinc-800 text-zinc-400"
-              }`}
-              title="Calcula las series efectivas sobre el 90% del 1RM para proteger articulaciones y tendones"
-            >
-              <Shield className="w-4 h-4 text-amber-400" />
-              <span>{useTrainingMax ? "Trabajar al 90%" : "Usar el máximo"}</span>
-            </button>
-          </div>
-        </div>
-
-        {/* Panel Desplegable: Calculador Submáximo RIR */}
-        {showSubmaxCalc && (
-          <div className="p-4 rounded-xl bg-zinc-900/90 border border-cyan-500/40 space-y-3 animate-in fade-in duration-200">
-            <span className="text-xs font-mono font-bold text-cyan-300 flex items-center gap-1.5">
-              <Sparkles className="w-4 h-4 text-cyan-400" />
-              Cálculo Seguro de 1RM con Serie Submáxima (Brzycki + Epley)
-            </span>
-            <p className="text-[11px] text-zinc-400 leading-relaxed">
-              Ingresá una serie que hayas movido cómodo. El motor calculará tu 1RM estimado sin exponerte al fallo.
-            </p>
-            <div className="grid grid-cols-3 gap-2">
-              <div>
-                <label className="text-[9px] font-mono text-zinc-500 block mb-1">Carga (kg)</label>
-                <input
-                  type="number"
-                  value={subWeight}
-                  onChange={(e) => setSubWeight(parseFloat(e.target.value) || 0)}
-                  className="w-full bg-zinc-950 border border-zinc-700 rounded-lg p-2 font-mono text-center text-xs font-bold text-zinc-100"
-                />
-              </div>
-              <div>
-                <label className="text-[9px] font-mono text-zinc-500 block mb-1">Reps Logradas</label>
-                <input
-                  type="number"
-                  value={subReps}
-                  onChange={(e) => setSubReps(parseInt(e.target.value, 10) || 1)}
-                  min={1}
-                  max={12}
-                  className="w-full bg-zinc-950 border border-zinc-700 rounded-lg p-2 font-mono text-center text-xs font-bold text-zinc-100"
-                />
-              </div>
-              <div>
-                <label className="text-[9px] font-mono text-zinc-500 block mb-1">RIR (Reserva)</label>
-                <select
-                  value={subRir}
-                  onChange={(e) => setSubRir(parseInt(e.target.value, 10))}
-                  className="w-full bg-zinc-950 border border-zinc-700 rounded-lg p-2 font-mono text-xs text-zinc-100 h-[34px]"
-                >
-                  <option value={2}>2 RIR (Seguro)</option>
-                  <option value={1}>1 RIR (Casi Tope)</option>
-                  <option value={0}>0 RIR (Fallo)</option>
-                  <option value={3}>3 RIR (Holgado)</option>
-                </select>
-              </div>
-            </div>
-            <button
-              type="button"
-              onClick={applySubmax}
-              className="w-full py-2.5 rounded-lg bg-cyan-500 hover:bg-cyan-400 text-zinc-950 font-mono font-bold text-xs uppercase tracking-wider transition-all cursor-pointer active:scale-95"
-            >
-              Calcular y Aplicar al Protocolo &rarr;
-            </button>
-          </div>
-        )}
       </div>
 
       {/* 2. Resumen de Cargas & Medidor de Fatiga Neural (INOL Prilepin) */}
