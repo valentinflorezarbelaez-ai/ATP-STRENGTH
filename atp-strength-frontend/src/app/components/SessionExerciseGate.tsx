@@ -83,7 +83,7 @@ export function SessionExerciseGate({
           type="number"
           inputMode="decimal"
           min={0}
-          step={0.5}
+          step="any"
           value={prText}
           onChange={(event) => setPrText(event.target.value)}
           placeholder="0"
@@ -113,7 +113,7 @@ export function SessionExerciseGate({
                 type="number"
                 inputMode="decimal"
                 min={0}
-                step={0.5}
+                step="any"
                 value={weightText}
                 onChange={(event) => setWeightText(event.target.value)}
                 className="w-full min-h-11 bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-2.5 font-mono text-base text-zinc-100 focus:border-amber-500"
