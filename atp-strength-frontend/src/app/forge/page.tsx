@@ -313,16 +313,19 @@ export default function ForgeLanding({ onEnterDirect }: ForgeLandingProps) {
     setTrackIdx((prev) => (prev - 1 + WARRIOR_SOUNDTRACKS.length) % WARRIOR_SOUNDTRACKS.length);
   };
 
-  // Re-play when trackIdx changes if it was already playing or user explicitly switched
+  const trackIdxRef = useRef(trackIdx);
+
+  // Change the file only when the track changes. Starting playback must not reload it.
   useEffect(() => {
-    if (audioRef.current) {
-      audioRef.current.src = currentTrack.src;
-      audioRef.current.load();
-      if (isPlaying) {
-        startAudio();
-      }
-    }
-  }, [trackIdx, currentTrack.src, startAudio, isPlaying]);
+    const audio = audioRef.current;
+    if (!audio) return;
+    const changed = trackIdxRef.current !== trackIdx;
+    trackIdxRef.current = trackIdx;
+    if (!changed || !isPlaying) return;
+    audio.src = currentTrack.src;
+    audio.load();
+    startAudio();
+  }, [trackIdx, currentTrack.src, isPlaying, startAudio]);
 
   // Rotate quotes
   useEffect(() => {
@@ -392,7 +395,7 @@ export default function ForgeLanding({ onEnterDirect }: ForgeLandingProps) {
         onEnded={() => {
           setTrackIdx((prev) => (prev + 1) % WARRIOR_SOUNDTRACKS.length);
         }}
-        preload="auto"
+        preload="none"
       />
 
       {/* Floating Epic Audio Controller (Jukebox Pill) */}

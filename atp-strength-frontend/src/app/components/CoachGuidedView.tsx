@@ -117,16 +117,8 @@ export function CoachGuidedView({
     }
   }, [isRunning, remainingSeconds, d.timerDuration]);
 
-  const toggleVoiceCoach = () => {
-    const next = saveAudioPreferences({ voiceEnabled: !audioPrefs.voiceEnabled });
-    setAudioPrefs(next);
-    if (next.voiceEnabled) {
-      acousticEngine.playSetCompleteCue();
-    }
-  };
-
   return (
-    <main className="min-h-screen relative overflow-x-hidden flex flex-col items-center p-4 md:p-6 pb-32 md:pb-20 font-sans selection:bg-pink-500 selection:text-white">
+    <main className="min-h-screen relative overflow-x-hidden flex flex-col items-center p-4 md:p-6 pb-32 md:pb-20 font-sans selection:bg-zinc-600 selection:text-white">
       {/* Ambient Radial Mesh Backgrounds (Apple Music + Tidal Luxury Style) */}
       <div className="ambient-mesh-light" aria-hidden="true">
         <div className="ambient-orb-1" />
@@ -192,11 +184,11 @@ export function CoachGuidedView({
                 router.push("/forge");
               }
             }}
-            className="flex items-center gap-1.5 min-h-11 px-3 rounded-xl border border-amber-500/40 bg-gradient-to-r from-amber-500/15 via-red-500/15 to-amber-500/15 text-amber-300 hover:from-amber-500/25 hover:to-red-500/25 hover:border-amber-400/60 transition-all text-xs font-mono font-bold cursor-pointer shadow-[0_0_14px_rgba(245,158,11,0.2)] active:scale-95 flex-shrink-0"
-            title="Entrar a La Forja de los Guerreros y reproducir el Himno"
+            className="flex items-center gap-1.5 min-h-11 px-3 rounded-xl border border-zinc-800 bg-zinc-950 text-zinc-200 text-xs font-medium cursor-pointer flex-shrink-0"
+            title="Ir a la forja"
           >
-            <Flame className="w-3.5 h-3.5 text-amber-400" />
-            <span>FORJA & HIMNO</span>
+            <Flame className="w-3.5 h-3.5 text-zinc-300" />
+            <span>Forja</span>
           </button>
 
           <button
@@ -205,7 +197,7 @@ export function CoachGuidedView({
               playTactileClick();
               setShowUniversalProtocol(true);
             }}
-            className="flex items-center gap-1.5 min-h-11 px-3 rounded-xl border border-amber-500/30 bg-amber-500/10 text-amber-300 hover:bg-amber-500/20 hover:border-amber-400/50 transition-all text-xs font-mono font-bold cursor-pointer shadow-[0_0_12px_rgba(245,158,11,0.15)] flex-shrink-0"
+            className="flex items-center gap-1.5 min-h-11 px-3 rounded-xl border border-zinc-800 bg-zinc-950 text-zinc-200 text-xs font-medium cursor-pointer flex-shrink-0"
             title="Guía completa del Protocolo Universal PR"
           >
             <span>⚡</span>
@@ -238,7 +230,7 @@ export function CoachGuidedView({
               playTactileClick();
               try { window.location.href = "spotify:"; } catch {}
             }}
-            className="flex items-center gap-1.5 min-h-11 px-3 rounded-xl border border-emerald-500/30 bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20 hover:border-emerald-400/50 transition-all text-xs font-mono font-bold cursor-pointer shadow-[0_0_12px_rgba(16,185,129,0.15)] flex-shrink-0"
+            className="flex items-center gap-1.5 min-h-11 px-3 rounded-xl border border-zinc-800 bg-zinc-950 text-zinc-200 text-xs font-medium cursor-pointer flex-shrink-0"
             title="Abrir Spotify directamente"
           >
             <span>🎵</span>
@@ -287,21 +279,6 @@ export function CoachGuidedView({
                 <span className="text-zinc-300">AUTO</span>
               </>
             )}
-          </button>
-
-          {/* Voice Coach Toggle Pill */}
-          <button
-            type="button"
-            onClick={toggleVoiceCoach}
-            className={`flex items-center gap-1.5 min-h-11 px-3 rounded-xl border text-xs font-mono font-medium transition-all active:scale-95 cursor-pointer flex-shrink-0 ${
-              audioPrefs.voiceEnabled
-                ? "bg-amber-500/10 border-amber-500/40 text-amber-400 shadow-sm"
-                : "bg-zinc-900 border-zinc-800 text-zinc-500 hover:text-zinc-300"
-            }`}
-            title={audioPrefs.voiceEnabled ? "Voz Coach activada (clic para silenciar)" : "Voz Coach silenciada (clic para activar)"}
-          >
-            <Volume2 className={`w-3.5 h-3.5 ${audioPrefs.voiceEnabled ? "text-amber-400" : "text-zinc-500"}`} />
-            <span>Voz: {audioPrefs.voiceEnabled ? "activada" : "silencio"}</span>
           </button>
 
           {/* Reset Action */}

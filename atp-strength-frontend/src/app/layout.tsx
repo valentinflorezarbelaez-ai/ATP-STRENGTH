@@ -69,7 +69,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="es" className={`${geistSans.variable} ${geistMono.variable}`}>
-      <body className="min-h-screen antialiased selection:bg-pink-500 selection:text-white relative">
+      <body className="min-h-screen antialiased selection:bg-zinc-600 selection:text-white relative">
         <ServiceWorkerRegister />
         {children}
       </body>

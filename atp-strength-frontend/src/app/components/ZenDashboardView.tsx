@@ -71,7 +71,7 @@ export function ZenDashboardView({
   const restOpen = restActive;
 
   return (
-    <main className="min-h-screen relative overflow-x-hidden flex flex-col items-center p-4 md:p-8 pb-32 md:pb-8 font-sans selection:bg-pink-500 selection:text-white">
+    <main className="min-h-screen relative overflow-x-hidden flex flex-col items-center p-4 md:p-8 pb-32 md:pb-8 font-sans selection:bg-zinc-600 selection:text-white">
       {/* Ambient Radial Mesh Backgrounds (Apple Music + Tidal Luxury Style) */}
       <div className="ambient-mesh-light" aria-hidden="true">
         <div className="ambient-orb-1" />

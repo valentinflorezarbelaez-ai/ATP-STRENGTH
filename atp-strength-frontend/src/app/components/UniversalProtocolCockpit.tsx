@@ -1279,11 +1279,7 @@ export function UniversalProtocolCockpit({
             <button
               type="button"
               onClick={handleToggleVoiceGenderCockpit}
-              className={`inline-flex items-center min-h-11 gap-1.5 px-3 rounded-xl border text-xs font-mono font-bold transition-all active:scale-95 cursor-pointer shadow-sm ${
-                cockpitAudioPrefs.voiceEnabled
-                  ? "bg-amber-500/15 border-amber-500/40 text-amber-300 hover:bg-amber-500/25 shadow-[0_0_12px_rgba(245,158,11,0.15)]"
-                  : "bg-zinc-800/40 border-zinc-700/60 text-zinc-500 hover:bg-zinc-800"
-              }`}
+              className="inline-flex items-center min-h-11 gap-1.5 px-3 rounded-xl border border-zinc-700 bg-zinc-900 text-sm font-medium text-zinc-100 cursor-pointer"
               title={`Voz del coach: ${cockpitAudioPrefs.voiceEnabled ? "Activa. Tocá para silenciar." : "Silenciada. Tocá para activar."}`}
             >
               <span className="text-sm">{cockpitAudioPrefs.voiceEnabled ? "🔊" : "🔇"}</span>
@@ -1299,10 +1295,10 @@ export function UniversalProtocolCockpit({
                 playTactileClick();
                 setShowCoachChat(true);
               }}
-              className="inline-flex items-center min-h-11 gap-1.5 px-3 rounded-xl bg-gradient-to-r from-emerald-500/15 to-teal-500/15 hover:from-emerald-500/25 hover:to-teal-500/25 border border-emerald-500/40 text-xs font-mono font-bold text-emerald-300 transition-all active:scale-95 cursor-pointer shadow-[0_0_12px_rgba(16,185,129,0.15)]"
-              title="Abrir Chat con el Coach de Fuerza IA: preguntá técnica, descansos o dudas"
+              className="inline-flex items-center min-h-11 gap-1.5 px-3 rounded-xl border border-zinc-700 bg-zinc-900 text-sm font-medium text-zinc-100 cursor-pointer"
+              title="Abrir el chat"
             >
-              <MessageCircle className="w-3.5 h-3.5 text-emerald-400" />
+              <MessageCircle className="w-3.5 h-3.5" />
               <span>Chat</span>
             </button>
 
@@ -1314,10 +1310,10 @@ export function UniversalProtocolCockpit({
                   playTactileClick();
                   setShowFullscreenGuide(true);
                 }}
-                className="inline-flex items-center min-h-11 gap-1.5 px-3 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/50 text-xs font-mono font-bold text-amber-300 transition-all active:scale-95 cursor-pointer shadow-[0_0_12px_rgba(245,158,11,0.2)]"
+                className="inline-flex items-center min-h-11 gap-1.5 px-3 rounded-xl border border-zinc-700 bg-zinc-900 text-sm font-medium text-zinc-100 cursor-pointer"
                 title="Abrir guía inmersiva de pantalla completa"
               >
-                <Maximize2 className="w-3.5 h-3.5 text-amber-400" />
+                <Maximize2 className="w-3.5 h-3.5" />
                 <span>EXPANDIR GUÍA</span>
               </button>
             )}
@@ -1333,10 +1329,10 @@ export function UniversalProtocolCockpit({
                   setShowInlineDemo(!showInlineDemo);
                 }
               }}
-              className="inline-flex items-center min-h-11 gap-1.5 px-3 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/40 text-xs font-mono font-bold text-amber-300 transition-all active:scale-95 cursor-pointer shadow-[0_0_12px_rgba(245,158,11,0.15)]"
-              title="Ver video técnico y biomecánica del ejercicio"
+              className="inline-flex items-center min-h-11 gap-1.5 px-3 rounded-xl border border-zinc-700 bg-zinc-900 text-sm font-medium text-zinc-100 cursor-pointer"
+              title="Ver la técnica del ejercicio"
             >
-              <Play className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
+              <Play className="w-3.5 h-3.5" />
               <span>Ver técnica</span>
             </button>
 
@@ -1347,14 +1343,14 @@ export function UniversalProtocolCockpit({
                 playTactileClick();
                 setShowTempoMetronome(!showTempoMetronome);
               }}
-              className={`inline-flex items-center min-h-11 gap-1.5 px-3 rounded-xl border text-xs font-mono font-bold transition-all active:scale-95 cursor-pointer ${
+              className={`inline-flex items-center min-h-11 gap-1.5 px-3 rounded-xl border text-sm font-medium cursor-pointer ${
                 showTempoMetronome
-                  ? "bg-cyan-500/20 border-cyan-500/50 text-cyan-300"
-                  : "bg-zinc-900 border-zinc-800 text-zinc-400 hover:text-zinc-200"
+                  ? "border-zinc-500 bg-zinc-800 text-zinc-100"
+                  : "border-zinc-700 bg-zinc-900 text-zinc-100"
               }`}
               title="Abrir asistente de cadencia de tempo mecánico"
             >
-              <Timer className="w-3.5 h-3.5 text-cyan-400" />
+              <Timer className="w-3.5 h-3.5" />
               <span>Tempo</span>
             </button>
 

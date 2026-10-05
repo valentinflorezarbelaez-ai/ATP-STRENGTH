@@ -100,7 +100,7 @@ export function SessionExerciseGate({
         type="button"
         aria-expanded={helperOpen}
         onClick={() => setHelperOpen((open) => !open)}
-        className="w-full min-h-11 rounded-xl border border-amber-500/40 bg-amber-500/10 text-sm font-semibold text-amber-200 cursor-pointer"
+        className="w-full min-h-11 rounded-xl border border-zinc-700 bg-zinc-900 text-sm font-semibold text-zinc-100 cursor-pointer"
       >
         Ayudar a sacar el PR
       </button>
