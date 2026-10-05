@@ -1,6 +1,3 @@
-Este es el README para reemplazar el archivo entero. La sesión de abajo es la que está en https://atp-strength.vercel.app. El resto es el documento que mandaste, con la puerta, el PR, la voz y el himno puestos al día.
-
-````markdown
 # ⚡ ATP-STRENGTH (NEURO//STRENGTH)
 ### Plataforma Industrial de Rendimiento Neuromuscular, Resíntesis de ATP-CP y Fuerza Máxima
 
@@ -280,4 +277,3 @@ docker compose down
 MIT. Ver [LICENSE](LICENSE).
 
 Valentín Flórez Arbeláez.
-````
