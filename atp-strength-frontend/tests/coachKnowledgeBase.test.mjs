@@ -5,7 +5,13 @@
 
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
-import { queryCoachKnowledge } from "../src/lib/coachKnowledgeBase.mjs";
+import {
+  finalizeLiveCoach,
+  formatCoachClock,
+  prepareLiveCoach,
+  queryCoachKnowledge,
+  resolveCoachSubject,
+} from "../src/lib/coachKnowledgeBase.mjs";
 
 describe("SPEC-0011 Athlete AI Coach Knowledge Engine", () => {
   it("answers technique questions with specific exercise biomechanics cues", () => {
@@ -86,6 +92,7 @@ describe("SPEC-0011 Athlete AI Coach Knowledge Engine", () => {
     assert.equal(JSON.stringify(plank).includes("ultWZbUMPL8"), false);
 
     const military = queryCoachKnowledge("¿Cómo hago el press militar?", { currentExercise: "Sentadilla Trasera" });
+    assert.equal(military.demo, null);
     assert.notEqual(military.demo?.youtubeId, "VdeHikSTxQ8");
     assert.match(military.text, /piernas no empujan|sin impulso de piernas/i);
 
@@ -100,6 +107,60 @@ describe("SPEC-0011 Athlete AI Coach Knowledge Engine", () => {
     assert.equal(res.topic, "TEMPO");
     assert.match(res.text, /dominadas/i);
     assert.ok(res.followUps.length > 0);
+  });
+
+  it("keeps the squat for a follow-up and does not repeat the Rogue caption", () => {
+    const squat = queryCoachKnowledge("¿Cómo hago la sentadilla?", { currentExercise: "Press de Banca Plano" });
+    assert.equal(squat.text.includes(squat.demo.caption), false);
+    assert.equal(squat.exerciseId, "squat_back");
+    assert.match(squat.exerciseName, /sentadilla/i);
+
+    const followUp = resolveCoachSubject("¿y las rodillas?", {
+      currentExercise: "Press de Banca Plano",
+      discussedExerciseId: squat.exerciseId,
+    });
+    assert.equal(followUp.exerciseId, "squat_back");
+    assert.equal(followUp.remembered, true);
+
+    const prepared = prepareLiveCoach({
+      messages: [
+        { role: "user", content: "¿Cómo hago la sentadilla?" },
+        { role: "assistant", content: "Bajá con las rodillas afuera." },
+        { role: "user", content: "¿y las rodillas?" },
+      ],
+      discussedExerciseId: "squat_back",
+      context: { currentExercise: "Press de Banca Plano" },
+    });
+    assert.equal(prepared.kind, "model");
+    assert.equal(prepared.subject.exerciseId, "squat_back");
+    assert.match(prepared.system, /sentadilla/i);
+
+    const technique = prepareLiveCoach({
+      messages: [{ role: "user", content: "¿Cómo hago la sentadilla?" }],
+      context: { currentExercise: "Press de Banca Plano" },
+    });
+    const echoed = finalizeLiveCoach(technique, `Seguí empujando las rodillas hacia afuera.\n\n${squat.demo.caption}`);
+    assert.equal(echoed.demo.youtubeId, "x0tjZRfF3Wg");
+    assert.equal(echoed.text.includes(squat.demo.caption), false);
+    assert.match(echoed.exerciseName, /sentadilla/i);
+  });
+
+  it("formats the clock as 24 hours without a broken day period", () => {
+    assert.equal(formatCoachClock(new Date(2026, 9, 5, 21, 7, 0)), "21:07");
+    assert.equal(formatCoachClock(new Date(2026, 9, 5, 9, 4, 0)), "09:04");
+    assert.equal(formatCoachClock(new Date(2026, 9, 5, 15, 4, 0)).includes("."), false);
+  });
+
+  it("stops a live pain question before calling a model", () => {
+    const pain = prepareLiveCoach({
+      messages: [{ role: "user", content: "Me duele la rodilla en la sentadilla" }],
+      context: { currentExercise: "Press de Banca Plano" },
+    });
+    assert.equal(pain.kind, "pain");
+    assert.match(pain.answer.text, /cortá la serie/i);
+    assert.match(pain.answer.text, /no diagnostico/i);
+    assert.equal(/ibuprofeno|hielo|antiinflamatorio/i.test(pain.answer.text), false);
+    assert.match(pain.answer.exerciseName, /sentadilla/i);
   });
 
   it("stops at pain without prescribing a treatment", () => {

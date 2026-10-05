@@ -12,7 +12,7 @@ import {
   Volume2,
   X,
 } from "lucide-react";
-import { queryCoachKnowledge } from "@/lib/coachKnowledgeBase.mjs";
+import { formatCoachClock, resolveCoachSubject } from "@/lib/coachKnowledgeBase.mjs";
 import {
   speakText,
   getAudioPreferences,
@@ -77,6 +77,7 @@ interface CoachAnswer {
   followUps: string[];
   sources: CoachSource[];
   demo: CoachDemo | null;
+  exerciseName: string | null;
 }
 
 interface ChatMessage {
@@ -190,11 +191,30 @@ function readCoachAnswer(value: unknown): CoachAnswer {
     followUps,
     sources: readSources(value.sources),
     demo: readDemo(value.demo),
+    exerciseName: typeof value.exerciseName === "string" && value.exerciseName.trim()
+      ? value.exerciseName.trim()
+      : null,
   };
 }
 
 function timeNow(): string {
-  return new Date().toLocaleTimeString("es-AR", { hour: "2-digit", minute: "2-digit" });
+  return formatCoachClock(new Date());
+}
+
+function foldName(value: string): string {
+  return value.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
+}
+
+function visibleCoachText(message: ChatMessage): string {
+  const caption = message.demo?.caption?.trim();
+  if (!caption || message.streaming) return message.text;
+  const stripped = message.text
+    .split("\n")
+    .filter((line) => line.trim() !== caption)
+    .join("\n")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
+  return stripped || message.text;
 }
 
 function createGreeting(exercise: string, locked: boolean): ChatMessage {
@@ -251,6 +271,7 @@ export function CoachChatModal({
   const inputId = useId();
   const noticeId = useId();
   const [trackedExercise, setTrackedExercise] = useState(currentExercise);
+  const [discussedName, setDiscussedName] = useState<string | null>(null);
   const [messages, setMessages] = useState<ChatMessage[]>(() => [createGreeting(currentExercise, isLocked)]);
   const [input, setInput] = useState("");
   const [formNotice, setFormNotice] = useState<string | null>(null);
@@ -265,9 +286,13 @@ export function CoachChatModal({
   const streamTimerRef = useRef<number | null>(null);
   const onCloseRef = useRef(onClose);
   const finishStreamRef = useRef<() => void>(() => {});
+  const messagesRef = useRef(messages);
+  const discussedIdRef = useRef<string | null>(null);
+  const discussedNameRef = useRef<string | null>(null);
 
   if (trackedExercise !== currentExercise) {
     setTrackedExercise(currentExercise);
+    setDiscussedName(null);
     setMessages((previous) => {
       const onlyGreeting = previous.length === 1 && previous[0]?.id === "m0" && previous[0]?.sender === "coach";
       if (!onlyGreeting) return previous;
@@ -298,6 +323,15 @@ export function CoachChatModal({
   useEffect(() => {
     onCloseRef.current = onClose;
   }, [onClose]);
+
+  useEffect(() => {
+    messagesRef.current = messages;
+  }, [messages]);
+
+  useEffect(() => {
+    discussedIdRef.current = null;
+    discussedNameRef.current = null;
+  }, [currentExercise]);
 
   useEffect(() => {
     finishStreamRef.current = finishStream;
@@ -415,9 +449,26 @@ export function CoachChatModal({
     }, 32);
   };
 
-  const deliver = (query: string, retry: boolean) => {
+  const deliver = async (query: string, retry: boolean) => {
     finishStream();
     safeClick();
+    const subject = resolveCoachSubject(query, {
+      discussedExerciseId: discussedIdRef.current,
+      discussedExerciseName: discussedNameRef.current,
+      currentExercise,
+    });
+    discussedIdRef.current = subject.exerciseId;
+    discussedNameRef.current = subject.exerciseName;
+    if (subject.exerciseName) setDiscussedName(subject.exerciseName);
+
+    const prior = messagesRef.current
+      .filter((message) => message.id !== "m0" && message.status !== "error" && !message.streaming)
+      .map((message) => ({
+        role: message.sender === "user" ? "user" as const : "assistant" as const,
+        content: message.fullText ?? message.text,
+      }));
+    const transcript = retry ? prior : [...prior, { role: "user" as const, content: query }];
+
     if (!retry) {
       const userMessage: ChatMessage = {
         id: `u-${idCounterRef.current++}`,
@@ -433,22 +484,40 @@ export function CoachChatModal({
     setFormNotice(null);
 
     try {
-      const answer = readCoachAnswer(queryCoachKnowledge(query, {
-        currentExercise,
-        currentWeight,
-        currentReps,
-        currentRpe,
-        isLocked,
-        remainingHours,
-        remainingMinutes,
-      }));
+      const response = await fetch("/api/coach", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          messages: transcript,
+          discussedExerciseId: subject.exerciseId,
+          discussedExerciseName: subject.exerciseName,
+          context: {
+            currentExercise,
+            currentWeight,
+            currentReps,
+            currentRpe,
+            isLocked,
+            remainingHours,
+            remainingMinutes,
+          },
+        }),
+      });
+      const payload: unknown = await response.json();
+      if (!response.ok) {
+        throw new Error("gateway");
+      }
+      const answer = readCoachAnswer(payload);
+      if (answer.exerciseName) {
+        discussedNameRef.current = answer.exerciseName;
+        setDiscussedName(answer.exerciseName);
+      }
       startStream(answer);
     } catch {
       const errorMessage: ChatMessage = {
         id: `e-${idCounterRef.current++}`,
         sender: "coach",
         status: "error",
-        text: "No pude armar esta respuesta. Tu pregunta sigue acá: reintentá en un momento.",
+        text: "No pude consultar al coach. Tu pregunta sigue acá: reintentá en un momento.",
         timestamp: timeNow(),
         retryQuery: query,
       };
@@ -533,8 +602,8 @@ export function CoachChatModal({
                 </button>
               </div>
               <h3 id={titleId} className="text-sm font-bold text-white truncate">
-                {currentExercise}
-                {isLocked ? " · en recuperación" : ""}
+                {discussedName ?? currentExercise}
+                {isLocked && foldName(discussedName ?? currentExercise) === foldName(currentExercise) ? " · en recuperación" : ""}
               </h3>
             </div>
           </div>
@@ -578,7 +647,7 @@ export function CoachChatModal({
                     <p className="text-[10px] font-mono font-bold uppercase tracking-wider text-amber-400/90">{topicLabel}</p>
                   )}
                   <p className="whitespace-pre-wrap">
-                    {message.text}
+                    {visibleCoachText(message)}
                     {message.streaming ? <span aria-hidden="true">▍</span> : null}
                   </p>
                   {message.demo && !isUser && (
@@ -679,7 +748,7 @@ export function CoachChatModal({
                 setInput(event.target.value);
                 if (formNotice) setFormNotice(null);
               }}
-              placeholder={`Preguntale sobre ${currentExercise} o cualquier ejercicio`}
+              placeholder={`Preguntale sobre ${discussedName ?? currentExercise} o cualquier ejercicio`}
               className="flex-1 px-4 py-2.5 rounded-xl bg-zinc-900 border border-zinc-800 text-xs text-zinc-100 placeholder:text-zinc-500 font-mono focus:outline-none focus:border-amber-500/50"
             />
             <button

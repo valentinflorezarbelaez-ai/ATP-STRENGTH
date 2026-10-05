@@ -272,7 +272,7 @@ function currentMedia(context) {
 function buildDemo(media) {
   if (!media || media.id === "fallback_exercise") return null;
   const entry = ROGUE_DEMOS[media.id];
-  if (!entry || !YOUTUBE_ID.test(entry.youtubeId)) return null;
+  if (!entry || entry.match !== "exact" || !YOUTUBE_ID.test(entry.youtubeId)) return null;
   return {
     exerciseName: media.name,
     youtubeId: entry.youtubeId,
@@ -316,6 +316,8 @@ function reply(topic, text, followUps, media, { includeDemo = false, extraSource
     followUps,
     sources: withSources(sources),
     demo: demoClip,
+    exerciseId: media?.id && media.id !== "fallback_exercise" ? media.id : null,
+    exerciseName: media?.name ?? null,
   };
 }
 
@@ -605,7 +607,7 @@ function techniqueAnswer(media) {
     extra,
     `Tempo de referencia: ${media.tempo} (${explainTempo(media.tempo)}).`,
     mistakes ? `Errores frecuentes: ${mistakes}` : "",
-    clip ? clip.caption : "No adjunto un video de otro movimiento para no enseñarte el patrón equivocado.",
+    clip ? "" : "No tengo un clip oficial de Rogue que sea exactamente este movimiento, así que no incrusto otro video.",
     sourceLine(clip),
   ].filter(Boolean).join("\n\n");
   return reply("TECHNIQUE", text, [
@@ -895,4 +897,181 @@ function contextWeightFor(namedIds, ctx) {
     if (named && named.id !== current.id && named.id !== "fallback_exercise") return 0;
   }
   return ctx.currentWeight;
+}
+
+export function formatCoachClock(date = new Date()) {
+  const value = date instanceof Date ? date : new Date(date);
+  const parts = new Intl.DateTimeFormat("en-GB", {
+    hour: "2-digit",
+    minute: "2-digit",
+    hourCycle: "h23",
+  }).formatToParts(value);
+  const hour = parts.find((part) => part.type === "hour")?.value ?? "00";
+  const minute = parts.find((part) => part.type === "minute")?.value ?? "00";
+  return `${hour}:${minute}`;
+}
+
+export function resolveCoachSubject(userQuery = "", session = {}) {
+  const folded = fold(userQuery);
+  const named = matchAliases(folded);
+  if (named.length > 0) {
+    const media = mediaById(named[0]);
+    if (media) return { exerciseId: media.id, exerciseName: media.name, remembered: false };
+  }
+  const freeName = extractFreeName(folded);
+  if (freeName) return { exerciseId: null, exerciseName: freeName, remembered: false };
+  if (typeof session.discussedExerciseId === "string") {
+    const remembered = mediaById(session.discussedExerciseId);
+    if (remembered) return { exerciseId: remembered.id, exerciseName: remembered.name, remembered: true };
+  }
+  if (typeof session.discussedExerciseName === "string" && session.discussedExerciseName.trim()) {
+    return { exerciseId: null, exerciseName: session.discussedExerciseName.trim(), remembered: true };
+  }
+  const cockpit = currentMedia(readContext({ currentExercise: session.currentExercise }));
+  return {
+    exerciseId: cockpit.id === "fallback_exercise" ? null : cockpit.id,
+    exerciseName: cockpit.name,
+    remembered: false,
+  };
+}
+
+function normalizeTranscript(value) {
+  if (!Array.isArray(value)) return [];
+  const turns = [];
+  for (const item of value) {
+    if (!item || (item.role !== "user" && item.role !== "assistant")) continue;
+    if (typeof item.content !== "string") continue;
+    const content = item.content.trim().slice(0, 2000);
+    if (!content) continue;
+    turns.push({ role: item.role, content });
+  }
+  return turns.slice(-12);
+}
+
+function subjectMedia(subject) {
+  if (subject.exerciseId) {
+    return mediaById(subject.exerciseId) || freeExerciseMedia(subject.exerciseName);
+  }
+  return freeExerciseMedia(subject.exerciseName);
+}
+
+function followUpsFor(topic) {
+  switch (topic) {
+    case "TECHNIQUE":
+      return ["¿Qué músculos trabaja?", "¿Qué equipo necesito?", "¿Cuáles son los errores comunes?"];
+    case "MUSCLES":
+      return ["¿Cómo hago este ejercicio?", "¿Qué ejercicio lo reemplaza?", "¿Cuántas series programo?"];
+    case "EQUIPMENT":
+      return ["¿Cómo hago este ejercicio?", "¿Sirve usar cinturón?", "¿Cuáles son los errores comunes?"];
+    case "MISTAKES":
+      return ["¿Cómo hago la técnica correcta?", "¿Qué equipo necesito?", "¿Cuánto debo descansar?"];
+    case "PAIN_SAFETY":
+      return ["¿Qué ejercicio puedo hacer en su lugar?", "¿Cómo es la entrada en calor?", "¿Cuánto descanso entre días?"];
+    case "PROGRAMMING":
+      return ["¿Cómo hago este ejercicio?", "¿Cuánto descanso entre días?", "¿Cómo autoregulo si me siento cansado?"];
+    case "REST_INTRA_SET":
+    case "REST_INTER_SESSION":
+      return ["¿Cómo hago este ejercicio?", "¿Cuánto descanso entre días?", "¿Qué hago en esta serie?"];
+    case "RECOVERY_LOCKOUT":
+      return ["¿Qué ejercicio puedo hacer hoy?", "¿Cuánto descanso entre series?", "¿Cómo hago este ejercicio?"];
+    case "PHASE_GUIDANCE":
+    case "WARMUP":
+    case "BREATHING":
+    case "TEMPO":
+    case "SUBSTITUTION":
+    case "EXPLAIN":
+    case "GENERAL_COACHING":
+      return ["¿Cómo hago este ejercicio?", "¿Qué músculos trabaja?", "¿Cuántas series programo?"];
+    default: {
+      const exhaustive = topic;
+      return exhaustive ? ["¿Cómo hago este ejercicio?", "¿Qué músculos trabaja?", "¿Cuánto debo descansar?"] : [];
+    }
+  }
+}
+
+function liveSystem(media, subject, ctx, topic) {
+  const exactDemo = buildDemo(media);
+  const demoNote = exactDemo
+    ? "Hay una demo oficial de Rogue de este mismo movimiento. No repitas el pie del video ni pegues un ID de YouTube."
+    : "No hay un clip oficial verificado de este movimiento. Decilo en una frase y no inventes un video ni describas otro ejercicio como si fuera este.";
+  return [
+    "Sos el coach de fuerza de ATP Strength. Respondé en español rioplatense, con voseo.",
+    "Dos a cuatro párrafos cortos. Sin links: la interfaz los agrega.",
+    "Usá la ficha de la app. Si el movimiento no está en la ficha, explicá el patrón sin inventar una demo.",
+    "No des tratamientos, diagnósticos ni dosis. El dolor agudo se corta y se deriva.",
+    `El ejercicio de esta conversación es ${subject.exerciseName}. Una pregunta de seguimiento sigue siendo sobre ese movimiento, salvo que nombren otro.`,
+    demoNote,
+    "Criterio público, sin copiarlo en la respuesta: YouTube de Be Best Beast, Instagram de Be Best Beast y YouTube de Rogue Fitness.",
+    [
+      `Ficha: ${media.name}.`,
+      `Categoría: ${media.category || "fuerza"}.`,
+      `Músculos: ${joinEs(media.targetMuscles || [])}.`,
+      `Tempo: ${media.tempo}. ${explainTempo(media.tempo)}.`,
+      `Claves: ${(media.formCues || []).join(" | ") || "postura antes que carga."}`,
+      `Errores: ${(media.commonMistakes || []).join(" | ") || "subir el peso cuando el rango se deforma."}`,
+      equipmentText(media),
+      `Horas entre sesiones pesadas: ${getOptimalRecoveryHours(media.name)}.`,
+      `Cockpit: ${ctx.currentExercise}, ${ctx.currentWeight} kg x ${ctx.currentReps}, RPE ${ctx.currentRpe}.`,
+      ctx.isLocked
+        ? `Ese ejercicio del cockpit está en recuperación: ${ctx.remainingHours} horas y ${ctx.remainingMinutes} minutos.`
+        : "El ejercicio del cockpit no está bloqueado.",
+      `Tema: ${topic}.`,
+    ].join("\n"),
+  ].join("\n\n");
+}
+
+function withoutCaption(text, caption) {
+  if (!caption) return text.trim();
+  return text
+    .split("\n")
+    .filter((line) => line.trim() !== caption.trim())
+    .join("\n")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
+}
+
+export function prepareLiveCoach(payload = {}) {
+  const messages = normalizeTranscript(payload.messages);
+  const latest = [...messages].reverse().find((turn) => turn.role === "user");
+  if (!latest) return { kind: "empty" };
+  const ctx = readContext(payload.context);
+  const subject = resolveCoachSubject(latest.content, {
+    discussedExerciseId: payload.discussedExerciseId,
+    discussedExerciseName: payload.discussedExerciseName,
+    currentExercise: ctx.currentExercise,
+  });
+  const media = subjectMedia(subject);
+  const topic = detectTopic(fold(latest.content), ctx.isLocked && subject.exerciseName === ctx.currentExercise);
+  if (topic === "PAIN_SAFETY") {
+    return {
+      kind: "pain",
+      answer: reply(
+        "PAIN_SAFETY",
+        `Si sentís un dolor agudo, un pinchazo o el dolor te cambia la técnica de ${media.name}, cortá la serie. Desde acá no diagnostico lesiones: eso lo tiene que ver un kinesiólogo o un médico del deporte. Mientras tanto, entrená patrones que no reproduzcan ese dolor y no fuerces el rango.`,
+        followUpsFor("PAIN_SAFETY"),
+        media,
+      ),
+    };
+  }
+  return {
+    kind: "model",
+    topic,
+    subject,
+    media,
+    messages,
+    system: liveSystem(media, subject, ctx, topic),
+  };
+}
+
+export function finalizeLiveCoach(prepared, modelText) {
+  if (!prepared || prepared.kind !== "model") {
+    throw new Error("invalid-turn");
+  }
+  const raw = String(modelText ?? "").trim();
+  if (!raw) throw new Error("empty-model");
+  const demo = buildDemo(prepared.media);
+  const text = withoutCaption(raw, demo?.caption);
+  if (!text) throw new Error("empty-model");
+  const includeDemo = prepared.topic === "TECHNIQUE" || prepared.topic === "EQUIPMENT" || prepared.topic === "MISTAKES";
+  return reply(prepared.topic, text, followUpsFor(prepared.topic), prepared.media, { includeDemo });
 }
