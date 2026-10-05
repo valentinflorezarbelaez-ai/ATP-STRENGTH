@@ -1,3 +1,6 @@
+Este es el README para reemplazar el archivo entero. La sesión de abajo es la que está en https://atp-strength.vercel.app. El resto es el documento que mandaste, con la puerta, el PR, la voz y el himno puestos al día.
+
+````markdown
 # ⚡ ATP-STRENGTH (NEURO//STRENGTH)
 ### Plataforma Industrial de Rendimiento Neuromuscular, Resíntesis de ATP-CP y Fuerza Máxima
 
@@ -19,9 +22,9 @@
 
 | Módulo / Servicio | Entorno Local | URL de Producción | Utilidad Principal |
 | :--- | :--- | :--- | :--- |
-| 🚀 **Templo Zen & Cockpit Pro** | `http://localhost:3000` | **[atp-strength.vercel.app](https://atp-strength.vercel.app)** | Dashboard de entrenamiento diario, itinerarios, cronómetro de ATP y registro de series. |
-| ⚡ **Motor Universal de Fuerza** | `http://localhost:3000/calc` | **[atp-strength.vercel.app/calc](https://atp-strength.vercel.app/calc)** | Cabina universal de cálculo y fases neuromusculares adaptable a cualquier barra, mancuerna o máquina. |
-| ⚔️ **La Forja de los Guerreros** | `http://localhost:3000/forge` | **[atp-strength.vercel.app/forge](https://atp-strength.vercel.app/forge)** | Manifiesto de fuerza real, principios clásicos, jukebox marcial y motivación pura. |
+| 🚀 **Templo Zen & Cockpit Pro** | `http://localhost:3000` | **[atp-strength.vercel.app](https://atp-strength.vercel.app)** | Sesión de fuerza: ejercicio, PR, fases al 90 % y reloj de descanso. Las marcas quedan en el dispositivo. |
+| ⚡ **Motor Universal de Fuerza** | `http://localhost:3000/calc` | **[atp-strength.vercel.app/calc](https://atp-strength.vercel.app/calc)** | Calculadora de fases. «Volver a la sesión» permanece visible y el descanso corre en esa pantalla. |
+| ⚔️ **La Forja de los Guerreros** | `http://localhost:3000/forge` | **[atp-strength.vercel.app/forge](https://atp-strength.vercel.app/forge)** | Puerta de la sesión. El himno permanece en silencio hasta «Poner el himno». |
 | 🔌 **API REST (Documentación Swagger)** | `http://127.0.0.1:8000/docs` | Render / Docker API | Especificación OpenAPI interactiva de telemetría, estados de sesión y máximos 1RM. |
 | 🩺 **Endpoint de Salud (Healthcheck)** | `http://127.0.0.1:8000/health` | Backend Health | Sondeo automatizado de disponibilidad y conectividad del motor backend. |
 
@@ -39,6 +42,32 @@ A diferencia de las aplicaciones convencionales de gimnasio que operan con progr
 4. **Curvas de Supercompensación Neuromuscular (SPEC-0009)** con trazado vectorial cúbico Bézier y detección automática de récords personales (PR).
 5. **Motor Local-First con Diario de Transacciones (WAL)**, sumas de verificación criptográficas (`djb2`), backoff exponencial con *jitter* y deduplicación idempotente (`client_sync_id`).
 6. **Defensa Activa Anti "Lie-Fi" (PWA v5)** que garantiza operatividad instantánea en sótanos y zonas con conectividad degradada.
+
+La sesión en producción pide cualquier ejercicio y su PR, estima el PR si hace falta, y trabaja las fases al 90 % de ese número. El oro queda en la acción principal. El himno y la voz no hablan ni suenan hasta que la persona lo pide.
+
+---
+
+## 🏋️ Sesión en producción
+
+Sitio: [https://atp-strength.vercel.app](https://atp-strength.vercel.app)
+
+1. **Puerta.** La forja abre la sesión. El himno permanece en silencio, y el archivo no se pide, hasta «Poner el himno». Sobre «ENTRAR AL TEMPLO» está la línea: «El estándar son los más fuertes que vivieron: Eddie Hall, Brian Shaw, Žydrūnas Savickas, Hafþór Björnsson, Mark Felix, Louis Cyr y los demás.»
+
+2. **Ejercicio y PR.** La pantalla dice «Ingresa el ejercicio que vas a realizar y tu PR.» Debajo repite la misma línea. El nombre se escribe: no está limitado al catálogo. Si ese ejercicio ya tiene un PR guardado, aparece «Ya tenés un PR de {n} kg en este dispositivo. Podés cambiarlo.»
+
+3. **Ayuda para el PR.** «Ayudar a sacar el PR» pide un peso y unas repeticiones. «Poner este PR» estima el número con la fórmula del código (`computeOneRm`, Epley por defecto): peso × (1 + repeticiones / 30), redondeado a un decimal. Con una repetición, el resultado es el peso, también a un decimal.
+
+4. **Fases.** «Confirmar» guarda ese número en el dispositivo como el PR de la sesión, sin volver a estimarlo. Las fases trabajan al 90 % de ese PR. Lo primero después de confirmar son las series. La fase 4 está marcada como «Esta es la serie fuerte.»
+
+5. **Descanso.** Cada serie abre un solo reloj, «Descanso», y oculta las series mientras está en pantalla. Los controles son «Listo», «Pausar» o «Seguir», y «+30 s». Al pausar, el reloj sigue visible. Coach, pro y `/calc` comparten ese reloj.
+
+6. **Voz.** En las series hay un solo control: «Voz» o «Voz en silencio». En el perfil, «Voz del coach» es el mismo ajuste y muestra «Activada» o «Silencio».
+
+7. **Progreso.** Si el servidor no se puede leer, la pantalla dice «No se pudieron leer las marcas.» Si además hay marcas en el dispositivo, dice «No se pudieron leer las marcas. Estas son las de este dispositivo.» Esa falla no se presenta como si no hubiera marcas.
+
+8. **Color.** El oro queda en «ENTRAR AL TEMPLO», «Confirmar» y «Listo». Los demás controles de ese recorrido van en zinc. El modo pro usa el título «Sesión de fuerza».
+
+En la sesión, los controles que se tocan miden al menos 44 px y tienen nombre. «Ir a la forja» solo abre la forja. La guía se cierra con «Cerrar guía» o con Escape.
 
 ---
 
@@ -96,7 +125,7 @@ graph TD
 
 * **Módulos de Dominio L0:** ECMAScript 100% puro sin dependencias de `node_modules`, React ni del DOM. Probables de forma aislada en microsegundos.
 * **Idempotencia Garantizada:** Cada transacción genera un `client_sync_id` único inyectado en cabecera `X-Idempotency-Key`, evitando duplicación de series ante reintentos de red.
-* **Cero Warnings:** Cumplimiento total de reglas estrictas de TypeScript (`tsc --noEmit`) y ESLint 9 (`eslint-config-next 16.3.8`).
+* **Cero Warnings:** Cumplimiento total de reglas estrictas de TypeScript (`tsc --noEmit`) y ESLint 9 (`eslint-config-next 16.3.8`). El lint del frontend en la sesión actual termina sin errores ni avisos.
 
 ---
 
@@ -122,10 +151,12 @@ Recalcula el 1RM estimado (e1RM) del atleta y prescribe la carga de la siguiente
 * **Detección Automática de Récords:** Identifica nuevos picos de e1RM comparando contra el histórico consolidado del atleta.
 * **Geometría Bézier Cúbica:** Trazado vectorial suave en SVG responsive (`viewBox="0 0 600 220"`) que grafica los picos de forma y las fases de supercompensación.
 * **Clasificación de Tendencia:** Evalúa si el atleta se encuentra en estado de *Supercompensación*, *Adaptación Estable* o *Sobrecarga/Fatiga*.
+* **Entrada de la sesión:** el PR con el que abren las fases es el número que la persona confirma. La ayuda usa Epley, peso × (1 + repeticiones / 30), a un decimal. Una repetición deja el peso, también a un decimal.
 
 ### 4. Resistencia de Red Offline y Resincronización WAL
 * **Gating Anti-Stampede:** Cuando se pierde la conexión, la cola WAL no satura la red; calcula intervalos con retroceso exponencial (*exponential backoff*) y fluctuación completa (*full jitter*) de hasta 30 segundos.
 * **Detección de "Lie-Fi":** El Service Worker v5 ejecuta una carrera de 2500 ms contra la red; si la señal del gimnasio se congela, entrega la versión en caché instantáneamente sin bloquear la interfaz.
+* **Lectura de historial:** si `https://atp-strength-backend.onrender.com` no responde, Progreso lo dice en una frase y muestra las marcas de este dispositivo. No las presenta como un historial vacío.
 
 ---
 
@@ -137,7 +168,7 @@ Recalcula el 1RM estimado (e1RM) del atleta y prescribe la carga de la siguiente
 | `classic` | **Ciclo Clásico** | 4 Activos + 2 Descanso | Fuerza pura absoluta y tensión miofibrilar (Sentadilla, Banca, Peso Muerto). |
 | `olympic` | **Ciclo Olímpico** | 4 Activos + 2 Descanso | Tasa de desarrollo de fuerza (RFD), triple extensión y levantamientos balísticos. |
 | `hybrid` | **Ciclo Híbrido** | 5 Activos + 2 Descanso | Hipertrofia sarcomérica y potencia para atletas híbridos avanzados. |
-| `universal-pr` | **Protocolo Universal (PR)** | Dinámico / Cualquier Ejercicio | Calibración, testeo seguro y progresión escalonada en cualquier levantamiento o máquina. |
+| `universal-pr` | **Protocolo Universal (PR)** | Dinámico / Cualquier Ejercicio | Cualquier ejercicio escrito por la persona, con su PR, al 90 % en las fases. |
 
 ---
 
@@ -171,6 +202,27 @@ cd ../atp-strength-backend && pytest tests/ -v
 python -m ruff check . && python -m ruff format --check .
 ```
 
+### Frontend en local
+
+Hace falta Node.js. Desde la raíz del repositorio:
+
+```bash
+cd atp-strength-frontend
+npm install
+npm run dev
+```
+
+La app queda en [http://localhost:3000](http://localhost:3000).
+
+```bash
+npm run lint
+npm run build
+```
+
+`npm run lint` tiene que terminar sin errores ni avisos. `npm run build` compila con Turbopack.
+
+Sin `NEXT_PUBLIC_API_URL`, el cliente intenta `http://localhost:8000`. Si ese servidor no responde, la sesión igual funciona con las marcas de este dispositivo.
+
 ---
 
 ## 🚀 Despliegue con Docker Compose (Contenedorización Total)
@@ -190,14 +242,15 @@ docker compose down
 
 * **Frontend:** Disponible en `http://localhost:3000`
 * **Backend:** Disponible en `http://localhost:8000`
+* **Producción del frontend:** [https://atp-strength.vercel.app](https://atp-strength.vercel.app), proyecto Vercel `atp-strength`.
 
 ---
 
 ## 🛡️ Seguridad, Privacidad y Soberanía del Atleta
 
 * **0 Vulnerabilidades:** Dependencias auditadas contra avisos de seguridad (`npm audit` reporta 0 vulnerabilidades; Next.js blindado en `16.3.8`).
-* **Soberanía de Datos:** Tus marcas no están atrapadas en una nube propietaria. El sistema incluye exportación/importación criptográfica completa en formato **JSON** y **CSV** con un solo clic.
-* **Cero Telemetría Invasiva:** Sin rastreadores comerciales de terceros, sin cookies espía y sin recolección de datos personales.
+* **Soberanía de Datos:** Las marcas de la sesión se guardan en el dispositivo. En el perfil, el bloque se llama «Copias en este dispositivo» y la exportación sigue disponible en **JSON** y **CSV**.
+* **Cero Telemetría Invasiva:** Sin rastreadores comerciales de terceros, sin cookies espía y sin recolección de datos personales. La sesión no registra el PR en la consola para calcularlo.
 
 ---
 
@@ -214,11 +267,17 @@ docker compose down
 | **07** | `test(e2e)` [`4ea9fb9`](https://github.com/valentinflorezarbelaez-ai/ATP-STRENGTH/commit/4ea9fb9) | Suite End-to-End con Playwright (11 especificaciones en Chromium). | Verificación automatizada de shell PWA, offline WAL y renderizado reactivo. |
 | **08** | `build(docker)` [`5de787d`](https://github.com/valentinflorezarbelaez-ai/ATP-STRENGTH/commit/5de787d) | Dockerfiles multi-stage y orquestación unificada con `docker-compose.yml`. | Despliegue reproducible en 1 comando con usuarios seguros no-root. |
 | **09** | `docs(readme)` [`dda05f2`](https://github.com/valentinflorezarbelaez-ai/ATP-STRENGTH/commit/dda05f2) | Sincronización documental integral con los 130 tests automáticos del sistema. | Fidelidad absoluta entre especificación, arquitectura y base de código. |
+| **10** | `fix(frontend)` [`4bf2c71`](https://github.com/valentinflorezarbelaez-ai/ATP-STRENGTH/commit/4bf2c71f6f530133058c3ab94363752d80c2211a) | La serie y la puerta quedan primero. El descanso del coach, pro y la calculadora es un solo reloj. | «ENTRAR AL TEMPLO» es la acción dorada. Si la API no responde, las marcas siguen en el dispositivo. |
+| **11** | `fix(frontend)` [`f745251`](https://github.com/valentinflorezarbelaez-ai/ATP-STRENGTH/commit/f7452519fb446dc4c695262d7be1793db47768c2) | La sesión abre en el nombre del ejercicio, la serie y el reloj. | Elegir otro ejercicio y editar el máximo quedan debajo. Los controles de la serie miden 44 px. |
+| **12** | `fix(frontend)` [`cbb94a3`](https://github.com/valentinflorezarbelaez-ai/ATP-STRENGTH/commit/cbb94a347537b3e05f19610bc41a9c82cb09b0f9) | Pausar no cierra el reloj de descanso. | «Listo», «Pausar» / «Seguir» y «+30 s». La serie vuelve con «Listo». |
+| **13** | `fix(frontend)` [`cf8f417`](https://github.com/valentinflorezarbelaez-ai/ATP-STRENGTH/commit/cf8f417c5b6c2355a7c68cd8beb3863a4afe125a) | Cualquier ejercicio y su PR abren el flujo. «Ayudar a sacar el PR» escribe el estimado en el campo. | «Confirmar» guarda el número y las fases trabajan al 90 %. |
+| **14** | `fix(frontend)` [`f24f002`](https://github.com/valentinflorezarbelaez-ai/ATP-STRENGTH/commit/f24f002e547106a138812d0d08cc08df8e31dc02) | El himno no se descarga hasta «Poner el himno». Un solo control de voz. El oro queda en la acción principal. | «Voz» / «Voz en silencio». En el perfil, «Voz del coach» es el mismo ajuste. |
 
 ---
 
-## 📄 Licencia
+## Licencia
 
-Este proyecto se distribuye bajo la **Licencia MIT** — consultar el archivo [LICENSE](LICENSE) para más detalles.
+MIT. Ver [LICENSE](LICENSE).
 
-Arquitecturado y desarrollado con disciplina de ingeniería por **[Valentín Flórez Arbeláez](https://github.com/valentinflorezarbelaez-ai)**.
+Valentín Flórez Arbeláez.
+````
