@@ -217,13 +217,9 @@ function visibleCoachText(message: ChatMessage): string {
   return stripped || message.text;
 }
 
-function createGreeting(exercise: string, locked: boolean): ChatMessage {
+function greetingCopy(exercise: string, locked: boolean): Pick<ChatMessage, "text" | "followUps"> {
   return {
-    id: "m0",
-    sender: "coach",
-    topic: "GENERAL_COACHING",
     text: `¡Hola! Soy tu coach de fuerza. Estás en ${exercise}. Preguntame cómo se hace un movimiento, qué músculos usa, cómo programarlo, qué equipo hace falta o cómo descansar. Si me pedís la técnica, te muestro la demo oficial de Rogue Fitness para que veas el patrón.`,
-    timestamp: timeNow(),
     followUps: [
       "¿Cómo hago la técnica correcta?",
       "¿Qué músculos trabaja?",
@@ -231,6 +227,23 @@ function createGreeting(exercise: string, locked: boolean): ChatMessage {
       locked ? "¿Por qué está bloqueado el ejercicio?" : "¿Qué equipo necesito?",
     ],
   };
+}
+
+function createGreeting(exercise: string, locked: boolean): ChatMessage {
+  return {
+    id: "m0",
+    sender: "coach",
+    topic: "GENERAL_COACHING",
+    timestamp: timeNow(),
+    ...greetingCopy(exercise, locked),
+  };
+}
+
+function withScreenGreeting(messages: ChatMessage[], exercise: string, locked: boolean): ChatMessage[] {
+  const copy = greetingCopy(exercise, locked);
+  return messages.map((message) => (
+    message.id === "m0" ? { ...message, text: copy.text, followUps: copy.followUps } : message
+  ));
 }
 
 function revealEnds(text: string): number[] {
@@ -401,8 +414,10 @@ export function CoachChatModal({
     const id = `c-${idCounterRef.current++}`;
     const firstEnd = ends[0] ?? answer.text.length;
     const showAll = reduceMotion || ends.length <= 1;
+    const shown = discussedNameRef.current ?? currentExercise;
+    const greetingLocked = isLocked && foldName(shown) === foldName(currentExercise);
     setMessages((previous) => [
-      ...previous,
+      ...withScreenGreeting(previous, shown, greetingLocked),
       {
         id,
         sender: "coach",
@@ -460,6 +475,8 @@ export function CoachChatModal({
     discussedIdRef.current = subject.exerciseId;
     discussedNameRef.current = subject.exerciseName;
     if (subject.exerciseName) setDiscussedName(subject.exerciseName);
+    const shown = subject.exerciseName || currentExercise;
+    const greetingLocked = isLocked && foldName(shown) === foldName(currentExercise);
 
     const prior = messagesRef.current
       .filter((message) => message.id !== "m0" && message.status !== "error" && !message.streaming)
@@ -476,9 +493,16 @@ export function CoachChatModal({
         text: query,
         timestamp: timeNow(),
       };
-      setMessages((previous) => [...previous, userMessage]);
+      setMessages((previous) => [
+        ...withScreenGreeting(previous, shown, greetingLocked),
+        userMessage,
+      ]);
     } else {
-      setMessages((previous) => previous.filter((message) => message.retryQuery !== query || message.status !== "error"));
+      setMessages((previous) => withScreenGreeting(
+        previous.filter((message) => message.retryQuery !== query || message.status !== "error"),
+        shown,
+        greetingLocked,
+      ));
     }
     setInput("");
     setFormNotice(null);

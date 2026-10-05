@@ -1,5 +1,5 @@
 import { APICallError, generateText } from "ai";
-import { finalizeLiveCoach, prepareLiveCoach } from "@/lib/coachKnowledgeBase.mjs";
+import { answerWithLocalCoach, finalizeLiveCoach, prepareLiveCoach } from "@/lib/coachKnowledgeBase.mjs";
 
 export const runtime = "nodejs";
 export const maxDuration = 30;
@@ -77,6 +77,14 @@ export async function POST(request: Request): Promise<Response> {
         });
         return Response.json(finalizeLiveCoach(prepared, result.text));
       } catch (error) {
+        try {
+          const local = answerWithLocalCoach(
+            (payload && typeof payload === "object" ? payload : {}) as Parameters<typeof answerWithLocalCoach>[0],
+          );
+          if (local) return Response.json(local);
+        } catch {
+          // The local coach is the reply. The gateway body is only used when that reply cannot be built.
+        }
         const failure = gatewayFailure(error);
         const status = failure.status >= 400 && failure.status < 600 ? failure.status : 502;
         return Response.json(

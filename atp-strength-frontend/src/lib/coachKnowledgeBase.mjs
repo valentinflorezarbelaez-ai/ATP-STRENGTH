@@ -208,6 +208,20 @@ function fold(value) {
     .trim();
 }
 
+function displayExerciseName(name) {
+  return String(name ?? "")
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean)
+    .map((word) => {
+      const chars = Array.from(word);
+      const first = chars[0];
+      if (!first) return word;
+      return `${first.toLocaleUpperCase("es-AR")}${chars.slice(1).join("")}`;
+    })
+    .join(" ");
+}
+
 function includesPhrase(haystack, phrase) {
   if (phrase.length <= 3) {
     return new RegExp(`(?:^|[^a-z0-9])${phrase}(?:[^a-z0-9]|$)`).test(haystack);
@@ -553,7 +567,7 @@ function extractFreeName(foldedQuery) {
   if (!match) return "";
   const name = match[1].replace(/[?.!].*$/, "").trim();
   if (!name || GENERIC_NAMES.has(name) || name.length < 3) return "";
-  return name;
+  return displayExerciseName(name);
 }
 
 function detectTopic(folded, isLocked) {
@@ -727,12 +741,21 @@ export function queryCoachKnowledge(userQuery = "", context = {}) {
     );
   }
 
-  const topic = detectTopic(folded, ctx.isLocked);
+  const subject = resolveCoachSubject(query, {
+    discussedExerciseId: context.discussedExerciseId,
+    discussedExerciseName: context.discussedExerciseName,
+    currentExercise: ctx.currentExercise,
+  });
+  const aboutCockpit = fold(subject.exerciseName) === fold(ctx.currentExercise);
+  const topic = detectTopic(folded, ctx.isLocked && aboutCockpit);
   const namedIds = matchAliases(folded);
   const freeName = namedIds.length === 0 ? extractFreeName(folded) : "";
+  const remembered = subject.exerciseId ? mediaById(subject.exerciseId) : null;
   const media = namedIds.length > 0
     ? (mediaById(namedIds[0]) || currentMedia(ctx))
-    : (freeName ? freeExerciseMedia(freeName) : currentMedia(ctx));
+    : (freeName
+      ? freeExerciseMedia(freeName)
+      : (remembered || (subject.remembered ? freeExerciseMedia(subject.exerciseName) : currentMedia(ctx))));
 
   if (topic === "RECOVERY_LOCKOUT") {
     return reply(
@@ -836,12 +859,14 @@ export function queryCoachKnowledge(userQuery = "", context = {}) {
   }
 
   if (topic === "PHASE_GUIDANCE") {
-    const phaseMedia = namedIds.length > 0 ? media : currentMedia(ctx);
+    const phaseMedia = media;
+    const cockpit = currentMedia(ctx);
+    const sameMovement = phaseMedia.id === cockpit.id && phaseMedia.name === cockpit.name;
     return reply(
       "PHASE_GUIDANCE",
       getPhaseGuidance({
         exerciseName: phaseMedia.name,
-        weight: contextWeightFor(namedIds, ctx),
+        weight: sameMovement ? contextWeightFor(namedIds, ctx) : 0,
         reps: ctx.currentReps,
         rpe: ctx.currentRpe,
       }),
@@ -925,7 +950,11 @@ export function resolveCoachSubject(userQuery = "", session = {}) {
     if (remembered) return { exerciseId: remembered.id, exerciseName: remembered.name, remembered: true };
   }
   if (typeof session.discussedExerciseName === "string" && session.discussedExerciseName.trim()) {
-    return { exerciseId: null, exerciseName: session.discussedExerciseName.trim(), remembered: true };
+    return {
+      exerciseId: null,
+      exerciseName: displayExerciseName(session.discussedExerciseName),
+      remembered: true,
+    };
   }
   const cockpit = currentMedia(readContext({ currentExercise: session.currentExercise }));
   return {
@@ -1028,6 +1057,18 @@ function withoutCaption(text, caption) {
     .join("\n")
     .replace(/\n{3,}/g, "\n\n")
     .trim();
+}
+
+export function answerWithLocalCoach(payload = {}) {
+  const messages = normalizeTranscript(payload.messages);
+  const latest = [...messages].reverse().find((turn) => turn.role === "user");
+  if (!latest) return null;
+  const context = payload.context && typeof payload.context === "object" ? payload.context : {};
+  return queryCoachKnowledge(latest.content, {
+    ...context,
+    discussedExerciseId: payload.discussedExerciseId,
+    discussedExerciseName: payload.discussedExerciseName,
+  });
 }
 
 export function prepareLiveCoach(payload = {}) {

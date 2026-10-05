@@ -6,6 +6,7 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
 import {
+  answerWithLocalCoach,
   finalizeLiveCoach,
   formatCoachClock,
   prepareLiveCoach,
@@ -98,8 +99,10 @@ describe("SPEC-0011 Athlete AI Coach Knowledge Engine", () => {
 
     const hipThrust = queryCoachKnowledge("¿Cómo hago hip thrust?", { currentExercise: "Sentadilla Trasera" });
     assert.equal(hipThrust.demo, null);
+    assert.equal(hipThrust.exerciseName, "Hip Thrust");
     assert.match(hipThrust.text, /cadera/i);
     assert.equal(JSON.stringify(hipThrust).includes("ultWZbUMPL8"), false);
+    assert.equal(resolveCoachSubject("¿Cómo hago hip thrust?", { currentExercise: "Press de Banca Plano" }).exerciseName, "Hip Thrust");
   });
 
   it("answers an open exercise question instead of a generic deflection", () => {
@@ -161,6 +164,32 @@ describe("SPEC-0011 Athlete AI Coach Knowledge Engine", () => {
     assert.match(pain.answer.text, /no diagnostico/i);
     assert.equal(/ibuprofeno|hielo|antiinflamatorio/i.test(pain.answer.text), false);
     assert.match(pain.answer.exerciseName, /sentadilla/i);
+  });
+
+  it("answers from the local coach when the gateway cannot, and keeps the follow-up on the squat", () => {
+    const squat = answerWithLocalCoach({
+      messages: [{ role: "user", content: "¿Cómo hago la sentadilla?" }],
+      context: { currentExercise: "Press de Banca Plano", currentWeight: 80 },
+    });
+    assert.equal(squat.topic, "TECHNIQUE");
+    assert.equal(squat.demo.youtubeId, "x0tjZRfF3Wg");
+    assert.equal(squat.text.includes(squat.demo.caption), false);
+    assert.match(squat.exerciseName, /Sentadilla Trasera/);
+    assert.equal(squat.text.includes("Press de Banca"), false);
+
+    const knees = answerWithLocalCoach({
+      messages: [
+        { role: "user", content: "¿Cómo hago la sentadilla?" },
+        { role: "assistant", content: squat.text },
+        { role: "user", content: "¿y las rodillas?" },
+      ],
+      discussedExerciseId: squat.exerciseId,
+      discussedExerciseName: squat.exerciseName,
+      context: { currentExercise: "Press de Banca Plano", currentWeight: 80 },
+    });
+    assert.match(knees.text, /Sentadilla Trasera/);
+    assert.equal(knees.text.includes("Press de Banca"), false);
+    assert.equal(knees.exerciseId, "squat_back");
   });
 
   it("stops at pain without prescribing a treatment", () => {
