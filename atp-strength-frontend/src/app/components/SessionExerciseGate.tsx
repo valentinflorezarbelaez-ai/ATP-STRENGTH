@@ -47,9 +47,14 @@ export function SessionExerciseGate({
         onConfirm(name, pr);
       }}
     >
-      <h2 className="text-xl sm:text-2xl font-semibold tracking-tight text-zinc-50 leading-snug">
-        Ingresa el ejercicio que vas a realizar y tu PR.
-      </h2>
+      <div className="space-y-2">
+        <h2 className="text-xl sm:text-2xl font-semibold tracking-tight text-zinc-50 leading-snug">
+          Ingresa el ejercicio que vas a realizar y tu PR.
+        </h2>
+        <p className="text-sm leading-relaxed text-zinc-400">
+          El estándar son los más fuertes que vivieron: Eddie Hall, Brian Shaw, Žydrūnas Savickas, Hafþór Björnsson, Mark Felix, Louis Cyr y los demás.
+        </p>
+      </div>
 
       <div className="space-y-1.5">
         <label htmlFor="session-exercise" className="text-sm font-medium text-zinc-300 block">

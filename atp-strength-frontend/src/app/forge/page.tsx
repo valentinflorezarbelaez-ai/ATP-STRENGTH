@@ -538,8 +538,12 @@ export default function ForgeLanding({ onEnterDirect }: ForgeLandingProps) {
           </button>
         </div>
 
+        <p className="z-20 max-w-md px-4 text-sm leading-relaxed text-white/60">
+          El estándar son los más fuertes que vivieron: Eddie Hall, Brian Shaw, Žydrūnas Savickas, Hafþór Björnsson, Mark Felix, Louis Cyr y los demás.
+        </p>
+
         {/* Enter Button */}
-        <button onClick={handleEnter} className="forge-enter-btn group mt-8 z-20">
+        <button onClick={handleEnter} className="forge-enter-btn group mt-5 z-20">
           <span className="forge-enter-btn-glow" />
           <span className="forge-enter-btn-text">
             ENTRAR AL TEMPLO
