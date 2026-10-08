@@ -175,6 +175,7 @@ export function CoachChatModal({
           </div>
 
           <button
+            aria-label="Cerrar modal"
             type="button"
             onClick={() => {
               playTactileClick();
@@ -270,6 +271,7 @@ export function CoachChatModal({
               className="flex-1 px-4 py-2.5 rounded-xl bg-zinc-900 border border-zinc-800 text-xs text-zinc-100 placeholder:text-zinc-500 font-mono focus:outline-none focus:border-amber-500/50"
             />
             <button
+              aria-label="Enviar mensaje"
               type="submit"
               disabled={!input.trim()}
               className="p-2.5 rounded-xl bg-amber-400 hover:bg-amber-300 disabled:opacity-40 disabled:cursor-not-allowed text-black font-bold transition-all cursor-pointer shrink-0 shadow-[0_0_15px_rgba(245,158,11,0.2)]"
