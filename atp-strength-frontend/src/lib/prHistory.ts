@@ -67,19 +67,36 @@ function browserStorage(): Storage | null {
   return window.localStorage;
 }
 
-export function getLocalExerciseHistory(exerciseName: string): HistoryRecord[] {
+export function getLocalExerciseHistory(exerciseName: string, athleteId?: string): HistoryRecord[] {
   const storage = browserStorage();
   if (!storage) return [];
-  return getExerciseHistory(storage, exerciseName) as HistoryRecord[];
+  return getExerciseHistory(storage, exerciseName, athleteId) as HistoryRecord[];
 }
 
-export function getLocalBestE1rm(exerciseName: string): number {
+export function getLocalBestE1rm(exerciseName: string, athleteId?: string): number {
   const storage = browserStorage();
   if (!storage) return 0;
-  return getBestHistoricalE1rm(storage, exerciseName);
+  return getBestHistoricalE1rm(storage, exerciseName, athleteId);
 }
 
 export function logLocalSetHistory(input: {
+  exercise_name: string;
+  load_kg: number;
+  completed_reps: number;
+  prescribed_reps?: number;
+  set_number?: number;
+  rpe?: number;
+  rir?: number;
+  e1rm?: number;
+  notes?: string;
+  timestamp?: string;
+}, athleteId?: string): PrRecordResult | null {
+  const storage = browserStorage();
+  if (!storage) return null;
+  return recordSetHistory(storage, input, athleteId) as PrRecordResult;
+}
+
+function _disabledOldLogLocalSetHistory(input: {
   exercise_name: string;
   load_kg: number;
   completed_reps: number;
@@ -96,13 +113,13 @@ export function logLocalSetHistory(input: {
   return recordSetHistory(storage, input) as PrRecordResult;
 }
 
-export function getLocalProgressionCurve(exerciseName: string): ProgressionCurvePoint[] {
+export function getLocalProgressionCurve(exerciseName: string, athleteId?: string): ProgressionCurvePoint[] {
   const storage = browserStorage();
   if (!storage) return [];
-  return getE1rmProgressionCurve(storage, exerciseName) as ProgressionCurvePoint[];
+  return getE1rmProgressionCurve(storage, exerciseName, athleteId) as ProgressionCurvePoint[];
 }
 
-export function getLocalSupercompensationTrend(exerciseName: string): SupercompensationTrend {
+export function getLocalSupercompensationTrend(exerciseName: string, athleteId?: string): SupercompensationTrend {
   const storage = browserStorage();
   if (!storage) {
     return {
@@ -117,7 +134,7 @@ export function getLocalSupercompensationTrend(exerciseName: string): Supercompe
       statusColor: 'text-zinc-500',
     };
   }
-  return calculateSupercompensationTrend(storage, exerciseName) as SupercompensationTrend;
+  return calculateSupercompensationTrend(storage, exerciseName, athleteId) as SupercompensationTrend;
 }
 
 export {

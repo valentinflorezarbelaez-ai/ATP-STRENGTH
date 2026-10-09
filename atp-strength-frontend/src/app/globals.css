@@ -349,28 +349,56 @@ button, a, [role="button"], input[type="button"], input[type="submit"] {
   -webkit-tap-highlight-color: transparent;
 }
 
-/* Luxury Audiophile Custom Scrollbars */
-::-webkit-scrollbar {
+/* =========================================================================
+   LUXURY MINIMALIST SCROLLBAR SYSTEM (Dark Audiophile Aesthetic)
+   Eradicates Windows chunky button arrows (< >) & white track backgrounds
+   ========================================================================= */
+
+/* Cross-browser standard scrollbars */
+html, body, * {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(204, 164, 59, 0.35) transparent;
+}
+
+/* WebKit / Blink custom luxury scrollbars */
+*::-webkit-scrollbar {
   width: 6px;
   height: 6px;
+  background-color: transparent;
 }
 
-::-webkit-scrollbar-track {
+*::-webkit-scrollbar-track {
   background: transparent;
+  margin: 3px;
 }
 
-::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.12);
+*::-webkit-scrollbar-thumb {
+  background: rgba(204, 164, 59, 0.28);
   border-radius: 9999px;
-  transition: background 0.2s ease;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(6px);
+  transition: background-color 0.2s ease, border-color 0.2s ease;
 }
 
-:root:not(.dark) ::-webkit-scrollbar-thumb {
-  background: rgba(0, 0, 0, 0.15);
+*::-webkit-scrollbar-thumb:hover {
+  background: rgba(204, 164, 59, 0.6);
+  border-color: rgba(204, 164, 59, 0.4);
 }
 
-::-webkit-scrollbar-thumb:hover {
-  background: rgba(204, 164, 59, 0.4);
+*::-webkit-scrollbar-thumb:active {
+  background: rgba(204, 164, 59, 0.85);
+}
+
+/* Eliminate native Windows scrollbar arrow buttons (< >) completely */
+*::-webkit-scrollbar-button {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+  appearance: none !important;
+}
+
+*::-webkit-scrollbar-corner {
+  background: transparent;
 }
 
 /* Apple-grade Focus Rings */

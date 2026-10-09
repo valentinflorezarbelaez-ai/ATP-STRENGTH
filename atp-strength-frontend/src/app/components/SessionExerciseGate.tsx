@@ -21,7 +21,6 @@ import {
   ShieldCheck,
   AlertTriangle,
   Calculator,
-  WifiOff,
 } from "lucide-react";
 import { computeOneRm } from "@/lib/workoutStrategies";
 import { findSavedPr } from "@/lib/sessionExercise";
@@ -222,10 +221,6 @@ export function SessionExerciseGate({
             <p className="text-[10px] font-mono tracking-widest text-amber-400 uppercase">
               CONFIGURACIÓN DE ENTRADA
             </p>
-            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-mono bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-              <WifiOff className="w-2.5 h-2.5" />
-              <span>100% Offline Engine</span>
-            </span>
           </div>
           <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-zinc-50 mt-0.5">
             ¿Cómo vas a entrenar hoy?

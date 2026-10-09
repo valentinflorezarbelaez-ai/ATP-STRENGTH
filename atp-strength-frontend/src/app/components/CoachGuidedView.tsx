@@ -37,10 +37,12 @@ export function CoachGuidedView({
   d,
   onShowSpotify,
   onOpenForge,
+  onSwitchAthlete,
 }: {
   d: Dash;
   onShowSpotify?: () => void;
   onOpenForge?: () => void;
+  onSwitchAthlete?: () => void;
 }) {
   const router = useRouter();
   useWakeLock(d.isRunning);

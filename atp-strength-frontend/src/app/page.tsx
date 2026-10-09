@@ -3,14 +3,17 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import ForgeLanding from "@/app/forge/page";
+import { AthleteProfileGate } from "@/app/components/AthleteProfileGate";
+import { getActiveAthleteId, setActiveAthleteId, ATHLETE_PROFILES } from "@/lib/athleteProfile";
 
-type Gate = "forge" | "temple";
+type Gate = "athlete_gate" | "forge" | "temple";
 type ThemeMode = "light" | "dark" | "system";
 
 interface BootState {
   gate: Gate;
   templeMounted: boolean;
   presented: boolean;
+  activeAthleteId: "valentin" | "jacobo";
 }
 
 function readThemeMode(): ThemeMode {
@@ -48,26 +51,41 @@ function applyThemeClass(): void {
 }
 
 function readBootState(): BootState {
-  const skip =
-    typeof window !== "undefined" &&
+  const isClient = typeof window !== "undefined";
+  const skipIntro =
+    isClient &&
     ((navigator.webdriver && localStorage.getItem("hasEnteredTemple") === "true") ||
       new URLSearchParams(window.location.search).get("skipIntro") === "true");
 
-  if (typeof window !== "undefined" && !skip) {
-    // Legacy builds locked the ritual away forever. Real sessions always enter through the forge.
+  if (isClient && !skipIntro) {
     try {
       localStorage.removeItem("hasEnteredTemple");
     } catch {
-      // The ritual still plays if storage is unavailable.
+      // storage unavailable
     }
   }
 
   applyThemeClass();
 
+  const savedAthlete = isClient ? (getActiveAthleteId() as "valentin" | "jacobo") : null;
+  const initialAthlete = savedAthlete || "valentin";
+
+  // If automated test or skipIntro, jump directly to temple
+  if (skipIntro) {
+    return {
+      gate: "temple",
+      templeMounted: true,
+      presented: true,
+      activeAthleteId: initialAthlete,
+    };
+  }
+
+  // Real user sessions always start with the Spotify-style Athlete Profile Selector
   return {
-    gate: skip ? "temple" : "forge",
-    templeMounted: skip,
-    presented: skip,
+    gate: "athlete_gate",
+    templeMounted: false,
+    presented: false,
+    activeAthleteId: initialAthlete,
   };
 }
 
@@ -149,7 +167,13 @@ export default function ZenDashboard() {
   const [gate, setGate] = useState<Gate>(boot.gate);
   const [templeMounted, setTempleMounted] = useState(boot.templeMounted);
   const [presented, setPresented] = useState(boot.presented);
+  const [activeAthleteId, setActiveAthleteIdState] = useState<"valentin" | "jacobo">(
+    boot.activeAthleteId
+  );
   const templeRef = useRef<HTMLDivElement>(null);
+
+  const activeAthleteMeta =
+    ATHLETE_PROFILES.find((p) => p.id === activeAthleteId) || ATHLETE_PROFILES[0];
 
   useEffect(() => {
     applyThemeClass();
@@ -175,6 +199,17 @@ export default function ZenDashboard() {
     node.focus({ preventScroll: true });
   }, [gate]);
 
+  const handleSelectAthlete = useCallback((id: "valentin" | "jacobo") => {
+    setActiveAthleteId(id);
+    setActiveAthleteIdState(id);
+    setGate("forge");
+  }, []);
+
+  const handleOpenAthleteGate = useCallback(() => {
+    setPresented(false);
+    setGate("athlete_gate");
+  }, []);
+
   const handleEnter = useCallback(() => {
     setTempleMounted(true);
     setGate("temple");
@@ -193,7 +228,21 @@ export default function ZenDashboard() {
 
   return (
     <>
-      {gate === "forge" ? <ForgeLanding onEnterDirect={handleEnter} /> : null}
+      {gate === "athlete_gate" ? (
+        <AthleteProfileGate
+          onSelectAthlete={handleSelectAthlete}
+          currentAthleteId={activeAthleteId}
+        />
+      ) : null}
+
+      {gate === "forge" ? (
+        <ForgeLanding
+          onEnterDirect={handleEnter}
+          onSwitchAthlete={handleOpenAthleteGate}
+          activeAthleteId={activeAthleteId}
+          activeAthleteName={activeAthleteMeta.name}
+        />
+      ) : null}
 
       {templeMounted ? (
         <div
@@ -208,7 +257,10 @@ export default function ZenDashboard() {
               : undefined
           }
         >
-          <ZenDashboardClient onOpenForge={handleOpenForge} />
+          <ZenDashboardClient
+            onOpenForge={handleOpenForge}
+            onSwitchAthlete={handleOpenAthleteGate}
+          />
         </div>
       ) : null}
     </>

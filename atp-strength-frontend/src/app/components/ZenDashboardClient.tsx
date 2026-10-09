@@ -9,9 +9,15 @@ import { ErrorBoundary } from "@/app/components/ErrorBoundary";
  * ZenDashboardClient
  * Client component executing in the browser context with direct access to localStorage.
  * Handles view switching between CoachGuidedView and ZenDashboardView.
- * The Spotify button now directly opens Spotify (https://open.spotify.com/intl-es).
+ * Supports athlete switching and Spotify integration.
  */
-export function ZenDashboardClient({ onOpenForge }: { onOpenForge?: () => void }) {
+export function ZenDashboardClient({
+  onOpenForge,
+  onSwitchAthlete,
+}: {
+  onOpenForge?: () => void;
+  onSwitchAthlete?: () => void;
+}) {
   const d = useZenDashboard();
 
   const handleOpenSpotifyDirect = () => {
@@ -21,6 +27,15 @@ export function ZenDashboardClient({ onOpenForge }: { onOpenForge?: () => void }
     window.open("https://open.spotify.com/intl-es", "_blank", "noopener,noreferrer");
   };
 
+  const handleSwitchAthleteOrOpenGate = () => {
+    if (onSwitchAthlete) {
+      onSwitchAthlete();
+    } else {
+      const nextId = d.activeAthleteId === "valentin" ? "jacobo" : "valentin";
+      d.switchAthlete(nextId);
+    }
+  };
+
   return (
     <ErrorBoundary>
       {d.coachMode ? (
@@ -28,12 +43,14 @@ export function ZenDashboardClient({ onOpenForge }: { onOpenForge?: () => void }
           d={d}
           onShowSpotify={handleOpenSpotifyDirect}
           onOpenForge={onOpenForge}
+          onSwitchAthlete={handleSwitchAthleteOrOpenGate}
         />
       ) : (
         <ZenDashboardView
           d={d}
           onShowSpotify={handleOpenSpotifyDirect}
           onOpenForge={onOpenForge}
+          onSwitchAthlete={handleSwitchAthleteOrOpenGate}
         />
       )}
     </ErrorBoundary>

@@ -263,11 +263,14 @@ function EmberParticle({ delay, x, size }: { delay: number; x: number; size: num
   );
 }
 
-interface ForgeLandingProps {
+export interface ForgeLandingProps {
   onEnterDirect?: () => void;
+  onSwitchAthlete?: () => void;
+  activeAthleteId?: string;
+  activeAthleteName?: string;
 }
 
-export default function ForgeLanding({ onEnterDirect }: ForgeLandingProps) {
+export default function ForgeLanding({ onEnterDirect, onSwitchAthlete, activeAthleteId, activeAthleteName }: ForgeLandingProps) {
   const router = useRouter();
   const [quoteIdx, setQuoteIdx] = useState(0);
   const [trackIdx, setTrackIdx] = useState(0);

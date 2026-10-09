@@ -1,5 +1,14 @@
 "use client";
 
+import {
+  getActiveAthleteId,
+  setActiveAthleteId,
+  ATHLETE_PROFILES,
+  readAthleteScopedItem,
+  writeAthleteScopedItem,
+} from "@/lib/athleteProfile";
+
+
 import { getPrilepinPrescription } from "@/lib/prilepinEngine.mjs";
 
 const REST_PLACEHOLDER_EXERCISE = {
@@ -70,6 +79,36 @@ export function useZenDashboard() {
   const [completedWarmupMap, setCompletedWarmupMap] = useState<{ [k: string]: string[] }>(
     () => getSavedSession()?.completedWarmupMap || {}
   );
+
+  const [activeAthleteId, setActiveAthleteIdState] = useState<"valentin" | "jacobo">(() => {
+    if (typeof window === "undefined") return "valentin";
+    return (getActiveAthleteId() as "valentin" | "jacobo") || "valentin";
+  });
+
+  const activeAthleteProfile = useMemo(
+    () => ATHLETE_PROFILES.find((p) => p.id === activeAthleteId) || ATHLETE_PROFILES[0],
+    [activeAthleteId]
+  );
+  const activeAthleteName = activeAthleteProfile.name;
+
+  const switchAthlete = useCallback((id: "valentin" | "jacobo") => {
+    setActiveAthleteId(id);
+    setActiveAthleteIdState(id);
+    if (typeof window !== "undefined") {
+      setMaxesMap(getInitialMaxes(id));
+      const rawBw = readAthleteScopedItem(window.localStorage, "atp_athlete_bodyweight", id);
+      const parsedBw = rawBw ? parseFloat(rawBw) : 0;
+      setBodyweightKg(parsedBw > 0 ? parsedBw : 75);
+
+      const rawCustom = readAthleteScopedItem(window.localStorage, "atp_custom_exercises", id);
+      try {
+        setCustomExercises(rawCustom ? JSON.parse(rawCustom) : []);
+      } catch {
+        setCustomExercises([]);
+      }
+      setHistoryRevision((v) => v + 1);
+    }
+  }, []);
 
   const [zenFocusMode, setZenFocusMode] = useState(false);
   const [themeMode, setThemeMode] = useState<'light' | 'dark' | 'system'>(() => {
@@ -651,6 +690,11 @@ export function useZenDashboard() {
   );
 
   return {
+    activeAthleteId,
+    activeAthleteName,
+    activeAthleteProfile,
+    switchAthlete,
+    athleteProfiles: ATHLETE_PROFILES,
     selectedDayKey,
     setSelectedDayKey,
     activeExerciseIndex,

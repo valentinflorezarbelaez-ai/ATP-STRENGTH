@@ -32,10 +32,12 @@ export function ZenDashboardView({
   d,
   onShowSpotify,
   onOpenForge,
+  onSwitchAthlete,
 }: {
   d: Dash;
   onShowSpotify?: () => void;
   onOpenForge?: () => void;
+  onSwitchAthlete?: () => void;
 }) {
   const router = useRouter();
   const [showWarmupModal, setShowWarmupModal] = React.useState(false);
@@ -99,9 +101,6 @@ export function ZenDashboardView({
                 <h1 className="text-lg sm:text-xl md:text-2xl font-black tracking-widest text-zinc-100 uppercase">
                   NEURO//<span className="text-amber-400">STRENGTH</span>
                 </h1>
-                <span className="px-1.5 sm:px-2 py-0.5 rounded text-[9px] sm:text-[10px] font-mono font-bold bg-amber-500/20 text-amber-400 border border-amber-500/30">
-                  PRO-V1
-                </span>
               </div>
               <p className="text-sm text-zinc-400 mt-1">
                 Sesión de fuerza

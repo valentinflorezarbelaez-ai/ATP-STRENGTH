@@ -5,6 +5,7 @@
  */
 
 import { computeEstimated1Rm } from './rpeEngine.mjs';
+import { readAthleteScopedItem, writeAthleteScopedItem } from './athleteProfileCore.mjs';
 
 export const HISTORY_STORAGE_KEY = 'atp_history_records_v1';
 export const MAX_HISTORY_RECORDS = 2000;
@@ -12,12 +13,13 @@ export const MAX_HISTORY_RECORDS = 2000;
 /**
  * Safely retrieves all history records from storage.
  * @param {Storage|Object} storage
+ * @param {string} [athleteId]
  * @returns {Array<Object>}
  */
-export function getAllHistoryRecords(storage) {
+export function getAllHistoryRecords(storage, athleteId) {
   if (!storage || typeof storage.getItem !== 'function') return [];
   try {
-    const raw = storage.getItem(HISTORY_STORAGE_KEY);
+    const raw = readAthleteScopedItem(storage, HISTORY_STORAGE_KEY, athleteId);
     if (!raw) return [];
     const parsed = JSON.parse(raw);
     return Array.isArray(parsed) ? parsed : [];
@@ -39,12 +41,13 @@ export function normalizeExerciseName(name) {
  * Retrieves history records for a specific exercise, sorted chronologically (oldest to newest).
  * @param {Storage|Object} storage
  * @param {string} exerciseName
+ * @param {string} [athleteId]
  * @returns {Array<Object>}
  */
-export function getExerciseHistory(storage, exerciseName) {
+export function getExerciseHistory(storage, exerciseName, athleteId) {
   const norm = normalizeExerciseName(exerciseName);
   if (!norm) return [];
-  const all = getAllHistoryRecords(storage);
+  const all = getAllHistoryRecords(storage, athleteId);
   return all
     .filter((r) => normalizeExerciseName(r.exercise_name) === norm)
     .sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
@@ -54,10 +57,11 @@ export function getExerciseHistory(storage, exerciseName) {
  * Finds the highest historical estimated 1RM for an exercise.
  * @param {Storage|Object} storage
  * @param {string} exerciseName
+ * @param {string} [athleteId]
  * @returns {number}
  */
-export function getBestHistoricalE1rm(storage, exerciseName) {
-  const history = getExerciseHistory(storage, exerciseName);
+export function getBestHistoricalE1rm(storage, exerciseName, athleteId) {
+  const history = getExerciseHistory(storage, exerciseName, athleteId);
   if (!history.length) return 0;
   return history.reduce((max, item) => Math.max(max, item.e1rm || 0), 0);
 }
@@ -78,9 +82,10 @@ export function getBestHistoricalE1rm(storage, exerciseName) {
  * @param {number} [input.e1rm]
  * @param {string} [input.notes]
  * @param {string} [input.timestamp]
+ * @param {string} [athleteId]
  * @returns {Object} result details with PR status
  */
-export function recordSetHistory(storage, input) {
+export function recordSetHistory(storage, input, athleteId) {
   if (!storage || typeof storage.setItem !== 'function') {
     throw new Error('ERR_STORAGE_UNAVAILABLE: Storage interface missing setItem');
   }
@@ -116,7 +121,7 @@ export function recordSetHistory(storage, input) {
     }
   }
 
-  const previousBestE1rm = getBestHistoricalE1rm(storage, exName);
+  const previousBestE1rm = getBestHistoricalE1rm(storage, exName, athleteId);
   const isNewPr = computedE1rm > previousBestE1rm;
   const newBestE1rm = isNewPr ? computedE1rm : previousBestE1rm;
   const gainKg = isNewPr && previousBestE1rm > 0 ? Math.round((computedE1rm - previousBestE1rm) * 10) / 10 : 0;
@@ -140,11 +145,11 @@ export function recordSetHistory(storage, input) {
     is_pr: isNewPr,
   };
 
-  const all = getAllHistoryRecords(storage);
+  const all = getAllHistoryRecords(storage, athleteId);
   const updated = [record, ...all].slice(0, MAX_HISTORY_RECORDS);
 
   try {
-    storage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(updated));
+    writeAthleteScopedItem(storage, HISTORY_STORAGE_KEY, JSON.stringify(updated), athleteId);
   } catch (err) {
     console.warn('[ATP_PR_HISTORY] Quota exceeded or storage failure:', err);
   }
@@ -165,10 +170,11 @@ export function recordSetHistory(storage, input) {
  *
  * @param {Storage|Object} storage
  * @param {string} exerciseName
+ * @param {string} [athleteId]
  * @returns {Array<Object>} points with running best and progression delta
  */
-export function getE1rmProgressionCurve(storage, exerciseName) {
-  const history = getExerciseHistory(storage, exerciseName);
+export function getE1rmProgressionCurve(storage, exerciseName, athleteId) {
+  const history = getExerciseHistory(storage, exerciseName, athleteId);
   if (!history.length) return [];
 
   let runningBest = 0;
@@ -200,10 +206,11 @@ export function getE1rmProgressionCurve(storage, exerciseName) {
  *
  * @param {Storage|Object} storage
  * @param {string} exerciseName
+ * @param {string} [athleteId]
  * @returns {Object}
  */
-export function calculateSupercompensationTrend(storage, exerciseName) {
-  const history = getExerciseHistory(storage, exerciseName);
+export function calculateSupercompensationTrend(storage, exerciseName, athleteId) {
+  const history = getExerciseHistory(storage, exerciseName, athleteId);
   if (!history.length) {
     return {
       totalSets: 0,

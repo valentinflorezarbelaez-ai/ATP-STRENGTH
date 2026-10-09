@@ -1,3 +1,4 @@
+import { readAthleteScopedItem, writeAthleteScopedItem } from './athleteProfileCore.mjs';
 import { evaluateSessionInol } from './prilepinEngine.mjs';
 /**
  * Workout domain strategies — pure functions and lookup tables.
@@ -792,7 +793,7 @@ export function getSavedSession(): SavedSessionProgress | null {
   }
 }
 
-export function getInitialMaxes(): { [key: string]: ExerciseMaxData } {
+export function getInitialMaxes(athleteId?: string): { [key: string]: ExerciseMaxData } {
   const base = getBaselineMaxes();
   if (typeof window === "undefined") return base;
   try {
