@@ -10,11 +10,11 @@ test.describe('SPEC-E2E-01: ATP-Strength App Shell & PWA Gateway', () => {
     expect(manifest.start_url).toBe('/');
   });
 
-  test('Service Worker file is served with neuro-strength-v6 cache definition', async ({ request }) => {
+  test('Service Worker file is served with neuro-strength-v7 cache definition', async ({ request }) => {
     const response = await request.get('/sw.js');
     expect(response.status()).toBe(200);
     const content = await response.text();
-    expect(content).toContain('neuro-strength-v6');
+    expect(content).toContain('neuro-strength-v7');
     expect(content).toContain('fetchWithTimeout');
   });
 
