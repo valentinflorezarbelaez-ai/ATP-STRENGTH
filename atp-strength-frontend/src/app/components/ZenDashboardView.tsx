@@ -18,7 +18,7 @@ import { exportBackupJson, exportHistoryCsv, importBackupJsonFile } from "@/lib/
 import { playTactileClick } from "@/lib/zenAudio";
 import {
   Play,
-  Flame, Zap, RotateCcw, CheckCircle2,
+  Flame, Crown, Zap, RotateCcw, CheckCircle2,
   ShieldCheck, Sparkles,
   TrendingUp, X, Save, Dumbbell, History, Calculator,
   AlertTriangle, Trophy, Sun, Moon, Laptop,
@@ -132,6 +132,7 @@ export function ZenDashboardView({
             onReady={skipRest}
             onTogglePause={togglePlayPause}
             onAddThirty={() => handleStartTimer(remainingSeconds + 30, timerTitle)}
+            onSetSeconds={(sec) => handleStartTimer(sec, timerTitle)}
           />
         </div>
       )}
@@ -302,6 +303,70 @@ export function ZenDashboardView({
               >
                 Ver la guía
               </button>
+            </div>
+          </div>
+
+          {/* Tarjeta de Rutina de Fuerza Máxima & Fisiología ATP */}
+          <div className="p-5 rounded-2xl bg-zinc-950 border border-zinc-800 space-y-3.5 shadow-xl">
+            <div className="flex items-center justify-between border-b border-zinc-800/80 pb-2.5">
+              <div className="flex items-center gap-2">
+                <Crown className="w-4 h-4 text-amber-400" />
+                <span className="text-sm font-bold text-zinc-100">
+                  Rutina de Fuerza Máxima
+                </span>
+              </div>
+              <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                POWERLIFTING ÉLITE
+              </span>
+            </div>
+
+            <p className="text-xs text-zinc-400 leading-relaxed">
+              Metodología libra por libra (Colton Engelbrecht / John Haack / Ed Coan).
+              Enfoque exclusivo en Fuerza Absoluta sin volumen basura.
+            </p>
+
+            <div className="space-y-2 text-xs">
+              <div className="p-2.5 rounded-xl bg-zinc-900/60 border border-zinc-800 flex items-center justify-between">
+                <div>
+                  <span className="font-mono text-amber-400 font-bold block">Lunes: Press Banca Pesado</span>
+                  <span className="text-zinc-400 text-[11px]">4 series x 2-3 reps @ 90% 1RM</span>
+                </div>
+                <span className="text-[10px] font-mono text-zinc-300">Descanso 4m</span>
+              </div>
+
+              <div className="p-2.5 rounded-xl bg-zinc-900/60 border border-zinc-800 flex items-center justify-between">
+                <div>
+                  <span className="font-mono text-amber-400 font-bold block">Miércoles: Sentadilla Pesada</span>
+                  <span className="text-zinc-400 text-[11px]">4 series x 3 reps @ 88% 1RM</span>
+                </div>
+                <span className="text-[10px] font-mono text-zinc-300">Descanso 4m</span>
+              </div>
+
+              <div className="p-2.5 rounded-xl bg-zinc-900/60 border border-zinc-800 flex items-center justify-between">
+                <div>
+                  <span className="font-mono text-amber-400 font-bold block">Viernes: Peso Muerto Pesado</span>
+                  <span className="text-zinc-400 text-[11px]">4 series x 2 reps @ 92% 1RM</span>
+                </div>
+                <span className="text-[10px] font-mono text-zinc-300">Descanso 5m</span>
+              </div>
+
+              <div className="p-2.5 rounded-xl bg-zinc-900/60 border border-zinc-800 flex items-center justify-between">
+                <div>
+                  <span className="font-mono text-amber-400 font-bold block">Domingo: Press Militar & Strongman</span>
+                  <span className="text-zinc-400 text-[11px]">Militar + Paseo del Granjero</span>
+                </div>
+                <span className="text-[10px] font-mono text-zinc-300">Descanso 3-4m</span>
+              </div>
+            </div>
+
+            <div className="p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/25 text-[11px] text-zinc-300 space-y-1">
+              <div className="flex items-center gap-1.5 text-amber-400 font-bold font-mono">
+                <Timer className="w-3.5 h-3.5" />
+                <span>3 a 5 Minutos de Descanso (ATP-PCr)</span>
+              </div>
+              <p className="leading-tight text-zinc-400">
+                95-98% de ATP restaurado a los 3 min. 100% a los 5 min. Clave celular para evitar fallos del SNC.
+              </p>
             </div>
           </div>
         </section>

@@ -40,6 +40,7 @@ import {
 import { CoachChatModal } from "@/app/components/CoachChatModal";
 import { UniversalGuidedFullscreenModal } from "@/app/components/UniversalGuidedFullscreenModal";
 import { SessionExerciseGate } from "@/app/components/SessionExerciseGate";
+import { recordSetToHistory } from "@/lib/exerciseHistoryStorage";
 
 export interface UniversalProtocolCockpitProps {
   onStartTimer: (seconds: number, title: string) => void;
@@ -624,7 +625,7 @@ export function UniversalProtocolCockpit({
   };
 
   if (!sessionStarted) {
-    return <SessionExerciseGate onConfirm={confirmSession} />;
+    return <SessionExerciseGate onConfirm={confirmSession} onOpenVideo={onOpenVideo} />;
   }
 
   return (
@@ -644,6 +645,20 @@ export function UniversalProtocolCockpit({
           </div>
 
           <div className="flex items-center gap-2 self-start sm:self-auto flex-wrap">
+            {/* Botón Retomar / Cambiar Ejercicio */}
+            <button
+              type="button"
+              onClick={() => {
+                playTactileClick();
+                setSessionStarted(false);
+              }}
+              className="inline-flex items-center justify-center gap-1.5 min-h-11 px-3 py-2 rounded-xl text-xs font-semibold border border-zinc-800 bg-zinc-900 text-zinc-300 hover:text-amber-300 hover:border-amber-500/40 transition-all cursor-pointer"
+              title="Cambiar de ejercicio o ver historial de continuidad"
+            >
+              <RotateCcw className="w-3.5 h-3.5 text-amber-400" />
+              <span>Cambiar / Retomar Ejercicio</span>
+            </button>
+
             {/* Botón Principal: INICIAR EJERCICIO / ACOMPAÑAMIENTO GUIADO */}
             <button
               type="button"
