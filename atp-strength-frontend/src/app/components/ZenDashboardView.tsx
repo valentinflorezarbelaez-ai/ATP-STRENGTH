@@ -1002,9 +1002,9 @@ export function ZenDashboardView({
       <footer className="w-full max-w-6xl border-t border-zinc-900 pt-5 mt-8 flex flex-col md:flex-row items-center justify-between text-xs text-zinc-400 font-mono gap-3">
         <div className="flex items-center gap-2">
           <ShieldCheck className="w-4 h-4 text-emerald-400" />
-          <span>Arquitectura limpia: Frontend desacoplado HTTP + FastAPI Core</span>
+          <span className="text-zinc-300 font-medium">NEURO//STRENGTH · Templo de Fuerza Pura & Recuperación Biológica</span>
         </div>
-        <div>NEURO//STRENGTH // High Performance Framework</div>
+        <div className="text-zinc-500 text-[11px]">Tu progreso y marcas quedan 100% protegidos en este dispositivo.</div>
       </footer>
 
       {/* Barra móvil */}
