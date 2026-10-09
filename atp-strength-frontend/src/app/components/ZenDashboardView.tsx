@@ -894,7 +894,7 @@ export function ZenDashboardView({
                 ¡Sesión Completada!
               </h3>
               <p className="text-xs font-mono text-amber-400 font-bold uppercase tracking-widest">
-                NEURO//SUPERCOMPENSACIÓN ACTIVADA • {activeDay.name}
+                ⚔️ SELLO DE LA FORJA · BATALLA CUMPLIDA • {activeDay.name}
               </p>
             </div>
 
@@ -968,8 +968,17 @@ export function ZenDashboardView({
             </div>
 
             {/* Mensaje de Supercompensación Fisiológica */}
-            <div className="p-3.5 rounded-xl bg-amber-500/5 border border-amber-500/20 text-xs text-zinc-400 font-mono leading-relaxed">
-              ⚡ <strong>Supercompensación SNC:</strong> El estímulo de alta tensión mecánica ha sido completado. Tu sistema nervioso central entra en fase de resíntesis y adaptación neuromuscular. Descansá y nutrí tus reservas.
+            <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-br from-amber-500/10 via-zinc-900/90 to-zinc-950 border border-amber-500/40 space-y-2 text-left shadow-lg">
+              <div className="flex items-center gap-2 text-amber-300 font-bold text-xs uppercase tracking-wider">
+                <Sparkles className="w-4 h-4 text-amber-400 shrink-0" />
+                <span>Directiva Sagrada de Regeneración & Transmutación</span>
+              </div>
+              <p className="text-xs text-zinc-300 leading-relaxed font-sans">
+                El hierro ha recibido tu tributo y la tensión mecánica fue máxima. La batalla en el Templo ha concluido con honor. Ahora comienza la verdadera alquimia: <strong>8 a 9 horas de sueño delta profundo</strong>, hidratación mineral y nutrición densa. En la quietud sagrada es donde la fibra rota transmuta en poder y armadura indestructible.
+              </p>
+              <div className="flex items-center gap-2 pt-1 text-[11px] font-mono text-amber-400/90 font-medium">
+                <span>⚔️ Bloqueo biológico: 48h a 72h de supercompensación activado para este grupo muscular</span>
+              </div>
             </div>
 
             {/* Botones de Acción */}
@@ -980,7 +989,7 @@ export function ZenDashboardView({
                 className="w-full py-4 rounded-2xl bg-gradient-to-b from-amber-400 via-amber-500 to-amber-600 hover:from-amber-300 hover:to-amber-500 text-black font-mono font-black text-xs sm:text-sm uppercase tracking-wider transition-all shadow-xl shadow-amber-500/20 active:scale-[0.98] cursor-pointer flex items-center justify-center gap-2"
               >
                 <CheckCircle2 className="w-4 h-4 text-black stroke-[3]" />
-                <span>CERRAR Y GUARDAR TRIUNFO</span>
+                <span>⚔️ SELLAR TRIUNFO Y ENTRAR EN REPOSO SAGRADO</span>
               </button>
 
               <button

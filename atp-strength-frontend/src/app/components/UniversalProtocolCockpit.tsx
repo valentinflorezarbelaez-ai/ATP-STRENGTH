@@ -19,7 +19,7 @@ import {
   ShieldAlert,
   MessageCircle,
 } from "lucide-react";
-import { playTactileClick, playChime } from "@/lib/zenAudio";
+import { playTactileClick, playChime, hapticPulse } from "@/lib/zenAudio";
 import { getExerciseMedia } from "@/lib/exerciseMediaCatalog";
 import { BarbellPlateVisualizer } from "@/app/components/BarbellPlateVisualizer";
 import { computeAutoregulatedAdjustment } from "@/lib/rpeEngine.mjs";
@@ -225,9 +225,27 @@ export function UniversalProtocolCockpit({
     setAutoregAlert(null);
   };
 
+  const handleMicroAdjust = (setId: string, currentWeight: number, delta: number) => {
+    hapticPulse([35]);
+    playTactileClick();
+    const next = Math.max(0, Math.round((currentWeight + delta) * 10) / 10);
+    setSetWeightOverrides((prev) => ({ ...prev, [setId]: next }));
+  };
+
+  const handleResetSetWeight = (setId: string) => {
+    hapticPulse([25]);
+    playTactileClick();
+    setSetWeightOverrides((prev) => {
+      const copy = { ...prev };
+      delete copy[setId];
+      return copy;
+    });
+  };
+
   const toggleSetComplete = (id: string, phaseName: string, restSec: number) => {
     playTactileClick();
     const next = !completedSets[id];
+    hapticPulse(next ? [50, 30, 50] : [25]);
     setCompletedSets((prev) => ({ ...prev, [id]: next }));
     if (next) {
       onStartTimer(restSec, `${activeName} · ${phaseName}`);
@@ -262,7 +280,7 @@ export function UniversalProtocolCockpit({
           {
             id: "p1_s1",
             label: "Serie 1",
-            weight: roundWeight(effectiveMax * 0.22),
+            weight: setWeightOverrides["p1_s1"] ?? roundWeight(effectiveMax * 0.22),
             reps: "10–12",
             targetRepsNum: 10,
             tempo: "2-0-2-0",
@@ -272,7 +290,7 @@ export function UniversalProtocolCockpit({
           {
             id: "p1_s2",
             label: "Serie 2",
-            weight: roundWeight(effectiveMax * 0.3),
+            weight: setWeightOverrides["p1_s2"] ?? roundWeight(effectiveMax * 0.3),
             reps: "8–10",
             targetRepsNum: 8,
             tempo: "2-0-2-0",
@@ -292,7 +310,7 @@ export function UniversalProtocolCockpit({
           {
             id: "p2_s1",
             label: "Serie 1",
-            weight: roundWeight(effectiveMax * 0.42),
+            weight: setWeightOverrides["p2_s1"] ?? roundWeight(effectiveMax * 0.42),
             reps: "6–8",
             targetRepsNum: 6,
             tempo: "2-1-1-0",
@@ -302,7 +320,7 @@ export function UniversalProtocolCockpit({
           {
             id: "p2_s2",
             label: "Serie 2",
-            weight: roundWeight(effectiveMax * 0.5),
+            weight: setWeightOverrides["p2_s2"] ?? roundWeight(effectiveMax * 0.5),
             reps: "5–6",
             targetRepsNum: 5,
             tempo: "2-1-X-0",
@@ -312,7 +330,7 @@ export function UniversalProtocolCockpit({
           {
             id: "p2_s3",
             label: "Serie 3",
-            weight: roundWeight(effectiveMax * 0.58),
+            weight: setWeightOverrides["p2_s3"] ?? roundWeight(effectiveMax * 0.58),
             reps: "4–5",
             targetRepsNum: 4,
             tempo: "2-1-X-0",
@@ -332,7 +350,7 @@ export function UniversalProtocolCockpit({
           {
             id: "p3_s1",
             label: "Serie 1",
-            weight: roundWeight(effectiveMax * 0.68),
+            weight: setWeightOverrides["p3_s1"] ?? roundWeight(effectiveMax * 0.68),
             reps: "3–4",
             targetRepsNum: 3,
             tempo: "2-1-X-1",
@@ -1247,6 +1265,60 @@ export function UniversalProtocolCockpit({
                             <Clock className="w-3.5 h-3.5" />
                             <span>{set.rest}s</span>
                           </button>
+                        </div>
+
+                        {/* Barra de Micro-Ajuste "Manos con Magnesio" (Ajuste Táctil sin Teclado) */}
+                        <div
+                          onClick={(e) => e.stopPropagation()}
+                          className="mt-2.5 pt-2 border-t border-zinc-800/60 flex items-center justify-between gap-1.5 flex-wrap"
+                        >
+                          <span className="text-[10px] font-mono font-medium text-zinc-500 uppercase tracking-wider">
+                            Ajuste Rápido:
+                          </span>
+                          <div className="flex items-center gap-1.5 flex-wrap">
+                            <button
+                              type="button"
+                              onClick={() => handleMicroAdjust(set.id, set.weight, -5)}
+                              className="px-2 py-1 rounded-lg bg-zinc-800 hover:bg-zinc-700 border border-zinc-700/60 text-[11px] font-mono text-zinc-300 font-semibold active:scale-95 transition-all cursor-pointer"
+                              title="Restar 5 kg"
+                            >
+                              -5kg
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => handleMicroAdjust(set.id, set.weight, -2.5)}
+                              className="px-2 py-1 rounded-lg bg-zinc-800 hover:bg-zinc-700 border border-zinc-700/60 text-[11px] font-mono text-zinc-300 font-semibold active:scale-95 transition-all cursor-pointer"
+                              title="Restar 2.5 kg"
+                            >
+                              -2.5kg
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => handleMicroAdjust(set.id, set.weight, 2.5)}
+                              className="px-2.5 py-1 rounded-lg bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/35 text-[11px] font-mono text-amber-300 font-bold active:scale-95 transition-all cursor-pointer"
+                              title="Sumar 2.5 kg"
+                            >
+                              +2.5kg
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => handleMicroAdjust(set.id, set.weight, 5)}
+                              className="px-2.5 py-1 rounded-lg bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/35 text-[11px] font-mono text-amber-300 font-bold active:scale-95 transition-all cursor-pointer"
+                              title="Sumar 5 kg"
+                            >
+                              +5kg
+                            </button>
+                            {setWeightOverrides[set.id] !== undefined && (
+                              <button
+                                type="button"
+                                onClick={() => handleResetSetWeight(set.id)}
+                                className="px-2 py-0.5 rounded text-[10px] font-mono text-zinc-500 hover:text-zinc-300 underline cursor-pointer"
+                                title="Volver al peso calculado"
+                              >
+                                Reset
+                              </button>
+                            )}
+                          </div>
                         </div>
 
                         {/* Selector de RPE para Autoregulación Serie a Serie en Fase 4 */}
