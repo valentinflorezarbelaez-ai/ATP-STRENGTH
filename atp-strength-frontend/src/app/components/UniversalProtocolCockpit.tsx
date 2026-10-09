@@ -40,7 +40,7 @@ import {
 import { CoachChatModal } from "@/app/components/CoachChatModal";
 import { UniversalGuidedFullscreenModal } from "@/app/components/UniversalGuidedFullscreenModal";
 import { SessionExerciseGate } from "@/app/components/SessionExerciseGate";
-import { recordSetToHistory } from "@/lib/exerciseHistoryStorage";
+import { recordSetToHistory, registerOrUpdateExerciseInHistory } from "@/lib/exerciseHistoryStorage";
 
 export interface UniversalProtocolCockpitProps {
   onStartTimer: (seconds: number, title: string) => void;
@@ -140,6 +140,14 @@ export function UniversalProtocolCockpit({
     setSetWeightOverrides({});
     setAutoregAlert(null);
     setSessionStarted(true);
+    try {
+      registerOrUpdateExerciseInHistory({
+        exerciseName: storedName,
+        oneRepMax: pr,
+      });
+    } catch {
+      /* offline storage */
+    }
   };
 
   // Interactive Tempo Metronome Loop
